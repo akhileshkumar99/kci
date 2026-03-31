@@ -66,8 +66,9 @@ export default function Loader() {
                   return (
                     <motion.circle
                       key={i}
-                      cx={cx} cy={cy} r={hovered ? 7 : 5}
+                      cx={cx} cy={cy}
                       fill={colors[i]}
+                      initial={{ r: 5 }}
                       animate={{ r: hovered ? [7, 10, 7] : [5, 7, 5] }}
                       transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.1 }}
                     />
