@@ -22,6 +22,7 @@ app.use('/api/branches', require('./routes/branches'));
 app.use('/api/contact', require('./routes/contact'));
 app.use('/api/admin', require('./routes/admin'));
 
+app.use('/api/test', require('./routes/test'));
 app.get('/', (req, res) => res.json({ message: 'KCI API Running' }));
 
 mongoose.connect(process.env.MONGO_URI)
