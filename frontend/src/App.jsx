@@ -19,6 +19,12 @@ import Gallery from './pages/Gallery';
 import Branches from './pages/Branches';
 import Staff from './pages/Staff';
 import Contact from './pages/Contact';
+import StudentDashboard from './pages/StudentDashboard';
+import QuizPage from './pages/QuizPage';
+import StudyMaterial from './pages/StudyMaterial';
+import IDCard from './pages/IDCard';
+import Franchise from './pages/Franchise';
+import Notifications from './pages/Notifications';
 
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -30,6 +36,9 @@ import AdminGallery from './pages/admin/AdminGallery';
 import AdminAdmissions from './pages/admin/AdminAdmissions';
 import AdminStaff from './pages/admin/AdminStaff';
 import AdminContacts from './pages/admin/AdminContacts';
+import AdminQuiz from './pages/admin/AdminQuiz';
+import AdminStudyMaterial from './pages/admin/AdminStudyMaterial';
+import AdminNotifications from './pages/admin/AdminNotifications';
 
 const WHATSAPP_NUMBER = '919936384736';
 const AUTO_MESSAGES = [
@@ -194,6 +203,12 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+const StudentRoute = ({ children }) => {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  return children;
+};
+
 const PublicLayout = ({ children }) => (
   <>
     <Navbar />
@@ -223,6 +238,13 @@ export default function App() {
           <Route path="/branches" element={<PublicLayout><Branches /></PublicLayout>} />
           <Route path="/staff" element={<PublicLayout><Staff /></PublicLayout>} />
           <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
+          <Route path="/dashboard" element={<StudentRoute><PublicLayout><StudentDashboard /></PublicLayout></StudentRoute>} />
+          <Route path="/quiz" element={<PublicLayout><QuizPage /></PublicLayout>} />
+          <Route path="/quiz/:id" element={<PublicLayout><QuizPage /></PublicLayout>} />
+          <Route path="/study-material" element={<PublicLayout><StudyMaterial /></PublicLayout>} />
+          <Route path="/id-card" element={<PublicLayout><IDCard /></PublicLayout>} />
+          <Route path="/franchise" element={<PublicLayout><Franchise /></PublicLayout>} />
+          <Route path="/notifications" element={<PublicLayout><Notifications /></PublicLayout>} />
           <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
             <Route index element={<AdminDashboard />} />
             <Route path="courses" element={<AdminCourses />} />
@@ -232,6 +254,9 @@ export default function App() {
             <Route path="certificates" element={<AdminCertificates />} />
             <Route path="gallery" element={<AdminGallery />} />
             <Route path="staff" element={<AdminStaff />} />
+            <Route path="quiz" element={<AdminQuiz />} />
+            <Route path="study-material" element={<AdminStudyMaterial />} />
+            <Route path="notifications" element={<AdminNotifications />} />
             <Route path="contacts" element={<AdminContacts />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

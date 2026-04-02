@@ -5,7 +5,7 @@ import {
   LayoutDashboard, BookOpen, Users, FileText, Award, Image,
   ClipboardList, UserCheck, MessageSquare, LogOut, Menu, X,
   ChevronRight, Bell, Sun, Moon, Search, Settings, ChevronDown,
-  TrendingUp, AlertCircle, CheckCircle, Info
+  TrendingUp, AlertCircle, CheckCircle, Info, Trophy, Library, Building2
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -18,6 +18,10 @@ const navItems = [
   { path: '/admin/certificates', label: 'Certificates', icon: FileText, color: 'text-teal-400' },
   { path: '/admin/gallery', label: 'Gallery', icon: Image, color: 'text-pink-400' },
   { path: '/admin/staff', label: 'Staff', icon: UserCheck, color: 'text-cyan-400' },
+  { path: '/admin/quiz', label: 'Quiz', icon: Trophy, color: 'text-orange-400' },
+  { path: '/admin/study-material', label: 'Study Material', icon: FileText, color: 'text-violet-400' },
+  { path: '/admin/notifications', label: 'Notifications', icon: Bell, color: 'text-blue-400' },
+  { path: '/admin/franchise', label: 'Franchise', icon: Building2, color: 'text-green-400' },
   { path: '/admin/contacts', label: 'Messages', icon: MessageSquare, color: 'text-rose-400' },
 ];
 

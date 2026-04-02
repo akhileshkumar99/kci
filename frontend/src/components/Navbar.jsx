@@ -13,6 +13,9 @@ const navLinks = [
   { label: 'Gallery', path: '/gallery' },
   { label: 'Branches', path: '/branches' },
   { label: 'Staff', path: '/staff' },
+  { label: 'Quiz', path: '/quiz' },
+  { label: 'Library', path: '/study-material' },
+  { label: 'Franchise', path: '/franchise' },
   { label: 'Contact', path: '/contact' },
 ];
 

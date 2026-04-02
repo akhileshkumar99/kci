@@ -1,24 +1,37 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const userSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true },
-    password: { type: String, required: true, minlength: 6 },
-    role: { type: String, enum: ['student', 'admin'], default: 'student' },
-    rollNumber: { type: String, unique: true, sparse: true },
-    phone: { type: String },
-    address: { type: String },
-    course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
-    courseName: { type: String },
-    batch: { type: String },
-    admissionDate: { type: Date },
-    photo: { type: String },
-    isActive: { type: Boolean, default: true },
-  },
-  { timestamps: true }
-);
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  email: { type: String, required: true, unique: true, lowercase: true },
+  password: { type: String, required: true, minlength: 6 },
+  role: { type: String, enum: ['student', 'admin', 'franchise', 'teacher'], default: 'student' },
+  phone: { type: String },
+  address: { type: String },
+  photo: { type: String },
+  isActive: { type: Boolean, default: true },
+  isApproved: { type: Boolean, default: false },
+  // Student fields
+  rollNumber: { type: String, unique: true, sparse: true },
+  formNo: { type: String },
+  fatherName: { type: String },
+  dob: { type: Date },
+  course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
+  courseName: { type: String },
+  batch: { type: String },
+  admissionDate: { type: Date },
+  attendance: { type: Number, default: 0 },
+  totalClasses: { type: Number, default: 0 },
+  videoProgress: [{ videoId: String, watchedSeconds: Number, totalSeconds: Number }],
+  // Franchise fields
+  franchiseCenter: { type: String },
+  franchiseCity: { type: String },
+  franchiseCode: { type: String },
+  // OTP
+  otp: { type: String },
+  otpExpiry: { type: Date },
+  isVerified: { type: Boolean, default: false },
+}, { timestamps: true });
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
@@ -26,8 +39,8 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+userSchema.methods.matchPassword = async function (p) {
+  return await bcrypt.compare(p, this.password);
 };
 
 module.exports = mongoose.model('User', userSchema);

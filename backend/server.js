@@ -21,6 +21,10 @@ app.use('/api/staff', require('./routes/staff'));
 app.use('/api/branches', require('./routes/branches'));
 app.use('/api/contact', require('./routes/contact'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/quiz', require('./routes/quiz'));
+app.use('/api/study-material', require('./routes/studyMaterial'));
+app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/franchise', require('./routes/franchise'));
 
 app.use('/api/test', require('./routes/test'));
 app.get('/', (req, res) => res.json({ message: 'KCI API Running' }));
