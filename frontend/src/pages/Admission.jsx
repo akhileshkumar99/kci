@@ -22,7 +22,7 @@ export default function Admission() {
 
   useEffect(() => {
     api.get('/courses').then(({ data }) => setCourses(data.courses)).catch(() => {});
-    api.get('/branches').then(({ data }) => setBranches(data.branches)).catch(() => {});
+    api.get('/franchise/list').then(({ data }) => setBranches(data.franchises)).catch(() => {});
   }, []);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -232,7 +232,7 @@ export default function Admission() {
                             <option value="">Select nearest branch / franchise</option>
                             {branches.map((b) => (
                               <option key={b._id} value={b._id}>
-                                {b.name}{b.city ? ` — ${b.city}` : ''}
+                                {b.franchiseCenter || b.name}{b.franchiseCity ? ` — ${b.franchiseCity}` : ''}
                               </option>
                             ))}
                           </select>

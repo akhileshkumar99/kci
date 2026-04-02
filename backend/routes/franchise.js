@@ -69,6 +69,18 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Public: list approved franchises for admission form dropdown
+router.get('/list', async (req, res) => {
+  try {
+    const franchises = await User.find({ role: 'franchise', isApproved: true })
+      .select('franchiseCenter franchiseCity franchiseCode name')
+      .sort('franchiseCenter');
+    res.json({ success: true, franchises });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Get all franchises (admin)
 router.get('/', protect, admin, async (req, res) => {
   try {
