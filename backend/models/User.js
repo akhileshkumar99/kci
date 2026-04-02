@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema({
   franchiseCenter: { type: String },
   franchiseCity: { type: String },
   franchiseCode: { type: String },
+  franchiseId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // for students: which franchise registered them
   // OTP
   otp: { type: String },
   otpExpiry: { type: Date },

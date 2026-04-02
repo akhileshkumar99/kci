@@ -15,7 +15,7 @@ const benefits = [
 
 export default function FranchisePage() {
   const [tab, setTab] = useState('info');
-  const [form, setForm] = useState({ name: '', email: '', password: '', phone: '', franchiseCenter: '', franchiseCity: '', address: '' });
+  const [form, setForm] = useState({ name: '', email: '', phone: '', franchiseCenter: '', franchiseCity: '', address: '' });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -23,7 +23,7 @@ export default function FranchisePage() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.password || !form.phone || !form.franchiseCenter || !form.franchiseCity)
+    if (!form.name || !form.email || !form.phone || !form.franchiseCenter || !form.franchiseCity)
       return toast.error('Please fill all required fields');
     setLoading(true);
     try {
@@ -131,7 +131,7 @@ export default function FranchisePage() {
                   </div>
                   <h2 className="text-2xl font-black text-gray-900 mb-3">Application Submitted! 🎉</h2>
                   <p className="text-gray-500 mb-2">Thank you for your interest in KCI Franchise.</p>
-                  <p className="text-gray-400 text-sm mb-6">Our team will contact you within 24-48 hours.</p>
+                  <p className="text-gray-400 text-sm mb-6">Our team will review and approve your application. You will receive login credentials on your email once approved.</p>
                   <div className="bg-green-50 rounded-xl p-4 text-sm text-green-700">
                     📞 For urgent queries: <strong>9936384736</strong>
                   </div>
@@ -147,7 +147,6 @@ export default function FranchisePage() {
                       {[{ name: 'name', label: 'Full Name *', icon: User, placeholder: 'Your full name' },
                         { name: 'email', label: 'Email *', icon: Mail, placeholder: 'your@email.com', type: 'email' },
                         { name: 'phone', label: 'Phone *', icon: Phone, placeholder: '10-digit mobile' },
-                        { name: 'password', label: 'Password *', icon: User, placeholder: 'Create password', type: 'password' },
                         { name: 'franchiseCenter', label: 'Center Name *', icon: Building2, placeholder: 'e.g. KCI Varanasi' },
                         { name: 'franchiseCity', label: 'City *', icon: MapPin, placeholder: 'Your city' },
                       ].map(({ name, label, icon: Icon, placeholder, type = 'text' }) => (
