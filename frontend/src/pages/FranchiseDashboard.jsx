@@ -1,27 +1,50 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { Building2, Users, TrendingUp, Award, Bell, LogOut, BookOpen, Phone, MapPin, BarChart2, CheckCircle, Clock } from 'lucide-react';
+import { Building2, Users, TrendingUp, Award, Bell, LogOut, BookOpen, Phone, MapPin, CheckCircle, Clock, XCircle, ClipboardList, RefreshCw } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
 export default function FranchiseDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [stats, setStats] = useState({ students: 0, courses: 0, admissions: 0 });
+  const [stats, setStats] = useState({});
   const [notifications, setNotifications] = useState([]);
+  const [admissions, setAdmissions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [admFilter, setAdmFilter] = useState('Pending');
+  const [updating, setUpdating] = useState(null);
 
   useEffect(() => {
     if (!user || user.role !== 'franchise') { navigate('/login'); return; }
+    fetchAll();
+  }, [user]);
+
+  const fetchAll = () => {
+    setLoading(true);
     Promise.all([
       api.get('/franchise/dashboard-stats').catch(() => ({ data: { stats: {} } })),
       api.get('/notifications?role=franchise').catch(() => ({ data: { notifications: [] } })),
-    ]).then(([statsRes, notifRes]) => {
+      api.get('/admissions/my').catch(() => ({ data: { admissions: [] } })),
+    ]).then(([statsRes, notifRes, admRes]) => {
       setStats(statsRes.data.stats || {});
       setNotifications(notifRes.data.notifications || []);
+      setAdmissions(admRes.data.admissions || []);
     }).finally(() => setLoading(false));
-  }, [user]);
+  };
+
+  const handleStatus = async (id, status) => {
+    setUpdating(id);
+    try {
+      const { data } = await api.put(`/admissions/${id}`, { status });
+      setAdmissions(p => p.map(a => a._id === id ? { ...a, status, enrollmentId: data.admission?.enrollmentId } : a));
+      toast.success(status === 'Approved' ? '✅ Approved! Student email sent.' : '❌ Admission rejected.');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed');
+    }
+    setUpdating(null);
+  };
 
   const handleLogout = () => { logout(); navigate('/'); };
 
@@ -32,8 +55,10 @@ export default function FranchiseDashboard() {
     { icon: Users, label: 'Total Students', value: stats.students || 0, color: 'from-blue-500 to-blue-600' },
     { icon: BookOpen, label: 'Active Courses', value: stats.courses || 0, color: 'from-emerald-500 to-emerald-600' },
     { icon: Award, label: 'Certificates', value: stats.certificates || 0, color: 'from-violet-500 to-violet-600' },
-    { icon: TrendingUp, label: 'Results', value: stats.results || 0, color: 'from-orange-500 to-orange-600' },
+    { icon: ClipboardList, label: 'Admissions', value: admissions.length, color: 'from-orange-500 to-orange-600' },
   ];
+
+  const filteredAdm = admissions.filter(a => admFilter === 'All' ? true : a.status === admFilter);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -81,7 +106,7 @@ export default function FranchiseDashboard() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {cards.map(({ icon: Icon, label, value, color, bg }, i) => (
+          {cards.map(({ icon: Icon, label, value, color }, i) => (
             <motion.div key={label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
               className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center mb-3`}>
@@ -94,8 +119,88 @@ export default function FranchiseDashboard() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Quick Actions */}
           <div className="lg:col-span-2 space-y-6">
+
+            {/* ── Admissions Section ── */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <h2 className="font-black text-gray-900 flex items-center gap-2">
+                  <ClipboardList className="w-5 h-5 text-green-600" /> Student Admissions
+                </h2>
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1">
+                    {['Pending', 'Approved', 'Rejected', 'All'].map(f => (
+                      <button key={f} onClick={() => setAdmFilter(f)}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${admFilter === f
+                          ? f === 'Pending' ? 'bg-yellow-500 text-white'
+                            : f === 'Approved' ? 'bg-green-600 text-white'
+                            : f === 'Rejected' ? 'bg-red-500 text-white'
+                            : 'bg-gray-700 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+                        {f}
+                        {f === 'Pending' && admissions.filter(a => a.status === 'Pending').length > 0 && (
+                          <span className="ml-1 bg-white/30 rounded-full px-1">{admissions.filter(a => a.status === 'Pending').length}</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  <button onClick={fetchAll} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
+                    <RefreshCw className="w-3.5 h-3.5 text-gray-400" />
+                  </button>
+                </div>
+              </div>
+
+              {filteredAdm.length === 0 ? (
+                <div className="text-center py-10 text-gray-400">
+                  <ClipboardList className="w-10 h-10 mx-auto mb-2 text-gray-200" />
+                  <p className="text-sm">No {admFilter.toLowerCase()} admissions</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {filteredAdm.map((a, i) => (
+                    <motion.div key={a._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+                      className="border border-gray-100 rounded-xl p-4 hover:border-green-200 transition-colors">
+                      <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-gray-900 text-sm">{a.name}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                              a.status === 'Approved' ? 'bg-green-100 text-green-700'
+                              : a.status === 'Rejected' ? 'bg-red-100 text-red-700'
+                              : 'bg-yellow-100 text-yellow-700'}`}>
+                              {a.status}
+                            </span>
+                            {a.enrollmentId && (
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-mono font-bold">{a.enrollmentId}</span>
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1 space-y-0.5">
+                            <div>{a.email} · {a.phone}</div>
+                            <div>Course: <span className="font-semibold text-gray-700">{a.course?.title || 'N/A'}</span> · {a.qualification}</div>
+                            <div className="text-gray-400">{new Date(a.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                          </div>
+                        </div>
+                        {a.status === 'Pending' && (
+                          <div className="flex gap-2 shrink-0">
+                            <button onClick={() => handleStatus(a._id, 'Approved')} disabled={updating === a._id}
+                              className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold transition-colors disabled:opacity-60">
+                              {updating === a._id ? <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                              Approve
+                            </button>
+                            <button onClick={() => handleStatus(a._id, 'Rejected')} disabled={updating === a._id}
+                              className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-bold transition-colors disabled:opacity-60">
+                              <XCircle className="w-3.5 h-3.5" /> Reject
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Quick Actions */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <h2 className="font-black text-gray-900 mb-4">Quick Actions</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -138,8 +243,9 @@ export default function FranchiseDashboard() {
             </div>
           </div>
 
-          {/* Notifications */}
+          {/* Right Column */}
           <div className="space-y-6">
+            {/* Notifications */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <div className="flex items-center gap-2 mb-4">
                 <Bell className="w-5 h-5 text-green-600" />
