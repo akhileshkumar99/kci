@@ -31,7 +31,19 @@ exports.login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
     const token = signToken(user._id);
-    res.json({ success: true, token, user: { id: user._id, name: user.name, email: user.email, role: user.role, rollNumber: user.rollNumber, photo: user.photo } });
+    res.json({
+      success: true, token,
+      user: {
+        id: user._id, name: user.name, email: user.email, role: user.role,
+        rollNumber: user.rollNumber, photo: user.photo,
+        // franchise fields
+        franchiseCenter: user.franchiseCenter,
+        franchiseCity: user.franchiseCity,
+        franchiseCode: user.franchiseCode,
+        isApproved: user.isApproved,
+        phone: user.phone,
+      }
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
