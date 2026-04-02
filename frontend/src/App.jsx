@@ -20,6 +20,8 @@ import Branches from './pages/Branches';
 import Staff from './pages/Staff';
 import Contact from './pages/Contact';
 import StudentDashboard from './pages/StudentDashboard';
+import FranchiseDashboard from './pages/FranchiseDashboard';
+import Register from './pages/Register';
 import QuizPage from './pages/QuizPage';
 import StudyMaterial from './pages/StudyMaterial';
 import IDCard from './pages/IDCard';
@@ -39,6 +41,7 @@ import AdminContacts from './pages/admin/AdminContacts';
 import AdminQuiz from './pages/admin/AdminQuiz';
 import AdminStudyMaterial from './pages/admin/AdminStudyMaterial';
 import AdminNotifications from './pages/admin/AdminNotifications';
+import AdminFranchise from './pages/admin/AdminFranchise';
 
 const WHATSAPP_NUMBER = '919936384736';
 const AUTO_MESSAGES = [
@@ -238,6 +241,8 @@ export default function App() {
           <Route path="/branches" element={<PublicLayout><Branches /></PublicLayout>} />
           <Route path="/staff" element={<PublicLayout><Staff /></PublicLayout>} />
           <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
+          <Route path="/register" element={<PublicLayout><Register /></PublicLayout>} />
+          <Route path="/franchise-dashboard" element={<FranchiseDashboard />} />
           <Route path="/dashboard" element={<StudentRoute><PublicLayout><StudentDashboard /></PublicLayout></StudentRoute>} />
           <Route path="/quiz" element={<PublicLayout><QuizPage /></PublicLayout>} />
           <Route path="/quiz/:id" element={<PublicLayout><QuizPage /></PublicLayout>} />
@@ -257,6 +262,7 @@ export default function App() {
             <Route path="quiz" element={<AdminQuiz />} />
             <Route path="study-material" element={<AdminStudyMaterial />} />
             <Route path="notifications" element={<AdminNotifications />} />
+            <Route path="franchise" element={<AdminFranchise />} />
             <Route path="contacts" element={<AdminContacts />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
