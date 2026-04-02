@@ -25,7 +25,7 @@ router.get('/:id', protect, async (req, res) => {
 });
 
 // Create quiz (admin/teacher)
-router.post('/', protect, async (req, res) => {
+router.post('/', protect, admin, async (req, res) => {
   try {
     const quiz = await Quiz.create({ ...req.body, createdBy: req.user._id });
     res.status(201).json({ success: true, quiz });

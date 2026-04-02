@@ -1,34 +1,33 @@
-TODO.md
+# Franchise Dashboard Students Management - TODO
 
-# Task: Add 30 Branches and Staff Details to KCI App
+## Status: 🚀 In Progress
 
-## Overall Status: In Progress ✅
 
-### 1. [x] Create TODO.md (current step done)
+- Confirm latest content
 
-### 2. ✅ Parse and seed 30 branches
-- Created backend/utils/seed-branches.js
-- All 30 parsed exactly
-- Idempotent ready
+### Step 3: ✏️ Add Students Section
+- Add states: students, search, modals, forms
+- fetchStudents() → api.get('/franchise/students')
 
-### 3. ✅ Parse and seed 18+ staff
-- Created backend/utils/seed-staff.js 
-- 13 exact staff, depts match frontend config
-- Fixed DB connect MONGO_URI, idempotent
+### Step 4: 📊 Add Students Table
+- After Admissions section
+- Columns: Name, Email, Roll, Phone, Course, Batch, Actions (View/Edit/Delete)
 
-### 4. User runs seeds
-- cd backend
-- node utils/seed-branches.js
-- node utils/seed-staff.js
+### Step 5: 🔍 Add Search Bar
+- Filter by name/email/roll
 
-### 5. Verify
-- Restart backend
-- Frontend /branches shows 30 cards
-- /staff shows list with depts
+### Step 6: ➕ Add "Add Student" Modal
+- Form: name, phone, email(auto?), course, batch, photo
+- POST /franchise/students/register
 
-### 6. ✅ Admin Staff image upload fix - FormData fixed, no duplicate photo field
-### 7. ✅ About director name updated to Mr. Mahendra Kumar Pandey
-### 8. [ ] Final complete
+### Step 7: ✏️ Add Edit/View Modals  
+- Copy from AdminStudents pattern
 
-Next step: Create seed-branches.js
+### Step 8: 🗑️ Add Delete function
 
+### Step 9: 🔄 Integrate refresh after CRUD
+- Update students list & stats
+
+### Step 10: ✅ Test & Complete
+
+**Current Progress: Step 1 Complete**
