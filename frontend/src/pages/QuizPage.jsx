@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, CheckCircle, XCircle, Trophy, ArrowRight, RotateCcw } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, Trophy, ArrowRight, RotateCcw, Download } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 import { toast } from 'react-hot-toast';
 import api from '../utils/api';
 import SectionTitle from '../components/SectionTitle';
@@ -113,6 +114,86 @@ function QuizAttempt() {
   if (loading) return <div className="flex justify-center items-center h-screen"><div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" /></div>;
   if (!quiz) return null;
 
+  const downloadResult = () => {
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a5' });
+    const W = doc.internal.pageSize.getWidth();
+    const H = doc.internal.pageSize.getHeight();
+
+    // Background
+    doc.setFillColor(255, 247, 237);
+    doc.rect(0, 0, W, H, 'F');
+
+    // Border
+    doc.setDrawColor(234, 88, 12);
+    doc.setLineWidth(1.5);
+    doc.rect(6, 6, W - 12, H - 12);
+    doc.setLineWidth(0.5);
+    doc.rect(8, 8, W - 16, H - 16);
+
+    // Header
+    doc.setFillColor(234, 88, 12);
+    doc.rect(0, 0, W, 22, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('KEERTI COMPUTER INSTITUTE', W / 2, 10, { align: 'center' });
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Quiz Result Certificate', W / 2, 17, { align: 'center' });
+
+    // Trophy emoji area
+    doc.setTextColor(234, 88, 12);
+    doc.setFontSize(28);
+    doc.text(result.passed ? '🏆' : '📋', W / 2, 40, { align: 'center' });
+
+    // Title
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(result.passed ? 22 : 220, result.passed ? 163 : 38, result.passed ? 74 : 38);
+    doc.text(result.passed ? 'CONGRATULATIONS!' : 'RESULT CARD', W / 2, 52, { align: 'center' });
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 100, 100);
+    doc.text(result.passed ? 'You have successfully passed the quiz!' : 'Better luck next time!', W / 2, 59, { align: 'center' });
+
+    // Quiz title
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 30, 30);
+    doc.text(quiz?.title || 'Quiz', W / 2, 68, { align: 'center' });
+
+    // Score boxes
+    const boxY = 76; const boxH = 18; const boxW = 42;
+    const boxes = [
+      { label: 'SCORE', value: String(result.score), color: [59, 130, 246] },
+      { label: 'PERCENTAGE', value: `${result.percentage}%`, color: [16, 185, 129] },
+      { label: 'STATUS', value: result.passed ? 'PASS' : 'FAIL', color: result.passed ? [16, 185, 129] : [239, 68, 68] },
+    ];
+    const startX = (W - boxes.length * boxW - (boxes.length - 1) * 5) / 2;
+    boxes.forEach((b, i) => {
+      const x = startX + i * (boxW + 5);
+      doc.setFillColor(...b.color);
+      doc.roundedRect(x, boxY, boxW, boxH, 3, 3, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(b.value, x + boxW / 2, boxY + 10, { align: 'center' });
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'normal');
+      doc.text(b.label, x + boxW / 2, boxY + 15.5, { align: 'center' });
+    });
+
+    // Date
+    doc.setTextColor(150, 150, 150);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Date: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}`, W / 2, H - 14, { align: 'center' });
+    doc.text('www.kci.org.in  |  9936384736', W / 2, H - 9, { align: 'center' });
+
+    doc.save(`KCI_Quiz_Result_${result.percentage}%.pdf`);
+  };
+
   if (result) return (
     <div className="pt-20 min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center">
@@ -126,13 +207,19 @@ function QuizAttempt() {
           <div className="bg-green-50 rounded-xl p-3"><div className="text-2xl font-black text-green-700">{result.percentage}%</div><div className="text-xs text-gray-400">Percentage</div></div>
           <div className={`${result.passed ? 'bg-green-50' : 'bg-red-50'} rounded-xl p-3`}><div className={`text-2xl font-black ${result.passed ? 'text-green-700' : 'text-red-700'}`}>{result.passed ? 'PASS' : 'FAIL'}</div><div className="text-xs text-gray-400">Status</div></div>
         </div>
-        <div className="flex gap-3">
-          <button onClick={() => navigate('/quiz')} className="flex-1 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-            <RotateCcw className="w-4 h-4" /> Try Again
+        <div className="flex flex-col gap-3">
+          <button onClick={downloadResult}
+            className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+            <Download className="w-4 h-4" /> Download Result
           </button>
-          <button onClick={() => navigate('/dashboard')} className="flex-1 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity">
-            Dashboard
-          </button>
+          <div className="flex gap-3">
+            <button onClick={() => navigate('/quiz')} className="flex-1 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+              <RotateCcw className="w-4 h-4" /> Try Again
+            </button>
+            <button onClick={() => navigate('/dashboard')} className="flex-1 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity">
+              Dashboard
+            </button>
+          </div>
         </div>
       </motion.div>
     </div>
