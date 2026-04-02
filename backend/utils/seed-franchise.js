@@ -34,6 +34,7 @@ const franchises = [
   { name: 'GahmarKunj – Lucknow', franchiseCenter: 'GahmarKunj – Lucknow', franchiseCity: 'Lucknow', phone: '9936384736', address: 'Near Matiyari, GahmarKunj, Lucknow', email: 'branch28@kci.org.in', franchiseCode: 'KCI-F-028' },
   { name: 'Belwa Sengar – Santkabir Nagar', franchiseCenter: 'Belwa Sengar – Santkabir Nagar', franchiseCity: 'Santkabir Nagar', phone: '8601568705', address: 'Belwa Sengar Chauraha, Santkabir Nagar', email: 'branch29@kci.org.in', franchiseCode: 'KCI-F-029' },
   { name: 'Khandasa – Ayodhya', franchiseCenter: 'Khandasa – Ayodhya', franchiseCity: 'Ayodhya', phone: '7408465327', address: 'Near Police Chauki, Khandasa, Ayodhya', email: 'branch30@kci.org.in', franchiseCode: 'KCI-F-030' },
+  { name: 'Nand Nagar', franchiseCenter: 'Nand Nagar', franchiseCity: 'Basti', phone: '8923234638', address: 'Nand Nagar, Basti, U.P.', email: 'fullstackgenius1@gmail.com', franchiseCode: 'KCI-F-294351' },
 ];
 
 async function seedFranchise() {

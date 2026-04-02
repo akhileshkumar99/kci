@@ -10,6 +10,7 @@ const admissionSchema = new mongoose.Schema(
     qualification: { type: String, required: true },
     dob: { type: Date },
     gender: { type: String, enum: ['Male', 'Female', 'Other'] },
+    franchise: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch' },
     message: { type: String },
     status: {
       type: String,

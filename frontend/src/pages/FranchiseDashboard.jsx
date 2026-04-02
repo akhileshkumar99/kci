@@ -15,7 +15,7 @@ export default function FranchiseDashboard() {
   useEffect(() => {
     if (!user || user.role !== 'franchise') { navigate('/login'); return; }
     Promise.all([
-      api.get('/admin/stats').catch(() => ({ data: { stats: {} } })),
+      api.get('/franchise/dashboard-stats').catch(() => ({ data: { stats: {} } })),
       api.get('/notifications?role=franchise').catch(() => ({ data: { notifications: [] } })),
     ]).then(([statsRes, notifRes]) => {
       setStats(statsRes.data.stats || {});
@@ -26,12 +26,13 @@ export default function FranchiseDashboard() {
   const handleLogout = () => { logout(); navigate('/'); };
 
   if (!user || user.role !== 'franchise') return null;
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" /></div>;
 
   const cards = [
-    { icon: Users, label: 'Total Students', value: stats.students || 0, color: 'from-blue-500 to-blue-600', bg: 'bg-blue-50' },
-    { icon: BookOpen, label: 'Active Courses', value: stats.courses || 0, color: 'from-emerald-500 to-emerald-600', bg: 'bg-emerald-50' },
-    { icon: Award, label: 'Admissions', value: stats.admissions || 0, color: 'from-violet-500 to-violet-600', bg: 'bg-violet-50' },
-    { icon: TrendingUp, label: 'Center Status', value: user.isApproved ? 'Active' : 'Pending', color: 'from-orange-500 to-orange-600', bg: 'bg-orange-50' },
+    { icon: Users, label: 'Total Students', value: stats.students || 0, color: 'from-blue-500 to-blue-600' },
+    { icon: BookOpen, label: 'Active Courses', value: stats.courses || 0, color: 'from-emerald-500 to-emerald-600' },
+    { icon: Award, label: 'Certificates', value: stats.certificates || 0, color: 'from-violet-500 to-violet-600' },
+    { icon: TrendingUp, label: 'Results', value: stats.results || 0, color: 'from-orange-500 to-orange-600' },
   ];
 
   return (

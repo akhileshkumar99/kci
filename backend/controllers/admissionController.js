@@ -11,7 +11,7 @@ exports.submitAdmission = async (req, res) => {
 
 exports.getAdmissions = async (req, res) => {
   try {
-    const admissions = await Admission.find().populate('course', 'title').sort({ createdAt: -1 });
+    const admissions = await Admission.find().populate('course', 'title').populate('franchise', 'name city').sort({ createdAt: -1 });
     res.json({ success: true, admissions });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
