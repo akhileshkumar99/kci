@@ -26,7 +26,7 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ success: false, message: 'Provide email and password' });
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).populate('course', 'title');
     if (!user || !(await user.matchPassword(password)))
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
@@ -36,6 +36,9 @@ exports.login = async (req, res) => {
       user: {
         id: user._id, name: user.name, email: user.email, role: user.role,
         rollNumber: user.rollNumber, photo: user.photo,
+        courseName: user.courseName || user.course?.title || '',
+        course: user.course,
+        attendance: user.attendance, totalClasses: user.totalClasses,
         // franchise fields
         franchiseCenter: user.franchiseCenter,
         franchiseCity: user.franchiseCity,
