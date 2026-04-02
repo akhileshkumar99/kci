@@ -1,9 +1,34 @@
-# TODO: Add Multi-Color Running Line Below Navbar on Home Page Only
+TODO.md
 
-## Steps:
-- [ ] Step 1: Edit frontend/src/App.jsx - Add useLocation import, update PublicLayout to conditionally render <div className="home-navbar-border" /> between Navbar and main when pathname === '/'.
-- [ ] Step 2: Edit frontend/src/App.css - Add .home-navbar-border class with multi-color animated gradient (running rainbow effect).
-- [ ] Step 3: Test - Run `npm run dev` in frontend/, visit localhost:5173, verify animation on home only, no other changes.
+# Task: Add 30 Branches and Staff Details to KCI App
 
-Progress: Changes reverted as per user request ("ye jo change kiya hai ushe undo kr do"). Files restored to original state. Task cancelled.
+## Overall Status: In Progress ✅
+
+### 1. [x] Create TODO.md (current step done)
+
+### 2. ✅ Parse and seed 30 branches
+- Created backend/utils/seed-branches.js
+- All 30 parsed exactly
+- Idempotent ready
+
+### 3. ✅ Parse and seed 18+ staff
+- Created backend/utils/seed-staff.js 
+- 13 exact staff, depts match frontend config
+- Fixed DB connect MONGO_URI, idempotent
+
+### 4. User runs seeds
+- cd backend
+- node utils/seed-branches.js
+- node utils/seed-staff.js
+
+### 5. Verify
+- Restart backend
+- Frontend /branches shows 30 cards
+- /staff shows list with depts
+
+### 6. ✅ Admin Staff image upload fix - FormData fixed, no duplicate photo field
+### 7. ✅ About director name updated to Mr. Mahendra Kumar Pandey
+### 8. [ ] Final complete
+
+Next step: Create seed-branches.js
 

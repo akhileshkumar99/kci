@@ -117,7 +117,7 @@ export default function About() {
                   />
                 </motion.div>
                 <div className="text-center mt-6">
-                  <div className="text-white font-black text-xl">Mr. Keerti</div>
+                  <div className="text-white font-black text-xl">Mr. Mahendra Kumar Pandey</div>
                   <div className="text-yellow-400 font-semibold text-sm mt-1">Founder & Director</div>
                   <div className="text-blue-200 text-xs mt-1">Keerti Computer Institute</div>
                 </div>

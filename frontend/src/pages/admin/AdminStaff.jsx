@@ -28,12 +28,28 @@ export default function AdminStaff() {
     setSaving(true);
     try {
       const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => { if (k !== 'photo' || typeof v === 'string') fd.append(k, v); });
-      if (form.photoFile) fd.append('photo', form.photoFile);
-      if (editing) { await api.put(`/staff/${editing}`, fd); toast.success('Updated'); }
-      else { await api.post('/staff', fd); toast.success('Added'); }
-      setModal(false); fetchStaff();
-    } catch { toast.error('Error'); }
+      // Append all fields except photo/photoFile
+      Object.entries(form).forEach(([k, v]) => {
+        if (k !== 'photo' && k !== 'photoFile' && v !== undefined) fd.append(k, v);
+      });
+      // Photo logic: new file or keep old string, not both
+      if (form.photoFile) {
+        fd.append('photo', form.photoFile);
+      } else if (editing && form.photo) {
+        fd.append('photo', form.photo); // keep old path
+      }
+      if (editing) { 
+        await api.put(`/staff/${editing}`, fd); 
+        toast.success('Updated');
+      } else { 
+        await api.post('/staff', fd); 
+        toast.success('Added'); 
+      }
+      setModal(false); 
+      fetchStaff();
+    } catch (err) { 
+      toast.error(`Error: ${err.response?.data?.message || err.message || 'Upload failed'}`); 
+    }
     setSaving(false);
   };
 
