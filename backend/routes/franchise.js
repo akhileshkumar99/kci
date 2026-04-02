@@ -110,8 +110,20 @@ router.get('/:id', protect, admin, async (req, res) => {
 router.put('/:id', protect, admin, async (req, res) => {
   try {
     const updates = { ...req.body };
-    delete updates.password;
     delete updates.role;
+    // Only update password if provided and non-empty
+    if (updates.password && updates.password.trim()) {
+      const user = await User.findById(req.params.id);
+      if (!user) return res.status(404).json({ success: false, message: 'Not found' });
+      user.password = updates.password.trim();
+      delete updates.password;
+      Object.assign(user, updates);
+      await user.save();
+      const result = user.toObject();
+      delete result.password;
+      return res.json({ success: true, franchise: result });
+    }
+    delete updates.password;
     const franchise = await User.findByIdAndUpdate(req.params.id, updates, { new: true }).select('-password');
     if (!franchise) return res.status(404).json({ success: false, message: 'Not found' });
     res.json({ success: true, franchise });

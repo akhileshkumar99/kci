@@ -36,9 +36,8 @@ function FranchiseForm({ initial, onSave, onClose, loading }) {
     { name: 'phone', label: 'Phone', icon: Phone, placeholder: '10-digit mobile' },
     { name: 'franchiseCenter', label: 'Center Name *', icon: Building2, placeholder: 'e.g. KCI Varanasi' },
     { name: 'franchiseCity', label: 'City *', icon: MapPin, placeholder: 'City name' },
+    { name: 'password', label: initial._id ? 'New Password (leave blank to keep current)' : 'Password', icon: Lock, placeholder: initial._id ? 'Enter new password to change' : 'Default: kci123456', type: 'password' },
   ];
-
-  if (!initial._id) fields.push({ name: 'password', label: 'Password', icon: Lock, placeholder: 'Default: kci123456', type: 'password' });
 
   return (
     <form onSubmit={e => { e.preventDefault(); onSave(form); }} className="space-y-4">
