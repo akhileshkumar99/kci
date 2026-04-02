@@ -3,7 +3,16 @@ const router = express.Router();
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const multer = require('multer');
+const path = require('path');
 const { protect, admin } = require('../middleware/auth');
+
+// Multer for student photo uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
+});
+const upload = multer({ storage });
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -176,7 +185,7 @@ router.delete('/:id', protect, admin, async (req, res) => {
 });
 
 // ─── FRANCHISE: Register a student under this franchise ───
-router.post('/students/register', protect, franchiseAuth, async (req, res) => {
+router.post('/students/register', protect, franchiseAuth, upload.single('photo'), async (req, res) => {
   try {
     const { name, email, phone, fatherName, dob, address, courseName, batch, course } = req.body;
 
@@ -205,6 +214,7 @@ router.post('/students/register', protect, franchiseAuth, async (req, res) => {
       franchiseCity: req.user.franchiseCity,
       admissionDate: new Date(),
       isActive: true,
+      ...(req.file && { photo: `/uploads/${req.file.filename}` }),
     });
 
     res.status(201).json({
@@ -241,17 +251,17 @@ router.get('/students', protect, franchiseAuth, async (req, res) => {
 });
 
 // ─── FRANCHISE: Update student ───
-router.put('/students/:id', protect, franchiseAuth, async (req, res) => {
+router.put('/students/:id', protect, franchiseAuth, upload.single('photo'), async (req, res) => {
   try {
     const student = await User.findById(req.params.id);
     if (!student) return res.status(404).json({ success: false, message: 'Student not found' });
 
-    // Franchise can only edit their own students
     if (req.user.role === 'franchise' && student.franchiseId?.toString() !== req.user._id.toString())
       return res.status(403).json({ success: false, message: 'Access denied' });
 
-    const updates = req.body;
-    delete updates.password; // don't allow password change here
+    const updates = { ...req.body };
+    delete updates.password;
+    if (req.file) updates.photo = `/uploads/${req.file.filename}`;
     const updated = await User.findByIdAndUpdate(req.params.id, updates, { new: true }).select('-password');
     res.json({ success: true, student: updated });
   } catch (err) {
