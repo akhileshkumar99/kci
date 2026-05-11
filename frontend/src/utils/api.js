@@ -16,9 +16,12 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      localStorage.removeItem('kci_token');
-      localStorage.removeItem('kci_user');
-      window.location.href = '/login';
+      const isLoginRoute = err.config?.url?.includes('/auth/login');
+      if (!isLoginRoute) {
+        localStorage.removeItem('kci_token');
+        localStorage.removeItem('kci_user');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(err);
   }

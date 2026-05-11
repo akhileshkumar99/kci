@@ -27,29 +27,11 @@ export default function Login() {
     setLoading(true);
     try {
       const user = await login(form.email, form.password);
-
-      if (activeRole === 'student' && user.role !== 'student') {
-        logout();
-        toast.error('Please use Student credentials.');
-        setLoading(false); return;
-      }
-      if (activeRole === 'branch' && user.role !== 'branch') {
-        logout();
-        toast.error('Please use Branch credentials.');
-        setLoading(false); return;
-      }
-      if (activeRole === 'admin' && user.role !== 'admin') {
-        logout();
-        toast.error('Please use Admin credentials.');
-        setLoading(false); return;
-      }
       toast.success(`Welcome, ${user.name}! 🎉`);
-
       if (user.role === 'admin') navigate('/admin');
       else if (user.role === 'branch') navigate('/branch-dashboard');
       else if (user.role === 'student') navigate('/student-dashboard');
-      else navigate('/login');
-
+      else navigate('/');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Invalid credentials');
     }

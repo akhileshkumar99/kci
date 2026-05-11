@@ -30,20 +30,25 @@ exports.login = async (req, res) => {
     if (!user || !(await user.matchPassword(password)))
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
+    if (!user.isApproved && user.role !== 'admin' && user.role !== 'student')
+      return res.status(401).json({ success: false, message: 'Account not approved yet. Please wait for admin approval.' });
+
     const token = signToken(user._id);
     res.json({
       success: true, token,
       user: {
-        id: user._id, name: user.name, email: user.email, role: user.role,
+        id: user._id, name: user.name, email: user.email,
+        role: user.role === 'franchise' ? 'branch' : user.role,
         rollNumber: user.rollNumber, photo: user.photo,
         courseName: user.courseName || user.course?.title || '',
         course: user.course, fatherName: user.fatherName,
         phone: user.phone, address: user.address, dob: user.dob,
         batch: user.batch, isApproved: user.isApproved, isActive: user.isActive,
-        // branch fields
-        branchName: user.branchName, branchCity: user.branchCity,
-        branchCode: user.branchCode, branchId: user.branchId,
-        branchAddress: user.branchAddress,
+        branchName: user.branchName || user.franchiseCenter,
+        branchCity: user.branchCity || user.franchiseCity,
+        branchCode: user.branchCode || user.franchiseCode,
+        branchId: user.branchId,
+        branchAddress: user.branchAddress || user.address,
       }
     });
   } catch (err) {

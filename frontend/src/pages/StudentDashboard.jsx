@@ -32,12 +32,13 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user || user.role !== 'student') { navigate('/login'); return; }
+    if (!user) { navigate('/login'); return; }
+    if (user.role !== 'student') { navigate('/login'); return; }
+    setLoading(true);
     api.get('/branch/student/me')
-      .then(r => setData(r.data))
-      .catch(() => toast.error('Failed to load data'))
-      .finally(() => setLoading(false));
-  }, [user]);
+      .then(r => { setData(r.data); setLoading(false); })
+      .catch(() => { toast.error('Failed to load data'); setLoading(false); });
+  }, [user?.id]);
 
   const handleLogout = () => { logout(); navigate('/'); };
 

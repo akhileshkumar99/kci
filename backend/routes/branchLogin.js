@@ -90,7 +90,7 @@ async function sendStudentApprovalEmail(email, name, rollNumber, password, branc
 
 
 const branchAuth = (req, res, next) => {
-  if (req.user && (req.user.role === 'branch' || req.user.role === 'admin')) return next();
+  if (req.user && (req.user.role === 'branch' || req.user.role === 'franchise' || req.user.role === 'admin')) return next();
   res.status(403).json({ success: false, message: 'Branch access required' });
 };
 
@@ -225,7 +225,9 @@ router.get('/dashboard-stats', protect, branchAuth, async (req, res) => {
 // Branch: Get own students
 router.get('/students', protect, branchAuth, async (req, res) => {
   try {
-    const filter = req.user.role === 'admin' ? { role: 'student' } : { role: 'student', branchId: req.user._id };
+    const filter = req.user.role === 'admin'
+      ? { role: 'student' }
+      : { role: 'student', $or: [{ branchId: req.user._id }, { franchiseId: req.user._id }] };
     const students = await User.find(filter).select('-password').populate('course', 'title').sort('-createdAt');
     res.json({ success: true, students, total: students.length });
   } catch (err) {
@@ -360,12 +362,15 @@ router.get('/student/me', protect, async (req, res) => {
     if (req.user.role !== 'student') return res.status(403).json({ success: false, message: 'Student access only' });
     const Result = require('../models/Result');
     const Certificate = require('../models/Certificate');
+    const student = await User.findById(req.user._id).select('-password');
     const [results, certificates] = await Promise.all([
       Result.find({ rollNumber: req.user.rollNumber }).sort('-createdAt'),
       Certificate.find({ rollNumber: req.user.rollNumber }).sort('-createdAt'),
     ]);
-    const branch = req.user.branchId ? await User.findById(req.user.branchId).select('branchName branchCity phone email') : null;
-    res.json({ success: true, student: req.user, results, certificates, branch });
+    const branch = (req.user.branchId || req.user.franchiseId)
+      ? await User.findById(req.user.branchId || req.user.franchiseId).select('branchName branchCity franchiseCenter franchiseCity phone email')
+      : null;
+    res.json({ success: true, student, results, certificates, branch });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
