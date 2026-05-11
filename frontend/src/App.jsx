@@ -40,6 +40,7 @@ import AdminNotifications from './pages/admin/AdminNotifications';
 import AdminBranches from './pages/admin/AdminBranches';
 import BranchDashboard from './pages/BranchDashboard';
 import BranchApply from './pages/BranchApply';
+import StudentDashboard from './pages/StudentDashboard';
 
 const WHATSAPP_NUMBER = '919936384736';
 const AUTO_MESSAGES = [
@@ -240,6 +241,7 @@ export default function App() {
           <Route path="/notifications" element={<PublicLayout><Notifications /></PublicLayout>} />
           <Route path="/branch-apply" element={<PublicLayout><BranchApply /></PublicLayout>} />
           <Route path="/branch-dashboard" element={<BranchDashboard />} />
+          <Route path="/student-dashboard" element={<StudentDashboard />} />
           <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
             <Route index element={<AdminDashboard />} />
             <Route path="courses" element={<AdminCourses />} />

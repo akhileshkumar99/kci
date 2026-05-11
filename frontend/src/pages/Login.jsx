@@ -2,17 +2,18 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import { Mail, Lock, Eye, EyeOff, ShieldCheck, Building2, ArrowRight, BookOpen, Users, Award } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ShieldCheck, GraduationCap, Building2, ArrowRight, BookOpen, Users, Award } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
 const roles = [
+  { id: 'student', label: 'Student', icon: GraduationCap, color: 'from-blue-500 to-blue-600', desc: 'View results & certificates' },
   { id: 'branch', label: 'Branch', icon: Building2, color: 'from-indigo-500 to-violet-600', desc: 'Manage your branch center' },
   { id: 'admin', label: 'Admin', icon: ShieldCheck, color: 'from-violet-500 to-indigo-600', desc: 'Full system control' },
 ];
 
 export default function Login() {
-  const [activeRole, setActiveRole] = useState('branch');
+  const [activeRole, setActiveRole] = useState('student');
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -27,6 +28,10 @@ export default function Login() {
     try {
       const user = await login(form.email, form.password);
 
+      if (activeRole === 'student' && user.role !== 'student') {
+        toast.error('Access denied. Student credentials required.');
+        setLoading(false); return;
+      }
       if (activeRole === 'branch' && user.role !== 'branch') {
         toast.error('Access denied. Branch credentials required.');
         setLoading(false); return;
@@ -39,6 +44,7 @@ export default function Login() {
 
       if (user.role === 'admin') navigate('/admin');
       else if (user.role === 'branch') navigate('/branch-dashboard');
+      else if (user.role === 'student') navigate('/student-dashboard');
       else navigate('/login');
 
     } catch (err) {
@@ -114,7 +120,7 @@ export default function Login() {
             </div>
 
             {/* Role Selector */}
-            <div className="grid grid-cols-2 gap-2 mb-6 p-1.5 bg-gray-100 rounded-2xl">
+            <div className="grid grid-cols-3 gap-2 mb-6 p-1.5 bg-gray-100 rounded-2xl">
               {roles.map(({ id, label, icon: Icon, color }) => (
                 <button key={id} onClick={() => setActiveRole(id)}
                   className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl transition-all duration-200 ${activeRole === id ? 'bg-white shadow-md' : 'hover:bg-white/50'}`}>
@@ -145,7 +151,7 @@ export default function Login() {
                   <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${focused === 'email' ? 'text-blue-500' : 'text-gray-400'}`} />
                   <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
                     onFocus={() => setFocused('email')} onBlur={() => setFocused('')}
-                    placeholder={activeRole === 'admin' ? 'admin@kci.org.in' : 'branch@kci.org.in'}
+                    placeholder={activeRole === 'admin' ? 'admin@kci.org.in' : activeRole === 'branch' ? 'branch@kci.org.in' : 'student@email.com'}
                     className="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 text-sm text-gray-800 placeholder-gray-400 outline-none transition-all bg-slate-50 focus:bg-white"
                     style={{ borderColor: focused === 'email' ? '#3b82f6' : '#e2e8f0' }} />
                 </div>

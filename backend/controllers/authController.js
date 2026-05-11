@@ -37,14 +37,13 @@ exports.login = async (req, res) => {
         id: user._id, name: user.name, email: user.email, role: user.role,
         rollNumber: user.rollNumber, photo: user.photo,
         courseName: user.courseName || user.course?.title || '',
-        course: user.course,
-        attendance: user.attendance, totalClasses: user.totalClasses,
-        // franchise fields
-        franchiseCenter: user.franchiseCenter,
-        franchiseCity: user.franchiseCity,
-        franchiseCode: user.franchiseCode,
-        isApproved: user.isApproved,
-        phone: user.phone,
+        course: user.course, fatherName: user.fatherName,
+        phone: user.phone, address: user.address, dob: user.dob,
+        batch: user.batch, isApproved: user.isApproved, isActive: user.isActive,
+        // branch fields
+        branchName: user.branchName, branchCity: user.branchCity,
+        branchCode: user.branchCode, branchId: user.branchId,
+        branchAddress: user.branchAddress,
       }
     });
   } catch (err) {
