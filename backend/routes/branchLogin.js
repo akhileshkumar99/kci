@@ -89,6 +89,7 @@ async function sendStudentApprovalEmail(email, name, rollNumber, password, branc
 }
 
 
+const branchAuth = (req, res, next) => {
   if (req.user && (req.user.role === 'branch' || req.user.role === 'admin')) return next();
   res.status(403).json({ success: false, message: 'Branch access required' });
 };

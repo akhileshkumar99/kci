@@ -18,7 +18,7 @@ export default function Login() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [focused, setFocused] = useState('');
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -29,15 +29,18 @@ export default function Login() {
       const user = await login(form.email, form.password);
 
       if (activeRole === 'student' && user.role !== 'student') {
-        toast.error('Access denied. Student credentials required.');
+        logout();
+        toast.error('Please use Student credentials.');
         setLoading(false); return;
       }
       if (activeRole === 'branch' && user.role !== 'branch') {
-        toast.error('Access denied. Branch credentials required.');
+        logout();
+        toast.error('Please use Branch credentials.');
         setLoading(false); return;
       }
       if (activeRole === 'admin' && user.role !== 'admin') {
-        toast.error('Access denied. Admin credentials required.');
+        logout();
+        toast.error('Please use Admin credentials.');
         setLoading(false); return;
       }
       toast.success(`Welcome, ${user.name}! 🎉`);
