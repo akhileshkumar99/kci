@@ -8,7 +8,7 @@ import api from '../utils/api';
 
 const roles = [
   { id: 'student', label: 'Student', icon: GraduationCap, color: 'from-blue-500 to-blue-600', desc: 'Access your courses & results' },
-  { id: 'franchise', label: 'Franchise', icon: Building2, color: 'from-green-500 to-emerald-600', desc: 'Manage your center' },
+  { id: 'branch', label: 'Branch', icon: Building2, color: 'from-indigo-500 to-violet-600', desc: 'Manage your branch center' },
   { id: 'admin', label: 'Admin', icon: ShieldCheck, color: 'from-violet-500 to-indigo-600', desc: 'Full system control' },
 ];
 
@@ -28,12 +28,12 @@ export default function Login() {
     try {
       const user = await login(form.email, form.password);
 
-      if (activeRole === 'admin' && user.role !== 'admin') {
-        toast.error('Access denied. Admin credentials required.');
+      if (activeRole === 'branch' && user.role !== 'branch') {
+        toast.error('Access denied. Branch credentials required.');
         setLoading(false); return;
       }
-      if (activeRole === 'franchise' && user.role !== 'franchise') {
-        toast.error('Access denied. Franchise credentials required.');
+      if (activeRole === 'admin' && user.role !== 'admin') {
+        toast.error('Access denied. Admin credentials required.');
         setLoading(false); return;
       }
       if (activeRole === 'student' && !['student'].includes(user.role)) {
@@ -44,7 +44,7 @@ export default function Login() {
       toast.success(`Welcome, ${user.name}! 🎉`);
 
       if (user.role === 'admin') navigate('/admin');
-      else if (user.role === 'franchise') navigate('/franchise-dashboard');
+      else if (user.role === 'branch') navigate('/branch-dashboard');
       else navigate('/dashboard');
 
     } catch (err) {
@@ -151,7 +151,7 @@ export default function Login() {
                   <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${focused === 'email' ? 'text-blue-500' : 'text-gray-400'}`} />
                   <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
                     onFocus={() => setFocused('email')} onBlur={() => setFocused('')}
-                    placeholder={activeRole === 'admin' ? 'admin@kci.org.in' : activeRole === 'franchise' ? 'franchise@kci.org.in' : 'student@email.com'}
+                    placeholder={activeRole === 'admin' ? 'admin@kci.org.in' : activeRole === 'branch' ? 'branch@kci.org.in' : 'student@email.com'}
                     className="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 text-sm text-gray-800 placeholder-gray-400 outline-none transition-all bg-slate-50 focus:bg-white"
                     style={{ borderColor: focused === 'email' ? '#3b82f6' : '#e2e8f0' }} />
                 </div>
@@ -194,7 +194,8 @@ export default function Login() {
             {/* Links */}
             <div className="mt-5 flex items-center justify-between text-xs">
               <Link to="/register" className="text-blue-600 hover:underline font-semibold">New Student? Register</Link>
-              <Link to="/franchise" className="text-green-600 hover:underline font-semibold">Apply for Franchise</Link>
+              <Link to="/branch-apply" className="text-indigo-600 hover:underline font-semibold">Apply for Branch</Link>
+
             </div>
 
             <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-center gap-2">

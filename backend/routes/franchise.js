@@ -420,6 +420,21 @@ router.delete('/certificates/:id', protect, franchiseAuth, async (req, res) => {
   }
 });
 
+// ─── FRANCHISE: Submit admission (franchise-wise) ───
+router.post('/admissions', protect, franchiseAuth, async (req, res) => {
+  try {
+    const Admission = require('../models/Admission');
+    const admission = await Admission.create({
+      ...req.body,
+      franchise: req.user._id,
+      franchiseId: req.user._id,
+    });
+    res.status(201).json({ success: true, admission });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // ─── FRANCHISE: Get admissions ───
 router.get('/admissions', protect, franchiseAuth, async (req, res) => {
   try {

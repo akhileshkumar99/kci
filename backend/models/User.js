@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, required: true, minlength: 6 },
-  role: { type: String, enum: ['student', 'admin', 'franchise', 'teacher'], default: 'student' },
+  role: { type: String, enum: ['student', 'admin', 'franchise', 'branch', 'teacher'], default: 'student' },
   phone: { type: String },
   address: { type: String },
   photo: { type: String },
@@ -27,7 +27,17 @@ const userSchema = new mongoose.Schema({
   franchiseCenter: { type: String },
   franchiseCity: { type: String },
   franchiseCode: { type: String },
-  franchiseId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // for students: which franchise registered them
+  franchiseId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  // Branch fields
+  branchName: { type: String },
+  branchCity: { type: String },
+  branchCode: { type: String },
+  branchAddress: { type: String },
+  branchPhone: { type: String },
+  branchId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  totalStudents: { type: Number, default: 0 },
+  totalRevenue: { type: Number, default: 0 },
+  notes: { type: String },
   // OTP
   otp: { type: String },
   otpExpiry: { type: Date },

@@ -20,12 +20,10 @@ import Branches from './pages/Branches';
 import Staff from './pages/Staff';
 import Contact from './pages/Contact';
 import StudentDashboard from './pages/StudentDashboard';
-import FranchiseDashboard from './pages/FranchiseDashboard';
 import Register from './pages/Register';
 import QuizPage from './pages/QuizPage';
 import StudyMaterial from './pages/StudyMaterial';
 import IDCard from './pages/IDCard';
-import Franchise from './pages/Franchise';
 import Notifications from './pages/Notifications';
 
 import AdminLayout from './pages/admin/AdminLayout';
@@ -41,7 +39,9 @@ import AdminContacts from './pages/admin/AdminContacts';
 import AdminQuiz from './pages/admin/AdminQuiz';
 import AdminStudyMaterial from './pages/admin/AdminStudyMaterial';
 import AdminNotifications from './pages/admin/AdminNotifications';
-import AdminFranchise from './pages/admin/AdminFranchise';
+import AdminBranches from './pages/admin/AdminBranches';
+import BranchDashboard from './pages/BranchDashboard';
+import BranchApply from './pages/BranchApply';
 
 const WHATSAPP_NUMBER = '919936384736';
 const AUTO_MESSAGES = [
@@ -242,14 +242,14 @@ export default function App() {
           <Route path="/staff" element={<PublicLayout><Staff /></PublicLayout>} />
           <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
           <Route path="/register" element={<PublicLayout><Register /></PublicLayout>} />
-          <Route path="/franchise-dashboard" element={<FranchiseDashboard />} />
           <Route path="/dashboard" element={<StudentRoute><PublicLayout><StudentDashboard /></PublicLayout></StudentRoute>} />
           <Route path="/quiz" element={<PublicLayout><QuizPage /></PublicLayout>} />
           <Route path="/quiz/:id" element={<PublicLayout><QuizPage /></PublicLayout>} />
           <Route path="/study-material" element={<PublicLayout><StudyMaterial /></PublicLayout>} />
           <Route path="/id-card" element={<PublicLayout><IDCard /></PublicLayout>} />
-          <Route path="/franchise" element={<PublicLayout><Franchise /></PublicLayout>} />
           <Route path="/notifications" element={<PublicLayout><Notifications /></PublicLayout>} />
+          <Route path="/branch-apply" element={<PublicLayout><BranchApply /></PublicLayout>} />
+          <Route path="/branch-dashboard" element={<BranchDashboard />} />
           <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
             <Route index element={<AdminDashboard />} />
             <Route path="courses" element={<AdminCourses />} />
@@ -262,7 +262,7 @@ export default function App() {
             <Route path="quiz" element={<AdminQuiz />} />
             <Route path="study-material" element={<AdminStudyMaterial />} />
             <Route path="notifications" element={<AdminNotifications />} />
-            <Route path="franchise" element={<AdminFranchise />} />
+            <Route path="branches" element={<AdminBranches />} />
             <Route path="contacts" element={<AdminContacts />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
