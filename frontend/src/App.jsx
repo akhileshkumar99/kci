@@ -19,8 +19,6 @@ import Gallery from './pages/Gallery';
 import Branches from './pages/Branches';
 import Staff from './pages/Staff';
 import Contact from './pages/Contact';
-import StudentDashboard from './pages/StudentDashboard';
-import Register from './pages/Register';
 import QuizPage from './pages/QuizPage';
 import StudyMaterial from './pages/StudyMaterial';
 import IDCard from './pages/IDCard';
@@ -206,12 +204,6 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-const StudentRoute = ({ children }) => {
-  const { user } = useAuth();
-  if (!user) return <Navigate to="/login" replace />;
-  return children;
-};
-
 const PublicLayout = ({ children }) => (
   <>
     <Navbar />
@@ -241,8 +233,6 @@ export default function App() {
           <Route path="/branches" element={<PublicLayout><Branches /></PublicLayout>} />
           <Route path="/staff" element={<PublicLayout><Staff /></PublicLayout>} />
           <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
-          <Route path="/register" element={<PublicLayout><Register /></PublicLayout>} />
-          <Route path="/dashboard" element={<StudentRoute><PublicLayout><StudentDashboard /></PublicLayout></StudentRoute>} />
           <Route path="/quiz" element={<PublicLayout><QuizPage /></PublicLayout>} />
           <Route path="/quiz/:id" element={<PublicLayout><QuizPage /></PublicLayout>} />
           <Route path="/study-material" element={<PublicLayout><StudyMaterial /></PublicLayout>} />

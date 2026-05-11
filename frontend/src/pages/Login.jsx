@@ -2,18 +2,17 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import { Mail, Lock, Eye, EyeOff, ShieldCheck, GraduationCap, Building2, UserCheck, ArrowRight, BookOpen, Users, Award, Phone } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ShieldCheck, Building2, ArrowRight, BookOpen, Users, Award } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
 const roles = [
-  { id: 'student', label: 'Student', icon: GraduationCap, color: 'from-blue-500 to-blue-600', desc: 'Access your courses & results' },
   { id: 'branch', label: 'Branch', icon: Building2, color: 'from-indigo-500 to-violet-600', desc: 'Manage your branch center' },
   { id: 'admin', label: 'Admin', icon: ShieldCheck, color: 'from-violet-500 to-indigo-600', desc: 'Full system control' },
 ];
 
 export default function Login() {
-  const [activeRole, setActiveRole] = useState('student');
+  const [activeRole, setActiveRole] = useState('branch');
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -36,16 +35,11 @@ export default function Login() {
         toast.error('Access denied. Admin credentials required.');
         setLoading(false); return;
       }
-      if (activeRole === 'student' && !['student'].includes(user.role)) {
-        toast.error('Access denied. Student credentials required.');
-        setLoading(false); return;
-      }
-
       toast.success(`Welcome, ${user.name}! 🎉`);
 
       if (user.role === 'admin') navigate('/admin');
       else if (user.role === 'branch') navigate('/branch-dashboard');
-      else navigate('/dashboard');
+      else navigate('/login');
 
     } catch (err) {
       toast.error(err.response?.data?.message || 'Invalid credentials');
@@ -120,7 +114,7 @@ export default function Login() {
             </div>
 
             {/* Role Selector */}
-            <div className="grid grid-cols-3 gap-2 mb-6 p-1.5 bg-gray-100 rounded-2xl">
+            <div className="grid grid-cols-2 gap-2 mb-6 p-1.5 bg-gray-100 rounded-2xl">
               {roles.map(({ id, label, icon: Icon, color }) => (
                 <button key={id} onClick={() => setActiveRole(id)}
                   className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl transition-all duration-200 ${activeRole === id ? 'bg-white shadow-md' : 'hover:bg-white/50'}`}>
@@ -151,7 +145,7 @@ export default function Login() {
                   <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${focused === 'email' ? 'text-blue-500' : 'text-gray-400'}`} />
                   <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
                     onFocus={() => setFocused('email')} onBlur={() => setFocused('')}
-                    placeholder={activeRole === 'admin' ? 'admin@kci.org.in' : activeRole === 'branch' ? 'branch@kci.org.in' : 'student@email.com'}
+                    placeholder={activeRole === 'admin' ? 'admin@kci.org.in' : 'branch@kci.org.in'}
                     className="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 text-sm text-gray-800 placeholder-gray-400 outline-none transition-all bg-slate-50 focus:bg-white"
                     style={{ borderColor: focused === 'email' ? '#3b82f6' : '#e2e8f0' }} />
                 </div>
@@ -187,13 +181,11 @@ export default function Login() {
               <p className="text-xs font-bold text-blue-700 mb-2">🔑 Demo Credentials:</p>
               <div className="space-y-1 text-xs text-blue-600">
                 <p><strong>Admin:</strong> admin@kci.org.in / admin123</p>
-                <p><strong>Student:</strong> student@kci.org.in / student123</p>
               </div>
             </div>
 
             {/* Links */}
-            <div className="mt-5 flex items-center justify-between text-xs">
-              <Link to="/register" className="text-blue-600 hover:underline font-semibold">New Student? Register</Link>
+            <div className="mt-5 flex items-center justify-center text-xs">
               <Link to="/branch-apply" className="text-indigo-600 hover:underline font-semibold">Apply for Branch</Link>
 
             </div>
