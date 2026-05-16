@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Camera, LogOut, LayoutDashboard, LogIn } from 'lucide-react';
+import { Menu, X, LogOut, LayoutDashboard, LogIn, Sun, Moon, GraduationCap, Building2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 const navLinks = [
   { label: 'Home', path: '/' },
@@ -22,16 +23,9 @@ export default function Navbar() {
   const [logo, setLogo] = useState(() => localStorage.getItem('kci_logo') || '/logo.png');
   const logoRef = useRef();
   const { user, logout } = useAuth();
+  const { dark, toggle } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
-
-  const handleLogoUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => { setLogo(ev.target.result); localStorage.setItem('kci_logo', ev.target.result); };
-    reader.readAsDataURL(file);
-  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -43,61 +37,59 @@ export default function Navbar() {
 
   const handleLogout = () => { logout(); navigate('/'); };
 
+  const getDashboardPath = () => {
+    if (!user) return '/login';
+    if (user.role === 'admin') return '/admin';
+    if (user.role === 'branch') return '/branch-dashboard';
+    if (user.role === 'student') return '/student-dashboard';
+    return '/';
+  };
+
+  const getDashboardLabel = () => {
+    if (user?.role === 'admin') return 'Admin Panel';
+    if (user?.role === 'branch') return 'Branch Panel';
+    if (user?.role === 'student') return 'My Portal';
+    return 'Dashboard';
+  };
+
+  const getDashboardIcon = () => {
+    if (user?.role === 'student') return <GraduationCap className="w-4 h-4" />;
+    if (user?.role === 'branch') return <Building2 className="w-4 h-4" />;
+    return <LayoutDashboard className="w-4 h-4" />;
+  };
+
   return (
     <motion.nav
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-white/98 shadow-xl shadow-blue-100/50 backdrop-blur-md'
-          : 'bg-white/95 backdrop-blur-sm'
+        dark
+          ? scrolled ? 'bg-slate-900/98 shadow-xl shadow-black/30 backdrop-blur-md' : 'bg-slate-900/95 backdrop-blur-sm'
+          : scrolled ? 'bg-white/98 shadow-xl shadow-blue-100/50 backdrop-blur-md' : 'bg-white/95 backdrop-blur-sm'
       }`}
     >
-      {/* Top accent line */}
       <div className="h-0.5 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-800" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-24">
+        <div className="flex items-center justify-between h-20">
 
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="relative">
-              <motion.div
-                whileHover={{ scale: 1.05, rotate: 2 }}
-                transition={{ type: 'spring', stiffness: 300 }}
-                className="relative"
-              >
-                <img
-                  src={logo}
-                  alt="KCI Logo"
-                  className="relative w-20 h-20 rounded-full object-cover shadow-lg transition-all"
-                />
-              </motion.div>
+            <motion.div whileHover={{ scale: 1.05, rotate: 2 }} transition={{ type: 'spring', stiffness: 300 }} className="relative">
+              <img src={logo} alt="KCI Logo" className="w-14 h-14 rounded-full object-cover shadow-lg ring-2 ring-blue-500/30" />
               {user && (
-                <button
-                  type="button"
-                  onClick={e => { e.preventDefault(); logoRef.current.click(); }}
-                  className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow hover:bg-blue-700 transition-colors"
-                >
-                  <Camera className="w-3 h-3 text-white" />
+                <button type="button" onClick={e => { e.preventDefault(); logoRef.current.click(); }}
+                  className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow hover:bg-blue-700 transition-colors text-white text-[10px]">
+                  📷
                 </button>
               )}
-              <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-            </div>
+              <input ref={logoRef} type="file" accept="image/*" className="hidden"
+                onChange={e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => { setLogo(ev.target.result); localStorage.setItem('kci_logo', ev.target.result); }; r.readAsDataURL(f); }} />
+            </motion.div>
             <div className="hidden sm:block">
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <div className="text-2xl font-black bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent leading-tight tracking-wide">
-                  KEERTI
-                </div>
-                <div className="text-xs font-bold text-blue-500 leading-tight tracking-[0.2em] uppercase">
-                  Computer Institute
-                </div>
-              </motion.div>
+              <div className={`text-xl font-black bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent leading-tight tracking-wide`}>KEERTI</div>
+              <div className={`text-[10px] font-bold leading-tight tracking-[0.2em] uppercase ${dark ? 'text-blue-400' : 'text-blue-500'}`}>Computer Institute</div>
             </div>
           </Link>
 
@@ -106,132 +98,109 @@ export default function Navbar() {
             {navLinks.map((link, i) => {
               const active = location.pathname === link.path;
               return (
-                <motion.div
-                  key={link.path}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.05 * i + 0.2 }}
-                >
-                  <Link
-                    to={link.path}
-                    className={`relative px-4 py-2.5 rounded-lg text-base font-semibold transition-all duration-200 group ${
-                      active ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'
-                    }`}
-                  >
+                <motion.div key={link.path} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 * i + 0.2 }}>
+                  <Link to={link.path}
+                    className={`relative px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 group ${
+                      active
+                        ? dark ? 'text-blue-400' : 'text-blue-600'
+                        : dark ? 'text-slate-300 hover:text-blue-400' : 'text-gray-600 hover:text-blue-600'
+                    }`}>
                     {active && (
-                      <motion.div
-                        layoutId="activeTab"
-                        className="absolute inset-0 bg-blue-50 rounded-lg border border-blue-100"
-                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                      />
+                      <motion.div layoutId="activeTab"
+                        className={`absolute inset-0 rounded-lg ${dark ? 'bg-blue-500/20 border border-blue-500/30' : 'bg-blue-50 border border-blue-100'}`}
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }} />
                     )}
                     <span className="relative z-10">{link.label}</span>
-                    {!active && (
-                      <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-blue-500 rounded-full group-hover:w-4/5 transition-all duration-300" />
-                    )}
+                    {!active && <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-blue-500 rounded-full group-hover:w-4/5 transition-all duration-300" />}
                   </Link>
                 </motion.div>
               );
             })}
           </div>
 
-          {/* Auth Buttons */}
+          {/* Right: Theme + Auth */}
           <div className="hidden lg:flex items-center gap-2">
+            {/* Dark mode toggle */}
+            <motion.button whileTap={{ scale: 0.9 }} onClick={toggle}
+              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${dark ? 'bg-slate-700 text-yellow-400 hover:bg-slate-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+              {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </motion.button>
+
             {user ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-2"
-              >
-                <Link
-                  to="/admin"
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-blue-200 hover:-translate-y-0.5 transition-all duration-200"
-                >
-                  <LayoutDashboard className="w-4 h-4" /> Admin Panel
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center gap-2">
+                <Link to={getDashboardPath()}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-blue-200 hover:-translate-y-0.5 transition-all duration-200">
+                  {getDashboardIcon()} {getDashboardLabel()}
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 text-gray-600 rounded-xl text-sm font-semibold hover:border-red-300 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
-                >
+                <button onClick={handleLogout}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-all duration-200 hover:-translate-y-0.5 ${
+                    dark ? 'border-slate-600 text-slate-300 hover:border-red-500 hover:text-red-400 hover:bg-red-500/10' : 'border-gray-200 text-gray-600 hover:border-red-300 hover:text-red-500 hover:bg-red-50'
+                  }`}>
                   <LogOut className="w-4 h-4" /> Logout
                 </button>
               </motion.div>
             ) : (
               <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-                <Link
-                  to="/login"
-                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-md shadow-blue-200 hover:shadow-lg hover:shadow-blue-300 hover:-translate-y-0.5 transition-all duration-200"
-                >
-                  <LogIn className="w-4 h-4" /> Admin Login
+                <Link to="/login"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+                  <LogIn className="w-4 h-4" /> Login
                 </Link>
               </motion.div>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setOpen(!open)}
-            className="lg:hidden p-2 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-          >
-            <AnimatePresence mode="wait">
-              {open ? (
-                <motion.div key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}>
-                  <X className="w-6 h-6" />
-                </motion.div>
-              ) : (
-                <motion.div key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }}>
-                  <Menu className="w-6 h-6" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.button>
+          {/* Mobile: theme + menu */}
+          <div className="lg:hidden flex items-center gap-2">
+            <motion.button whileTap={{ scale: 0.9 }} onClick={toggle}
+              className={`w-9 h-9 rounded-xl flex items-center justify-center ${dark ? 'bg-slate-700 text-yellow-400' : 'bg-gray-100 text-gray-600'}`}>
+              {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </motion.button>
+            <motion.button whileTap={{ scale: 0.9 }} onClick={() => setOpen(!open)}
+              className={`p-2 rounded-xl transition-colors ${dark ? 'text-slate-300 hover:bg-slate-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'}`}>
+              <AnimatePresence mode="wait">
+                {open
+                  ? <motion.div key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}><X className="w-6 h-6" /></motion.div>
+                  : <motion.div key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }}><Menu className="w-6 h-6" /></motion.div>
+                }
+              </AnimatePresence>
+            </motion.button>
+          </div>
         </div>
       </div>
 
       {/* Mobile Menu */}
       <AnimatePresence>
         {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="lg:hidden bg-white border-t border-blue-50 shadow-xl overflow-hidden"
-          >
+            className={`lg:hidden border-t overflow-hidden ${dark ? 'bg-slate-900 border-slate-700' : 'bg-white border-blue-50 shadow-xl'}`}>
             <div className="px-4 py-4 space-y-1">
               {navLinks.map((link, i) => (
-                <motion.div
-                  key={link.path}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.04 }}
-                >
-                  <Link
-                    to={link.path}
+                <motion.div key={link.path} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}>
+                  <Link to={link.path}
                     className={`flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                       location.pathname === link.path
                         ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
-                        : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:pl-6'
-                    }`}
-                  >
+                        : dark ? 'text-slate-300 hover:bg-slate-700 hover:text-blue-400' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                    }`}>
                     {link.label}
                   </Link>
                 </motion.div>
               ))}
-              <div className="pt-3 border-t border-gray-100 space-y-2">
+              <div className={`pt-3 border-t space-y-2 ${dark ? 'border-slate-700' : 'border-gray-100'}`}>
                 {user ? (
                   <>
-                    <Link to="/admin" className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold">
-                      <LayoutDashboard className="w-4 h-4" /> Admin Panel
+                    <Link to={getDashboardPath()} className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold">
+                      {getDashboardIcon()} {getDashboardLabel()}
                     </Link>
-                    <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-gray-200 text-gray-600 rounded-xl text-sm font-semibold hover:border-red-300 hover:text-red-500">
+                    <button onClick={handleLogout}
+                      className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 border-2 rounded-xl text-sm font-semibold ${dark ? 'border-slate-600 text-slate-300 hover:border-red-500 hover:text-red-400' : 'border-gray-200 text-gray-600 hover:border-red-300 hover:text-red-500'}`}>
                       <LogOut className="w-4 h-4" /> Logout
                     </button>
                   </>
                 ) : (
                   <Link to="/login" className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-md">
-                    <LogIn className="w-4 h-4" /> Admin Login
+                    <LogIn className="w-4 h-4" /> Login
                   </Link>
                 )}
               </div>
@@ -239,7 +208,6 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-      {/* Multi-color running line */}
       <div className="h-1 w-full overflow-hidden">
         <div className="running-line h-full" />
       </div>

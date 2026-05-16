@@ -12,6 +12,7 @@ const certificateSchema = new mongoose.Schema(
     grade: { type: String },
     certificateFile: { type: String },
     isValid: { type: Boolean, default: true },
+    isApproved: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

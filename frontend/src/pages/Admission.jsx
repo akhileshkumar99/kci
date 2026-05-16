@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import { Send, User, Mail, Phone, MapPin, BookOpen, GraduationCap, CheckCircle, Calendar, Users, Sparkles } from 'lucide-react';
+import { Send, User, Mail, Phone, MapPin, BookOpen, GraduationCap, CheckCircle, Calendar, Building2, Sparkles } from 'lucide-react';
 import api from '../utils/api';
 
 const inputClass = "w-full pl-10 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:bg-blue-50/30 bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400";
@@ -11,16 +11,19 @@ const selectClass = "w-full pl-10 pr-4 py-3 border-2 border-gray-100 rounded-xl 
 export default function Admission() {
   const [searchParams] = useSearchParams();
   const [courses, setCourses] = useState([]);
+  const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({
     name: '', email: '', phone: '', address: '',
     course: searchParams.get('course') || '',
     qualification: '', dob: '', gender: '', message: '',
+    branchId: '', fatherName: '', batch: '',
   });
 
   useEffect(() => {
     api.get('/courses').then(({ data }) => setCourses(data.courses)).catch(() => {});
+    api.get('/branch/public').then(({ data }) => setBranches(data.branches || [])).catch(() => {});
   }, []);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -42,7 +45,7 @@ export default function Admission() {
 
   const resetForm = () => {
     setSubmitted(false);
-    setForm({ name: '', email: '', phone: '', address: '', course: '', qualification: '', dob: '', gender: '', message: '' });
+    setForm({ name: '', email: '', phone: '', address: '', course: '', qualification: '', dob: '', gender: '', message: '', branchId: '', fatherName: '', batch: '' });
   };
 
   return (
@@ -183,6 +186,22 @@ export default function Admission() {
                               className="w-full pl-10 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all text-gray-800 hover:border-gray-200" />
                           </div>
                         </div>
+                        <div className="space-y-1.5">
+                          <label className="text-sm font-semibold text-gray-700">Father's Name</label>
+                          <div className="relative group">
+                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                            <input name="fatherName" value={form.fatherName} onChange={handleChange} placeholder="Father's full name"
+                              className="w-full pl-10 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all text-gray-800 placeholder-gray-400 hover:border-gray-200" />
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-sm font-semibold text-gray-700">Batch</label>
+                          <div className="relative group">
+                            <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                            <input name="batch" value={form.batch} onChange={handleChange} placeholder="e.g. 2025-26"
+                              className="w-full pl-10 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all text-gray-800 placeholder-gray-400 hover:border-gray-200" />
+                          </div>
+                        </div>
                       </div>
                     </div>
 
@@ -217,6 +236,23 @@ export default function Admission() {
                               {['8th Pass','10th Pass','12th Pass','Graduate','Post Graduate','Other'].map(q => <option key={q}>{q}</option>)}
                             </select>
                           </div>
+                        </div>
+                      </div>
+
+                      {/* Branch Selector */}
+                      <div className="mt-5 space-y-1.5">
+                        <label className="text-sm font-semibold text-gray-700">Select Branch / Center <span className="text-gray-400 font-normal text-xs">(Optional)</span></label>
+                        <div className="relative group">
+                          <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-violet-500 transition-colors" />
+                          <select name="branchId" value={form.branchId} onChange={handleChange}
+                            className="w-full pl-10 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50 focus:bg-white transition-all text-gray-800 appearance-none hover:border-gray-200">
+                            <option value="">-- Select nearest branch --</option>
+                            {branches.map(b => (
+                              <option key={b._id} value={b._id}>
+                                {b.branchName}{b.branchCity ? ` — ${b.branchCity}` : ''}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                       </div>
 

@@ -52,7 +52,10 @@ async function generateEnrollmentId() {
 
 exports.submitAdmission = async (req, res) => {
   try {
-    const admission = await Admission.create(req.body);
+    const data = { ...req.body };
+    if (!data.branchId) delete data.branchId;
+    if (!data.franchise) delete data.franchise;
+    const admission = await Admission.create(data);
     res.status(201).json({ success: true, message: 'Admission form submitted successfully!', admission });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

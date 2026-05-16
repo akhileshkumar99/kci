@@ -5,9 +5,12 @@ exports.getResultByRoll = async (req, res) => {
   try {
     const result = await Result.findOne({ rollNumber: req.params.rollNumber }).populate('course', 'title');
     if (!result) return res.status(404).json({ success: false, message: 'No result found for this roll number' });
-    const student = await User.findOne({ rollNumber: req.params.rollNumber }).select('photo');
+    const student = await User.findOne({ rollNumber: req.params.rollNumber }).select('photo fatherName phone branchName');
     const resultObj = result.toObject();
-    if (student?.photo) resultObj.studentPhoto = student.photo;
+    if (student?.photo)       resultObj.studentPhoto = student.photo;
+    if (student?.fatherName)  resultObj.fatherName   = student.fatherName;
+    if (student?.phone)       resultObj.phone        = student.phone;
+    if (student?.branchName)  resultObj.branchName   = student.branchName;
     res.json({ success: true, result: resultObj });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

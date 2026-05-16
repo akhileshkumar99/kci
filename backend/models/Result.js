@@ -22,6 +22,7 @@ const resultSchema = new mongoose.Schema(
     status: { type: String, enum: ['Pass', 'Fail'], default: 'Pass' },
     examDate: { type: Date },
     resultFile: { type: String },
+    isApproved: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

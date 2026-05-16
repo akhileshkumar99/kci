@@ -94,6 +94,18 @@ const branchAuth = (req, res, next) => {
   res.status(403).json({ success: false, message: 'Branch access required' });
 };
 
+// Public: Get all approved branches (for admission form)
+router.get('/public', async (req, res) => {
+  try {
+    const branches = await User.find({ role: 'branch', isApproved: true })
+      .select('branchName branchCity branchCode')
+      .sort('branchName');
+    res.json({ success: true, branches });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Public: Apply for branch
 router.post('/apply', async (req, res) => {
   try {
@@ -191,6 +203,22 @@ router.put('/:id/approve', protect, admin, async (req, res) => {
   }
 });
 
+// Admin: Reset any user's password (fixes plaintext password issue)
+router.put('/:id/reset-password', protect, admin, async (req, res) => {
+  try {
+    const { password } = req.body;
+    if (!password || !password.trim())
+      return res.status(400).json({ success: false, message: 'Password required' });
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ success: false, message: 'Not found' });
+    user.password = password.trim();
+    await user.save(); // triggers bcrypt pre-save hook
+    res.json({ success: true, message: 'Password reset successfully' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Admin: Delete branch
 router.delete('/:id', protect, admin, async (req, res) => {
   try {
@@ -235,12 +263,135 @@ router.get('/students', protect, branchAuth, async (req, res) => {
   }
 });
 
+// Branch: Update admission status + create/update student account + send credentials email
+router.put('/admissions/:id/status', protect, branchAuth, async (req, res) => {
+  try {
+    const Admission = require('../models/Admission');
+    const { status } = req.body;
+    if (!['Pending', 'Approved', 'Rejected'].includes(status))
+      return res.status(400).json({ success: false, message: 'Invalid status' });
+
+    const admission = await Admission.findById(req.params.id).populate('course', 'title');
+    if (!admission) return res.status(404).json({ success: false, message: 'Not found' });
+
+    const wasNotApproved = admission.status !== 'Approved';
+    admission.status = status;
+
+    let studentData = null;
+
+    if (status === 'Approved' && wasNotApproved) {
+      const courseName = admission.course?.title || '';
+      const branchName = req.user.branchName || 'KCI Branch';
+      const existing = await User.findOne({ email: admission.email });
+
+      if (!existing) {
+        // New student — create account
+        const count = await User.countDocuments({ role: 'student' });
+        const rollNumber = `KCI${new Date().getFullYear()}${String(count + 1).padStart(4, '0')}`;
+        const plainPassword = 'KCI@' + Math.random().toString(36).slice(-6).toUpperCase();
+
+        const created = await User.create({
+          name: admission.name,
+          email: admission.email,
+          password: plainPassword,
+          phone: admission.phone || '',
+          address: admission.address || '',
+          dob: admission.dob || null,
+          fatherName: admission.fatherName || '',
+          batch: admission.batch || '',
+          rollNumber,
+          courseName,
+          course: admission.course?._id || admission.course,
+          branchId: req.user._id,
+          branchName: req.user.branchName,
+          branchCity: req.user.branchCity,
+          role: 'student',
+          isApproved: true,
+          isActive: true,
+          admissionDate: new Date(),
+        });
+        admission.studentUserId = created._id;
+        studentData = created.toObject();
+        delete studentData.password;
+
+        // Send credentials email
+        try {
+          await transporter.sendMail({
+            from: `"Keerti Computer Institute" <${process.env.EMAIL_USER}>`,
+            to: admission.email,
+            subject: '🎉 Your KCI Admission is Approved — Login Credentials Inside!',
+            html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden">
+              <div style="background:linear-gradient(135deg,#1d4ed8,#4f46e5);padding:32px;text-align:center">
+                <h1 style="color:#fff;margin:0;font-size:26px">🎉 Admission Approved!</h1>
+                <p style="color:#bfdbfe;margin:8px 0 0">Keerti Computer Institute</p>
+              </div>
+              <div style="padding:32px">
+                <p style="font-size:16px;color:#111">Dear <strong>${admission.name}</strong>,</p>
+                <p style="color:#374151">Your admission at <strong>${branchName}</strong> is approved. Your student account is ready.</p>
+                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:20px;margin:20px 0">
+                  <h3 style="margin:0 0 14px;color:#1d4ed8">🔐 Login Credentials</h3>
+                  <p style="margin:6px 0;color:#374151"><strong>Email:</strong> ${admission.email}</p>
+                  <p style="margin:6px 0;color:#374151"><strong>Password:</strong> <code style="background:#dbeafe;padding:3px 10px;border-radius:4px;font-size:15px;font-weight:bold">${plainPassword}</code></p>
+                  <p style="margin:6px 0;color:#374151"><strong>Roll Number:</strong> <code style="background:#dbeafe;padding:3px 10px;border-radius:4px;font-size:15px;font-weight:bold">${rollNumber}</code></p>
+                  <p style="margin:6px 0;color:#374151"><strong>Course:</strong> ${courseName}</p>
+                  <p style="margin:6px 0;color:#374151"><strong>Branch:</strong> ${branchName}</p>
+                </div>
+                <div style="text-align:center;margin:24px 0">
+                  <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login" style="background:#1d4ed8;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px">Login to Student Portal →</a>
+                </div>
+                <p style="color:#6b7280;font-size:13px">For help: <strong>9936384736 / 9919660880</strong></p>
+              </div>
+              <div style="background:#f9fafb;padding:16px;text-align:center;color:#9ca3af;font-size:12px">Keerti Computer Institute | 9936384736</div>
+            </div>`,
+          });
+        } catch (emailErr) {
+          console.error('Email failed:', emailErr.message);
+        }
+      } else {
+        // Existing student — auto-fill missing fields from admission
+        const updates = {};
+        if (!existing.phone && admission.phone) updates.phone = admission.phone;
+        if (!existing.address && admission.address) updates.address = admission.address;
+        if (!existing.dob && admission.dob) updates.dob = admission.dob;
+        if (!existing.fatherName && admission.fatherName) updates.fatherName = admission.fatherName;
+        if (!existing.batch && admission.batch) updates.batch = admission.batch;
+        if (!existing.courseName && courseName) updates.courseName = courseName;
+        if (!existing.branchId) updates.branchId = req.user._id;
+        const updated = Object.keys(updates).length > 0
+          ? await User.findByIdAndUpdate(existing._id, updates, { new: true }).select('-password')
+          : existing;
+        admission.studentUserId = existing._id;
+        studentData = updated.toObject ? updated.toObject() : updated;
+        delete studentData.password;
+      }
+    }
+
+    await admission.save();
+    res.json({ success: true, admission, newStudent: studentData });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Branch: Delete admission
+router.delete('/admissions/:id', protect, branchAuth, async (req, res) => {
+  try {
+    const Admission = require('../models/Admission');
+    await Admission.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Admission deleted' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Branch: Get own admissions
 router.get('/admissions', protect, branchAuth, async (req, res) => {
   try {
     const Admission = require('../models/Admission');
     const filter = req.user.role === 'admin' ? {} : { branchId: req.user._id };
-    const admissions = await Admission.find(filter).sort('-createdAt');
+    const admissions = await Admission.find(filter)
+      .populate('course', 'title')
+      .sort('-createdAt');
     res.json({ success: true, admissions });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -260,6 +411,53 @@ router.get('/results', protect, branchAuth, async (req, res) => {
   }
 });
 
+// Branch: Add result
+router.post('/results', protect, branchAuth, async (req, res) => {
+  try {
+    const Result = require('../models/Result');
+    const result = await Result.create(req.body);
+    res.status(201).json({ success: true, result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Branch: Update result
+router.put('/results/:id', protect, branchAuth, async (req, res) => {
+  try {
+    const Result = require('../models/Result');
+    const result = await Result.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!result) return res.status(404).json({ success: false, message: 'Not found' });
+    res.json({ success: true, result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Branch: Approve/toggle result
+router.put('/results/:id/approve', protect, branchAuth, async (req, res) => {
+  try {
+    const Result = require('../models/Result');
+    const isApproved = req.body.isApproved !== undefined ? req.body.isApproved : true;
+    const result = await Result.findByIdAndUpdate(req.params.id, { isApproved }, { new: true });
+    if (!result) return res.status(404).json({ success: false, message: 'Not found' });
+    res.json({ success: true, result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Branch: Delete result
+router.delete('/results/:id', protect, branchAuth, async (req, res) => {
+  try {
+    const Result = require('../models/Result');
+    await Result.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Result deleted' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Branch: Get own certificates
 router.get('/certificates', protect, branchAuth, async (req, res) => {
   try {
@@ -271,6 +469,177 @@ router.get('/certificates', protect, branchAuth, async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
+});
+
+// Branch: Add certificate
+router.post('/certificates', protect, branchAuth, async (req, res) => {
+  try {
+    const Certificate = require('../models/Certificate');
+    const certificate = await Certificate.create(req.body);
+    res.status(201).json({ success: true, certificate });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Branch: Update certificate
+router.put('/certificates/:id', protect, branchAuth, async (req, res) => {
+  try {
+    const Certificate = require('../models/Certificate');
+    const certificate = await Certificate.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!certificate) return res.status(404).json({ success: false, message: 'Not found' });
+    res.json({ success: true, certificate });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Branch: Approve/toggle certificate
+router.put('/certificates/:id/approve', protect, branchAuth, async (req, res) => {
+  try {
+    const Certificate = require('../models/Certificate');
+    const isApproved = req.body.isApproved !== undefined ? req.body.isApproved : true;
+    const certificate = await Certificate.findByIdAndUpdate(req.params.id, { isApproved }, { new: true });
+    if (!certificate) return res.status(404).json({ success: false, message: 'Not found' });
+    res.json({ success: true, certificate });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Branch: Delete certificate
+router.delete('/certificates/:id', protect, branchAuth, async (req, res) => {
+  try {
+    const Certificate = require('../models/Certificate');
+    await Certificate.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Certificate deleted' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ── TEST ROUTES ──────────────────────────────────────────────────────────────
+
+// Branch: Get own tests
+router.get('/tests', protect, branchAuth, async (req, res) => {
+  try {
+    const Test = require('../models/Test');
+    const filter = req.user.role === 'admin' ? {} : { branchId: req.user._id };
+    const tests = await Test.find(filter).sort('-createdAt');
+    res.json({ success: true, tests });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+// Branch: Create test
+router.post('/tests', protect, branchAuth, async (req, res) => {
+  try {
+    const Test = require('../models/Test');
+    const totalMarks = (req.body.questions || []).reduce((a, q) => a + (Number(q.marks) || 1), 0);
+    const test = await Test.create({ ...req.body, branchId: req.user._id, totalMarks });
+    res.status(201).json({ success: true, test });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+// Branch: Update test
+router.put('/tests/:id', protect, branchAuth, async (req, res) => {
+  try {
+    const Test = require('../models/Test');
+    const totalMarks = (req.body.questions || []).reduce((a, q) => a + (Number(q.marks) || 1), 0);
+    const test = await Test.findByIdAndUpdate(req.params.id, { ...req.body, totalMarks }, { new: true });
+    if (!test) return res.status(404).json({ success: false, message: 'Not found' });
+    res.json({ success: true, test });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+// Branch: Delete test
+router.delete('/tests/:id', protect, branchAuth, async (req, res) => {
+  try {
+    const Test = require('../models/Test');
+    await Test.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+// Branch: Get test attempts
+router.get('/tests/:id/attempts', protect, branchAuth, async (req, res) => {
+  try {
+    const TestAttempt = require('../models/TestAttempt');
+    const attempts = await TestAttempt.find({ testId: req.params.id }).sort('-submittedAt');
+    res.json({ success: true, attempts });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+// Student: Get available tests for their branch
+router.get('/student/tests', protect, async (req, res) => {
+  try {
+    const Test = require('../models/Test');
+    const TestAttempt = require('../models/TestAttempt');
+    if (req.user.role !== 'student') return res.status(403).json({ success: false, message: 'Students only' });
+    const branchId = req.user.branchId || req.user.franchiseId;
+    if (!branchId) return res.json({ success: true, tests: [] });
+    const tests = await Test.find({ branchId, isActive: true }).select('-questions.correctAnswer').sort('-createdAt');
+    const attempts = await TestAttempt.find({ studentId: req.user._id }).select('testId score percentage');
+    const attemptMap = {};
+    attempts.forEach(a => { attemptMap[a.testId.toString()] = a; });
+    const testsWithStatus = tests.map(t => ({
+      ...t.toObject(),
+      attempted: !!attemptMap[t._id.toString()],
+      myScore: attemptMap[t._id.toString()]?.score,
+      myPercentage: attemptMap[t._id.toString()]?.percentage,
+    }));
+    res.json({ success: true, tests: testsWithStatus });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+// Student: Get single test with questions (no correct answers)
+router.get('/student/tests/:id', protect, async (req, res) => {
+  try {
+    const Test = require('../models/Test');
+    const TestAttempt = require('../models/TestAttempt');
+    if (req.user.role !== 'student') return res.status(403).json({ success: false, message: 'Students only' });
+    const test = await Test.findById(req.params.id).select('-questions.correctAnswer');
+    if (!test) return res.status(404).json({ success: false, message: 'Test not found' });
+    const attempted = await TestAttempt.findOne({ testId: req.params.id, studentId: req.user._id });
+    res.json({ success: true, test, attempted: !!attempted, attempt: attempted });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+// Student: Submit test
+router.post('/student/tests/:id/submit', protect, async (req, res) => {
+  try {
+    const Test = require('../models/Test');
+    const TestAttempt = require('../models/TestAttempt');
+    if (req.user.role !== 'student') return res.status(403).json({ success: false, message: 'Students only' });
+    const existing = await TestAttempt.findOne({ testId: req.params.id, studentId: req.user._id });
+    if (existing) return res.status(400).json({ success: false, message: 'Already attempted' });
+    const test = await Test.findById(req.params.id);
+    if (!test) return res.status(404).json({ success: false, message: 'Test not found' });
+    const { answers, timeTaken } = req.body;
+    let score = 0;
+    test.questions.forEach((q, i) => {
+      if (answers[i] !== undefined && answers[i] === q.correctAnswer) score += (q.marks || 1);
+    });
+    const percentage = test.totalMarks > 0 ? Math.round((score / test.totalMarks) * 100) : 0;
+    const attempt = await TestAttempt.create({
+      testId: test._id, studentId: req.user._id,
+      rollNumber: req.user.rollNumber, studentName: req.user.name,
+      answers, score, totalMarks: test.totalMarks, percentage, timeTaken,
+    });
+    // Return with correct answers for result display
+    res.json({ success: true, attempt, correctAnswers: test.questions.map(q => q.correctAnswer) });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+// Student: Get own attempt result
+router.get('/student/tests/:id/result', protect, async (req, res) => {
+  try {
+    const Test = require('../models/Test');
+    const TestAttempt = require('../models/TestAttempt');
+    const attempt = await TestAttempt.findOne({ testId: req.params.id, studentId: req.user._id });
+    if (!attempt) return res.status(404).json({ success: false, message: 'Not attempted' });
+    const test = await Test.findById(req.params.id);
+    res.json({ success: true, attempt, test, correctAnswers: test.questions.map(q => q.correctAnswer) });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
 // ── STUDENT ROUTES (Branch manages students) ──────────────────────────────
@@ -311,8 +680,21 @@ router.put('/students/:id', protect, branchAuth, upload.single('photo'), async (
     if (req.user.role === 'branch' && student.branchId?.toString() !== req.user._id.toString())
       return res.status(403).json({ success: false, message: 'Access denied' });
     const updates = { ...req.body };
-    delete updates.password; delete updates.role;
+    delete updates.role;
     if (req.file) updates.photo = `/uploads/${req.file.filename}`;
+    // Handle password change
+    if (updates.newPassword && updates.newPassword.trim()) {
+      student.password = updates.newPassword.trim();
+      delete updates.newPassword;
+      delete updates.password;
+      Object.assign(student, updates);
+      await student.save();
+      const result = student.toObject();
+      delete result.password;
+      return res.json({ success: true, student: result });
+    }
+    delete updates.newPassword;
+    delete updates.password;
     const updated = await User.findByIdAndUpdate(req.params.id, updates, { new: true }).select('-password');
     res.json({ success: true, student: updated });
   } catch (err) {
@@ -364,8 +746,8 @@ router.get('/student/me', protect, async (req, res) => {
     const Certificate = require('../models/Certificate');
     const student = await User.findById(req.user._id).select('-password');
     const [results, certificates] = await Promise.all([
-      Result.find({ rollNumber: req.user.rollNumber }).sort('-createdAt'),
-      Certificate.find({ rollNumber: req.user.rollNumber }).sort('-createdAt'),
+      Result.find({ rollNumber: req.user.rollNumber, isApproved: true }).sort('-createdAt'),
+      Certificate.find({ rollNumber: req.user.rollNumber, isApproved: true }).sort('-createdAt'),
     ]);
     const branch = (req.user.branchId || req.user.franchiseId)
       ? await User.findById(req.user.branchId || req.user.franchiseId).select('branchName branchCity franchiseCenter franchiseCity phone email')

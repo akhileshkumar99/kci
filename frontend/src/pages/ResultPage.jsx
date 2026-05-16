@@ -66,34 +66,154 @@ export default function ResultPage() {
     });
 
   const handleDownload = async () => {
-    const doc = new jsPDF();
-    const pageW = doc.internal.pageSize.getWidth();
-    doc.setFillColor(30, 64, 175);
-    doc.rect(0, 0, pageW, 32, 'F');
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const W = 210, M = 14;
+
+    // circular logo
+    let logoDataUrl = null;
+    try {
+      const img = await new Promise((res, rej) => {
+        const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = '/logo.png';
+      });
+      const sz = 300;
+      const cv = document.createElement('canvas'); cv.width = sz; cv.height = sz;
+      const cx = cv.getContext('2d');
+      cx.beginPath(); cx.arc(sz/2, sz/2, sz/2, 0, Math.PI*2); cx.closePath(); cx.clip();
+      cx.drawImage(img, 0, 0, sz, sz);
+      logoDataUrl = cv.toDataURL('image/png');
+    } catch (_) {}
+
+    // HEADER
+    const HDR_H = 52;
+    doc.setFillColor(15, 40, 110); doc.rect(0, 0, W, HDR_H, 'F');
+    doc.setFillColor(250, 204, 21); doc.rect(0, HDR_H, W, 3, 'F');
+
+    const LS = 36;
+    if (logoDataUrl) doc.addImage(logoDataUrl, 'PNG', M, (HDR_H - LS) / 2, LS, LS);
+
+    const TX = M + LS + 7;
+    const TEXT_MAX_W = W - TX - M;
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18); doc.setFont('helvetica', 'bold');
-    doc.text('KEERTI COMPUTER INSTITUTE', pageW / 2, 13, { align: 'center' });
-    doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-    doc.text('Government Recognized Institute | Ayodhya, Faizabad, UP', pageW / 2, 22, { align: 'center' });
-    doc.text('Ph: 9936384736, 9919660880', pageW / 2, 29, { align: 'center' });
-    doc.setTextColor(30, 64, 175); doc.setFontSize(14); doc.setFont('helvetica', 'bold');
-    doc.text('RESULT MARKSHEET', pageW / 2, 44, { align: 'center' });
-    if (result.studentPhoto) {
-      const base64 = await getImageBase64(`http://localhost:5000/uploads/${result.studentPhoto}`);
-      if (base64) { doc.rect(pageW - 46, 36, 32, 38); doc.addImage(base64, 'JPEG', pageW - 45.5, 36.5, 31, 37); }
-    }
-    doc.setTextColor(50, 50, 50); doc.setFontSize(11); doc.setFont('helvetica', 'normal');
-    const info = [['Student Name', result.studentName], ['Roll Number', result.rollNumber], ['Course', result.courseName || result.course?.title || '—'], ['Batch', result.batch || '—'], ['Exam Date', result.examDate ? new Date(result.examDate).toLocaleDateString('en-IN') : '—']];
-    let y = 54;
-    info.forEach(([label, val]) => { doc.setFont('helvetica', 'bold'); doc.text(`${label}:`, 14, y); doc.setFont('helvetica', 'normal'); doc.text(String(val), 70, y); y += 8; });
-    const rows = (result.subjects || []).map(s => [s.name, s.maxMarks, s.obtainedMarks, s.maxMarks > 0 ? ((s.obtainedMarks / s.maxMarks) * 100).toFixed(1) + '%' : '—']);
-    rows.push(['Total', result.totalMarks, result.obtainedMarks, result.percentage + '%']);
-    autoTable(doc, { startY: y + 4, head: [['Subject', 'Max Marks', 'Obtained', 'Percentage']], body: rows, headStyles: { fillColor: [30, 64, 175], textColor: 255, fontStyle: 'bold' }, alternateRowStyles: { fillColor: [239, 246, 255] }, styles: { fontSize: 10, cellPadding: 4 }, columnStyles: { 0: { cellWidth: 80 } } });
-    const finalY = doc.lastAutoTable.finalY + 12;
-    doc.setFontSize(12); doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 64, 175);
-    doc.text(`Percentage: ${result.percentage}%   Grade: ${result.grade}   Status: ${result.status}`, 14, finalY);
-    doc.setFontSize(9); doc.setFont('helvetica', 'italic'); doc.setTextColor(150);
-    doc.text('This is a computer generated result. For queries contact KCI Head Office.', pageW / 2, finalY + 14, { align: 'center' });
+    doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+    doc.text('KEERTI COMPUTER INSTITUTE', TX, 20, { maxWidth: TEXT_MAX_W });
+    doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(180, 210, 255);
+    doc.text('Govt. Recognised  |  Est. 2005  |  www.kci.org.in', TX, 29, { maxWidth: TEXT_MAX_W });
+    doc.setFontSize(7.5); doc.setTextColor(200, 225, 255);
+    doc.text('Excellence in Computer Education Since 2005', TX, 37, { maxWidth: TEXT_MAX_W });
+    const PILL_W = 52;
+    doc.setFillColor(250, 204, 21); doc.roundedRect(TX, 41, PILL_W, 9, 2, 2, 'F');
+    doc.setTextColor(15, 40, 110); doc.setFontSize(8.5); doc.setFont('helvetica', 'bold');
+    doc.text('RESULT CARD', TX + PILL_W / 2, 47, { align: 'center' });
+
+    // STUDENT INFO BOX
+    const INFO_Y = HDR_H + 8;
+    doc.setFillColor(245, 248, 255); doc.setDrawColor(210, 220, 245);
+    doc.roundedRect(M, INFO_Y, W - M * 2, 50, 3, 3, 'FD');
+    doc.setFillColor(15, 40, 110); doc.roundedRect(M, INFO_Y, 42, 8, 2, 2, 'F');
+    doc.setTextColor(255, 255, 255); doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+    doc.text('STUDENT DETAILS', M + 21, INFO_Y + 5.5, { align: 'center' });
+
+    const LBL1 = M + 4, VAL1 = M + 32;
+    const LBL2 = W / 2 + 2, VAL2 = W / 2 + 26;
+    const VMAXL = W / 2 - VAL1 - 4;
+    const VMAXR = W - M - VAL2 - 2;
+
+    const infoRows = [
+      ['Student Name', result.studentName || '—',                          'Roll No.',  result.rollNumber || '—'],
+      ['Course',       result.courseName || result.course?.title || '—',   'Batch',     result.batch || '—'],
+      ['Branch',       result.branchName || '—',                            'Exam Date', result.examDate ? new Date(result.examDate).toLocaleDateString('en-IN') : '—'],
+      ['Father Name',  result.fatherName || '—',                            'Phone',     result.phone || '—'],
+    ];
+    infoRows.forEach(([l1, v1, l2, v2], i) => {
+      const y = INFO_Y + 16 + i * 10;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(80, 100, 160);
+      doc.text(l1 + ' :', LBL1, y);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(15, 15, 15);
+      doc.text(String(v1), VAL1, y, { maxWidth: VMAXL });
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(80, 100, 160);
+      doc.text(l2 + ' :', LBL2, y);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(15, 15, 15);
+      doc.text(String(v2), VAL2, y, { maxWidth: VMAXR });
+    });
+
+    // SUBJECT TABLE
+    const TABLE_Y = INFO_Y + 50 + 6;
+
+    const subjectRows = (result.subjects || []).map((s, i) => [
+      i + 1, s.name || '—', s.maxMarks ?? '—', s.obtainedMarks ?? '—',
+      s.maxMarks ? ((s.obtainedMarks / s.maxMarks) * 100).toFixed(1) + '%' : '—',
+      (s.obtainedMarks ?? 0) >= (s.maxMarks ?? 0) * 0.33 ? 'Pass' : 'Fail',
+    ]);
+
+    autoTable(doc, {
+      startY: TABLE_Y,
+      head: [['#', 'Subject Name', 'Max Marks', 'Obtained', 'Percentage', 'Status']],
+      body: subjectRows,
+      theme: 'grid',
+      headStyles: { fillColor: [15, 40, 110], textColor: [255,255,255], fontStyle: 'bold', fontSize: 9, cellPadding: { top:4, bottom:4, left:3, right:3 }, halign: 'center' },
+      bodyStyles: { fontSize: 9, textColor: [20,20,20], cellPadding: { top:3.5, bottom:3.5, left:3, right:3 } },
+      alternateRowStyles: { fillColor: [245, 248, 255] },
+      columnStyles: {
+        0: { halign: 'center', cellWidth: 10 },
+        1: { halign: 'left',   cellWidth: 70 },
+        2: { halign: 'center', cellWidth: 22 },
+        3: { halign: 'center', cellWidth: 22 },
+        4: { halign: 'center', cellWidth: 24 },
+        5: { halign: 'center', cellWidth: 22 },
+      },
+      didDrawCell: (data) => {
+        if (data.section === 'body' && data.column.index === 5) {
+          const val = data.cell.raw;
+          const isPass = val === 'Pass';
+          doc.setFillColor(isPass ? 220 : 255, isPass ? 252 : 220, isPass ? 220 : 220);
+          doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, 'F');
+          doc.setTextColor(isPass ? 21 : 180, isPass ? 128 : 30, isPass ? 21 : 30);
+          doc.setFontSize(8.5); doc.setFont('helvetica', 'bold');
+          doc.text(val, data.cell.x + data.cell.width/2, data.cell.y + data.cell.height/2 + 1.5, { align: 'center' });
+        }
+      },
+      margin: { left: M, right: M },
+    });
+
+    // SUMMARY BOX
+    const SUM_Y = doc.lastAutoTable.finalY + 8;
+    const SUM_H = 34;
+    doc.setFillColor(15, 40, 110); doc.roundedRect(M, SUM_Y, W - M*2, SUM_H, 3, 3, 'F');
+    doc.setFillColor(250, 204, 21); doc.roundedRect(M, SUM_Y, W - M*2, 2.5, 1, 1, 'F');
+    const sumItems = [
+      ['TOTAL MARKS', `${result.obtainedMarks ?? '—'} / ${result.totalMarks ?? '—'}`],
+      ['PERCENTAGE',  result.percentage ? `${result.percentage}%` : '—'],
+      ['GRADE',       result.grade || '—'],
+      ['RESULT',      result.status || '—'],
+    ];
+    const CW = (W - M*2) / 4;
+    sumItems.forEach(([lbl, val], i) => {
+      const cx = M + i * CW + CW / 2;
+      if (i > 0) { doc.setDrawColor(255,255,255); doc.setLineWidth(0.3); doc.line(M + i*CW, SUM_Y+5, M + i*CW, SUM_Y+SUM_H-5); }
+      doc.setTextColor(160,195,255); doc.setFontSize(7); doc.setFont('helvetica','normal');
+      doc.text(lbl, cx, SUM_Y + 13, { align: 'center' });
+      const gold = lbl === 'GRADE' || lbl === 'RESULT';
+      doc.setTextColor(gold ? 250 : 255, gold ? 204 : 255, gold ? 21 : 255);
+      doc.setFontSize(14); doc.setFont('helvetica','bold');
+      doc.text(String(val), cx, SUM_Y + 27, { align: 'center' });
+    });
+
+    // FOOTER
+    const FTR_Y = SUM_Y + SUM_H + 14;
+    doc.setDrawColor(160,160,160); doc.setLineWidth(0.4);
+    doc.line(M, FTR_Y, M+55, FTR_Y);
+    doc.line(W-M-55, FTR_Y, W-M, FTR_Y);
+    doc.setTextColor(80,80,80); doc.setFontSize(8); doc.setFont('helvetica','normal');
+    doc.text('Student Signature', M+27, FTR_Y+5, { align: 'center' });
+    doc.text('Principal Signature', W-M-27, FTR_Y+5, { align: 'center' });
+    if (logoDataUrl) doc.addImage(logoDataUrl, 'PNG', W/2-9, FTR_Y-12, 18, 18);
+    doc.setTextColor(140,140,140); doc.setFontSize(6.5);
+    doc.text('KCI Official Seal', W/2, FTR_Y+5, { align: 'center' });
+    const BOT_Y = FTR_Y + 12;
+    doc.setFillColor(240,244,255); doc.rect(0, BOT_Y, W, 11, 'F');
+    doc.setTextColor(130,130,130); doc.setFontSize(7); doc.setFont('helvetica','normal');
+    doc.text(`Generated on ${new Date().toLocaleDateString('en-IN')}   |   Computer-generated document   |   KCI Official`, W/2, BOT_Y+7, { align: 'center', maxWidth: W - M*2 });
+
     doc.save(`Result_${result.rollNumber}.pdf`);
     toast.success('PDF downloaded!');
   };

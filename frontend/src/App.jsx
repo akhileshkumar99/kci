@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence as AnimatePresenceWA } from 'framer-motion';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Loader from './components/Loader';
 
 import Navbar from './components/Navbar';
@@ -215,6 +216,7 @@ const PublicLayout = ({ children }) => (
 
 export default function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <Loader />
       <ChatBox />
@@ -261,5 +263,6 @@ export default function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </ThemeProvider>
   );
 }
