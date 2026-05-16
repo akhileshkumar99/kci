@@ -1,16 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import {
   GraduationCap, Award, FileText, LogOut, User,
-  Building2, Phone, Mail, MapPin, Calendar, BookOpen, CheckCircle, Clock
+  Building2, Calendar, BookOpen, CheckCircle, CreditCard, Printer
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
 const tabs = [
   { id: 'profile', label: 'My Profile', icon: User },
+  { id: 'idcard', label: 'ID Card', icon: CreditCard },
   { id: 'results', label: 'My Results', icon: Award },
   { id: 'certificates', label: 'Certificates', icon: FileText },
 ];
@@ -20,6 +21,161 @@ function InfoRow({ label, value }) {
     <div className="flex flex-col gap-0.5 py-2 border-b border-gray-50 last:border-0">
       <span className="text-xs font-semibold text-gray-400">{label}</span>
       <span className="text-sm font-bold text-gray-800">{value || '—'}</span>
+    </div>
+  );
+}
+
+function IDCard({ student, branch }) {
+  const cardRef = useRef();
+
+  const handlePrint = () => {
+    const printContent = cardRef.current.innerHTML;
+    const win = window.open('', '_blank', 'width=700,height=500');
+    win.document.write(`
+      <html><head><title>KCI ID Card</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .card-wrap { width: 340px; }
+      </style>
+      </head><body><div class="card-wrap">${printContent}</div></body></html>
+    `);
+    win.document.close();
+    win.focus();
+    setTimeout(() => { win.print(); win.close(); }, 400);
+  };
+
+  const dob = student?.dob ? new Date(student.dob).toLocaleDateString('en-IN') : '—';
+  const issueYear = new Date().getFullYear();
+  const validYear = issueYear + 1;
+
+  return (
+    <div className="flex flex-col items-center gap-5">
+      {/* Print Button */}
+      <button onClick={handlePrint}
+        className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors shadow-md">
+        <Printer className="w-4 h-4" /> Print / Download ID Card
+      </button>
+
+      {/* ID Card */}
+      <div ref={cardRef} className="w-full max-w-sm">
+        {/* Front */}
+        <div className="rounded-2xl overflow-hidden shadow-2xl border border-gray-200" style={{ background: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #4f46e5 100%)' }}>
+          {/* Header */}
+          <div className="px-5 py-4 flex items-center gap-3 border-b border-white/20">
+            <img src="/logo.png" alt="KCI" className="w-12 h-12 rounded-full object-cover border-2 border-white/50 shadow-lg" />
+            <div>
+              <div className="text-white font-black text-base leading-tight tracking-wide">KEERTI COMPUTER</div>
+              <div className="text-blue-200 font-bold text-xs tracking-widest">INSTITUTE</div>
+              <div className="text-blue-300 text-[10px]">Govt. Recognised | Est. 2005</div>
+            </div>
+            <div className="ml-auto text-right">
+              <div className="text-white/60 text-[9px] font-bold uppercase tracking-wider">Student</div>
+              <div className="text-yellow-300 font-black text-xs">ID CARD</div>
+            </div>
+          </div>
+
+          {/* Body */}
+          <div className="px-5 py-4 flex gap-4">
+            {/* Photo */}
+            <div className="shrink-0">
+              <div className="w-20 h-24 rounded-xl overflow-hidden border-2 border-white/40 shadow-lg bg-white/10 flex items-center justify-center">
+                {student?.photo
+                  ? <img src={student.photo} alt={student?.name} className="w-full h-full object-cover" />
+                  : <div className="flex flex-col items-center gap-1">
+                      <User className="w-8 h-8 text-white/50" />
+                      <span className="text-white/40 text-[9px]">No Photo</span>
+                    </div>
+                }
+              </div>
+            </div>
+
+            {/* Info */}
+            <div className="flex-1 space-y-1.5">
+              <div>
+                <div className="text-white/60 text-[9px] font-bold uppercase tracking-wider">Name</div>
+                <div className="text-white font-black text-sm leading-tight">{student?.name}</div>
+              </div>
+              <div>
+                <div className="text-white/60 text-[9px] font-bold uppercase tracking-wider">Roll Number</div>
+                <div className="text-yellow-300 font-black text-sm font-mono">{student?.rollNumber}</div>
+              </div>
+              <div>
+                <div className="text-white/60 text-[9px] font-bold uppercase tracking-wider">Course</div>
+                <div className="text-white font-bold text-xs leading-tight">{student?.courseName || '—'}</div>
+              </div>
+              <div className="flex gap-3">
+                <div>
+                  <div className="text-white/60 text-[9px] font-bold uppercase tracking-wider">Batch</div>
+                  <div className="text-white font-bold text-xs">{student?.batch || '—'}</div>
+                </div>
+                <div>
+                  <div className="text-white/60 text-[9px] font-bold uppercase tracking-wider">DOB</div>
+                  <div className="text-white font-bold text-xs">{dob}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Father + Address */}
+          <div className="px-5 pb-3 space-y-1">
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <div className="text-white/60 text-[9px] font-bold uppercase tracking-wider">Father's Name</div>
+                <div className="text-white font-bold text-xs">{student?.fatherName || '—'}</div>
+              </div>
+              <div className="flex-1">
+                <div className="text-white/60 text-[9px] font-bold uppercase tracking-wider">Phone</div>
+                <div className="text-white font-bold text-xs">{student?.phone || '—'}</div>
+              </div>
+            </div>
+            <div>
+              <div className="text-white/60 text-[9px] font-bold uppercase tracking-wider">Address</div>
+              <div className="text-white font-bold text-xs leading-tight">{student?.address || '—'}</div>
+            </div>
+          </div>
+
+          {/* Branch */}
+          <div className="px-5 pb-3">
+            <div className="text-white/60 text-[9px] font-bold uppercase tracking-wider">Branch / Center</div>
+            <div className="text-white font-bold text-xs">{branch?.branchName || student?.branchName || '—'} {branch?.branchCity ? `— ${branch.branchCity}` : ''}</div>
+          </div>
+
+          {/* Footer */}
+          <div className="px-5 py-3 flex items-center justify-between border-t border-white/20" style={{ background: 'rgba(0,0,0,0.2)' }}>
+            <div>
+              <div className="text-white/60 text-[9px] font-bold uppercase tracking-wider">Valid Period</div>
+              <div className="text-white font-bold text-xs">{issueYear} — {validYear}</div>
+            </div>
+            <div className="text-right">
+              <div className="text-white/60 text-[9px] font-bold uppercase tracking-wider">Status</div>
+              <div className={`text-xs font-black ${student?.isActive ? 'text-green-300' : 'text-red-300'}`}>
+                {student?.isActive ? '● ACTIVE' : '● INACTIVE'}
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-white/60 text-[9px] font-bold uppercase tracking-wider">Contact</div>
+              <div className="text-white font-bold text-[10px]">9936384736</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Signature strip */}
+        <div className="mt-2 bg-white rounded-xl px-5 py-3 shadow-sm border border-gray-100 flex items-center justify-between">
+          <div className="text-center">
+            <div className="w-20 border-b border-gray-400 mb-1" />
+            <div className="text-[9px] text-gray-500 font-semibold">Student Signature</div>
+          </div>
+          <div className="text-center">
+            <img src="/logo.png" alt="KCI" className="w-8 h-8 rounded-full mx-auto mb-1 opacity-60" />
+            <div className="text-[9px] text-gray-500 font-semibold">KCI Official Seal</div>
+          </div>
+          <div className="text-center">
+            <div className="w-20 border-b border-gray-400 mb-1" />
+            <div className="text-[9px] text-gray-500 font-semibold">Principal Signature</div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -41,7 +197,6 @@ export default function StudentDashboard() {
   }, [user?.id]);
 
   const handleLogout = () => { logout(); navigate('/'); };
-
   const { student, results, certificates, branch } = data;
 
   if (loading) return (
@@ -84,7 +239,7 @@ export default function StudentDashboard() {
           <div className="relative">
             <p className="text-blue-200 text-sm font-medium mb-1">Welcome back 👋</p>
             <h2 className="text-2xl font-black mb-1">{user?.name}</h2>
-            <div className="flex flex-wrap gap-4 mt-3 text-sm">
+            <div className="flex flex-wrap gap-3 mt-3 text-sm">
               <span className="flex items-center gap-1.5 bg-white/20 rounded-lg px-3 py-1">
                 <BookOpen className="w-3.5 h-3.5" /> {user?.courseName || 'N/A'}
               </span>
@@ -133,7 +288,6 @@ export default function StudentDashboard() {
         {/* Profile Tab */}
         {activeTab === 'profile' && (
           <div className="grid sm:grid-cols-2 gap-5">
-            {/* Personal Info */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <h3 className="font-black text-gray-900 mb-4 flex items-center gap-2">
                 <User className="w-5 h-5 text-blue-600" /> Personal Information
@@ -147,8 +301,6 @@ export default function StudentDashboard() {
                 <InfoRow label="Address" value={student?.address} />
               </div>
             </div>
-
-            {/* Academic Info */}
             <div className="space-y-5">
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                 <h3 className="font-black text-gray-900 mb-4 flex items-center gap-2">
@@ -161,8 +313,6 @@ export default function StudentDashboard() {
                   <InfoRow label="Account Status" value={student?.isApproved ? '✅ Approved' : '⏳ Pending'} />
                 </div>
               </div>
-
-              {/* Branch Info */}
               {branch && (
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                   <h3 className="font-black text-gray-900 mb-4 flex items-center gap-2">
@@ -177,6 +327,14 @@ export default function StudentDashboard() {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* ID Card Tab */}
+        {activeTab === 'idcard' && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-black text-gray-900">My ID Card</h2>
+            <IDCard student={student} branch={branch} />
           </div>
         )}
 
@@ -200,9 +358,7 @@ export default function StudentDashboard() {
                         <p className="text-sm text-gray-500">Roll No: {r.rollNumber} {r.batch ? `• Batch: ${r.batch}` : ''}</p>
                       </div>
                       <div className="text-right">
-                        <span className={`px-3 py-1 rounded-full text-sm font-black ${r.status === 'Pass' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
-                          {r.status}
-                        </span>
+                        <span className={`px-3 py-1 rounded-full text-sm font-black ${r.status === 'Pass' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>{r.status}</span>
                         <div className="text-2xl font-black text-blue-600 mt-1">{r.grade}</div>
                       </div>
                     </div>
