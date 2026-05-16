@@ -7,6 +7,10 @@ import {
   TrendingUp, BookOpen, CheckCircle, Clock, Search, Eye, X,
   Plus, Pencil, Trash2, Check, UserCheck, ClipboardCheck, Sun, Moon
 } from 'lucide-react';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Legend, AreaChart, Area
+} from 'recharts';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import api from '../utils/api';
@@ -962,6 +966,119 @@ export default function BranchDashboard() {
                 </motion.div>
               ))}
             </div>
+
+            {/* Analytics Charts */}
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+              className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+              {/* Students by Course - Bar Chart */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                <h3 className="text-sm font-black text-gray-800 mb-4">📊 Students by Course</h3>
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={(() => {
+                    const map = {};
+                    students.forEach(s => {
+                      const name = (s.courseName || 'Unknown').split('(')[0].trim().slice(0, 12);
+                      map[name] = (map[name] || 0) + 1;
+                    });
+                    return Object.entries(map).map(([name, count]) => ({ name, count }));
+                  })()} margin={{ top: 0, right: 10, left: -20, bottom: 40 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 600 }} angle={-35} textAnchor="end" interval={0} />
+                    <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                    <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+                    <Bar dataKey="count" fill="#6366f1" radius={[6, 6, 0, 0]} name="Students" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Admission Status - Pie Chart */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                <h3 className="text-sm font-black text-gray-800 mb-4">📋 Admission Status</h3>
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={(() => {
+                        const approved = admissions.filter(a => a.status === 'Approved').length;
+                        const pending = admissions.filter(a => !a.status || a.status === 'Pending').length;
+                        const rejected = admissions.filter(a => a.status === 'Rejected').length;
+                        return [
+                          { name: 'Approved', value: approved },
+                          { name: 'Pending', value: pending },
+                          { name: 'Rejected', value: rejected },
+                        ].filter(d => d.value > 0);
+                      })()}
+                      cx="50%" cy="50%" outerRadius={75} dataKey="value" label={({ name, value }) => `${name}: ${value}`}
+                      labelLine={false}
+                    >
+                      {['#10b981', '#f59e0b', '#ef4444'].map((color, i) => <Cell key={i} fill={color} />)}
+                    </Pie>
+                    <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+                    <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Results Pass/Fail - Bar Chart */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                <h3 className="text-sm font-black text-gray-800 mb-4">🏆 Results Overview</h3>
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={(() => {
+                    const map = {};
+                    results.forEach(r => {
+                      const name = (r.courseName || 'Unknown').split('(')[0].trim().slice(0, 12);
+                      if (!map[name]) map[name] = { name, Pass: 0, Fail: 0 };
+                      map[name][r.status === 'Pass' ? 'Pass' : 'Fail']++;
+                    });
+                    return Object.values(map);
+                  })()} margin={{ top: 0, right: 10, left: -20, bottom: 40 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 600 }} angle={-35} textAnchor="end" interval={0} />
+                    <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                    <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+                    <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+                    <Bar dataKey="Pass" fill="#10b981" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Fail" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Student Approval Status - Area Chart */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                <h3 className="text-sm font-black text-gray-800 mb-4">👥 Student Approval Status</h3>
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: 'Approved', value: students.filter(s => s.isApproved).length },
+                        { name: 'Pending', value: students.filter(s => !s.isApproved).length },
+                      ].filter(d => d.value > 0)}
+                      cx="50%" cy="50%" innerRadius={50} outerRadius={75} dataKey="value"
+                    >
+                      <Cell fill="#3b82f6" />
+                      <Cell fill="#f59e0b" />
+                    </Pie>
+                    <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+                    <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }}
+                      formatter={(value, name) => [value, name]} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex justify-center gap-6 mt-2">
+                  <div className="text-center">
+                    <div className="text-xl font-black text-blue-600">{students.filter(s => s.isApproved).length}</div>
+                    <div className="text-xs text-gray-400 font-medium">Approved</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-xl font-black text-amber-500">{students.filter(s => !s.isApproved).length}</div>
+                    <div className="text-xs text-gray-400 font-medium">Pending</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-xl font-black text-teal-600">{certificates.length}</div>
+                    <div className="text-xs text-gray-400 font-medium">Certificates</div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
 
             {/* Branch info card */}
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
