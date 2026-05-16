@@ -446,14 +446,31 @@ function CertForm({ initial, students, onSave, onClose, saving }) {
     grade: initial.grade || '',
     issueDate: initial.issueDate ? initial.issueDate.slice(0, 10) : '',
   });
+  const [loadingCertNo, setLoadingCertNo] = useState(false);
+
+  const fetchNextCertNumber = async (courseName) => {
+    if (!courseName || isEdit) return;
+    setLoadingCertNo(true);
+    try {
+      const { data } = await api.get('/branch/certificates/next-number', { params: { courseName } });
+      if (data.certNumber) setForm(p => ({ ...p, certificateNumber: data.certNumber }));
+    } catch {}
+    setLoadingCertNo(false);
+  };
 
   const handleRollChange = (rollNumber) => {
     const student = students.find(s => s.rollNumber === rollNumber);
     if (student) {
       setForm(p => ({ ...p, rollNumber, studentName: student.name, courseName: student.courseName || '' }));
+      fetchNextCertNumber(student.courseName);
     } else {
       setForm(p => ({ ...p, rollNumber }));
     }
+  };
+
+  const handleCourseChange = (courseName) => {
+    setForm(p => ({ ...p, courseName }));
+    fetchNextCertNumber(courseName);
   };
 
   const inp = 'w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 bg-gray-50 focus:bg-white transition-all';
@@ -474,14 +491,25 @@ function CertForm({ initial, students, onSave, onClose, saving }) {
         </div>
         <div className="space-y-1 col-span-2">
           <label className="text-xs font-semibold text-gray-600">Course *</label>
-          <select value={form.courseName} onChange={e => setForm(p => ({ ...p, courseName: e.target.value }))} className={inp}>
+          <select value={form.courseName} onChange={e => handleCourseChange(e.target.value)} className={inp}>
             <option value="">-- Select Course --</option>
             {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
         <div className="space-y-1 col-span-2">
           <label className="text-xs font-semibold text-gray-600">Certificate Number *</label>
-          <input value={form.certificateNumber} onChange={e => setForm(p => ({ ...p, certificateNumber: e.target.value }))} placeholder="e.g. KCI/2024/DCA/0001" className={inp} />
+          <div className="relative">
+            <input
+              value={form.certificateNumber}
+              onChange={e => setForm(p => ({ ...p, certificateNumber: e.target.value }))}
+              placeholder="Auto-generated on course select"
+              className={`${inp} ${loadingCertNo ? 'opacity-60' : ''}`}
+            />
+            {loadingCertNo && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+            )}
+          </div>
+          <p className="text-[10px] text-gray-400 mt-0.5">Auto-filled when course is selected. You can edit manually.</p>
         </div>
         <div className="space-y-1">
           <label className="text-xs font-semibold text-gray-600">Grade</label>

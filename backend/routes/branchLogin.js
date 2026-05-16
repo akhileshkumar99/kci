@@ -471,6 +471,38 @@ router.get('/certificates', protect, branchAuth, async (req, res) => {
   }
 });
 
+// Branch: Get next certificate number
+router.get('/certificates/next-number', protect, branchAuth, async (req, res) => {
+  try {
+    const Certificate = require('../models/Certificate');
+    const { courseName } = req.query;
+    const year = new Date().getFullYear();
+    // Get course abbreviation
+    const courseAbbr = (() => {
+      if (!courseName) return 'CERT';
+      const map = {
+        'Diploma in Computer Application (DCA)': 'DCA',
+        'Advance Diploma in Computer Application (ADCA)': 'ADCA',
+        'Certificate in Computer Application (CCA)': 'CCA',
+        'Certificate In Fundamental (CIF)': 'CIF',
+        'Tally Specialist Course With GST': 'TALLY',
+        'Certificate In Tally A/c With GST (CIT)': 'CIT',
+        'Certificate In Office Package & Tally A/C (COPT)': 'COPT',
+        'Desktop Publishing (DTP)': 'DTP',
+        'Computer Typing (Hindi + English)': 'TYPING',
+        'Course On Computer Concept (CCC from NIELIT)': 'CCC',
+      };
+      return map[courseName] || courseName.match(/\(([^)]+)\)/)?.[1] || 'CERT';
+    })();
+    const count = await Certificate.countDocuments();
+    const serial = String(count + 1).padStart(4, '0');
+    const certNumber = `KCI/${year}/${courseAbbr}/${serial}`;
+    res.json({ success: true, certNumber });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Branch: Add certificate
 router.post('/certificates', protect, branchAuth, async (req, res) => {
   try {
