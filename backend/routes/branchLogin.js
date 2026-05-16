@@ -185,7 +185,7 @@ router.put('/:id/approve', protect, admin, async (req, res) => {
     branch.password = newPassword;
     await branch.save();
     await sendApprovalEmail(branch.email, branch.name, branch.branchName, branch.branchCode, newPassword);
-    res.json({ success: true, message: 'Branch approved and credentials sent via email' });
+    res.json({ success: true, message: 'Branch approved and credentials sent via email', password: newPassword });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

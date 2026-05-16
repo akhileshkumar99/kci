@@ -78,7 +78,10 @@ function BranchForm({ initial, onSave, onClose, loading }) {
   );
 }
 
-function ViewModal({ branch, onClose, onEdit, onApprove, approving }) {
+function ViewModal({ branch, onClose, onEdit, onApprove, approving, approvedPassword }) {
+  const [copied, setCopied] = useState(false);
+  const copyText = text => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+
   const rows = [
     ['Branch Name', branch.branchName],
     ['City', branch.branchCity],
@@ -104,6 +107,32 @@ function ViewModal({ branch, onClose, onEdit, onApprove, approving }) {
           </span>
         </div>
       </div>
+
+      {/* Login Credentials Box - shown after approve */}
+      {approvedPassword && (
+        <div className="mb-5 p-4 bg-green-50 border border-green-200 rounded-2xl">
+          <p className="text-xs font-black text-green-700 mb-3 flex items-center gap-1.5">🔑 Login Credentials (sent via email)</p>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between bg-white rounded-xl px-3 py-2 border border-green-100">
+              <div>
+                <p className="text-xs text-gray-400 font-semibold">Email</p>
+                <p className="text-sm font-bold text-gray-800">{branch.email}</p>
+              </div>
+              <button onClick={() => copyText(branch.email)} className="text-xs text-blue-600 hover:text-blue-700 font-bold px-2 py-1 bg-blue-50 rounded-lg">Copy</button>
+            </div>
+            <div className="flex items-center justify-between bg-white rounded-xl px-3 py-2 border border-green-100">
+              <div>
+                <p className="text-xs text-gray-400 font-semibold">Password</p>
+                <p className="text-sm font-bold text-gray-800 font-mono">{approvedPassword}</p>
+              </div>
+              <button onClick={() => copyText(approvedPassword)} className="text-xs text-blue-600 hover:text-blue-700 font-bold px-2 py-1 bg-blue-50 rounded-lg">
+                {copied ? '✓ Copied' : 'Copy'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-2.5 mb-5">
         {rows.map(([label, value]) => (
           <div key={label} className="flex justify-between items-start gap-4 py-2 border-b border-gray-50 last:border-0">
@@ -133,6 +162,7 @@ export default function AdminBranches() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [approving, setApproving] = useState(false);
+  const [approvedPassword, setApprovedPassword] = useState('');
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState(null);
@@ -148,9 +178,11 @@ export default function AdminBranches() {
   const handleApprove = async id => {
     setApproving(true);
     try {
-      await api.put(`/branch/${id}/approve`);
+      const r = await api.put(`/branch/${id}/approve`);
+      const pwd = r.data.password || '';
       setBranches(p => p.map(b => b._id === id ? { ...b, isApproved: true } : b));
       if (selected?._id === id) setSelected(p => ({ ...p, isApproved: true }));
+      setApprovedPassword(pwd);
       toast.success('Branch approved! Credentials sent via email.');
     } catch { toast.error('Approval failed'); }
     setApproving(false);
@@ -324,8 +356,8 @@ export default function AdminBranches() {
           </Modal>
         )}
         {modal === 'view' && selected && (
-          <ViewModal branch={selected} onClose={() => setModal(null)} onEdit={() => setModal('edit')}
-            onApprove={handleApprove} approving={approving} />
+          <ViewModal branch={selected} onClose={() => { setModal(null); setApprovedPassword(''); }} onEdit={() => setModal('edit')}
+            onApprove={handleApprove} approving={approving} approvedPassword={approvedPassword} />
         )}
       </AnimatePresence>
     </div>
