@@ -34,16 +34,21 @@ export default function AdminAdmissions() {
       {loading ? <Loader /> : (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50"><tr>{['Name', 'Email', 'Phone', 'Course', 'Status', 'Date', 'Actions'].map(h => <th key={h} className="text-left p-4 font-semibold text-gray-600">{h}</th>)}</tr></thead>
+            <thead className="bg-gray-50"><tr>{['Name', 'Email', 'Phone', 'Course', 'Father', 'DOB', 'Status', 'Date', 'Actions'].map(h => <th key={h} className="text-left p-4 font-semibold text-gray-600">{h}</th>)}</tr></thead>
             <tbody>
               {admissions.map((a) => {
                 const Icon = statusIcons[a.status];
                 return (
                   <tr key={a._id} className="border-t border-gray-100 hover:bg-gray-50">
-                    <td className="p-4 font-medium text-gray-900">{a.name}</td>
+                    <td className="p-4">
+                      <div className="font-medium text-gray-900">{a.name}</div>
+                      {a.enrollmentId && <div className="text-xs font-mono text-blue-600 font-bold">{a.enrollmentId}</div>}
+                    </td>
                     <td className="p-4 text-gray-600">{a.email}</td>
                     <td className="p-4 text-gray-600">{a.phone}</td>
                     <td className="p-4 text-gray-600">{a.course?.title || '—'}</td>
+                    <td className="p-4 text-gray-600">{a.fatherName || '—'}</td>
+                    <td className="p-4 text-gray-600">{a.dob ? new Date(a.dob).toLocaleDateString('en-IN') : '—'}</td>
                     <td className="p-4">
                       <select value={a.status} onChange={(e) => updateStatus(a._id, e.target.value)} className={`px-2 py-1 rounded-lg text-xs font-medium border-0 cursor-pointer ${statusColors[a.status]}`}>
                         {['Pending', 'Approved', 'Rejected'].map(s => <option key={s}>{s}</option>)}

@@ -143,7 +143,7 @@ export default function AdminStudents() {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
-              <tr>{['Name', 'Email', 'Roll No.', 'Phone', 'Course', 'Batch', 'Actions'].map(h => (
+              <tr>{['Name', 'Email', 'Enrollment No.', 'Phone', 'Course', 'Batch', 'Actions'].map(h => (
                 <th key={h} className="text-left p-4 font-semibold text-gray-600">{h}</th>
               ))}</tr>
             </thead>
@@ -195,14 +195,17 @@ export default function AdminStudents() {
                 )}
               </div>
               {[
-                ['Roll Number', viewStudent.rollNumber, 'font-mono text-blue-700'],
+                ['Enrollment No.', viewStudent.rollNumber, 'font-mono text-blue-700 font-black text-base'],
                 ['Full Name', viewStudent.name],
                 ['Email', viewStudent.email],
                 ['Phone', viewStudent.phone || '—'],
                 ['Course', viewStudent.courseName || viewStudent.course?.title || '—'],
                 ['Batch', viewStudent.batch || '—'],
+                ["Father's Name", viewStudent.fatherName || '—'],
+                ['Date of Birth', viewStudent.dob ? new Date(viewStudent.dob).toLocaleDateString('en-IN') : '—'],
+                ['Address', viewStudent.address || '—'],
                 ['Admission Date', viewStudent.admissionDate ? new Date(viewStudent.admissionDate).toLocaleDateString('en-IN') : '—'],
-                ['Status', viewStudent.isActive ? 'Active' : 'Inactive'],
+                ['Status', viewStudent.isApproved ? 'Approved ✓' : 'Pending'],
                 ['Joined', new Date(viewStudent.createdAt).toLocaleDateString('en-IN')],
               ].map(([label, val, cls = '']) => (
                 <div key={label} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
@@ -278,13 +281,13 @@ export default function AdminStudents() {
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-5 flex items-center justify-between">
               <div>
                 <h2 className="text-white font-bold text-lg">Add New Student</h2>
-                <p className="text-blue-100 text-xs mt-0.5">Roll No. will be auto-assigned: <span className="font-mono font-bold">{nextRoll}</span></p>
+                <p className="text-blue-100 text-xs mt-0.5">Enrollment No. will be auto-assigned: <span className="font-mono font-bold">{nextRoll}</span></p>
               </div>
               <button onClick={() => setModal(false)}><X className="w-5 h-5 text-white/80 hover:text-white" /></button>
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
               <div>
-                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><Hash className="w-3.5 h-3.5" /> Roll Number (Auto)</label>
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><Hash className="w-3.5 h-3.5" /> Enrollment Number (Auto)</label>
                 <input value={nextRoll} readOnly className="w-full px-3 py-2.5 border border-blue-200 bg-blue-50 rounded-xl text-sm font-mono text-blue-700 font-semibold cursor-not-allowed" />
               </div>
               <div className="grid grid-cols-2 gap-4">

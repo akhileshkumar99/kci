@@ -206,7 +206,7 @@ const notices = [
   '🏆 KCI Students Achieved 95% Placement Rate in 2024',
   '📢 Free Demo Class Available — Register Now!',
   '🎓 Government Recognized Certificates Accepted Nationwide',
-  '💻 New Course Added: Artificial Intelligence & Machine Learning',
+
   '📅 Admission Open for All Courses — Limited Seats!',
 ];
 
@@ -226,11 +226,13 @@ const certBadges = [
 
 function MarqueeTicker() {
   return (
-    <div className="bg-blue-700 text-white py-2 overflow-hidden">
-      <div className="flex gap-12 animate-marquee whitespace-nowrap">
-        {[...notices, ...notices].map((n, i) => (
-          <span key={i} className="text-sm font-medium px-4">{n}</span>
-        ))}
+    <div className="bg-blue-700 text-white py-2.5 overflow-hidden relative">
+      <div className="flex items-center gap-2 mb-0">
+        <div className="animate-marquee flex items-center gap-0 shrink-0">
+          {[...notices, ...notices].map((n, i) => (
+            <span key={i} className="text-sm font-semibold px-6 whitespace-nowrap border-r border-blue-500 last:border-r-0">{n}</span>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -239,12 +241,14 @@ function MarqueeTicker() {
 export default function Home() {
   const [courses, setCourses] = useState([]);
   const [popup, setPopup] = useState(false);
+  const [admitCardEnabled, setAdmitCardEnabled] = useState(false);
 
   useEffect(() => {
     api.get('/courses?featured=true').then(({ data }) => {
       const excluded = ['CCA', 'COPT', 'CIF'];
       setCourses((data.courses || []).filter(c => !excluded.some(code => c.title?.includes(code))));
     }).catch(() => {});
+    api.get('/admit-card/setting').then(({ data }) => setAdmitCardEnabled(data.enabled)).catch(() => {});
     const timer = setTimeout(() => setPopup(true), 800);
     return () => clearTimeout(timer);
   }, []);
@@ -280,8 +284,7 @@ export default function Home() {
         </motion.div>
       )}
 
-      {/* Marquee Ticker */}
-      <MarqueeTicker />
+
 
       {/* Hero */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
@@ -515,6 +518,28 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* Admit Card Download — only when admin enables */}
+      {admitCardEnabled && (
+        <section className="py-16 bg-gradient-to-r from-blue-700 to-indigo-700">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className="flex flex-col lg:flex-row items-center justify-between gap-8">
+              <div className="text-white text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm font-semibold mb-4">
+                  <FileText className="w-4 h-4" /> Exam Season Active
+                </div>
+                <h2 className="text-3xl sm:text-4xl font-black mb-3">Download Your Admit Card</h2>
+                <p className="text-blue-200 text-base max-w-md">Admit cards are now available. Enter your enrollment number to download your examination admit card instantly.</p>
+              </div>
+              <Link to="/admit-card"
+                className="flex items-center gap-3 px-8 py-4 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-black rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 text-lg whitespace-nowrap">
+                <FileText className="w-6 h-6" /> Download Admit Card
+              </Link>
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       {/* Testimonials */}
       <TestimonialsSection />

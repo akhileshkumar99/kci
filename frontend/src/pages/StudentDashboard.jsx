@@ -1058,12 +1058,17 @@ export default function StudentDashboard() {
                       <span className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20">
                         <GraduationCap className="w-3.5 h-3.5" /> {student?.courseName || 'N/A'}
                       </span>
-                      <span className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20">
-                        <BookOpen className="w-3.5 h-3.5" /> Roll: {student?.rollNumber}
+                      <span className="flex items-center gap-1.5 bg-yellow-400/20 backdrop-blur-sm text-yellow-300 text-xs font-bold px-3 py-1.5 rounded-xl border border-yellow-400/30 font-mono">
+                        <BookOpen className="w-3.5 h-3.5" /> {student?.rollNumber || 'N/A'}
                       </span>
                       {student?.batch && (
                         <span className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20">
                           <Calendar className="w-3.5 h-3.5" /> Batch {student.batch}
+                        </span>
+                      )}
+                      {student?.fatherName && (
+                        <span className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20">
+                          👨 {student.fatherName}
                         </span>
                       )}
                     </div>
@@ -1139,17 +1144,19 @@ export default function StudentDashboard() {
                 </div>
                 <div className="p-4 space-y-3">
                   {[
-                    { icon: '🎫', label: 'Roll Number', value: student?.rollNumber, mono: true },
+                    { icon: '🎫', label: 'Enrollment Number', value: student?.rollNumber, mono: true, highlight: true },
                     { icon: '📚', label: 'Course', value: student?.courseName },
                     { icon: '📅', label: 'Batch', value: student?.batch },
-                    { icon: '✅', label: 'Account Status', value: student?.isApproved ? 'Approved' : 'Pending' },
+                    { icon: '✅', label: 'Account Status', value: student?.isApproved ? 'Approved ✓' : 'Pending' },
                     { icon: '📆', label: 'Admission Date', value: student?.admissionDate ? new Date(student.admissionDate).toLocaleDateString('en-IN') : null },
-                  ].map(({ icon, label, value, mono }) => (
+                  ].map(({ icon, label, value, mono, highlight }) => (
                     <div key={label} className="flex items-start gap-3 py-1.5 border-b border-gray-50 last:border-0">
                       <span className="text-base shrink-0 mt-0.5">{icon}</span>
                       <div className="flex-1 min-w-0">
                         <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label}</div>
-                        <div className={`text-sm font-bold text-gray-800 truncate ${mono ? 'font-mono text-blue-600' : ''}`}>{value || '—'}</div>
+                        <div className={`text-sm font-bold truncate ${
+                          highlight ? 'font-mono text-blue-600 text-base' : mono ? 'font-mono text-blue-600' : 'text-gray-800'
+                        }`}>{value || '—'}</div>
                       </div>
                     </div>
                   ))}
@@ -1449,7 +1456,7 @@ export default function StudentDashboard() {
                         {/* Details grid */}
                         <div className="grid grid-cols-2 gap-2 mb-4">
                           {[
-                            ['Roll Number', c.rollNumber],
+                            ['Enrollment No.', c.rollNumber],
                             ['Issue Date', c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '—'],
                           ].map(([l, v]) => (
                             <div key={l} className="bg-amber-50 rounded-xl p-2.5 border border-amber-100">

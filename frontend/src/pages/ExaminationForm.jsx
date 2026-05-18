@@ -1,0 +1,210 @@
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { FileText, CheckCircle, User, BookOpen, Phone } from 'lucide-react';
+import api from '../utils/api';
+
+const COURSES = ['DCA', 'ADCA', 'CCA', 'PGDCA', 'Tally with GST', 'Web Design', 'Web Development', 'Python', 'MS Office', 'Graphic Design', 'AI & Machine Learning', 'Other'];
+
+const inputCls = 'w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 transition-all text-sm';
+const selectCls = inputCls + ' cursor-pointer';
+const labelCls = 'block text-sm font-semibold text-gray-700 mb-1.5';
+
+function SectionHeader({ icon: Icon, title, color }) {
+  return (
+    <div className={`flex items-center gap-2 pb-3 border-b-2 ${color} mb-5`}>
+      <Icon className="w-5 h-5 text-blue-600" />
+      <h3 className="font-black text-gray-800 text-base">{title}</h3>
+    </div>
+  );
+}
+
+export default function ExaminationForm() {
+  const [form, setForm] = useState({
+    studentName: '', fatherName: '', motherName: '', dob: '', gender: '', category: 'General',
+    enrollmentNumber: '', course: '', batch: '', session: '', qualification: '', subjects: '',
+    phone: '', email: '', address: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const handle = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    setLoading(true); setError('');
+    try {
+      await api.post('/exam-forms', form);
+      setSuccess(true);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Submission failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (success) return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 pt-28 pb-16 px-4 flex items-center justify-center">
+      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+        className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-12 text-center max-w-md w-full">
+        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+          <CheckCircle className="w-10 h-10 text-green-500" />
+        </div>
+        <h2 className="text-2xl font-black text-gray-900 mb-2">Form Submitted!</h2>
+        <p className="text-gray-500 text-sm mb-2">Your examination form has been successfully submitted.</p>
+        <p className="text-gray-500 text-sm mb-6">Admin will review and contact you shortly.</p>
+        <div className="bg-blue-50 rounded-xl p-4 mb-6 text-left">
+          <p className="text-xs text-blue-600 font-semibold mb-1">Enrollment Number</p>
+          <p className="text-blue-800 font-black text-lg">{form.enrollmentNumber}</p>
+        </div>
+        <button onClick={() => { setSuccess(false); setForm({ studentName:'',fatherName:'',motherName:'',dob:'',gender:'',category:'General',enrollmentNumber:'',course:'',batch:'',session:'',qualification:'',subjects:'',phone:'',email:'',address:'' }); }}
+          className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:shadow-lg transition-all">
+          Submit Another Form
+        </button>
+      </motion.div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 pt-24 pb-16 px-4">
+      <div className="max-w-3xl mx-auto">
+
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
+          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-full text-sm font-semibold mb-4 shadow-md">
+            <FileText className="w-4 h-4" /> Keerti Computer Institute
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-black text-gray-900">Examination Registration Form</h1>
+          <p className="text-gray-500 mt-2 text-sm">Fill all required fields carefully. Fields marked with <span className="text-red-500 font-bold">*</span> are mandatory.</p>
+        </motion.div>
+
+        {error && (
+          <div className="mb-5 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm font-medium">{error}</div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+
+          {/* Section 1: Personal Info */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <SectionHeader icon={User} title="Personal Information" color="border-blue-200" />
+            <div className="grid sm:grid-cols-2 gap-5">
+              <div>
+                <label className={labelCls}>Student Name <span className="text-red-500">*</span></label>
+                <input name="studentName" value={form.studentName} onChange={handle} required placeholder="Enter full name" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Father's Name <span className="text-red-500">*</span></label>
+                <input name="fatherName" value={form.fatherName} onChange={handle} required placeholder="Enter father's name" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Mother's Name</label>
+                <input name="motherName" value={form.motherName} onChange={handle} placeholder="Enter mother's name" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Date of Birth <span className="text-red-500">*</span></label>
+                <input type="date" name="dob" value={form.dob} onChange={handle} required className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Gender <span className="text-red-500">*</span></label>
+                <select name="gender" value={form.gender} onChange={handle} required className={selectCls}>
+                  <option value="">Select Gender</option>
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div>
+                <label className={labelCls}>Category</label>
+                <select name="category" value={form.category} onChange={handle} className={selectCls}>
+                  <option>General</option>
+                  <option>OBC</option>
+                  <option>SC</option>
+                  <option>ST</option>
+                </select>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Section 2: Academic Info */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <SectionHeader icon={BookOpen} title="Academic Information" color="border-indigo-200" />
+            <div className="grid sm:grid-cols-2 gap-5">
+              <div>
+                <label className={labelCls}>Enrollment Number <span className="text-red-500">*</span></label>
+                <input name="enrollmentNumber" value={form.enrollmentNumber} onChange={handle} required placeholder="e.g. KCI/2024/DCA/0001" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Course Name <span className="text-red-500">*</span></label>
+                <select name="course" value={form.course} onChange={handle} required className={selectCls}>
+                  <option value="">Select Course</option>
+                  {COURSES.map(c => <option key={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className={labelCls}>Batch <span className="text-red-500">*</span></label>
+                <input name="batch" value={form.batch} onChange={handle} required placeholder="e.g. Jan 2024 – Jun 2024" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Session / Year</label>
+                <input name="session" value={form.session} onChange={handle} placeholder="e.g. 2024-25" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Highest Qualification</label>
+                <input name="qualification" value={form.qualification} onChange={handle} placeholder="e.g. 12th, Graduation" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Subjects / Specialization</label>
+                <input name="subjects" value={form.subjects} onChange={handle} placeholder="e.g. Computer Science, Commerce" className={inputCls} />
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Section 3: Contact Info */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <SectionHeader icon={Phone} title="Contact Information" color="border-emerald-200" />
+            <div className="grid sm:grid-cols-2 gap-5">
+              <div>
+                <label className={labelCls}>Phone Number <span className="text-red-500">*</span></label>
+                <input type="tel" name="phone" value={form.phone} onChange={handle} required placeholder="10-digit mobile number" maxLength={10} className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Email Address <span className="text-red-500">*</span></label>
+                <input type="email" name="email" value={form.email} onChange={handle} required placeholder="your@email.com" className={inputCls} />
+              </div>
+              <div className="sm:col-span-2">
+                <label className={labelCls}>Full Address</label>
+                <textarea name="address" value={form.address} onChange={handle} rows={2} placeholder="House No., Street, City, State, PIN" className={inputCls + ' resize-none'} />
+              </div>
+            </div>
+          </motion.div>
+
+
+
+          {/* Declaration + Submit */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="flex items-start gap-3 mb-6 p-4 bg-blue-50 rounded-xl border border-blue-100">
+              <input type="checkbox" required id="declaration" className="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" />
+              <label htmlFor="declaration" className="text-sm text-gray-600 cursor-pointer leading-relaxed">
+                I hereby declare that all the information provided above is <strong>true and correct</strong> to the best of my knowledge. I understand that any false information may lead to cancellation of my examination form.
+              </label>
+            </div>
+            <motion.button type="submit" disabled={loading}
+              whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
+              className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-base rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+              {loading ? (
+                <><span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Submitting...</>
+              ) : (
+                <><FileText className="w-5 h-5" /> Submit Examination Form</>
+              )}
+            </motion.button>
+          </motion.div>
+
+        </form>
+      </div>
+    </div>
+  );
+}

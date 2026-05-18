@@ -25,7 +25,11 @@ import StudyMaterial from './pages/StudyMaterial';
 import IDCard from './pages/IDCard';
 import Notifications from './pages/Notifications';
 
+import ExaminationForm from './pages/ExaminationForm';
+import AdmitCard from './pages/AdmitCard';
 import AdminLayout from './pages/admin/AdminLayout';
+import AdminExamForms from './pages/admin/AdminExamForms';
+import AdminAdmitCard from './pages/admin/AdminAdmitCard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminCourses from './pages/admin/AdminCourses';
 import AdminStudents from './pages/admin/AdminStudents';
@@ -242,6 +246,8 @@ export default function App() {
           <Route path="/id-card" element={<PublicLayout><IDCard /></PublicLayout>} />
           <Route path="/notifications" element={<PublicLayout><Notifications /></PublicLayout>} />
           <Route path="/branch-apply" element={<PublicLayout><BranchApply /></PublicLayout>} />
+          <Route path="/exam-form" element={<PublicLayout><ExaminationForm /></PublicLayout>} />
+          <Route path="/admit-card" element={<PublicLayout><AdmitCard /></PublicLayout>} />
           <Route path="/branch-dashboard" element={<BranchDashboard />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} />
           <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
@@ -258,6 +264,8 @@ export default function App() {
             <Route path="notifications" element={<AdminNotifications />} />
             <Route path="branches" element={<AdminBranches />} />
             <Route path="contacts" element={<AdminContacts />} />
+            <Route path="exam-forms" element={<AdminExamForms />} />
+            <Route path="admit-card" element={<AdminAdmitCard />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, LogOut, LayoutDashboard, LogIn, Sun, Moon, GraduationCap, Building2 } from 'lucide-react';
+import { Menu, X, LogOut, LayoutDashboard, LogIn, GraduationCap, Building2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 
 const navLinks = [
   { label: 'Home', path: '/' },
@@ -15,6 +14,8 @@ const navLinks = [
   { label: 'Branches', path: '/branches' },
   { label: 'Staff', path: '/staff' },
   { label: 'Contact', path: '/contact' },
+  { label: 'Exam Form', path: '/exam-form' },
+  { label: 'Admit Card', path: '/admit-card' },
 ];
 
 export default function Navbar() {
@@ -23,7 +24,6 @@ export default function Navbar() {
   const [logo, setLogo] = useState(() => localStorage.getItem('kci_logo') || '/logo.png');
   const logoRef = useRef();
   const { user, logout } = useAuth();
-  const { dark, toggle } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -64,9 +64,7 @@ export default function Navbar() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        dark
-          ? scrolled ? 'bg-slate-900/98 shadow-xl shadow-black/30 backdrop-blur-md' : 'bg-slate-900/95 backdrop-blur-sm'
-          : scrolled ? 'bg-white/98 shadow-xl shadow-blue-100/50 backdrop-blur-md' : 'bg-white/95 backdrop-blur-sm'
+        scrolled ? 'bg-white/98 shadow-xl shadow-blue-100/50 backdrop-blur-md' : 'bg-white/95 backdrop-blur-sm'
       }`}
     >
       <div className="h-0.5 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-800" />
@@ -89,25 +87,23 @@ export default function Navbar() {
             </motion.div>
             <div className="hidden sm:block">
               <div className={`text-xl font-black bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent leading-tight tracking-wide`}>KEERTI</div>
-              <div className={`text-[10px] font-bold leading-tight tracking-[0.2em] uppercase ${dark ? 'text-blue-400' : 'text-blue-500'}`}>Computer Institute</div>
+              <div className="text-[10px] font-bold leading-tight tracking-[0.2em] uppercase text-blue-500">Computer Institute</div>
             </div>
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-0.5">
+          <div className="hidden lg:flex items-center gap-1">
             {navLinks.map((link, i) => {
               const active = location.pathname === link.path;
               return (
                 <motion.div key={link.path} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 * i + 0.2 }}>
                   <Link to={link.path}
-                    className={`relative px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 group ${
-                      active
-                        ? dark ? 'text-blue-400' : 'text-blue-600'
-                        : dark ? 'text-slate-300 hover:text-blue-400' : 'text-gray-600 hover:text-blue-600'
+                    className={`relative px-4 py-2 rounded-lg text-[15px] font-semibold transition-all duration-200 group ${
+                      active ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'
                     }`}>
                     {active && (
                       <motion.div layoutId="activeTab"
-                        className={`absolute inset-0 rounded-lg ${dark ? 'bg-blue-500/20 border border-blue-500/30' : 'bg-blue-50 border border-blue-100'}`}
+                        className="absolute inset-0 rounded-lg bg-blue-50 border border-blue-100"
                         transition={{ type: 'spring', stiffness: 400, damping: 30 }} />
                     )}
                     <span className="relative z-10">{link.label}</span>
@@ -118,14 +114,8 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* Right: Theme + Auth */}
+          {/* Right: Auth Buttons */}
           <div className="hidden lg:flex items-center gap-2">
-            {/* Dark mode toggle */}
-            <motion.button whileTap={{ scale: 0.9 }} onClick={toggle}
-              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${dark ? 'bg-slate-700 text-yellow-400 hover:bg-slate-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-              {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </motion.button>
-
             {user ? (
               <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center gap-2">
                 <Link to={getDashboardPath()}
@@ -133,9 +123,7 @@ export default function Navbar() {
                   {getDashboardIcon()} {getDashboardLabel()}
                 </Link>
                 <button onClick={handleLogout}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-all duration-200 hover:-translate-y-0.5 ${
-                    dark ? 'border-slate-600 text-slate-300 hover:border-red-500 hover:text-red-400 hover:bg-red-500/10' : 'border-gray-200 text-gray-600 hover:border-red-300 hover:text-red-500 hover:bg-red-50'
-                  }`}>
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border-2 border-gray-200 text-gray-600 hover:border-red-300 hover:text-red-500 hover:bg-red-50 transition-all duration-200">
                   <LogOut className="w-4 h-4" /> Logout
                 </button>
               </motion.div>
@@ -149,14 +137,10 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile: theme + menu */}
-          <div className="lg:hidden flex items-center gap-2">
-            <motion.button whileTap={{ scale: 0.9 }} onClick={toggle}
-              className={`w-9 h-9 rounded-xl flex items-center justify-center ${dark ? 'bg-slate-700 text-yellow-400' : 'bg-gray-100 text-gray-600'}`}>
-              {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </motion.button>
+          {/* Mobile: menu only */}
+          <div className="lg:hidden flex items-center">
             <motion.button whileTap={{ scale: 0.9 }} onClick={() => setOpen(!open)}
-              className={`p-2 rounded-xl transition-colors ${dark ? 'text-slate-300 hover:bg-slate-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'}`}>
+              className="p-2 rounded-xl transition-colors text-gray-700 hover:bg-blue-50 hover:text-blue-600">
               <AnimatePresence mode="wait">
                 {open
                   ? <motion.div key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}><X className="w-6 h-6" /></motion.div>
@@ -173,7 +157,7 @@ export default function Navbar() {
         {open && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className={`lg:hidden border-t overflow-hidden ${dark ? 'bg-slate-900 border-slate-700' : 'bg-white border-blue-50 shadow-xl'}`}>
+            className="lg:hidden border-t overflow-hidden bg-white border-blue-50 shadow-xl">
             <div className="px-4 py-4 space-y-1">
               {navLinks.map((link, i) => (
                 <motion.div key={link.path} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}>
@@ -181,20 +165,20 @@ export default function Navbar() {
                     className={`flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                       location.pathname === link.path
                         ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
-                        : dark ? 'text-slate-300 hover:bg-slate-700 hover:text-blue-400' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                        : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
                     }`}>
                     {link.label}
                   </Link>
                 </motion.div>
               ))}
-              <div className={`pt-3 border-t space-y-2 ${dark ? 'border-slate-700' : 'border-gray-100'}`}>
+              <div className="pt-3 border-t space-y-2 border-gray-100">
                 {user ? (
                   <>
                     <Link to={getDashboardPath()} className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold">
                       {getDashboardIcon()} {getDashboardLabel()}
                     </Link>
                     <button onClick={handleLogout}
-                      className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 border-2 rounded-xl text-sm font-semibold ${dark ? 'border-slate-600 text-slate-300 hover:border-red-500 hover:text-red-400' : 'border-gray-200 text-gray-600 hover:border-red-300 hover:text-red-500'}`}>
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border-2 rounded-xl text-sm font-semibold border-gray-200 text-gray-600 hover:border-red-300 hover:text-red-500">
                       <LogOut className="w-4 h-4" /> Logout
                     </button>
                   </>

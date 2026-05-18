@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, User, Star, Search, Building2, Users, ChevronDown, ChevronUp } from 'lucide-react';
+import { MapPin, Phone, User, Star, Search, Building2, Users, ChevronDown, ChevronUp, X } from 'lucide-react';
 import SectionTitle from '../components/SectionTitle';
+import api from '../utils/api';
 
 const BRANCHES = [
   { _id: '1', branchNumber: 1, name: 'Head Office – Ayodhya (Faizabad)', city: 'Ayodhya', address: '1st Floor, Near Post Office, Sabji Mandi Road, Ayodhya, Faizabad', isMain: true, staffDetails: [{ name: 'Mr. Mahendra Kumar Pandey', role: 'Managing Director', phone: '9936384736 & 9919660880' }, { name: 'Shivam Paswan, Shalu Kumari, Madhu', role: 'Staff', phone: '' }] },
@@ -161,6 +162,76 @@ function BranchCard({ branch, index }) {
   );
 }
 
+function RollLookup() {
+  const [roll, setRoll] = useState('');
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!roll.trim()) return;
+    setLoading(true); setError(''); setResult(null);
+    try {
+      const { data } = await api.get(`/auth/student-info/${roll.trim()}`);
+      setResult(data.student);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Student not found');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6">
+      <h3 className="font-black text-gray-900 text-sm mb-3">🔍 Find Student by Roll Number</h3>
+      <form onSubmit={handleSearch} className="flex gap-2">
+        <input value={roll} onChange={e => setRoll(e.target.value)} placeholder="Enter Enrollment No. (e.g. KCI20260004)"
+          className="flex-1 px-4 py-2.5 border-2 border-gray-100 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all" />
+        <button type="submit" disabled={loading}
+          className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-60">
+          {loading ? '...' : 'Search'}
+        </button>
+        {result && <button type="button" onClick={() => { setResult(null); setRoll(''); }} className="p-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"><X className="w-4 h-4 text-gray-500" /></button>}
+      </form>
+      {error && <p className="mt-2 text-sm text-red-500 font-semibold">{error}</p>}
+      {result && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+          className="mt-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-4">
+          <div className="flex items-center gap-3 mb-3 pb-3 border-b border-blue-200">
+            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-lg shrink-0">
+              {result.name?.[0]?.toUpperCase()}
+            </div>
+            <div>
+              <div className="font-black text-gray-900">{result.name}</div>
+              <div className="text-xs font-mono font-bold text-blue-600">{result.rollNumber}</div>
+            </div>
+            <span className={`ml-auto px-2.5 py-1 rounded-full text-xs font-black ${
+              result.isApproved ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-yellow-100 text-yellow-700 border border-yellow-200'
+            }`}>{result.isApproved ? 'Approved ✓' : 'Pending'}</span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {[
+              ['📧 Email', result.email],
+              ['📱 Phone', result.phone || '—'],
+              ['📚 Course', result.courseName || '—'],
+              ['📅 Batch', result.batch || '—'],
+              ['👨 Father', result.fatherName || '—'],
+              ['🎂 DOB', result.dob ? new Date(result.dob).toLocaleDateString('en-IN') : '—'],
+              ['📍 Address', result.address || '—'],
+              ['🏢 Branch', result.branchName || '—'],
+            ].map(([label, value]) => (
+              <div key={label} className="bg-white rounded-xl p-2.5 border border-blue-100">
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label.split(' ').slice(1).join(' ')}</div>
+                <div className="text-xs font-bold text-gray-800 mt-0.5 leading-tight">{value}</div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
 export default function Branches() {
   const [search, setSearch] = useState('');
   const [selectedCity, setSelectedCity] = useState('All');
@@ -204,7 +275,11 @@ export default function Branches() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <SectionTitle title="Branch Locations" subtitle="All KCI branches with address and staff details" />
 
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6 mt-8">
+          <div className="mt-8">
+            <RollLookup />
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6">
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input type="text" value={search} onChange={e => setSearch(e.target.value)}

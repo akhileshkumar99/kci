@@ -65,6 +65,17 @@ exports.getMe = async (req, res) => {
   }
 };
 
+exports.getStudentInfo = async (req, res) => {
+  try {
+    const student = await User.findOne({ rollNumber: req.params.rollNumber, role: 'student' })
+      .select('name email phone rollNumber courseName batch fatherName dob address branchName branchCity isApproved');
+    if (!student) return res.status(404).json({ success: false, message: 'Student not found with this enrollment number' });
+    res.json({ success: true, student });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 exports.updateProfile = async (req, res) => {
   try {
     const updates = { name: req.body.name, phone: req.body.phone, address: req.body.address };

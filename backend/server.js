@@ -26,6 +26,8 @@ app.use('/api/study-material', require('./routes/studyMaterial'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/branch', require('./routes/branchLogin'));
 
+app.use('/api/exam-forms', require('./routes/examForms'));
+app.use('/api/admit-card', require('./routes/admitCard'));
 app.use('/api/test', require('./routes/test'));
 app.get('/', (req, res) => res.json({ message: 'KCI API Running' }));
 

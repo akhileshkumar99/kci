@@ -344,7 +344,7 @@ function ResultForm({ initial, students, onSave, onClose, saving }) {
       {/* Roll Number selector */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-gray-600">Roll Number *</label>
+          <label className="text-xs font-semibold text-gray-600">Enrollment Number *</label>
           <select value={form.rollNumber} onChange={e => handleRollChange(e.target.value)} className={inp}>
             <option value="">-- Select Student --</option>
             {students.map(s => (
@@ -479,7 +479,7 @@ function CertForm({ initial, students, onSave, onClose, saving }) {
     <form onSubmit={e => { e.preventDefault(); onSave(form); }} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-gray-600">Roll Number *</label>
+          <label className="text-xs font-semibold text-gray-600">Enrollment Number *</label>
           <select value={form.rollNumber} onChange={e => handleRollChange(e.target.value)} className={inp}>
             <option value="">-- Select Student --</option>
             {students.map(s => <option key={s._id} value={s.rollNumber}>{s.rollNumber} — {s.name}</option>)}
@@ -871,9 +871,9 @@ export default function BranchDashboard() {
     return list.filter(item => keys.some(k => item[k]?.toString().toLowerCase().includes(q)));
   };
 
-  const studentFields = [['Name', 'name'], ['Email', 'email'], ['Phone', 'phone'], ['Roll No', 'rollNumber'], ['Course', 'courseName'], ['Batch', 'batch'], ['Father', 'fatherName'], ['DOB', 'dob'], ['Address', 'address'], ['Status', 'isApproved']];
-  const resultFields = [['Student', 'studentName'], ['Roll No', 'rollNumber'], ['Course', 'courseName'], ['Total Marks', 'totalMarks'], ['Obtained', 'obtainedMarks'], ['Percentage', 'percentage'], ['Grade', 'grade'], ['Status', 'status']];
-  const certFields = [['Student', 'studentName'], ['Roll No', 'rollNumber'], ['Course', 'courseName'], ['Cert No', 'certificateNumber'], ['Grade', 'grade'], ['Issue Date', 'issueDate']];
+  const studentFields = [['Enrollment No', 'rollNumber'], ['Name', 'name'], ['Email', 'email'], ['Phone', 'phone'], ['Course', 'courseName'], ['Batch', 'batch'], ['Father', 'fatherName'], ['DOB', 'dob'], ['Address', 'address'], ['Status', 'isApproved']];
+  const resultFields = [['Student', 'studentName'], ['Enrollment No', 'rollNumber'], ['Course', 'courseName'], ['Total Marks', 'totalMarks'], ['Obtained', 'obtainedMarks'], ['Percentage', 'percentage'], ['Grade', 'grade'], ['Status', 'status']];
+  const certFields = [['Student', 'studentName'], ['Enrollment No', 'rollNumber'], ['Course', 'courseName'], ['Cert No', 'certificateNumber'], ['Grade', 'grade'], ['Issue Date', 'issueDate']];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10">
@@ -1160,7 +1160,7 @@ export default function BranchDashboard() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-gradient-to-r from-blue-600 to-indigo-600">
-                    <tr>{['Name', 'Roll No', 'Course', 'Phone', 'Status', 'Actions'].map(h => (
+                    <tr>{['Name', 'Enrollment No', 'Course', 'Phone', 'Status', 'Actions'].map(h => (
                       <th key={h} className="text-left px-4 py-3 text-xs font-black text-white uppercase tracking-wider">{h}</th>
                     ))}</tr>
                   </thead>
@@ -1322,7 +1322,7 @@ export default function BranchDashboard() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-gradient-to-r from-yellow-500 to-orange-500">
-                    <tr>{['Student', 'Roll No', 'Course', 'Marks', 'Grade', 'Status', 'Approval', 'Actions'].map(h => (
+                    <tr>{['Student', 'Enrollment No', 'Course', 'Marks', 'Grade', 'Status', 'Approval', 'Actions'].map(h => (
                       <th key={h} className="text-left px-4 py-3 text-xs font-black text-white uppercase tracking-wider">{h}</th>
                     ))}</tr>
                   </thead>
@@ -1448,7 +1448,7 @@ export default function BranchDashboard() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-gradient-to-r from-teal-600 to-cyan-600">
-                    <tr>{['Student', 'Roll No', 'Course', 'Certificate No', 'Grade', 'Issue Date', 'Approval', 'Actions'].map(h => (
+                    <tr>{['Student', 'Enrollment No', 'Course', 'Certificate No', 'Grade', 'Issue Date', 'Approval', 'Actions'].map(h => (
                       <th key={h} className="text-left px-4 py-3 text-xs font-black text-white uppercase tracking-wider">{h}</th>
                     ))}</tr>
                   </thead>
@@ -1566,7 +1566,7 @@ export default function BranchDashboard() {
               ) : (
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50">
-                    <tr>{['Student', 'Roll No', 'Score', 'Percentage', 'Time', 'Date'].map(h => (
+                    <tr>{['Student', 'Enrollment No', 'Score', 'Percentage', 'Time', 'Date'].map(h => (
                       <th key={h} className="text-left px-3 py-2 text-xs font-bold text-gray-500 uppercase">{h}</th>
                     ))}</tr>
                   </thead>
