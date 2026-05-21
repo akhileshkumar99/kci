@@ -30,12 +30,29 @@ exports.toggleAdmitCard = async (req, res) => {
 // Fetch admit card — search by enrollmentNumber in ExamForm OR rollNumber in User
 exports.getAdmitCard = async (req, res) => {
   try {
-    const query = req.params.enrollmentNumber;
+    const rawQuery = req.params.enrollmentNumber || req.query.query || '';
+    const dobQuery = req.query.dob?.trim();
+    const query = rawQuery.trim();
+
+    if (!query) {
+      return res.status(400).json({ success: false, message: 'Please provide enrollment or roll number to search.' });
+    }
+
+    const normalized = query.toUpperCase();
+
+    const isDobMatch = (recordDob, inputDob) => {
+      if (!inputDob) return true;
+      if (!recordDob) return false;
+      const formatted = new Date(recordDob).toLocaleDateString('en-IN');
+      return formatted === inputDob || recordDob === inputDob;
+    };
 
     // 1. Try ExamForm by enrollmentNumber (Approved)
-    let form = await ExamForm.findOne({ enrollmentNumber: query, status: 'Approved' });
+    let form = await ExamForm.findOne({ enrollmentNumber: normalized, status: 'Approved' });
     if (form) {
-      // Serial number = position among all approved forms sorted by createdAt
+      if (!isDobMatch(form.dob, dobQuery)) {
+        return res.status(404).json({ success: false, message: 'No record found for this enrollment/roll number and date of birth.' });
+      }
       const serial = await ExamForm.countDocuments({ status: 'Approved', createdAt: { $lte: form.createdAt } });
       const admitCard = form.toObject();
       admitCard.serialNumber = String(serial).padStart(6, '0');
@@ -44,38 +61,28 @@ exports.getAdmitCard = async (req, res) => {
     }
 
     // 2. Try ExamForm by enrollmentNumber (any status — show pending message)
-    const anyForm = await ExamForm.findOne({ enrollmentNumber: query });
+    const anyForm = await ExamForm.findOne({ enrollmentNumber: normalized });
     if (anyForm) {
+      if (dobQuery && !isDobMatch(anyForm.dob, dobQuery)) {
+        return res.status(404).json({ success: false, message: 'No record found for this enrollment/roll number and date of birth.' });
+      }
       return res.status(403).json({ success: false, message: `Your exam form status is "${anyForm.status}". Only Approved forms can download admit card.` });
     }
 
-    // 3. Try User by rollNumber — generate admit card from student data
-    const student = await User.findOne({ rollNumber: query, role: 'student' }).select('-password');
+    // 3. Try User by rollNumber — only if they have a submitted exam form
+    const student = await User.findOne({ rollNumber: normalized, role: 'student' }).select('-password');
     if (student) {
-      const admitCard = {
-        studentName:      student.name,
-        fatherName:       student.fatherName || '—',
-        motherName:       student.motherName || '—',
-        dob:              student.dob ? new Date(student.dob).toLocaleDateString('en-IN') : '—',
-        gender:           student.gender || '—',
-        category:         student.category || 'General',
-        enrollmentNumber: student.rollNumber,
-        course:           student.courseName || '—',
-        batch:            student.batch || '—',
-        session:          student.session || '—',
-        qualification:    student.qualification || '—',
-        subjects:         student.subjects || '—',
-        phone:            student.phone || '—',
-        email:            student.email || '—',
-        address:          student.address || '—',
-        status:           'Approved',
-      };
-      // Serial from student _id last 6 chars as numeric fallback
-      const studentCount = await User.countDocuments({ role: 'student', createdAt: { $lte: student.createdAt } });
-      admitCard.serialNumber = String(studentCount).padStart(6, '0');
-      admitCard.rollNumber = student.rollNumber;
-      admitCard._id = student._id;
-      return res.json({ success: true, admitCard, source: 'student' });
+      if (dobQuery && !isDobMatch(student.dob, dobQuery)) {
+        return res.status(404).json({ success: false, message: 'No record found for this enrollment/roll number and date of birth.' });
+      }
+      // Check if student has submitted exam form
+      const studentForm = await ExamForm.findOne({ enrollmentNumber: normalized });
+      if (!studentForm) {
+        return res.status(403).json({ success: false, message: 'Admit card is not available. Please fill and submit your Examination Form first.' });
+      }
+      if (studentForm.status !== 'Approved') {
+        return res.status(403).json({ success: false, message: `Your exam form status is "${studentForm.status}". Admit card will be available once your form is Approved.` });
+      }
     }
 
     return res.status(404).json({ success: false, message: 'No record found for this enrollment/roll number. Please check and try again.' });
