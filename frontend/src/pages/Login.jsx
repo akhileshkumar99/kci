@@ -26,8 +26,12 @@ export default function Login() {
     if (!form.email || !form.password) return toast.error('Please fill all fields');
     setLoading(true);
     const toastId = toast.loading('Connecting to server...');
+
+    // Wake up Render backend first
+    try { await api.get('/auth/ping').catch(() => {}); } catch {}
+
     let attempts = 0;
-    const maxAttempts = 3;
+    const maxAttempts = 5;
     while (attempts < maxAttempts) {
       try {
         const user = await login(form.email, form.password);
@@ -42,13 +46,13 @@ export default function Login() {
       } catch (err) {
         attempts++;
         const status = err.response?.status;
-        if (status === 503 || !err.response) {
+        if (status === 503 || status === 502 || !err.response) {
           if (attempts < maxAttempts) {
-            toast.loading(`Server waking up... retry ${attempts}/${maxAttempts}`, { id: toastId });
-            await new Promise(r => setTimeout(r, 4000));
+            toast.loading(`Server is starting up... please wait (${attempts * 12}s)`, { id: toastId });
+            await new Promise(r => setTimeout(r, 12000));
           } else {
             toast.dismiss(toastId);
-            toast.error('Server is starting up, please try again in 30 seconds');
+            toast.error('Server took too long to respond. Please try again in a minute.');
           }
         } else {
           toast.dismiss(toastId);

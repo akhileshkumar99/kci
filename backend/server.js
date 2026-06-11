@@ -30,6 +30,7 @@ app.use('/api/exam-forms', require('./routes/examForms'));
 app.use('/api/admit-card', require('./routes/admitCard'));
 app.use('/api/test', require('./routes/test'));
 app.get('/', (req, res) => res.json({ message: 'KCI API Running' }));
+app.get('/api/auth/ping', (req, res) => res.json({ status: 'ok' }));
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
