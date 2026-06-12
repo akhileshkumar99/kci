@@ -2,6 +2,7 @@ const Admission = require('../models/Admission');
 const User = require('../models/User');
 const Course = require('../models/Course');
 const nodemailer = require('nodemailer');
+const generateStudentNumbers = require('../utils/generateStudentNumbers');
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -103,9 +104,8 @@ exports.updateAdmissionStatus = async (req, res) => {
       // Auto-generate student account
       const existingUser = await User.findOne({ email: admission.email });
       if (!existingUser) {
-        const count = await User.countDocuments({ role: 'student' });
-        const rollNumber = `KCI${new Date().getFullYear()}${String(count + 1).padStart(4, '0')}`;
-        const password = rollNumber; // plain, will be hashed by pre-save
+        const { rollNumber, enrollmentNumber, registrationNumber } = await generateStudentNumbers();
+        const password = rollNumber;
         const courseName = admission.course?.title || '';
 
         const student = await User.create({
@@ -117,6 +117,8 @@ exports.updateAdmissionStatus = async (req, res) => {
           dob: admission.dob,
           gender: admission.gender,
           rollNumber,
+          enrollmentNumber,
+          registrationNumber,
           courseName,
           course: admission.course?._id || admission.course,
           franchiseId: admission.franchise?._id || admission.franchise,

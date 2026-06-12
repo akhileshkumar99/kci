@@ -1,5 +1,6 @@
 const router = require('express').Router();
-const { getDashboardStats, getStudents, createStudent, updateStudent, deleteStudent } = require('../controllers/adminController');
+const { getDashboardStats, createStudent, getStudents, updateStudent, deleteStudent } = require('../controllers/adminController');
+const generateStudentNumbers = require('../utils/generateStudentNumbers');
 const { protect, admin } = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');

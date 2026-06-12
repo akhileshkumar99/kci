@@ -4,6 +4,7 @@ const Admission = require('../models/Admission');
 const Result = require('../models/Result');
 const Certificate = require('../models/Certificate');
 const Contact = require('../models/Contact');
+const generateStudentNumbers = require('../utils/generateStudentNumbers');
 
 const monthlyAgg = (Model, field = 'createdAt') => Model.aggregate([
   { $group: { _id: { month: { $month: `$${field}` }, year: { $year: `$${field}` } }, count: { $sum: 1 } } },
@@ -50,11 +51,9 @@ exports.createStudent = async (req, res) => {
     if (!name || !email || !password) return res.status(400).json({ success: false, message: 'Name, email and password required' });
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ success: false, message: 'Email already registered' });
-    const count = await User.countDocuments({ role: 'student' });
-    const rollNumber = `KCI${new Date().getFullYear()}${String(count + 1).padStart(4, '0')}`;
-    const enrollmentNumber = `KCI/ENR/${new Date().getFullYear()}/${String(count + 1).padStart(4, '0')}`;
+    const { rollNumber, enrollmentNumber, registrationNumber } = await generateStudentNumbers();
     const photo = req.file ? `/uploads/${req.file.filename}` : undefined;
-    const student = await User.create({ name, email, password, phone, batch, courseName, rollNumber, enrollmentNumber, role: 'student', ...(photo && { photo }) });
+    const student = await User.create({ name, email, password, phone, batch, courseName, rollNumber, enrollmentNumber, registrationNumber, role: 'student', ...(photo && { photo }) });
     res.status(201).json({ success: true, student });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

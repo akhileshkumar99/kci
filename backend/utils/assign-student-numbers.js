@@ -18,13 +18,15 @@ async function assignNumbers() {
     const serial = String(i + 1).padStart(4, '0');
     const rollNumber = `KCI${year}${serial}`;
     const enrollmentNumber = `KCI/ENR/${year}/${serial}`;
+    const registrationNumber = `KCI/REG/${year}/${serial}`;
 
     await User.findByIdAndUpdate(students[i]._id, {
       rollNumber,
       enrollmentNumber,
+      registrationNumber,
     });
 
-    console.log(`✅ ${students[i].name} → Roll: ${rollNumber} | Enrollment: ${enrollmentNumber}`);
+    console.log(`✅ ${students[i].name} → Roll: ${rollNumber} | Enrollment: ${enrollmentNumber} | Reg: ${registrationNumber}`);
     updated++;
   }
 

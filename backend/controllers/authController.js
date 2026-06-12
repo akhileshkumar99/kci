@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const generateStudentNumbers = require('../utils/generateStudentNumbers');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -10,10 +11,9 @@ exports.register = async (req, res) => {
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ success: false, message: 'Email already registered' });
 
-    const count = await User.countDocuments({ role: 'student' });
-    const rollNumber = `KCI${new Date().getFullYear()}${String(count + 1).padStart(4, '0')}`;
+    const { rollNumber, enrollmentNumber, registrationNumber } = await generateStudentNumbers();
 
-    const user = await User.create({ name, email, password, phone, address, rollNumber });
+    const user = await User.create({ name, email, password, phone, address, rollNumber, enrollmentNumber, registrationNumber });
     const token = signToken(user._id);
     res.status(201).json({ success: true, token, user: { id: user._id, name: user.name, email: user.email, role: user.role, rollNumber: user.rollNumber } });
   } catch (err) {
@@ -46,7 +46,8 @@ exports.login = async (req, res) => {
       user: {
         id: user._id, name: user.name, email: user.email,
         role: user.role === 'franchise' ? 'branch' : user.role,
-        rollNumber: user.rollNumber, photo: user.photo,
+        rollNumber: user.rollNumber, enrollmentNumber: user.enrollmentNumber,
+        registrationNumber: user.registrationNumber, photo: user.photo,
         courseName: user.courseName || user.course?.title || '',
         course: user.course, fatherName: user.fatherName,
         phone: user.phone, address: user.address, dob: user.dob,

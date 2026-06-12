@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
   // Student fields
   rollNumber: { type: String, unique: true, sparse: true },
   enrollmentNumber: { type: String, unique: true, sparse: true },
+  registrationNumber: { type: String, unique: true, sparse: true },
   formNo: { type: String },
   fatherName: { type: String },
   dob: { type: Date },

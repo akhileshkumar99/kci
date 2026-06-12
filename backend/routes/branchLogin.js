@@ -6,6 +6,7 @@ const nodemailer = require('nodemailer');
 const multer = require('multer');
 const path = require('path');
 const { protect, admin } = require('../middleware/auth');
+const generateStudentNumbers = require('../utils/generateStudentNumbers');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
@@ -286,8 +287,7 @@ router.put('/admissions/:id/status', protect, branchAuth, async (req, res) => {
 
       if (!existing) {
         // New student — create account
-        const count = await User.countDocuments({ role: 'student' });
-        const rollNumber = `KCI${new Date().getFullYear()}${String(count + 1).padStart(4, '0')}`;
+        const { rollNumber, enrollmentNumber, registrationNumber } = await generateStudentNumbers();
         const plainPassword = 'KCI@' + Math.random().toString(36).slice(-6).toUpperCase();
 
         const created = await User.create({
@@ -300,6 +300,8 @@ router.put('/admissions/:id/status', protect, branchAuth, async (req, res) => {
           fatherName: admission.fatherName || '',
           batch: admission.batch || '',
           rollNumber,
+          enrollmentNumber,
+          registrationNumber,
           courseName,
           course: admission.course?._id || admission.course,
           branchId: req.user._id,
@@ -683,12 +685,11 @@ router.post('/students', protect, branchAuth, upload.single('photo'), async (req
     if (!name || !email) return res.status(400).json({ success: false, message: 'Name and email required' });
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ success: false, message: 'Email already registered' });
-    const count = await User.countDocuments({ role: 'student' });
-    const rollNumber = `KCI${new Date().getFullYear()}${String(count + 1).padStart(4, '0')}`;
+    const { rollNumber, enrollmentNumber, registrationNumber } = await generateStudentNumbers();
     const tempPassword = 'pending_' + Date.now();
     const student = await User.create({
       name, email, password: tempPassword, phone, fatherName, dob, address,
-      courseName, batch, course, rollNumber,
+      courseName, batch, course, rollNumber, enrollmentNumber, registrationNumber,
       role: 'student',
       branchId: req.user._id,
       branchName: req.user.branchName,
