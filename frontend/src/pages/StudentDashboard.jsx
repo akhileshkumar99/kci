@@ -1144,7 +1144,9 @@ export default function StudentDashboard() {
                 </div>
                 <div className="p-4 space-y-3">
                   {[
-                    { icon: '🎫', label: 'Enrollment Number', value: student?.rollNumber, mono: true, highlight: true },
+                    { icon: '🎫', label: 'Roll Number', value: student?.rollNumber, mono: true, highlight: true },
+                    { icon: '📋', label: 'Enrollment No.', value: student?.enrollmentNumber, mono: true },
+                    { icon: '📝', label: 'Registration No.', value: student?.registrationNumber, mono: true },
                     { icon: '📚', label: 'Course', value: student?.courseName },
                     { icon: '📅', label: 'Batch', value: student?.batch },
                     { icon: '✅', label: 'Account Status', value: student?.isApproved ? 'Approved ✓' : 'Pending' },
