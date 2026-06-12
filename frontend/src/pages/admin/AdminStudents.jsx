@@ -51,7 +51,9 @@ export default function AdminStudents() {
       const { data } = await api.get('/admin/students');
       setStudents(data.students);
       const next = data.students.length + 1;
-      setNextRoll(`KCI${new Date().getFullYear()}${String(next).padStart(4, '0')}`);
+      const year = new Date().getFullYear();
+      const serial = String(next).padStart(4, '0');
+      setNextRoll(`KCI${year}${serial} | KCI/ENR/${year}/${serial}`);
     } catch {}
     setLoading(false);
   };
@@ -143,7 +145,7 @@ export default function AdminStudents() {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
-              <tr>{['Name', 'Email', 'Enrollment No.', 'Phone', 'Course', 'Batch', 'Actions'].map(h => (
+              <tr>{['Name', 'Roll No.', 'Enrollment No.', 'Phone', 'Course', 'Batch', 'Actions'].map(h => (
                 <th key={h} className="text-left p-4 font-semibold text-gray-600">{h}</th>
               ))}</tr>
             </thead>
@@ -151,8 +153,8 @@ export default function AdminStudents() {
               {filtered.map(s => (
                 <tr key={s._id} className="border-t border-gray-100 hover:bg-gray-50">
                   <td className="p-4 font-medium text-gray-900">{s.name}</td>
-                  <td className="p-4 text-gray-600">{s.email}</td>
                   <td className="p-4"><span className="px-2 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-mono">{s.rollNumber || '—'}</span></td>
+                  <td className="p-4"><span className="px-2 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-mono">{s.enrollmentNumber || '—'}</span></td>
                   <td className="p-4 text-gray-600">{s.phone || '—'}</td>
                   <td className="p-4 text-gray-600 max-w-[160px] truncate">{s.courseName || s.course?.title || '—'}</td>
                   <td className="p-4 text-gray-600">{s.batch || '—'}</td>
@@ -195,7 +197,8 @@ export default function AdminStudents() {
                 )}
               </div>
               {[
-                ['Enrollment No.', viewStudent.rollNumber, 'font-mono text-blue-700 font-black text-base'],
+                ['Roll Number', viewStudent.rollNumber, 'font-mono text-blue-700 font-black text-base'],
+                ['Enrollment No.', viewStudent.enrollmentNumber, 'font-mono text-green-700 font-black text-base'],
                 ['Full Name', viewStudent.name],
                 ['Email', viewStudent.email],
                 ['Phone', viewStudent.phone || '—'],

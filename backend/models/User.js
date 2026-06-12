@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
   isApproved: { type: Boolean, default: false },
   // Student fields
   rollNumber: { type: String, unique: true, sparse: true },
+  enrollmentNumber: { type: String, unique: true, sparse: true },
   formNo: { type: String },
   fatherName: { type: String },
   dob: { type: Date },
