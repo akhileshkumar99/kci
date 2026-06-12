@@ -142,7 +142,7 @@ export default function AdminStudents() {
       </div>
 
       {loading ? <Loader /> : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr>{['Name', 'Roll No.', 'Enrollment No.', 'Reg. No.', 'Phone', 'Course', 'Batch', 'Actions'].map(h => (
@@ -168,7 +168,7 @@ export default function AdminStudents() {
                   </td>
                 </tr>
               ))}
-              {filtered.length === 0 && <tr><td colSpan={7} className="p-8 text-center text-gray-500">No students found</td></tr>}
+              {filtered.length === 0 && <tr><td colSpan={8} className="p-8 text-center text-gray-500">No students found</td></tr>}
             </tbody>
           </table>
         </div>
@@ -182,7 +182,7 @@ export default function AdminStudents() {
               <h2 className="text-white font-bold text-lg">Student Details</h2>
               <button onClick={() => setViewModal(false)}><X className="w-5 h-5 text-white/80 hover:text-white" /></button>
             </div>
-            <div className="p-6 space-y-3">
+            <div className="p-6 space-y-3 max-h-[70vh] overflow-y-auto">
               <div className="flex items-center justify-center mb-4">
                 {viewStudent.photo ? (
                   <img
