@@ -11,12 +11,13 @@ async function assignNumbers() {
   console.log('Connected to MongoDB');
 
   const year = new Date().getFullYear();
+  const center = '01';
   const students = await User.find({ role: 'student' }).sort({ createdAt: 1 });
 
   let updated = 0;
   for (let i = 0; i < students.length; i++) {
     const serial = String(i + 1).padStart(4, '0');
-    const rollNumber = `KCI${year}${serial}`;
+    const rollNumber = `${year}${center}${serial}`;
     const enrollmentNumber = `KCI/ENR/${year}/${serial}`;
     const registrationNumber = `KCI/REG/${year}/${serial}`;
 
