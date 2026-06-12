@@ -1002,46 +1002,46 @@ export default function StudentDashboard() {
 
       {/* ── HEADER ── */}
       <header className="bg-white/80 backdrop-blur-xl border-b border-white/50 shadow-sm sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
+        <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="font-black text-gray-900 text-sm leading-tight">Student Portal</div>
-              <div className="text-[10px] text-blue-600 font-bold font-mono">{user?.rollNumber}</div>
+              <div className="text-[10px] text-blue-600 font-bold font-mono truncate">{user?.rollNumber}</div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white font-black text-sm shadow">
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white font-black text-sm shadow shrink-0">
                 {user?.name?.[0]?.toUpperCase()}
               </div>
-              <div className="text-right">
-                <div className="text-sm font-black text-gray-900 leading-tight">{user?.name}</div>
-                <div className="text-[10px] text-gray-400 font-medium">{user?.courseName}</div>
+              <div className="text-right hidden md:block">
+                <div className="text-sm font-black text-gray-900 leading-tight truncate max-w-[120px]">{user?.name}</div>
+                <div className="text-[10px] text-gray-400 font-medium truncate max-w-[120px]">{user?.courseName}</div>
               </div>
             </div>
             <button onClick={handleLogout}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-red-500 hover:bg-red-50 border border-red-100 hover:border-red-200 transition-all">
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-red-500 hover:bg-red-50 border border-red-100 hover:border-red-200 transition-all whitespace-nowrap">
               <LogOut className="w-3.5 h-3.5" /> Logout
             </button>
           </div>
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
 
         {/* ── TABS ── */}
-        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide -mx-3 sm:mx-0 px-3 sm:px-0">
           {tabs.map(({ id, label, icon: Icon }) => (
             <button key={id} onClick={() => setActiveTab(id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold whitespace-nowrap transition-all duration-200 ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 shrink-0 ${
                 activeTab === id
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-200 scale-105'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-200'
                   : 'bg-white text-gray-500 border border-gray-200 hover:border-blue-200 hover:text-blue-600 hover:bg-blue-50'
               }`}>
-              <Icon className="w-4 h-4" /> {label}
+              <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> {label}
             </button>
           ))}
         </div>
@@ -1124,7 +1124,7 @@ export default function StudentDashboard() {
             </motion.div>
 
             {/* Info Cards Grid */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
 
               {/* Personal Info */}
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
@@ -1244,7 +1244,7 @@ export default function StudentDashboard() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
               className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
               <h3 className="font-black text-gray-900 mb-4 text-sm uppercase tracking-wide">⚡ Quick Actions</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-7 gap-2 sm:gap-3">
                 {[
                   { label: 'View ID Card', icon: CreditCard, color: 'from-blue-500 to-blue-600', tab: 'idcard' },
                   { label: 'Admit Card', icon: FileText, color: 'from-indigo-500 to-indigo-600', tab: 'admitcard' },
