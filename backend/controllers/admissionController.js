@@ -31,7 +31,7 @@ async function sendStudentApprovalEmail(email, name, enrollmentId, password, cou
               <p style="margin:6px 0;color:#374151"><strong>Password:</strong> <code style="background:#dbeafe;padding:2px 10px;border-radius:4px;font-size:15px">${password}</code></p>
               <p style="margin:6px 0;color:#374151"><strong>Course:</strong> ${courseName}</p>
             </div>
-            <p style="color:#374151">Login at: <a href="http://localhost:5173/login" style="color:#1d4ed8;font-weight:bold">KCI Student Portal</a></p>
+            <p style="color:#374151">Login at: <a href="${process.env.FRONTEND_URL || 'https://kci-seven.vercel.app'}/login" style="color:#1d4ed8;font-weight:bold">KCI Student Portal</a></p>
             <p style="color:#6b7280;font-size:13px">Please change your password after first login.</p>
           </div>
           <div style="background:#f9fafb;padding:16px;text-align:center;color:#9ca3af;font-size:12px">
@@ -116,6 +116,7 @@ exports.updateAdmissionStatus = async (req, res) => {
           address: admission.address,
           dob: admission.dob,
           gender: admission.gender,
+          fatherName: admission.fatherName || '',
           rollNumber,
           enrollmentNumber,
           registrationNumber,
@@ -125,6 +126,7 @@ exports.updateAdmissionStatus = async (req, res) => {
           franchiseCenter: admission.franchise?.franchiseCenter,
           franchiseCity: admission.franchise?.franchiseCity,
           role: 'student',
+          isApproved: true,
           isActive: true,
           admissionDate: new Date(),
         });
