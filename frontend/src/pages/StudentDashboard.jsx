@@ -5,8 +5,8 @@ import { toast } from 'react-hot-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import {
-  GraduationCap, Award, FileText, LogOut, User,
-  Building2, Calendar, BookOpen, CheckCircle, CreditCard, Download, TrendingUp, ClipboardCheck, Clock, ChevronRight, Eye
+  GraduationCap, Award, FileText, LogOut, User, Lock, BookMarked,
+  Building2, Calendar, BookOpen, CheckCircle, CreditCard, Download, TrendingUp, ClipboardCheck, Clock, ChevronRight, Eye, KeyRound
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
@@ -14,9 +14,12 @@ import api from '../utils/api';
 const tabs = [
   { id: 'profile', label: 'My Profile', icon: User },
   { id: 'idcard', label: 'ID Card', icon: CreditCard },
+  { id: 'admitcard', label: 'Admit Card', icon: FileText },
   { id: 'results', label: 'My Results', icon: Award },
-  { id: 'certificates', label: 'Certificates', icon: FileText },
+  { id: 'certificates', label: 'Certificates', icon: Award },
+  { id: 'studymaterial', label: 'Study Material', icon: BookMarked },
   { id: 'tests', label: 'Monthly Tests', icon: ClipboardCheck },
+  { id: 'changepassword', label: 'Change Password', icon: Lock },
 ];
 
 function InfoRow({ label, value }) {
@@ -759,11 +762,15 @@ export default function StudentDashboard() {
   const [data, setData] = useState({ student: null, results: [], certificates: [], branch: null });
   const [loading, setLoading] = useState(true);
   const [tests, setTests] = useState([]);
-  const [activeTest, setActiveTest] = useState(null); // test being attempted
+  const [activeTest, setActiveTest] = useState(null);
   const [testAnswers, setTestAnswers] = useState([]);
   const [timeLeft, setTimeLeft] = useState(0);
-  const [testResult, setTestResult] = useState(null); // { attempt, correctAnswers, test }
+  const [testResult, setTestResult] = useState(null);
   const [testStartTime, setTestStartTime] = useState(null);
+  const [studyMaterials, setStudyMaterials] = useState([]);
+  const [pwForm, setPwForm] = useState({ current: '', newPw: '', confirm: '' });
+  const [pwLoading, setPwLoading] = useState(false);
+  const [admitCard, setAdmitCard] = useState(null);
 
   useEffect(() => {
     if (!user) { navigate('/login'); return; }
@@ -773,10 +780,25 @@ export default function StudentDashboard() {
       .then(r => { setData(r.data); setLoading(false); })
       .catch(() => { toast.error('Failed to load data'); setLoading(false); });
     api.get('/branch/student/tests').then(r => setTests(r.data.tests || [])).catch(() => {});
+    api.get('/study-material').then(r => setStudyMaterials(r.data.materials || [])).catch(() => {});
+    api.get('/admit-card/my').then(r => setAdmitCard(r.data.admitCard || null)).catch(() => {});
   }, [user?.id]);
 
   const handleLogout = () => { logout(); navigate('/'); };
   const { student, results, certificates, branch } = data;
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (pwForm.newPw !== pwForm.confirm) return toast.error('Passwords do not match');
+    if (pwForm.newPw.length < 6) return toast.error('Password must be at least 6 characters');
+    setPwLoading(true);
+    try {
+      await api.put('/auth/change-password', { currentPassword: pwForm.current, newPassword: pwForm.newPw });
+      toast.success('Password changed successfully!');
+      setPwForm({ current: '', newPw: '', confirm: '' });
+    } catch (err) { toast.error(err.response?.data?.message || 'Failed to change password'); }
+    setPwLoading(false);
+  };
 
   // Timer effect
   useEffect(() => {
@@ -1225,9 +1247,12 @@ export default function StudentDashboard() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                   { label: 'View ID Card', icon: CreditCard, color: 'from-blue-500 to-blue-600', tab: 'idcard' },
+                  { label: 'Admit Card', icon: FileText, color: 'from-indigo-500 to-indigo-600', tab: 'admitcard' },
                   { label: 'My Results', icon: Award, color: 'from-yellow-500 to-orange-500', tab: 'results' },
-                  { label: 'Certificates', icon: FileText, color: 'from-teal-500 to-emerald-600', tab: 'certificates' },
+                  { label: 'Certificates', icon: Award, color: 'from-teal-500 to-emerald-600', tab: 'certificates' },
+                  { label: 'Study Material', icon: BookMarked, color: 'from-green-500 to-green-600', tab: 'studymaterial' },
                   { label: 'Take Test', icon: ClipboardCheck, color: 'from-violet-500 to-purple-600', tab: 'tests' },
+                  { label: 'Change Password', icon: Lock, color: 'from-rose-500 to-red-600', tab: 'changepassword' },
                 ].map(({ label, icon: Icon, color, tab }) => (
                   <button key={label} onClick={() => setActiveTab(tab)}
                     className={`flex flex-col items-center gap-2 p-4 bg-gradient-to-br ${color} rounded-2xl text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all`}>
@@ -1403,8 +1428,101 @@ export default function StudentDashboard() {
           </div>
         )}
 
-        {/* Certificates Tab */}
-        {activeTab === 'certificates' && (
+        {/* Admit Card Tab */}
+        {activeTab === 'admitcard' && (
+          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+            <h2 className="text-xl font-black text-gray-900">My Admit Card</h2>
+            {admitCard ? (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-gray-400 font-bold uppercase">Exam Name</p>
+                    <p className="font-black text-gray-900">{admitCard.examName || '—'}</p>
+                  </div>
+                  <button onClick={() => window.open(`${import.meta.env.VITE_API_URL || ''}${admitCard.fileUrl}`, '_blank')}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold">
+                    <Download className="w-4 h-4" /> Download
+                  </button>
+                </div>
+                {[['Roll Number', admitCard.rollNumber], ['Exam Date', admitCard.examDate ? new Date(admitCard.examDate).toLocaleDateString('en-IN') : '—'], ['Exam Center', admitCard.examCenter || '—'], ['Course', admitCard.courseName || '—']].map(([l, v]) => (
+                  <div key={l} className="flex justify-between py-2 border-b border-gray-50 last:border-0">
+                    <span className="text-xs font-bold text-gray-400">{l}</span>
+                    <span className="text-sm font-bold text-gray-800">{v}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
+                <FileText className="w-12 h-12 mx-auto mb-3 text-gray-200" />
+                <p className="text-gray-500 font-semibold">No Admit Card issued yet</p>
+                <p className="text-xs text-gray-400 mt-1">Your admit card will appear here once issued by your branch</p>
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* Study Material Tab */}
+        {activeTab === 'studymaterial' && (
+          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+            <h2 className="text-xl font-black text-gray-900">Study Material</h2>
+            {studyMaterials.length === 0 ? (
+              <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
+                <BookMarked className="w-12 h-12 mx-auto mb-3 text-gray-200" />
+                <p className="text-gray-500 font-semibold">No study material available yet</p>
+                <p className="text-xs text-gray-400 mt-1">Materials uploaded by your branch will appear here</p>
+              </div>
+            ) : (
+              <div className="grid sm:grid-cols-2 gap-4">
+                {studyMaterials.map((m, i) => (
+                  <motion.div key={m._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                    className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center shrink-0">
+                      <BookMarked className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-black text-gray-900 truncate">{m.title}</p>
+                      <p className="text-xs text-gray-400">{m.subject || m.courseName || '—'}</p>
+                    </div>
+                    <a href={`${import.meta.env.VITE_API_URL || ''}${m.fileUrl}`} target="_blank" rel="noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold shrink-0">
+                      <Download className="w-3.5 h-3.5" /> Download
+                    </a>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* Change Password Tab */}
+        {activeTab === 'changepassword' && (
+          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-md mx-auto">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="bg-gradient-to-r from-rose-600 to-red-600 px-5 py-4 flex items-center gap-3">
+                <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Lock className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-white font-black">Change Password</h2>
+              </div>
+              <form onSubmit={handleChangePassword} className="p-6 space-y-4">
+                {[['Current Password', 'current', 'Enter current password'], ['New Password', 'newPw', 'Min 6 characters'], ['Confirm New Password', 'confirm', 'Re-enter new password']].map(([label, key, placeholder]) => (
+                  <div key={key}>
+                    <label className="text-xs font-bold text-gray-600 mb-1.5 block">{label}</label>
+                    <input type="password" value={pwForm[key]} onChange={e => setPwForm(p => ({ ...p, [key]: e.target.value }))}
+                      placeholder={placeholder} required
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose-500 bg-gray-50 focus:bg-white transition-all" />
+                  </div>
+                ))}
+                <button type="submit" disabled={pwLoading}
+                  className="w-full py-3 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 disabled:opacity-60 transition-all">
+                  {pwLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Lock className="w-4 h-4" />}
+                  {pwLoading ? 'Changing...' : 'Change Password'}
+                </button>
+              </form>
+            </div>
+          </motion.div>
+        )}
+
           <div className="space-y-5">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-black text-gray-900">My Certificates <span className="text-blue-600">({certificates.length})</span></h2>
