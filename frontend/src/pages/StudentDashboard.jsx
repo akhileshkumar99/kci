@@ -1523,6 +1523,8 @@ export default function StudentDashboard() {
           </motion.div>
         )}
 
+        {/* Certificates Tab */}
+        {activeTab === 'certificates' && (
           <div className="space-y-5">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-black text-gray-900">My Certificates <span className="text-blue-600">({certificates.length})</span></h2>
