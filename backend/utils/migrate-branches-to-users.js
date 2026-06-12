@@ -60,7 +60,7 @@ async function migrate() {
       branchAddress: b.address,
       branchCode,
       role: 'branch',
-      isApproved: true,
+      isApproved: false,
     });
     added++;
     console.log(`✅ Added: ${b.name}`);

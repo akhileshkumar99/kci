@@ -23,12 +23,19 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
     if (!email || !password) return res.status(400).json({ success: false, message: 'Provide email and password' });
 
     const user = await User.findOne({ email }).populate('course', 'title');
     if (!user || !(await user.matchPassword(password)))
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
+
+    // Role mismatch check
+    if (role) {
+      const actualRole = user.role === 'franchise' ? 'branch' : user.role;
+      if (role !== actualRole)
+        return res.status(401).json({ success: false, message: `Invalid credentials` });
+    }
 
     if (!user.isApproved && user.role !== 'admin' && user.role !== 'student')
       return res.status(401).json({ success: false, message: 'Account not approved yet. Please wait for admin approval.' });

@@ -34,7 +34,7 @@ export default function Login() {
     const maxAttempts = 5;
     while (attempts < maxAttempts) {
       try {
-        const user = await login(form.email, form.password);
+        const user = await login(form.email, form.password, activeRole);
         toast.dismiss(toastId);
         toast.success(`Welcome, ${user.name}! 🎉`);
         if (user.role === 'admin') navigate('/admin');
