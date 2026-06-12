@@ -183,9 +183,9 @@ export default function AdminStudents() {
               <div className="flex items-center justify-center mb-4">
                 {viewStudent.photo ? (
                   <img
-                    src={`http://localhost:5000${viewStudent.photo}`}
+                    src={`${import.meta.env.VITE_API_URL || ''}${viewStudent.photo}`}
                     alt={viewStudent.name}
-                    onClick={() => setImgPreview(`http://localhost:5000${viewStudent.photo}`)}
+                    onClick={() => setImgPreview(`${import.meta.env.VITE_API_URL || ''}${viewStudent.photo}`)}
                     className="w-20 h-20 rounded-full object-cover border-4 border-blue-100 shadow cursor-pointer hover:opacity-90 transition-opacity"
                   />
                 ) : (
