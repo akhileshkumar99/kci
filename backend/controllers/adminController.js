@@ -51,9 +51,9 @@ exports.createStudent = async (req, res) => {
     if (!name || !email || !password) return res.status(400).json({ success: false, message: 'Name, email and password required' });
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ success: false, message: 'Email already registered' });
-    const { rollNumber, enrollmentNumber, registrationNumber } = await generateStudentNumbers();
+    const { rollNumber, enrollmentNumber, registrationNumber, formNo } = await generateStudentNumbers();
     const photo = req.file ? `/uploads/${req.file.filename}` : undefined;
-    const student = await User.create({ name, email, password, phone, batch, courseName, rollNumber, enrollmentNumber, registrationNumber, role: 'student', ...(photo && { photo }) });
+    const student = await User.create({ name, email, password, phone, batch, courseName, rollNumber, enrollmentNumber, registrationNumber, formNo, role: 'student', ...(photo && { photo }) });
     res.status(201).json({ success: true, student });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

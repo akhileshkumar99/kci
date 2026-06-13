@@ -10,6 +10,7 @@ const generateStudentNumbers = async () => {
     rollNumber,
     enrollmentNumber: `KCI/ENR/${year}/${serial}`,
     registrationNumber: `KCI/REG/${year}/${serial}`,
+    formNo: `KCI/FORM/${year}/${serial}`,
   };
 };
 

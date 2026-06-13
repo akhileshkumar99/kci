@@ -287,7 +287,7 @@ router.put('/admissions/:id/status', protect, branchAuth, async (req, res) => {
 
       if (!existing) {
         // New student — create account
-        const { rollNumber, enrollmentNumber, registrationNumber } = await generateStudentNumbers();
+        const { rollNumber, enrollmentNumber, registrationNumber, formNo } = await generateStudentNumbers();
         const plainPassword = 'KCI@' + Math.random().toString(36).slice(-6).toUpperCase();
 
         const created = await User.create({
@@ -302,6 +302,7 @@ router.put('/admissions/:id/status', protect, branchAuth, async (req, res) => {
           rollNumber,
           enrollmentNumber,
           registrationNumber,
+          formNo,
           courseName,
           course: admission.course?._id || admission.course,
           branchId: req.user._id,
@@ -685,11 +686,11 @@ router.post('/students', protect, branchAuth, upload.single('photo'), async (req
     if (!name || !email) return res.status(400).json({ success: false, message: 'Name and email required' });
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ success: false, message: 'Email already registered' });
-    const { rollNumber, enrollmentNumber, registrationNumber } = await generateStudentNumbers();
+    const { rollNumber, enrollmentNumber, registrationNumber, formNo } = await generateStudentNumbers();
     const tempPassword = 'pending_' + Date.now();
     const student = await User.create({
       name, email, password: tempPassword, phone, fatherName, dob, address,
-      courseName, batch, course, rollNumber, enrollmentNumber, registrationNumber,
+      courseName, batch, course, rollNumber, enrollmentNumber, registrationNumber, formNo,
       role: 'student',
       branchId: req.user._id,
       branchName: req.user.branchName,

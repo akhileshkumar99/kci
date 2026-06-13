@@ -871,7 +871,7 @@ export default function BranchDashboard() {
     return list.filter(item => keys.some(k => item[k]?.toString().toLowerCase().includes(q)));
   };
 
-  const studentFields = [['Roll No', 'rollNumber'], ['Enrollment No', 'enrollmentNumber'], ['Reg No', 'registrationNumber'], ['Name', 'name'], ['Email', 'email'], ['Phone', 'phone'], ['Course', 'courseName'], ['Batch', 'batch'], ['Father', 'fatherName'], ['DOB', 'dob'], ['Address', 'address'], ['Status', 'isApproved']];
+  const studentFields = [['Roll No', 'rollNumber'], ['Enrollment No', 'enrollmentNumber'], ['Form No', 'formNo'], ['Name', 'name'], ['Email', 'email'], ['Phone', 'phone'], ['Course', 'courseName'], ['Batch', 'batch'], ['Father', 'fatherName'], ['DOB', 'dob'], ['Address', 'address'], ['Status', 'isApproved']];
   const resultFields = [['Student', 'studentName'], ['Enrollment No', 'rollNumber'], ['Course', 'courseName'], ['Total Marks', 'totalMarks'], ['Obtained', 'obtainedMarks'], ['Percentage', 'percentage'], ['Grade', 'grade'], ['Status', 'status']];
   const certFields = [['Student', 'studentName'], ['Enrollment No', 'rollNumber'], ['Course', 'courseName'], ['Cert No', 'certificateNumber'], ['Grade', 'grade'], ['Issue Date', 'issueDate']];
 

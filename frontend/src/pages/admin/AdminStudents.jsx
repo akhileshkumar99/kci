@@ -145,7 +145,7 @@ export default function AdminStudents() {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
-              <tr>{['Name', 'Roll No.', 'Enrollment No.', 'Reg. No.', 'Phone', 'Course', 'Batch', 'Actions'].map(h => (
+              <tr>{['Name', 'Roll No.', 'Enrollment No.', 'Form No.', 'Phone', 'Course', 'Batch', 'Actions'].map(h => (
                 <th key={h} className="text-left p-4 font-semibold text-gray-600">{h}</th>
               ))}</tr>
             </thead>
@@ -155,7 +155,7 @@ export default function AdminStudents() {
                   <td className="p-4 font-medium text-gray-900">{s.name}</td>
                   <td className="p-4"><span className="px-2 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-mono">{s.rollNumber || '—'}</span></td>
                   <td className="p-4"><span className="px-2 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-mono">{s.enrollmentNumber || '—'}</span></td>
-                  <td className="p-4"><span className="px-2 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-mono">{s.registrationNumber || '—'}</span></td>
+                  <td className="p-4"><span className="px-2 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-mono">{s.formNo || '—'}</span></td>
                   <td className="p-4 text-gray-600">{s.phone || '—'}</td>
                   <td className="p-4 text-gray-600 max-w-[160px] truncate">{s.courseName || s.course?.title || '—'}</td>
                   <td className="p-4 text-gray-600">{s.batch || '—'}</td>
@@ -200,7 +200,7 @@ export default function AdminStudents() {
               {[
                 ['Roll Number', viewStudent.rollNumber, 'font-mono text-blue-700 font-black text-base'],
                 ['Enrollment No.', viewStudent.enrollmentNumber, 'font-mono text-green-700 font-black text-base'],
-                ['Registration No.', viewStudent.registrationNumber, 'font-mono text-purple-700 font-black text-base'],
+                ['Form No.', viewStudent.formNo, 'font-mono text-purple-700 font-black text-base'],
                 ['Full Name', viewStudent.name],
                 ['Email', viewStudent.email],
                 ['Phone', viewStudent.phone || '—'],

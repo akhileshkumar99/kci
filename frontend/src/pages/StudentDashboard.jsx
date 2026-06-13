@@ -1168,7 +1168,7 @@ export default function StudentDashboard() {
                   {[
                     { icon: '🎫', label: 'Roll Number', value: student?.rollNumber, mono: true, highlight: true },
                     { icon: '📋', label: 'Enrollment No.', value: student?.enrollmentNumber, mono: true },
-                    { icon: '📝', label: 'Registration No.', value: student?.registrationNumber, mono: true },
+                    { icon: '📝', label: 'Form No.', value: student?.formNo, mono: true },
                     { icon: '📚', label: 'Course', value: student?.courseName },
                     { icon: '📅', label: 'Batch', value: student?.batch },
                     { icon: '✅', label: 'Account Status', value: student?.isApproved ? 'Approved ✓' : 'Pending' },
