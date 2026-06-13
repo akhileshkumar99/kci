@@ -3,8 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
-const multer = require('multer');
-const path = require('path');
+const { protect, admin } = require('../middleware/auth');
 const generateStudentNumbers = require('../utils/generateStudentNumbers');
 const { uploadStudent } = require('../middleware/cloudinary');
 
