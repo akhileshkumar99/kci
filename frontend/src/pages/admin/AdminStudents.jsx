@@ -46,6 +46,19 @@ export default function AdminStudents() {
 
   const [imgPreview, setImgPreview] = useState(null);
 
+  const [migrating, setMigrating] = useState(false);
+
+  const handleMigrateFormNo = async () => {
+    if (!confirm('Assign Form No to all students who don\'t have one?')) return;
+    setMigrating(true);
+    try {
+      const { data } = await api.post('/admin/migrate-form-no');
+      toast.success(`✅ ${data.updated} students updated with Form No!`);
+      fetchStudents();
+    } catch (err) { toast.error(err.response?.data?.message || 'Migration failed'); }
+    setMigrating(false);
+  };
+
   const fetchStudents = async () => {
     try {
       const { data } = await api.get('/admin/students');
@@ -135,6 +148,11 @@ export default function AdminStudents() {
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search students..."
               className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
+          <button onClick={handleMigrateFormNo} disabled={migrating}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-60">
+            {migrating ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Hash className="w-4 h-4" />}
+            Assign Form No
+          </button>
           <button onClick={openModal} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors">
             <Plus className="w-4 h-4" /> Add Student
           </button>
