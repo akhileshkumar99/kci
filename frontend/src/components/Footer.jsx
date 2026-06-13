@@ -106,8 +106,20 @@ export default function Footer() {
       <div className="border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-gray-500">
           <p>© {new Date().getFullYear()} Keerti Computer Institute. All rights reserved.</p>
-          <div className="flex gap-4">
+          <div className="flex items-center gap-4">
             <Link to="/result" className="hover:text-blue-400 transition-colors">Check Result</Link>
+            <span className="text-gray-700">|</span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-gray-600">Developed by</span>
+              <span className="relative group cursor-default">
+                <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-violet-400 to-pink-400 animate-pulse">
+                  Akhilesh Kumar
+                </span>
+                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-gray-700">
+                  💻 Full Stack Developer
+                </span>
+              </span>
+            </span>
           </div>
         </div>
       </div>

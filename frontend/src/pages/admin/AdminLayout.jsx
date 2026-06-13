@@ -286,6 +286,13 @@ export default function AdminLayout() {
         <main className={`flex-1 overflow-y-auto p-3 sm:p-6 ${dark ? 'bg-gray-950' : 'bg-gray-50'}`}>
           <Outlet />
         </main>
+        {/* Dev credit */}
+        <div className={`shrink-0 px-4 py-2 border-t text-center text-[10px] ${dark ? 'border-gray-800 text-gray-600' : 'border-gray-100 text-gray-400'}`}>
+          Developed by{' '}
+          <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-violet-500 to-pink-500">
+            Akhilesh Kumar
+          </span>
+        </div>
       </div>
     </div>
   );
