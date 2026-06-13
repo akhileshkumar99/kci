@@ -162,9 +162,9 @@ export default function Login() {
                 </label>
                 <div className="relative">
                   <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${focused === 'email' ? 'text-blue-500' : 'text-gray-400'}`} />
-                  <input type="text" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+                  <input type="text" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value.trim() }))}
                     onFocus={() => setFocused('email')} onBlur={() => setFocused('')}
-                    placeholder={activeRole === 'admin' ? 'admin@kci.org.in' : activeRole === 'branch' ? 'branch@kci.org.in' : 'KCI/FORM/2026/0001'}
+                    placeholder={activeRole === 'admin' ? 'admin@kci.org.in' : activeRole === 'branch' ? 'branch@email.com' : 'KCI/FORM/2026/0001'}
                     className="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 text-sm text-gray-800 placeholder-gray-400 outline-none transition-all bg-slate-50 focus:bg-white"
                     style={{ borderColor: focused === 'email' ? '#3b82f6' : '#e2e8f0' }} />
                 </div>
