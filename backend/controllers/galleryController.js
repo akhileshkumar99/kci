@@ -1,3 +1,4 @@
+const Gallery = require('../models/Gallery');
 const { uploadGallery, deleteFromCloudinary } = require('../middleware/cloudinary');
 
 exports.getGallery = async (req, res) => {
