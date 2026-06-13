@@ -7,14 +7,15 @@ const { protect, admin } = require('../middleware/auth');
 const generateStudentNumbers = require('../utils/generateStudentNumbers');
 const { uploadStudent } = require('../middleware/cloudinary');
 
-const transporter = nodemailer.createTransport({
+// Lazy transporter — reads env at call time (fixes Vercel cold start issue)
+const getTransporter = () => nodemailer.createTransport({
   service: 'gmail',
   auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
 });
 
 async function sendApprovalEmail(email, name, branchName, branchCode, password) {
   try {
-    await transporter.sendMail({
+    await getTransporter().sendMail({
       from: `"Keerti Computer Institute" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: '🎉 Your KCI Branch Application is Approved!',
@@ -49,7 +50,7 @@ async function sendApprovalEmail(email, name, branchName, branchCode, password) 
 
 async function sendStudentApprovalEmail(email, name, rollNumber, password, branchName, courseName) {
   try {
-    await transporter.sendMail({
+    await getTransporter().sendMail({
       from: `"Keerti Computer Institute" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: '🎓 Your KCI Student Account is Approved!',
@@ -312,7 +313,7 @@ router.put('/admissions/:id/status', protect, branchAuth, async (req, res) => {
 
         // Send credentials email
         try {
-          await transporter.sendMail({
+          await getTransporter().sendMail({
             from: `"Keerti Computer Institute" <${process.env.EMAIL_USER}>`,
             to: admission.email,
             subject: '🎉 Your KCI Admission is Approved — Login Credentials Inside!',
