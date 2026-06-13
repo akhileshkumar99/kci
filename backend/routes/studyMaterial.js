@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const StudyMaterial = require('../models/StudyMaterial');
 const { protect, admin } = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const { uploadDocument } = require('../middleware/cloudinary');
 
 router.get('/', async (req, res) => {
   try {
@@ -17,10 +17,10 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', protect, upload.single('file'), async (req, res) => {
+router.post('/', protect, uploadDocument.single('file'), async (req, res) => {
   try {
     const data = { ...req.body, uploadedBy: req.user._id };
-    if (req.file) data.fileUrl = req.file.filename;
+    if (req.file) data.fileUrl = req.file.path;
     const material = await StudyMaterial.create(data);
     res.status(201).json({ success: true, material });
   } catch (err) {

@@ -5,6 +5,7 @@ const Result = require('../models/Result');
 const Certificate = require('../models/Certificate');
 const Contact = require('../models/Contact');
 const generateStudentNumbers = require('../utils/generateStudentNumbers');
+const { deleteFromCloudinary } = require('../middleware/cloudinary');
 
 const monthlyAgg = (Model, field = 'createdAt') => Model.aggregate([
   { $group: { _id: { month: { $month: `$${field}` }, year: { $year: `$${field}` } }, count: { $sum: 1 } } },
@@ -52,7 +53,7 @@ exports.createStudent = async (req, res) => {
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ success: false, message: 'Email already registered' });
     const { rollNumber, enrollmentNumber, registrationNumber, formNo } = await generateStudentNumbers();
-    const photo = req.file ? `/uploads/${req.file.filename}` : undefined;
+    const photo = req.file ? req.file.path : undefined;
     const student = await User.create({ name, email, password, phone, batch, courseName, rollNumber, enrollmentNumber, registrationNumber, formNo, role: 'student', ...(photo && { photo }) });
     res.status(201).json({ success: true, student });
   } catch (err) {
@@ -72,7 +73,7 @@ exports.getStudents = async (req, res) => {
 exports.updateStudent = async (req, res) => {
   try {
     const updates = { name: req.body.name, email: req.body.email, phone: req.body.phone, batch: req.body.batch, courseName: req.body.courseName };
-    if (req.file) updates.photo = `/uploads/${req.file.filename}`;
+    if (req.file) updates.photo = req.file.path;
     const student = await User.findByIdAndUpdate(req.params.id, updates, { new: true }).select('-password');
     res.json({ success: true, student });
   } catch (err) {

@@ -5,14 +5,8 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 const path = require('path');
-const { protect, admin } = require('../middleware/auth');
 const generateStudentNumbers = require('../utils/generateStudentNumbers');
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
-});
-const upload = multer({ storage });
+const { uploadStudent } = require('../middleware/cloudinary');
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -680,7 +674,7 @@ router.get('/student/tests/:id/result', protect, async (req, res) => {
 // ── STUDENT ROUTES (Branch manages students) ──────────────────────────────
 
 // Branch: Add student
-router.post('/students', protect, branchAuth, upload.single('photo'), async (req, res) => {
+router.post('/students', protect, branchAuth, uploadStudent.single('photo'), async (req, res) => {
   try {
     const { name, email, phone, fatherName, dob, address, courseName, batch, course } = req.body;
     if (!name || !email) return res.status(400).json({ success: false, message: 'Name and email required' });
@@ -696,7 +690,7 @@ router.post('/students', protect, branchAuth, upload.single('photo'), async (req
       branchName: req.user.branchName,
       branchCity: req.user.branchCity,
       isApproved: false, isActive: false,
-      ...(req.file && { photo: `/uploads/${req.file.filename}` }),
+      ...(req.file && { photo: req.file.path }),
     });
     const result = student.toObject();
     delete result.password;
@@ -707,7 +701,7 @@ router.post('/students', protect, branchAuth, upload.single('photo'), async (req
 });
 
 // Branch: Update student
-router.put('/students/:id', protect, branchAuth, upload.single('photo'), async (req, res) => {
+router.put('/students/:id', protect, branchAuth, uploadStudent.single('photo'), async (req, res) => {
   try {
     const student = await User.findById(req.params.id);
     if (!student) return res.status(404).json({ success: false, message: 'Student not found' });
@@ -715,7 +709,7 @@ router.put('/students/:id', protect, branchAuth, upload.single('photo'), async (
       return res.status(403).json({ success: false, message: 'Access denied' });
     const updates = { ...req.body };
     delete updates.role;
-    if (req.file) updates.photo = `/uploads/${req.file.filename}`;
+    if (req.file) updates.photo = req.file.path;
     // Handle password change
     if (updates.newPassword && updates.newPassword.trim()) {
       student.password = updates.newPassword.trim();

@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { getDashboardStats, createStudent, getStudents, updateStudent, deleteStudent } = require('../controllers/adminController');
 const generateStudentNumbers = require('../utils/generateStudentNumbers');
 const { protect, admin } = require('../middleware/auth');
+const { uploadStudent } = require('../middleware/cloudinary');
 const multer = require('multer');
 const path = require('path');
 const storage = multer.diskStorage({
@@ -12,8 +13,8 @@ const upload = multer({ storage });
 
 router.get('/stats', protect, admin, getDashboardStats);
 router.get('/students', protect, admin, getStudents);
-router.post('/students', protect, admin, upload.single('photo'), createStudent);
-router.put('/students/:id', protect, admin, upload.single('photo'), updateStudent);
+router.post('/students', protect, admin, uploadStudent.single('photo'), createStudent);
+router.put('/students/:id', protect, admin, uploadStudent.single('photo'), updateStudent);
 router.delete('/students/:id', protect, admin, deleteStudent);
 
 // One-time migration: assign formNo to students who don't have one

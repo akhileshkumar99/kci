@@ -1,4 +1,4 @@
-const Gallery = require('../models/Gallery');
+const { uploadGallery, deleteFromCloudinary } = require('../middleware/cloudinary');
 
 exports.getGallery = async (req, res) => {
   try {
@@ -14,7 +14,7 @@ exports.getGallery = async (req, res) => {
 exports.addGalleryItem = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ success: false, message: 'Image required' });
-    const item = await Gallery.create({ ...req.body, image: `/uploads/${req.file.filename}` });
+    const item = await Gallery.create({ ...req.body, image: req.file.path });
     res.status(201).json({ success: true, item });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -23,9 +23,13 @@ exports.addGalleryItem = async (req, res) => {
 
 exports.deleteGalleryItem = async (req, res) => {
   try {
+    const item = await Gallery.findById(req.params.id);
+    if (item?.image) await deleteFromCloudinary(item.image);
     await Gallery.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'Item deleted' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+exports.uploadGallery = uploadGallery;
