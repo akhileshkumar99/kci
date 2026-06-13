@@ -48,7 +48,7 @@ async function sendApprovalEmail(email, name, branchName, branchCode, password) 
   }
 }
 
-async function sendStudentApprovalEmail(email, name, rollNumber, password, branchName, courseName) {
+async function sendStudentApprovalEmail(email, name, rollNumber, formNo, password, branchName, courseName) {
   try {
     await getTransporter().sendMail({
       from: `"Keerti Computer Institute" <${process.env.EMAIL_USER}>`,
@@ -65,9 +65,9 @@ async function sendStudentApprovalEmail(email, name, rollNumber, password, branc
             <p style="color:#374151">Your student account at <strong>${branchName}</strong> for <strong>${courseName}</strong> has been approved.</p>
             <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:20px;margin:20px 0">
               <h3 style="margin:0 0 12px;color:#1d4ed8">Your Login Credentials</h3>
-              <p style="margin:4px 0;color:#374151"><strong>Email:</strong> ${email}</p>
+              <p style="margin:4px 0;color:#374151"><strong>Form Number:</strong> <code style="background:#dbeafe;padding:2px 8px;border-radius:4px;font-size:15px">${formNo}</code></p>
               <p style="margin:4px 0;color:#374151"><strong>Password:</strong> <code style="background:#dbeafe;padding:2px 8px;border-radius:4px;font-size:15px">${password}</code></p>
-              <p style="margin:4px 0;color:#374151"><strong>Roll Number:</strong> <code style="background:#dbeafe;padding:2px 8px;border-radius:4px">${rollNumber}</code></p>
+              <p style="margin:4px 0;color:#374151"><strong>Login with:</strong> Form Number + Password</p>
             </div>
             <p style="color:#374151">Login at: <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login" style="color:#1d4ed8">KCI Student Portal</a></p>
             <p style="color:#6b7280;font-size:13px">Please change your password after first login.</p>
@@ -329,8 +329,8 @@ router.put('/admissions/:id/status', protect, branchAuth, async (req, res) => {
                   <h3 style="margin:0 0 14px;color:#1d4ed8">🔐 Login Credentials</h3>
                   <p style="margin:6px 0;color:#374151"><strong>Email:</strong> ${admission.email}</p>
                   <p style="margin:6px 0;color:#374151"><strong>Password:</strong> <code style="background:#dbeafe;padding:3px 10px;border-radius:4px;font-size:15px;font-weight:bold">${plainPassword}</code></p>
-                  <p style="margin:6px 0;color:#374151"><strong>Roll Number:</strong> <code style="background:#dbeafe;padding:3px 10px;border-radius:4px;font-size:15px;font-weight:bold">${rollNumber}</code></p>
-                  <p style="margin:6px 0;color:#374151"><strong>Course:</strong> ${courseName}</p>
+                  <p style="margin:6px 0;color:#374151"><strong>Form Number:</strong> <code style="background:#dbeafe;padding:3px 10px;border-radius:4px;font-size:15px;font-weight:bold">${formNo}</code></p>
+                  <p style="margin:6px 0;color:#374151"><strong>Login with:</strong> Form Number + Password</p>
                   <p style="margin:6px 0;color:#374151"><strong>Branch:</strong> ${branchName}</p>
                 </div>
                 <div style="text-align:center;margin:24px 0">
@@ -743,7 +743,7 @@ router.put('/students/:id/approve', protect, branchAuth, async (req, res) => {
     student.password = newPassword;
     await student.save();
     await sendStudentApprovalEmail(
-      student.email, student.name, student.rollNumber, newPassword,
+      student.email, student.name, student.rollNumber, student.formNo, newPassword,
       req.user.branchName || 'KCI Branch', student.courseName || 'Course'
     );
     res.json({ success: true, message: 'Student approved and credentials sent via email' });

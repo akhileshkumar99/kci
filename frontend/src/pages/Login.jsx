@@ -157,12 +157,14 @@ export default function Login() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email Address</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  {activeRole === 'student' ? 'Form Number / Email' : 'Email Address'}
+                </label>
                 <div className="relative">
                   <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${focused === 'email' ? 'text-blue-500' : 'text-gray-400'}`} />
-                  <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+                  <input type="text" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
                     onFocus={() => setFocused('email')} onBlur={() => setFocused('')}
-                    placeholder={activeRole === 'admin' ? 'admin@kci.org.in' : activeRole === 'branch' ? 'branch@kci.org.in' : 'student@email.com'}
+                    placeholder={activeRole === 'admin' ? 'admin@kci.org.in' : activeRole === 'branch' ? 'branch@kci.org.in' : 'KCI/FORM/2026/0001'}
                     className="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 text-sm text-gray-800 placeholder-gray-400 outline-none transition-all bg-slate-50 focus:bg-white"
                     style={{ borderColor: focused === 'email' ? '#3b82f6' : '#e2e8f0' }} />
                 </div>

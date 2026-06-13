@@ -24,9 +24,13 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password, role } = req.body;
-    if (!email || !password) return res.status(400).json({ success: false, message: 'Provide email and password' });
+    if (!email || !password) return res.status(400).json({ success: false, message: 'Provide email/form number and password' });
 
-    const user = await User.findOne({ email }).populate('course', 'title');
+    // Find by email OR formNo
+    const user = await User.findOne({
+      $or: [{ email: email.toLowerCase() }, { formNo: email }]
+    }).populate('course', 'title');
+
     if (!user || !(await user.matchPassword(password)))
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
