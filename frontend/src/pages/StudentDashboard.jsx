@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -7,7 +7,8 @@ import autoTable from 'jspdf-autotable';
 import QRCode from 'qrcode';
 import {
   GraduationCap, Award, FileText, LogOut, User, Lock, BookMarked,
-  Building2, Calendar, BookOpen, CheckCircle, CreditCard, Download, TrendingUp, ClipboardCheck, Clock, ChevronRight, Eye, KeyRound
+  Building2, Calendar, BookOpen, CheckCircle, CreditCard, Download, TrendingUp, ClipboardCheck, Clock, ChevronRight, Eye, KeyRound, QrCode,
+  Mail, Phone, Users, MapPin, BadgeCheck, Hash, Layers, ShieldCheck, CalendarDays, MapPinned
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
@@ -28,201 +29,178 @@ function InfoRow({ label, value }) {
   return (
     <div className="flex flex-col gap-0.5 py-2 border-b border-gray-50 last:border-0">
       <span className="text-xs font-semibold text-gray-400">{label}</span>
-      <span className="text-sm font-bold text-gray-800">{value || 'â€”'}</span>
+      <span className="text-sm font-bold text-gray-800">{value || '-'}</span>
     </div>
   );
 }
 
 // â”€â”€â”€ Grade color helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function IDCard({ student, branch }) {
-  const issueYear = new Date().getFullYear();
-  const validYear = issueYear + 1;
+  const cardRef = useRef(null);
+  const [exporting, setExporting] = useState(false);
   const dob = student?.dob ? new Date(student.dob).toLocaleDateString('en-IN') : '-';
   const uniqueId = student?.formNo || student?.rollNumber || student?.enrollmentNumber || 'KCI000';
 
   const handleDownloadPDF = async () => {
-    const W = 85.6, H = 54;
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [H, W] });
-
-    let logoUrl = null;
+    if (!cardRef.current) return;
+    setExporting(true);
     try {
-      const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = '/logo.png'; });
-      const sz = 300, cv = document.createElement('canvas'); cv.width = sz; cv.height = sz;
-      const cx = cv.getContext('2d'); cx.beginPath(); cx.arc(sz/2,sz/2,sz/2,0,Math.PI*2); cx.closePath(); cx.clip(); cx.drawImage(img,0,0,sz,sz);
-      logoUrl = cv.toDataURL('image/png');
-    } catch(_) {}
-
-    let photoUrl = null;
-    if (student?.photo) {
-      try {
-        photoUrl = await new Promise(res => {
-          const img = new Image(); img.crossOrigin = 'anonymous';
-          img.onload = () => { const cv = document.createElement('canvas'); cv.width = img.naturalWidth; cv.height = img.naturalHeight; cv.getContext('2d').drawImage(img,0,0); res(cv.toDataURL('image/jpeg')); };
-          img.onerror = () => res(null); img.src = student.photo;
-        });
-      } catch(_) {}
-    }
-
-    let qrUrl = null;
-    try {
-      const qrData = 'KCI|' + (student?.name||'') + '|' + uniqueId + '|' + (student?.courseName||'') + '|' + dob + '|kci.org.in';
-      qrUrl = await QRCode.toDataURL(qrData, { width: 120, margin: 1, color: { dark: '#0a1c55', light: '#ffffff' } });
-    } catch(_) {}
-
-    // BG
-    doc.setFillColor(12, 30, 95);
-    doc.roundedRect(0, 0, W, H, 2, 2, 'F');
-    doc.setDrawColor(250, 204, 21); doc.setLineWidth(0.7);
-    doc.roundedRect(0.8, 0.8, W-1.6, H-1.6, 1.8, 1.8, 'S');
-    doc.setDrawColor(200, 162, 18); doc.setLineWidth(0.25);
-    doc.roundedRect(2, 2, W-4, H-4, 1.3, 1.3, 'S');
-
-    // HEADER
-    doc.setFillColor(5, 15, 60);
-    doc.roundedRect(0, 0, W, 13, 2, 2, 'F');
-    doc.rect(0, 10, W, 3, 'F');
-    doc.setFillColor(250, 204, 21); doc.rect(0, 13, W, 0.9, 'F');
-    if (logoUrl) doc.addImage(logoUrl, 'PNG', 3, 1.8, 9.5, 9.5);
-    doc.setTextColor(255,255,255); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
-    doc.text('KEERTI COMPUTER INSTITUTE', 14.5, 7);
-    doc.setFontSize(4); doc.setFont('helvetica','normal'); doc.setTextColor(180,215,255);
-    doc.text('Govt. Recognised | Est. 2005 | www.kci.org.in | Ph: 9936384736', 14.5, 11.2);
-
-    // ID BADGE top-right
-    doc.setFillColor(250, 204, 21);
-    doc.roundedRect(W-20, 2, 18, 9, 1, 1, 'F');
-    doc.setTextColor(5,15,60); doc.setFontSize(4.5); doc.setFont('helvetica','bold');
-    doc.text('STUDENT', W-11, 6, { align:'center' });
-    doc.text('ID CARD', W-11, 10, { align:'center' });
-
-    // PHOTO
-    const PX=3, PY=15, PW=16, PH=21;
-    doc.setFillColor(25,55,130);
-    doc.setDrawColor(250,204,21); doc.setLineWidth(0.4);
-    doc.roundedRect(PX, PY, PW, PH, 1, 1, 'FD');
-    if (photoUrl) {
-      doc.addImage(photoUrl, 'JPEG', PX+0.3, PY+0.3, PW-0.6, PH-0.6);
-    } else {
-      doc.setTextColor(150,185,230); doc.setFontSize(4);
-      doc.text('PHOTO', PX+PW/2, PY+PH/2+1, { align:'center' });
-    }
-
-    // QR CODE below photo
-    const QY = PY+PH+2, QS = 16;
-    if (qrUrl) {
-      doc.setFillColor(255,255,255);
-      doc.roundedRect(PX, QY, QS, QS, 0.8, 0.8, 'F');
-      doc.addImage(qrUrl, 'PNG', PX+0.3, QY+0.3, QS-0.6, QS-0.6);
-    }
-    doc.setTextColor(160,200,245); doc.setFontSize(3); doc.setFont('helvetica','normal');
-    doc.text('Scan QR', PX+QS/2, QY+QS+2, { align:'center' });
-
-    // FORM NO BADGE
-    const CX = PX+PW+3, CW = W-CX-3;
-    doc.setFillColor(250,204,21);
-    doc.roundedRect(CX, 15, CW, 5.5, 0.7, 0.7, 'F');
-    doc.setTextColor(5,15,60); doc.setFont('helvetica','bold');
-    let fns = 5; doc.setFontSize(fns);
-    const fLabel = 'Form No: ' + uniqueId;
-    while(doc.getTextWidth(fLabel) > CW-2 && fns > 3) { fns -= 0.2; doc.setFontSize(fns); }
-    doc.text(fLabel, CX+CW/2, 19.2, { align:'center' });
-
-    // INFO ROWS — label pill + value, auto-shrink
-    const LW = 12, VX = CX+LW+1.5, VW = CW-LW-2;
-    const rows = [
-      ['NAME',   student?.name        || '-'],
-      ['FATHER', student?.fatherName  || '-'],
-      ['COURSE', student?.courseName  || '-'],
-      ['DOB',    dob],
-      ['BATCH',  student?.batch       || '-'],
-      ['BRANCH', branch?.branchName   || student?.branchName || '-'],
-    ];
-    rows.forEach(([lbl, val], i) => {
-      const ry = 22.5 + i * 4.8;
-      doc.setFillColor(18,50,130);
-      doc.roundedRect(CX, ry, LW, 3.8, 0.5, 0.5, 'F');
-      doc.setTextColor(160,205,250); doc.setFontSize(3.5); doc.setFont('helvetica','bold');
-      doc.text(lbl, CX+LW/2, ry+2.8, { align:'center' });
-      let fs = 5; doc.setFontSize(fs); doc.setFont('helvetica','bold');
-      while(doc.getTextWidth(String(val)) > VW && fs > 3.2) { fs -= 0.2; doc.setFontSize(fs); }
-      doc.setTextColor(255,255,255);
-      doc.text(String(val), VX, ry+2.8, { maxWidth: VW });
-    });
-
-    // FOOTER
-    const FY = H-7;
-    doc.setFillColor(5,15,60); doc.rect(0, FY, W, 7, 'F');
-    doc.setFillColor(250,204,21); doc.rect(0, FY, W, 0.7, 'F');
-    const isActive = student?.isApproved !== false;
-    doc.setFillColor(isActive?22:200, isActive?163:38, isActive?74:38);
-    doc.roundedRect(CX, FY+1, 20, 4, 0.7, 0.7, 'F');
-    doc.setTextColor(255,255,255); doc.setFontSize(3.8); doc.setFont('helvetica','bold');
-    doc.text(isActive?'ACTIVE':'INACTIVE', CX+10, FY+3.8, { align:'center' });
-    doc.setTextColor(180,215,255); doc.setFontSize(3.2); doc.setFont('helvetica','normal');
-    doc.text('Valid: ' + issueYear + '-' + validYear, CX+23, FY+2.5);
-    doc.text('Ph: 9936384736', CX+23, FY+5.2);
-    doc.setDrawColor(120,160,210); doc.setLineWidth(0.25);
-    doc.line(W-32, FY+5, W-20, FY+5); doc.line(W-16, FY+5, W-4, FY+5);
-    doc.setTextColor(140,180,225); doc.setFontSize(2.8);
-    doc.text('Student Sign', W-26, FY+6.3, { align:'center' });
-    doc.text('Principal Sign', W-10, FY+6.3, { align:'center' });
-
-    doc.save('IDCard_' + uniqueId + '.pdf');
-    toast.success('ID Card downloaded!');
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 4, useCORS: true, allowTaint: true,
+        backgroundColor: '#ffffff', logging: false,
+        width: 856, height: 590,
+      });
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [85.6, 59] });
+      doc.addImage(imgData, 'JPEG', 0, 0, 85.6, 59);
+      doc.save('IDCard_' + uniqueId + '.pdf');
+      toast.success('ID Card downloaded!');
+    } catch { toast.error('Download failed'); }
+    setExporting(false);
   };
 
+  // Card 856x590px — slightly taller body to fit 8 fields
+  const W = 856, H = 590;
+  const HDR  = Math.round(H * 0.18); // 106px
+  const FOOT = Math.round(H * 0.12); // 71px
+  const BODY = H - HDR - FOOT;       // 413px
+
+  // Real dynamic QR via qrcode lib
+  const [qrDataUrl, setQrDataUrl] = useState('');
+  useEffect(() => {
+    const qrData = JSON.stringify({
+      name: student?.name || '',
+      formNo: uniqueId,
+      course: student?.courseName || '',
+      branchCode: branch?.branchCode || branch?.code || '',
+      branchName: branch?.branchName || '',
+      address: student?.address || '',
+    });
+    QRCode.toDataURL(qrData, { width: 300, margin: 1, color: { dark: '#081d5b', light: '#ffffff' } })
+      .then(url => setQrDataUrl(url))
+      .catch(() => {});
+  }, [student, branch, uniqueId]);
+
+  const fields = [
+    ['Form No',     uniqueId],
+    ['Name',        student?.name],
+    ['Father Name', student?.fatherName],
+    ['Course',      student?.courseName],
+    ['DOB',         dob],
+    ['Branch Code', branch?.branchCode || branch?.code || 'N/A'],
+    ['Branch Name', branch?.branchName || 'N/A'],
+    ['Address',     student?.address],
+  ];
+
   return (
-    <div className="flex flex-col items-center gap-5">
-      <button onClick={handleDownloadPDF}
-        className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl text-sm font-black shadow-lg hover:-translate-y-0.5 transition-all active:scale-95">
-        <Download className="w-4 h-4" /> Download ID Card PDF
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+
+      <button onClick={handleDownloadPDF} disabled={exporting}
+        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 26px', background: 'linear-gradient(135deg,#081d5b,#1a3a8f)', color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 900, cursor: exporting ? 'not-allowed' : 'pointer', opacity: exporting ? 0.6 : 1, boxShadow: '0 4px 14px rgba(8,29,91,0.4)' }}>
+        <Download size={16} /> {exporting ? 'Generating PDF...' : 'Download ID Card PDF'}
       </button>
-      <div className="w-full max-w-sm">
-        <div className="rounded-2xl overflow-hidden shadow-2xl" style={{ background:'linear-gradient(135deg,#0c1e5f 0%,#0f2876 100%)', border:'2px solid #facc15' }}>
-          <div className="px-3 py-2 flex items-center gap-2" style={{ background:'rgba(5,15,60,0.9)', borderBottom:'2px solid #facc15' }}>
-            <img src="/logo.png" alt="KCI" className="w-9 h-9 rounded-full object-cover border-2 border-yellow-400 shrink-0" />
-            <div className="flex-1 min-w-0">
-              <div className="text-white font-black text-xs leading-tight">KEERTI COMPUTER INSTITUTE</div>
-              <div className="text-blue-300 text-[9px]">Govt. Recognised | Est. 2005 | www.kci.org.in</div>
+
+      {/* ── CARD PREVIEW 856×590px ── */}
+      <div style={{ width: '100%', overflowX: 'auto', display: 'flex', justifyContent: 'center' }}>
+        <div ref={cardRef} style={{
+          width: W, height: H,
+          fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif",
+          border: '3px solid #d4af37',
+          borderRadius: 18,
+          overflow: 'hidden',
+          background: '#f8f9fc',
+          display: 'flex',
+          flexDirection: 'column',
+          boxSizing: 'border-box',
+          position: 'relative',
+        }}>
+
+          {/* ── HEADER (25%) ── */}
+          <div style={{ height: HDR, background: '#081d5b', display: 'flex', alignItems: 'center', padding: '0 20px', gap: 14, flexShrink: 0, borderBottom: '3px solid #d4af37', position: 'relative', zIndex: 1 }}>
+            {/* Logo */}
+            <div style={{ width: 63, height: 63, borderRadius: '50%', background: '#fff', border: '2px solid #d4af37', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src="/logo.png" alt="KCI" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
-            <div className="bg-yellow-400 rounded-lg px-2 py-1 shrink-0 text-center">
-              <div className="text-blue-900 font-black text-[8px] leading-tight">STUDENT</div>
-              <div className="text-blue-900 font-black text-[8px]">ID CARD</div>
+            {/* Center: institute info */}
+            <div style={{ flex: 1, minWidth: 0, textAlign: 'center' }}>
+              <div style={{ color: '#ffffff', fontWeight: 900, fontSize: 26, letterSpacing: 1, lineHeight: 1.15, textTransform: 'uppercase' }}>KEERTI COMPUTER INSTITUTE</div>
+              <div style={{ color: '#b4c8f0', fontSize: 13, marginTop: 5, lineHeight: 1.6 }}>
+                <span>&#128205; Ayodhya, Uttar Pradesh</span>&nbsp;&nbsp;
+                <span>&#127760; www.kci.org.in</span>&nbsp;&nbsp;
+                <span>&#128222; 9936384736</span>
+              </div>
+            </div>
+            {/* Badge */}
+            <div style={{ background: '#d4af37', borderRadius: 10, padding: '8px 13px', flexShrink: 0, textAlign: 'center', border: '1.5px solid #f0d060' }}>
+              <div style={{ color: '#081d5b', fontWeight: 900, fontSize: 14, lineHeight: 1.4, whiteSpace: 'nowrap' }}>STUDENT</div>
+              <div style={{ color: '#081d5b', fontWeight: 900, fontSize: 14, lineHeight: 1.4, whiteSpace: 'nowrap' }}>IDENTITY CARD</div>
             </div>
           </div>
-          <div className="p-3 flex gap-3">
-            <div className="flex flex-col items-center gap-1.5 shrink-0">
-              <div className="w-16 h-20 rounded-lg overflow-hidden border-2 border-yellow-400/60 bg-blue-900/60 flex items-center justify-center shadow">
-                {student?.photo ? <img src={student.photo} alt={student?.name} className="w-full h-full object-cover" /> : <User className="w-7 h-7 text-white/30" />}
-              </div>
-              <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center shadow p-1">
-                <span className="text-[7px] text-gray-400 font-bold text-center leading-tight">QR Code in PDF</span>
-              </div>
-              <span className="text-blue-300 text-[7px]">Scan to Verify</span>
+
+          {/* ── BODY (55%) ── */}
+          <div style={{ height: BODY, background: '#f8f9fc', display: 'flex', flexShrink: 0, position: 'relative', overflow: 'hidden' }}>
+
+            {/* Watermark logo center 5% opacity */}
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 220, height: 220, opacity: 0.05, pointerEvents: 'none', zIndex: 0 }}>
+              <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
-            <div className="flex-1 min-w-0 space-y-1">
-              <div className="bg-yellow-400 rounded-md px-2 py-0.5 text-center">
-                <span className="text-blue-900 font-black text-[10px] truncate block">Form No: {uniqueId}</span>
-              </div>
-              {[['NAME', student?.name], ['FATHER', student?.fatherName], ['COURSE', student?.courseName], ['DOB', dob], ['BATCH', student?.batch], ['BRANCH', branch?.branchName || student?.branchName]].map(([l, v]) => (
-                <div key={l} className="flex items-center gap-1.5">
-                  <span className="text-[7px] font-black text-blue-300 bg-blue-900/60 rounded px-1 py-0.5 shrink-0 w-10 text-center">{l}</span>
-                  <span className="text-white font-semibold text-[9px] leading-tight truncate flex-1">{v || '-'}</span>
+
+            {/* LEFT 76% — 8 fields CSS Grid */}
+            <div style={{ flex: '0 0 76%', padding: '6px 14px 6px 20px', display: 'grid', gridTemplateRows: 'repeat(8, 1fr)', position: 'relative', zIndex: 1 }}>
+              {fields.map(([lbl, val], i) => (
+                <div key={lbl} style={{ display: 'flex', alignItems: 'center', borderBottom: i < fields.length - 1 ? '1px solid #dde4f0' : 'none' }}>
+                  <span style={{ color: '#0b1f5b', fontWeight: 700, fontSize: 15, minWidth: 150, flexShrink: 0, lineHeight: 1.4 }}>{lbl}</span>
+                  <span style={{ color: '#0b1f5b', fontWeight: 700, fontSize: 15, width: 20, flexShrink: 0 }}>:</span>
+                  <span style={{ color: '#111111', fontWeight: 700, fontSize: 16, lineHeight: 1.4, flex: 1, wordBreak: 'break-word', display: lbl === 'Address' ? '-webkit-box' : 'block', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: lbl === 'Address' ? 'hidden' : 'visible', whiteSpace: lbl === 'Address' ? 'normal' : 'nowrap', textOverflow: lbl === 'Address' ? 'unset' : 'ellipsis' }}>{val || '-'}</span>
                 </div>
               ))}
-              <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] font-black ${student?.isApproved !== false ? 'bg-green-500/20 text-green-300 border border-green-500/40' : 'bg-red-500/20 text-red-300 border border-red-400/40'}`}>
-                {student?.isApproved !== false ? 'ACTIVE' : 'INACTIVE'} | {issueYear}-{validYear}
+            </div>
+
+            {/* RIGHT 24% — photo + QR */}
+            <div style={{ flex: '0 0 24%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '8px 10px 8px 4px', position: 'relative', zIndex: 1 }}>
+              {/* Photo 140x170 */}
+              <div style={{ width: 140, height: 170, border: '2.5px solid #d4af37', borderRadius: 16, overflow: 'hidden', background: '#dce7f8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {student?.photo
+                  ? <img src={student.photo} alt="photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}><User size={36} color="#8aaad8" /><span style={{ color: '#8aaad8', fontSize: 12, fontWeight: 700 }}>PHOTO</span></div>
+                }
               </div>
+              {/* QR 120x120 */}
+              <div style={{ width: 120, height: 120, border: '2px solid #d4af37', borderRadius: 10, background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 4 }}>
+                {qrDataUrl
+                  ? <img src={qrDataUrl} alt="QR" style={{ width: 104, height: 104, objectFit: 'contain' }} />
+                  : <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}><QrCode size={64} color="#081d5b" /><span style={{ color: '#8aaad8', fontSize: 9 }}>Generating...</span></div>
+                }
+              </div>
+              <span style={{ color: '#5070b4', fontSize: 10, fontWeight: 700, textAlign: 'center' }}>Unique ID / QR Code</span>
             </div>
           </div>
-          <div className="px-3 py-1.5 flex items-center justify-between" style={{ background:'rgba(5,15,60,0.9)', borderTop:'1.5px solid #facc15' }}>
-            <div className="text-center"><div className="w-14 border-b border-blue-400/40 mb-0.5"/><span className="text-blue-300 text-[7px]">Student Sign</span></div>
-            <img src="/logo.png" alt="" className="w-6 h-6 rounded-full opacity-60"/>
-            <div className="text-center"><div className="w-14 border-b border-blue-400/40 mb-0.5"/><span className="text-blue-300 text-[7px]">Principal Sign</span></div>
+
+          {/* ── FOOTER (20%) ── */}
+          <div style={{ height: FOOT, background: '#081d5b', borderTop: '3px solid #d4af37', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+            {/* Student Signature */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid rgba(255,255,255,0.2)', height: '100%' }}>
+              <div style={{ borderTop: '1.5px solid rgba(180,200,240,0.6)', width: 110, marginBottom: 6 }} />
+              <span style={{ color: '#b4c8f0', fontSize: 13 }}>Student Signature</span>
+            </div>
+            {/* KCI Official Seal */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid rgba(255,255,255,0.2)', height: '100%' }}>
+              <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#d4af37', border: '2px solid #fff', overflow: 'hidden', marginBottom: 4 }}>
+                <img src="/logo.png" alt="seal" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+              <span style={{ color: '#d4af37', fontSize: 12, fontWeight: 700 }}>KCI Official Seal</span>
+            </div>
+            {/* Principal Signature */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <div style={{ borderTop: '1.5px solid rgba(180,200,240,0.6)', width: 110, marginBottom: 6 }} />
+              <span style={{ color: '#b4c8f0', fontSize: 13 }}>Principal Signature</span>
+            </div>
           </div>
+
         </div>
-        <p className="text-center text-[10px] text-gray-400 mt-2">Preview only - Download PDF for full QR code</p>
       </div>
+      <p style={{ color: '#9ca3af', fontSize: 12, marginTop: 4 }}>⬆ Preview — Download PDF for print-ready card</p>
     </div>
   );
 }
@@ -1056,7 +1034,7 @@ export default function StudentDashboard() {
                       )}
                       {student?.fatherName && (
                         <span className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20">
-                          ðŸ‘¨ {student.fatherName}
+                          <Users className="w-3.5 h-3.5" /> {student.fatherName}
                         </span>
                       )}
                     </div>
@@ -1082,7 +1060,7 @@ export default function StudentDashboard() {
                         ? 'bg-green-400/20 border-green-400/50 text-green-300'
                         : 'bg-yellow-400/20 border-yellow-400/50 text-yellow-300'
                     }`}>
-                      {student?.isApproved ? 'âœ… Approved' : 'â³ Pending'}
+                      {student?.isApproved ? '✅ Approved' : 'â³ Pending'}
                     </div>
                   </div>
                 </div>
@@ -1103,18 +1081,18 @@ export default function StudentDashboard() {
                 </div>
                 <div className="p-4 space-y-3">
                   {[
-                    { icon: 'ðŸ‘¤', label: 'Full Name', value: student?.name },
-                    { icon: 'ðŸ“§', label: 'Email', value: student?.email },
-                    { icon: 'ðŸ“±', label: 'Phone', value: student?.phone },
-                    { icon: 'ðŸ‘¨', label: "Father's Name", value: student?.fatherName },
-                    { icon: 'ðŸŽ‚', label: 'Date of Birth', value: student?.dob ? new Date(student.dob).toLocaleDateString('en-IN') : null },
-                    { icon: 'ðŸ“', label: 'Address', value: student?.address },
-                  ].map(({ icon, label, value }) => (
+                    { icon: User, label: 'Full Name', value: student?.name },
+                    { icon: Mail, label: 'Email', value: student?.email },
+                    { icon: Phone, label: 'Phone', value: student?.phone },
+                    { icon: Users, label: "Father's Name", value: student?.fatherName },
+                    { icon: Calendar, label: 'Date of Birth', value: student?.dob ? new Date(student.dob).toLocaleDateString('en-IN') : null },
+                    { icon: MapPin, label: 'Address', value: student?.address },
+                  ].map(({ icon: Icon, label, value }) => (
                     <div key={label} className="flex items-start gap-3 py-1.5 border-b border-gray-50 last:border-0">
-                      <span className="text-base shrink-0 mt-0.5">{icon}</span>
+                      <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-blue-400"><Icon className="w-4 h-4" /></div>
                       <div className="flex-1 min-w-0">
                         <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label}</div>
-                        <div className="text-sm font-bold text-gray-800 truncate">{value || 'â€”'}</div>
+                        <div className="text-sm font-bold text-gray-800 truncate">{value || '-'}</div>
                       </div>
                     </div>
                   ))}
@@ -1132,21 +1110,21 @@ export default function StudentDashboard() {
                 </div>
                 <div className="p-4 space-y-3">
                   {[
-                    { icon: 'ðŸŽ«', label: 'Roll Number', value: student?.rollNumber, mono: true, highlight: true },
-                    { icon: 'ðŸ“‹', label: 'Enrollment No.', value: student?.enrollmentNumber, mono: true },
-                    { icon: 'ðŸ“', label: 'Form No.', value: student?.formNo, mono: true },
-                    { icon: 'ðŸ“š', label: 'Course', value: student?.courseName },
-                    { icon: 'ðŸ“…', label: 'Batch', value: student?.batch },
-                    { icon: 'âœ…', label: 'Account Status', value: student?.isApproved ? 'Approved âœ“' : 'Pending' },
-                    { icon: 'ðŸ“†', label: 'Admission Date', value: student?.admissionDate ? new Date(student.admissionDate).toLocaleDateString('en-IN') : null },
-                  ].map(({ icon, label, value, mono, highlight }) => (
+                    { icon: BadgeCheck, label: 'Roll Number', value: student?.rollNumber, mono: true, highlight: true },
+                    { icon: Hash, label: 'Enrollment No.', value: student?.enrollmentNumber, mono: true },
+                    { icon: FileText, label: 'Form No.', value: student?.formNo, mono: true },
+                    { icon: BookOpen, label: 'Course', value: student?.courseName },
+                    { icon: Layers, label: 'Batch', value: student?.batch },
+                    { icon: ShieldCheck, label: 'Account Status', value: student?.isApproved ? 'Approved' : 'Pending' },
+                    { icon: CalendarDays, label: 'Admission Date', value: student?.admissionDate ? new Date(student.admissionDate).toLocaleDateString('en-IN') : null },
+                  ].map(({ icon: Icon, label, value, mono, highlight }) => (
                     <div key={label} className="flex items-start gap-3 py-1.5 border-b border-gray-50 last:border-0">
-                      <span className="text-base shrink-0 mt-0.5">{icon}</span>
+                      <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-violet-400"><Icon className="w-4 h-4" /></div>
                       <div className="flex-1 min-w-0">
                         <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label}</div>
                         <div className={`text-sm font-bold truncate ${
                           highlight ? 'font-mono text-blue-600 text-base' : mono ? 'font-mono text-blue-600' : 'text-gray-800'
-                        }`}>{value || 'â€”'}</div>
+                        }`}>{value || '-'}</div>
                       </div>
                     </div>
                   ))}
@@ -1178,16 +1156,16 @@ export default function StudentDashboard() {
                   </div>
                   <div className="p-4 space-y-3">
                     {[
-                      { icon: 'ðŸ¢', label: 'Branch Name', value: branch?.branchName },
-                      { icon: 'ðŸ“', label: 'City', value: branch?.branchCity },
-                      { icon: 'ðŸ“ž', label: 'Phone', value: branch?.phone },
-                      { icon: 'ðŸ“§', label: 'Email', value: branch?.email },
-                    ].map(({ icon, label, value }) => (
+                      { icon: Building2, label: 'Branch Name', value: branch?.branchName },
+                      { icon: MapPinned, label: 'City', value: branch?.branchCity },
+                      { icon: Phone, label: 'Phone', value: branch?.phone },
+                      { icon: Mail, label: 'Email', value: branch?.email },
+                    ].map(({ icon: Icon, label, value }) => (
                       <div key={label} className="flex items-start gap-3 py-1.5 border-b border-gray-50 last:border-0">
-                        <span className="text-base shrink-0 mt-0.5">{icon}</span>
+                        <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-indigo-400"><Icon className="w-4 h-4" /></div>
                         <div className="flex-1 min-w-0">
                           <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label}</div>
-                          <div className="text-sm font-bold text-gray-800 truncate">{value || 'â€”'}</div>
+                          <div className="text-sm font-bold text-gray-800 truncate">{value || '-'}</div>
                         </div>
                       </div>
                     ))}
@@ -1209,7 +1187,7 @@ export default function StudentDashboard() {
             {/* Quick Actions */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
               className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <h3 className="font-black text-gray-900 mb-4 text-sm uppercase tracking-wide">âš¡ Quick Actions</h3>
+              <h3 className="font-black text-gray-900 mb-4 text-sm uppercase tracking-wide">Quick Actions</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-7 gap-2 sm:gap-3">
                 {[
                   { label: 'View ID Card', icon: CreditCard, color: 'from-blue-500 to-blue-600', tab: 'idcard' },
@@ -1324,7 +1302,7 @@ export default function StudentDashboard() {
                       <div key={qi} className={`p-4 rounded-xl border-2 ${
                         isRight ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
                       }`}>
-                        <p className="font-semibold text-gray-900 text-sm mb-2"><span className="font-black">{isRight ? 'âœ…' : 'âŒ'} Q{qi+1}.</span> {q.question}</p>
+                        <p className="font-semibold text-gray-900 text-sm mb-2"><span className="font-black">{isRight ? '✅' : 'âŒ'} Q{qi+1}.</span> {q.question}</p>
                         <p className="text-xs text-gray-600">Your answer: <span className={`font-bold ${isRight ? 'text-green-700' : 'text-red-600'}`}>{selected !== undefined ? q.options[selected] : 'Not answered'}</span></p>
                         {!isRight && <p className="text-xs text-green-700 font-bold">Correct: {q.options[correct]}</p>}
                       </div>
