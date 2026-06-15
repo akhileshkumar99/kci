@@ -900,7 +900,7 @@ export default function BranchDashboard() {
               <span className="text-xs font-bold text-blue-700">{user?.branchCity}</span>
             </div>
             {/* Dev credit */}
-            <DevCredit />
+            <DevCredit popupDown />
             <button onClick={toggle}
               className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-sm ${
                 dark ? 'bg-slate-700 text-yellow-400 hover:bg-slate-600 border border-slate-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'

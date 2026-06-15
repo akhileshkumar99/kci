@@ -65,7 +65,7 @@ export default function AdminDashboard() {
         </div>
         <div className="flex items-center gap-3">
           {/* Dev credit */}
-          <DevCredit />
+          <DevCredit popupDown />
           <button onClick={() => fetchData(true)} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors shadow-sm">
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} /> Refresh
           </button>

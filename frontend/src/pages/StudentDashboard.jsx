@@ -1024,7 +1024,7 @@ export default function StudentDashboard() {
               </div>
             </div>
             {/* Dev credit */}
-            <DevCredit />
+            <DevCredit popupDown />
             <button onClick={handleLogout}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-red-500 hover:bg-red-50 border border-red-100 hover:border-red-200 transition-all whitespace-nowrap">
               <LogOut className="w-3.5 h-3.5" /> Logout
