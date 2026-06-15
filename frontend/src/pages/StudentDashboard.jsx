@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import QRCode from 'qrcode';
 import {
   GraduationCap, Award, FileText, LogOut, User, Lock, BookMarked,
   Building2, Calendar, BookOpen, CheckCircle, CreditCard, Download, TrendingUp, ClipboardCheck, Clock, ChevronRight, Eye, KeyRound
@@ -27,242 +28,204 @@ function InfoRow({ label, value }) {
   return (
     <div className="flex flex-col gap-0.5 py-2 border-b border-gray-50 last:border-0">
       <span className="text-xs font-semibold text-gray-400">{label}</span>
-      <span className="text-sm font-bold text-gray-800">{value || '—'}</span>
+      <span className="text-sm font-bold text-gray-800">{value || 'â€”'}</span>
     </div>
   );
 }
 
+// â”€â”€â”€ Grade color helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function IDCard({ student, branch }) {
   const issueYear = new Date().getFullYear();
   const validYear = issueYear + 1;
-  const dob = student?.dob ? new Date(student.dob).toLocaleDateString('en-IN') : '—';
+  const dob = student?.dob ? new Date(student.dob).toLocaleDateString('en-IN') : '-';
+  const uniqueId = student?.formNo || student?.rollNumber || student?.enrollmentNumber || 'KCI000';
 
   const handleDownloadPDF = async () => {
-    // Standard ID card: 85.6 x 54 mm landscape
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [85.6, 54] });
     const W = 85.6, H = 54;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [H, W] });
 
-    // ── Circular logo ──
     let logoUrl = null;
     try {
-      const img = await new Promise((res, rej) => {
-        const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = '/logo.png';
-      });
-      const sz = 200;
-      const cv = document.createElement('canvas'); cv.width = sz; cv.height = sz;
-      const cx2 = cv.getContext('2d');
-      cx2.beginPath(); cx2.arc(sz/2, sz/2, sz/2, 0, Math.PI*2); cx2.closePath(); cx2.clip();
-      cx2.drawImage(img, 0, 0, sz, sz);
+      const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = '/logo.png'; });
+      const sz = 300, cv = document.createElement('canvas'); cv.width = sz; cv.height = sz;
+      const cx = cv.getContext('2d'); cx.beginPath(); cx.arc(sz/2,sz/2,sz/2,0,Math.PI*2); cx.closePath(); cx.clip(); cx.drawImage(img,0,0,sz,sz);
       logoUrl = cv.toDataURL('image/png');
-    } catch (_) {}
+    } catch(_) {}
 
-    // ── Student photo ──
     let photoUrl = null;
     if (student?.photo) {
       try {
-        photoUrl = await new Promise((res) => {
+        photoUrl = await new Promise(res => {
           const img = new Image(); img.crossOrigin = 'anonymous';
-          img.onload = () => {
-            const cv = document.createElement('canvas');
-            cv.width = img.naturalWidth; cv.height = img.naturalHeight;
-            cv.getContext('2d').drawImage(img, 0, 0);
-            res(cv.toDataURL('image/jpeg'));
-          };
-          img.onerror = () => res(null);
-          img.src = student.photo;
+          img.onload = () => { const cv = document.createElement('canvas'); cv.width = img.naturalWidth; cv.height = img.naturalHeight; cv.getContext('2d').drawImage(img,0,0); res(cv.toDataURL('image/jpeg')); };
+          img.onerror = () => res(null); img.src = student.photo;
         });
-      } catch (_) {}
+      } catch(_) {}
     }
 
-    // ── CARD BG ──
-    doc.setFillColor(15, 40, 110);
+    let qrUrl = null;
+    try {
+      const qrData = 'KCI|' + (student?.name||'') + '|' + uniqueId + '|' + (student?.courseName||'') + '|' + dob + '|kci.org.in';
+      qrUrl = await QRCode.toDataURL(qrData, { width: 120, margin: 1, color: { dark: '#0a1c55', light: '#ffffff' } });
+    } catch(_) {}
+
+    // BG
+    doc.setFillColor(12, 30, 95);
     doc.roundedRect(0, 0, W, H, 2, 2, 'F');
-    // thin border
-    doc.setDrawColor(100, 150, 230); doc.setLineWidth(0.3);
-    doc.roundedRect(0.3, 0.3, W - 0.6, H - 0.6, 2, 2, 'S');
+    doc.setDrawColor(250, 204, 21); doc.setLineWidth(0.7);
+    doc.roundedRect(0.8, 0.8, W-1.6, H-1.6, 1.8, 1.8, 'S');
+    doc.setDrawColor(200, 162, 18); doc.setLineWidth(0.25);
+    doc.roundedRect(2, 2, W-4, H-4, 1.3, 1.3, 'S');
 
-    // ── HEADER (0 to 13mm) ──
-    doc.setFillColor(8, 24, 75);
+    // HEADER
+    doc.setFillColor(5, 15, 60);
     doc.roundedRect(0, 0, W, 13, 2, 2, 'F');
-    doc.rect(0, 8, W, 5, 'F'); // square bottom corners
-    // gold stripe
+    doc.rect(0, 10, W, 3, 'F');
+    doc.setFillColor(250, 204, 21); doc.rect(0, 13, W, 0.9, 'F');
+    if (logoUrl) doc.addImage(logoUrl, 'PNG', 3, 1.8, 9.5, 9.5);
+    doc.setTextColor(255,255,255); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+    doc.text('KEERTI COMPUTER INSTITUTE', 14.5, 7);
+    doc.setFontSize(4); doc.setFont('helvetica','normal'); doc.setTextColor(180,215,255);
+    doc.text('Govt. Recognised | Est. 2005 | www.kci.org.in | Ph: 9936384736', 14.5, 11.2);
+
+    // ID BADGE top-right
     doc.setFillColor(250, 204, 21);
-    doc.rect(0, 13, W, 0.8, 'F');
+    doc.roundedRect(W-20, 2, 18, 9, 1, 1, 'F');
+    doc.setTextColor(5,15,60); doc.setFontSize(4.5); doc.setFont('helvetica','bold');
+    doc.text('STUDENT', W-11, 6, { align:'center' });
+    doc.text('ID CARD', W-11, 10, { align:'center' });
 
-    // Logo in header
-    if (logoUrl) doc.addImage(logoUrl, 'PNG', 2, 1.5, 9, 9);
-
-    // Institute name
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
-    doc.text('KEERTI COMPUTER INSTITUTE', 13, 6.5);
-    doc.setFontSize(4); doc.setFont('helvetica', 'normal'); doc.setTextColor(180, 210, 255);
-    doc.text('Govt. Recognised | Est. 2005 | www.kci.org.in', 13, 11);
-
-    // STUDENT ID badge
-    doc.setFillColor(250, 204, 21);
-    doc.roundedRect(W - 20, 2, 18, 8, 1, 1, 'F');
-    doc.setTextColor(15, 40, 110); doc.setFontSize(4.5); doc.setFont('helvetica', 'bold');
-    doc.text('STUDENT ID', W - 11, 6.8, { align: 'center' });
-
-    // ── PHOTO (right side) ──
-    const PW = 16, PH = 20;
-    const PX = W - PW - 2, PY = 15;
-    doc.setFillColor(200, 215, 245);
-    doc.setDrawColor(100, 150, 230); doc.setLineWidth(0.3);
+    // PHOTO
+    const PX=3, PY=15, PW=16, PH=21;
+    doc.setFillColor(25,55,130);
+    doc.setDrawColor(250,204,21); doc.setLineWidth(0.4);
     doc.roundedRect(PX, PY, PW, PH, 1, 1, 'FD');
     if (photoUrl) {
-      doc.addImage(photoUrl, 'JPEG', PX + 0.3, PY + 0.3, PW - 0.6, PH - 0.6);
+      doc.addImage(photoUrl, 'JPEG', PX+0.3, PY+0.3, PW-0.6, PH-0.6);
     } else {
-      doc.setTextColor(140, 160, 210); doc.setFontSize(3.5);
-      doc.text('No Photo', PX + PW / 2, PY + PH / 2 + 1, { align: 'center' });
+      doc.setTextColor(150,185,230); doc.setFontSize(4);
+      doc.text('PHOTO', PX+PW/2, PY+PH/2+1, { align:'center' });
     }
 
-    // ── INFO ROWS (left side, 2 columns) ──
-    // Col A: label  Col B: value  |  Col C: label  Col D: value
-    const LA = 2,   VA = 16;          // left col
-    const LC = 44,  VC = 56;          // right col (only for some rows)
-    const VMAX_A = LC - VA - 1;       // ~27mm
-    const VMAX_C = PX - VC - 1;       // ~7mm — short, only for small values
+    // QR CODE below photo
+    const QY = PY+PH+2, QS = 16;
+    if (qrUrl) {
+      doc.setFillColor(255,255,255);
+      doc.roundedRect(PX, QY, QS, QS, 0.8, 0.8, 'F');
+      doc.addImage(qrUrl, 'PNG', PX+0.3, QY+0.3, QS-0.6, QS-0.6);
+    }
+    doc.setTextColor(160,200,245); doc.setFontSize(3); doc.setFont('helvetica','normal');
+    doc.text('Scan QR', PX+QS/2, QY+QS+2, { align:'center' });
 
-    // Row layout: y starts at 16, step 4.5mm
+    // FORM NO BADGE
+    const CX = PX+PW+3, CW = W-CX-3;
+    doc.setFillColor(250,204,21);
+    doc.roundedRect(CX, 15, CW, 5.5, 0.7, 0.7, 'F');
+    doc.setTextColor(5,15,60); doc.setFont('helvetica','bold');
+    let fns = 5; doc.setFontSize(fns);
+    const fLabel = 'Form No: ' + uniqueId;
+    while(doc.getTextWidth(fLabel) > CW-2 && fns > 3) { fns -= 0.2; doc.setFontSize(fns); }
+    doc.text(fLabel, CX+CW/2, 19.2, { align:'center' });
+
+    // INFO ROWS — label pill + value, auto-shrink
+    const LW = 12, VX = CX+LW+1.5, VW = CW-LW-2;
     const rows = [
-      { lbl: 'Name',        val: student?.name || '—',                           lbl2: null,    val2: null },
-      { lbl: 'Roll No.',    val: student?.rollNumber || '—',                      lbl2: 'Batch', val2: student?.batch || '—' },
-      { lbl: 'Course',      val: student?.courseName || '—',                      lbl2: null,    val2: null },
-      { lbl: 'DOB',         val: dob,                                              lbl2: 'Phone', val2: student?.phone || '—' },
-      { lbl: 'Father',      val: student?.fatherName || '—',                      lbl2: null,    val2: null },
-      { lbl: 'Address',     val: student?.address || '—',                         lbl2: null,    val2: null },
-      { lbl: 'Branch',      val: (branch?.branchName || student?.branchName || '—'), lbl2: null, val2: null },
+      ['NAME',   student?.name        || '-'],
+      ['FATHER', student?.fatherName  || '-'],
+      ['COURSE', student?.courseName  || '-'],
+      ['DOB',    dob],
+      ['BATCH',  student?.batch       || '-'],
+      ['BRANCH', branch?.branchName   || student?.branchName || '-'],
     ];
-
-    rows.forEach(({ lbl, val, lbl2, val2 }, i) => {
-      const y = 17.5 + i * 4.5;
-      // left label
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(3.8); doc.setTextColor(160, 195, 240);
-      doc.text(lbl + ':', LA, y);
-      // left value
-      const isRoll = lbl === 'Roll No.';
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(4.5);
-      doc.setTextColor(isRoll ? 253 : 240, isRoll ? 224 : 245, isRoll ? 71 : 255);
-      doc.text(String(val), VA, y, { maxWidth: lbl2 ? VMAX_A : PX - VA - 2 });
-      // right col (if exists)
-      if (lbl2) {
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(3.8); doc.setTextColor(160, 195, 240);
-        doc.text(lbl2 + ':', LC, y);
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(4.5); doc.setTextColor(240, 245, 255);
-        doc.text(String(val2), VC, y, { maxWidth: PX - VC - 2 });
-      }
+    rows.forEach(([lbl, val], i) => {
+      const ry = 22.5 + i * 4.8;
+      doc.setFillColor(18,50,130);
+      doc.roundedRect(CX, ry, LW, 3.8, 0.5, 0.5, 'F');
+      doc.setTextColor(160,205,250); doc.setFontSize(3.5); doc.setFont('helvetica','bold');
+      doc.text(lbl, CX+LW/2, ry+2.8, { align:'center' });
+      let fs = 5; doc.setFontSize(fs); doc.setFont('helvetica','bold');
+      while(doc.getTextWidth(String(val)) > VW && fs > 3.2) { fs -= 0.2; doc.setFontSize(fs); }
+      doc.setTextColor(255,255,255);
+      doc.text(String(val), VX, ry+2.8, { maxWidth: VW });
     });
 
-    // ── FOOTER (bottom 8mm) ──
-    const FY = H - 8;
-    doc.setFillColor(6, 18, 60);
-    doc.rect(0, FY, W, 8, 'F');
-    doc.setFillColor(250, 204, 21);
-    doc.rect(0, FY, W, 0.6, 'F');
+    // FOOTER
+    const FY = H-7;
+    doc.setFillColor(5,15,60); doc.rect(0, FY, W, 7, 'F');
+    doc.setFillColor(250,204,21); doc.rect(0, FY, W, 0.7, 'F');
+    const isActive = student?.isApproved !== false;
+    doc.setFillColor(isActive?22:200, isActive?163:38, isActive?74:38);
+    doc.roundedRect(CX, FY+1, 20, 4, 0.7, 0.7, 'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(3.8); doc.setFont('helvetica','bold');
+    doc.text(isActive?'ACTIVE':'INACTIVE', CX+10, FY+3.8, { align:'center' });
+    doc.setTextColor(180,215,255); doc.setFontSize(3.2); doc.setFont('helvetica','normal');
+    doc.text('Valid: ' + issueYear + '-' + validYear, CX+23, FY+2.5);
+    doc.text('Ph: 9936384736', CX+23, FY+5.2);
+    doc.setDrawColor(120,160,210); doc.setLineWidth(0.25);
+    doc.line(W-32, FY+5, W-20, FY+5); doc.line(W-16, FY+5, W-4, FY+5);
+    doc.setTextColor(140,180,225); doc.setFontSize(2.8);
+    doc.text('Student Sign', W-26, FY+6.3, { align:'center' });
+    doc.text('Principal Sign', W-10, FY+6.3, { align:'center' });
 
-    // 3 sections: valid | status | contact
-    doc.setTextColor(160, 195, 240); doc.setFontSize(3.2); doc.setFont('helvetica', 'normal');
-    doc.text('Valid Period', 4, FY + 3);
-    doc.text('Status', W / 2, FY + 3, { align: 'center' });
-    doc.text('Contact', W - 4, FY + 3, { align: 'right' });
-
-    doc.setTextColor(255, 255, 255); doc.setFontSize(4); doc.setFont('helvetica', 'bold');
-    doc.text(`${issueYear} - ${validYear}`, 4, FY + 6.5);
-    doc.setTextColor(student?.isActive ? 100 : 255, student?.isActive ? 230 : 100, 100);
-    doc.text(student?.isActive ? 'ACTIVE' : 'INACTIVE', W / 2, FY + 6.5, { align: 'center' });
-    doc.setTextColor(255, 255, 255);
-    doc.text('9936384736', W - 4, FY + 6.5, { align: 'right' });
-
-    doc.save(`IDCard_${student?.rollNumber || 'KCI'}.pdf`);
+    doc.save('IDCard_' + uniqueId + '.pdf');
     toast.success('ID Card downloaded!');
   };
 
   return (
     <div className="flex flex-col items-center gap-5">
       <button onClick={handleDownloadPDF}
-        className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors shadow-md">
+        className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl text-sm font-black shadow-lg hover:-translate-y-0.5 transition-all active:scale-95">
         <Download className="w-4 h-4" /> Download ID Card PDF
       </button>
-
-      {/* ID Card Preview */}
       <div className="w-full max-w-sm">
-        <div className="rounded-2xl overflow-hidden shadow-2xl border border-blue-300/40" style={{ background: 'linear-gradient(135deg, #0f2876 0%, #1d4ed8 60%, #4f46e5 100%)' }}>
-          {/* Header */}
-          <div className="px-5 py-3 flex items-center gap-3 border-b-2 border-yellow-400">
-            <img src="/logo.png" alt="KCI" className="w-11 h-11 rounded-full object-cover border-2 border-white/50 shadow-lg shrink-0" />
-            <div className="flex-1">
-              <div className="text-white font-black text-sm leading-tight">KEERTI COMPUTER INSTITUTE</div>
-              <div className="text-blue-300 text-[10px]">Govt. Recognised | Est. 2005</div>
+        <div className="rounded-2xl overflow-hidden shadow-2xl" style={{ background:'linear-gradient(135deg,#0c1e5f 0%,#0f2876 100%)', border:'2px solid #facc15' }}>
+          <div className="px-3 py-2 flex items-center gap-2" style={{ background:'rgba(5,15,60,0.9)', borderBottom:'2px solid #facc15' }}>
+            <img src="/logo.png" alt="KCI" className="w-9 h-9 rounded-full object-cover border-2 border-yellow-400 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="text-white font-black text-xs leading-tight">KEERTI COMPUTER INSTITUTE</div>
+              <div className="text-blue-300 text-[9px]">Govt. Recognised | Est. 2005 | www.kci.org.in</div>
             </div>
-            <div className="bg-yellow-400 rounded-lg px-2 py-1 text-center shrink-0">
-              <div className="text-blue-900 font-black text-[10px] leading-tight">STUDENT</div>
-              <div className="text-blue-900 font-black text-[10px]">ID CARD</div>
+            <div className="bg-yellow-400 rounded-lg px-2 py-1 shrink-0 text-center">
+              <div className="text-blue-900 font-black text-[8px] leading-tight">STUDENT</div>
+              <div className="text-blue-900 font-black text-[8px]">ID CARD</div>
             </div>
           </div>
-
-          {/* Body */}
-          <div className="px-5 py-4 flex gap-4">
-            {/* Photo */}
-            <div className="shrink-0">
-              <div className="w-20 h-24 rounded-xl overflow-hidden border-2 border-white/40 shadow-lg bg-white/10 flex items-center justify-center">
-                {student?.photo
-                  ? <img src={student.photo} alt={student?.name} className="w-full h-full object-cover" />
-                  : <div className="flex flex-col items-center gap-1">
-                      <User className="w-8 h-8 text-white/50" />
-                      <span className="text-white/40 text-[9px]">No Photo</span>
-                    </div>
-                }
+          <div className="p-3 flex gap-3">
+            <div className="flex flex-col items-center gap-1.5 shrink-0">
+              <div className="w-16 h-20 rounded-lg overflow-hidden border-2 border-yellow-400/60 bg-blue-900/60 flex items-center justify-center shadow">
+                {student?.photo ? <img src={student.photo} alt={student?.name} className="w-full h-full object-cover" /> : <User className="w-7 h-7 text-white/30" />}
               </div>
+              <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center shadow p-1">
+                <span className="text-[7px] text-gray-400 font-bold text-center leading-tight">QR Code in PDF</span>
+              </div>
+              <span className="text-blue-300 text-[7px]">Scan to Verify</span>
             </div>
-            {/* Info */}
-            <div className="flex-1 space-y-1.5">
-              {[['Name', student?.name], ['Roll No.', student?.rollNumber], ['Course', student?.courseName], ['Batch', student?.batch], ['DOB', dob]].map(([l, v]) => (
-                <div key={l}>
-                  <div className="text-white/50 text-[9px] font-bold uppercase tracking-wider">{l}</div>
-                  <div className={`font-bold text-xs leading-tight ${l === 'Roll No.' ? 'text-yellow-300 font-mono' : 'text-white'}`}>{v || '—'}</div>
+            <div className="flex-1 min-w-0 space-y-1">
+              <div className="bg-yellow-400 rounded-md px-2 py-0.5 text-center">
+                <span className="text-blue-900 font-black text-[10px] truncate block">Form No: {uniqueId}</span>
+              </div>
+              {[['NAME', student?.name], ['FATHER', student?.fatherName], ['COURSE', student?.courseName], ['DOB', dob], ['BATCH', student?.batch], ['BRANCH', branch?.branchName || student?.branchName]].map(([l, v]) => (
+                <div key={l} className="flex items-center gap-1.5">
+                  <span className="text-[7px] font-black text-blue-300 bg-blue-900/60 rounded px-1 py-0.5 shrink-0 w-10 text-center">{l}</span>
+                  <span className="text-white font-semibold text-[9px] leading-tight truncate flex-1">{v || '-'}</span>
                 </div>
               ))}
+              <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] font-black ${student?.isApproved !== false ? 'bg-green-500/20 text-green-300 border border-green-500/40' : 'bg-red-500/20 text-red-300 border border-red-400/40'}`}>
+                {student?.isApproved !== false ? 'ACTIVE' : 'INACTIVE'} | {issueYear}-{validYear}
+              </div>
             </div>
           </div>
-
-          {/* Father + Phone + Address */}
-          <div className="px-5 pb-2 grid grid-cols-2 gap-x-3 gap-y-1">
-            {[['Father', student?.fatherName], ['Phone', student?.phone], ['Address', student?.address]].map(([l, v]) => (
-              <div key={l} className={l === 'Address' ? 'col-span-2' : ''}>
-                <div className="text-white/50 text-[9px] font-bold uppercase tracking-wider">{l}</div>
-                <div className="text-white font-bold text-xs leading-tight">{v || '—'}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Branch */}
-          <div className="px-5 pb-2">
-            <div className="text-white/50 text-[9px] font-bold uppercase tracking-wider">Branch / Center</div>
-            <div className="text-white font-bold text-xs">{branch?.branchName || student?.branchName || '—'}{branch?.branchCity ? ` — ${branch.branchCity}` : ''}</div>
-          </div>
-
-          {/* Footer */}
-          <div className="px-5 py-2 flex items-center justify-between border-t-2 border-yellow-400" style={{ background: 'rgba(0,0,0,0.25)' }}>
-            <div><div className="text-white/50 text-[9px] font-bold uppercase">Valid</div><div className="text-white font-bold text-xs">{issueYear}–{validYear}</div></div>
-            <div><div className="text-white/50 text-[9px] font-bold uppercase">Status</div><div className={`font-black text-xs ${student?.isActive ? 'text-green-300' : 'text-red-300'}`}>{student?.isActive ? '● ACTIVE' : '● INACTIVE'}</div></div>
-            <div><div className="text-white/50 text-[9px] font-bold uppercase">Contact</div><div className="text-white font-bold text-[10px]">9936384736</div></div>
+          <div className="px-3 py-1.5 flex items-center justify-between" style={{ background:'rgba(5,15,60,0.9)', borderTop:'1.5px solid #facc15' }}>
+            <div className="text-center"><div className="w-14 border-b border-blue-400/40 mb-0.5"/><span className="text-blue-300 text-[7px]">Student Sign</span></div>
+            <img src="/logo.png" alt="" className="w-6 h-6 rounded-full opacity-60"/>
+            <div className="text-center"><div className="w-14 border-b border-blue-400/40 mb-0.5"/><span className="text-blue-300 text-[7px]">Principal Sign</span></div>
           </div>
         </div>
-
-        {/* Signature strip */}
-        <div className="mt-2 bg-white rounded-xl px-5 py-3 shadow-sm border border-gray-100 flex items-center justify-between">
-          <div className="text-center"><div className="w-20 border-b border-gray-400 mb-1" /><div className="text-[9px] text-gray-500 font-semibold">Student Signature</div></div>
-          <div className="text-center"><img src="/logo.png" alt="KCI" className="w-8 h-8 rounded-full mx-auto mb-1 opacity-60" /><div className="text-[9px] text-gray-500 font-semibold">KCI Official Seal</div></div>
-          <div className="text-center"><div className="w-20 border-b border-gray-400 mb-1" /><div className="text-[9px] text-gray-500 font-semibold">Principal Signature</div></div>
-        </div>
+        <p className="text-center text-[10px] text-gray-400 mt-2">Preview only - Download PDF for full QR code</p>
       </div>
     </div>
   );
 }
-
-// ─── Grade color helper ───────────────────────────────────────────────────────
 function gradeColor(grade) {
   const g = (grade || '').toUpperCase();
   if (g === 'A+' || g === 'O') return { bg: 'bg-emerald-100', text: 'text-emerald-700', bar: 'bg-emerald-500' };
@@ -272,12 +235,12 @@ function gradeColor(grade) {
   return { bg: 'bg-red-100', text: 'text-red-700', bar: 'bg-red-500' };
 }
 
-// ─── PDF Download ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ PDF Download â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function downloadResultPDF(r, student, branch) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const W = 210, M = 14;
 
-  // ── Circular logo via canvas ──────────────────────────────────────────────
+  // â”€â”€ Circular logo via canvas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   let logoDataUrl = null;
   try {
     const img = await new Promise((res, rej) => {
@@ -291,7 +254,7 @@ async function downloadResultPDF(r, student, branch) {
     logoDataUrl = cv.toDataURL('image/png');
   } catch (_) {}
 
-  // ── HEADER ────────────────────────────────────────────────────────────────
+  // â”€â”€ HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // Deep blue bg
   doc.setFillColor(15, 40, 110);
   doc.rect(0, 0, W, 48, 'F');
@@ -299,11 +262,11 @@ async function downloadResultPDF(r, student, branch) {
   doc.setFillColor(250, 204, 21);
   doc.rect(0, 48, W, 2.5, 'F');
 
-  // Logo — left side, big
+  // Logo â€” left side, big
   const LS = 34;
   if (logoDataUrl) doc.addImage(logoDataUrl, 'PNG', M, 7, LS, LS);
 
-  // Institute text — right of logo
+  // Institute text â€” right of logo
   const tx = M + LS + 6;
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(17);
@@ -327,7 +290,7 @@ async function downloadResultPDF(r, student, branch) {
   doc.setFont('helvetica', 'bold');
   doc.text('RESULT CARD', tx + 24, 42.5, { align: 'center' });
 
-  // ── STUDENT INFO BOX ─────────────────────────────────────────────────────
+  // â”€â”€ STUDENT INFO BOX â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   doc.setFillColor(245, 248, 255);
   doc.setDrawColor(200, 210, 240);
   doc.roundedRect(M, 56, W - M*2, 46, 3, 3, 'FD');
@@ -340,20 +303,20 @@ async function downloadResultPDF(r, student, branch) {
   doc.setFont('helvetica', 'bold');
   doc.text('STUDENT DETAILS', M + 19, 60.8, { align: 'center' });
 
-  // Fixed column positions — label | value | label | value
+  // Fixed column positions â€” label | value | label | value
   // Left:  label@18  value@46   (max width = 90-46 = 44mm)
   // Right: label@108 value@132  (max width = 196-132 = 64mm)
   const LBL1 = M + 4;        // 18
-  const VAL1 = M + 32;       // 46  — value starts here
+  const VAL1 = M + 32;       // 46  â€” value starts here
   const LBL2 = W / 2 + 2;   // 107
   const VAL2 = W / 2 + 26;  // 131
-  const VMAXL = W / 2 - VAL1 - 4;   // ~49mm — left value max width
-  const VMAXR = W - M - VAL2 - 2;   // ~63mm — right value max width
+  const VMAXL = W / 2 - VAL1 - 4;   // ~49mm â€” left value max width
+  const VMAXR = W - M - VAL2 - 2;   // ~63mm â€” right value max width
 
   const infoRows = [
-    ['Student Name', student?.name || r.studentName || '—', 'Roll No.', r.rollNumber || '—'],
-    ['Course',       r.courseName || '—',                   'Batch',    r.batch || '—'],
-    ['Branch',       branch?.branchName || '—',             'Exam Date', r.examDate ? new Date(r.examDate).toLocaleDateString('en-IN') : '—'],
+    ['Student Name', student?.name || r.studentName || 'â€”', 'Roll No.', r.rollNumber || 'â€”'],
+    ['Course',       r.courseName || 'â€”',                   'Batch',    r.batch || 'â€”'],
+    ['Branch',       branch?.branchName || 'â€”',             'Exam Date', r.examDate ? new Date(r.examDate).toLocaleDateString('en-IN') : 'â€”'],
   ];
   infoRows.forEach(([l1, v1, l2, v2], i) => {
     const y = 70 + i * 11;
@@ -367,13 +330,13 @@ async function downloadResultPDF(r, student, branch) {
     doc.text(String(v2), VAL2, y, { maxWidth: VMAXR });
   });
 
-  // ── SUBJECT TABLE ─────────────────────────────────────────────────────────
+  // â”€â”€ SUBJECT TABLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const subjectRows = (r.subjects || []).map((s, i) => [
     i + 1,
-    s.name || '—',
-    s.maxMarks ?? '—',
-    s.obtainedMarks ?? '—',
-    s.maxMarks && s.obtainedMarks != null ? ((s.obtainedMarks / s.maxMarks) * 100).toFixed(1) + '%' : '—',
+    s.name || 'â€”',
+    s.maxMarks ?? 'â€”',
+    s.obtainedMarks ?? 'â€”',
+    s.maxMarks && s.obtainedMarks != null ? ((s.obtainedMarks / s.maxMarks) * 100).toFixed(1) + '%' : 'â€”',
     s.obtainedMarks >= s.maxMarks * 0.33 ? 'Pass' : 'Fail',
   ]);
 
@@ -407,7 +370,7 @@ async function downloadResultPDF(r, student, branch) {
     margin: { left: M, right: M },
   });
 
-  // ── SUMMARY BOX ───────────────────────────────────────────────────────────
+  // â”€â”€ SUMMARY BOX â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const tY = doc.lastAutoTable.finalY + 7;
   doc.setFillColor(15, 40, 110);
   doc.roundedRect(M, tY, W - M*2, 32, 3, 3, 'F');
@@ -416,10 +379,10 @@ async function downloadResultPDF(r, student, branch) {
   doc.roundedRect(M, tY, W - M*2, 2, 1, 1, 'F');
 
   const sumItems = [
-    ['TOTAL MARKS', `${r.obtainedMarks ?? '—'} / ${r.totalMarks ?? '—'}`],
-    ['PERCENTAGE', r.percentage ? `${r.percentage}%` : '—'],
-    ['GRADE', r.grade || '—'],
-    ['RESULT', r.status || '—'],
+    ['TOTAL MARKS', `${r.obtainedMarks ?? 'â€”'} / ${r.totalMarks ?? 'â€”'}`],
+    ['PERCENTAGE', r.percentage ? `${r.percentage}%` : 'â€”'],
+    ['GRADE', r.grade || 'â€”'],
+    ['RESULT', r.status || 'â€”'],
   ];
   const cW = (W - M*2) / 4;
   sumItems.forEach(([lbl, val], i) => {
@@ -435,7 +398,7 @@ async function downloadResultPDF(r, student, branch) {
     doc.text(String(val), x, tY + 24, { align: 'center' });
   });
 
-  // ── FOOTER ────────────────────────────────────────────────────────────────
+  // â”€â”€ FOOTER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const fY = tY + 42;
   // Signature lines
   doc.setDrawColor(150, 150, 150);
@@ -460,7 +423,7 @@ async function downloadResultPDF(r, student, branch) {
   doc.save(`Result_${r.rollNumber}_${(r.courseName || 'KCI').replace(/\s+/g, '_')}.pdf`);
 }
 
-// ─── Results Section ──────────────────────────────────────────────────────────
+// â”€â”€â”€ Results Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ResultsSection({ results, student, branch }) {
   if (results.length === 0) return (
     <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
@@ -483,28 +446,28 @@ function ResultsSection({ results, student, branch }) {
           <motion.div key={r._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
             className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
 
-            {/* ── Card Header ── */}
+            {/* â”€â”€ Card Header â”€â”€ */}
             <div className="bg-gradient-to-r from-blue-700 to-indigo-700 px-6 py-4 flex items-center justify-between">
               <div>
                 <p className="text-blue-200 text-xs font-semibold uppercase tracking-widest mb-0.5">Result Card</p>
                 <h3 className="text-white font-black text-lg leading-tight">{r.courseName}</h3>
-                <p className="text-blue-300 text-xs mt-0.5">Roll No: <span className="font-mono font-bold text-yellow-300">{r.rollNumber}</span>{r.batch ? ` • Batch: ${r.batch}` : ''}</p>
+                <p className="text-blue-300 text-xs mt-0.5">Roll No: <span className="font-mono font-bold text-yellow-300">{r.rollNumber}</span>{r.batch ? ` â€¢ Batch: ${r.batch}` : ''}</p>
               </div>
               <div className="flex flex-col items-end gap-2">
                 <span className={`px-3 py-1 rounded-full text-sm font-black border-2 ${
                   r.status === 'Pass' ? 'bg-green-400/20 border-green-400 text-green-300' : 'bg-red-400/20 border-red-400 text-red-300'
-                }`}>{r.status === 'Pass' ? '✓ PASS' : '✗ FAIL'}</span>
+                }`}>{r.status === 'Pass' ? 'âœ“ PASS' : 'âœ— FAIL'}</span>
                 <div className={`text-3xl font-black ${gc.text.replace('text-', 'text-').replace('700', '300')}`} style={{ color: '#fde68a' }}>{r.grade}</div>
               </div>
             </div>
 
-            {/* ── Summary Strip ── */}
+            {/* â”€â”€ Summary Strip â”€â”€ */}
             <div className="grid grid-cols-4 divide-x divide-gray-100 border-b border-gray-100">
               {[
-                { label: 'Obtained', value: r.obtainedMarks ?? '—', sub: 'marks' },
-                { label: 'Total', value: r.totalMarks ?? '—', sub: 'marks' },
-                { label: 'Percentage', value: r.percentage ? `${r.percentage}%` : '—', sub: 'score', highlight: true },
-                { label: 'Grade', value: r.grade || '—', sub: 'overall', highlight: true },
+                { label: 'Obtained', value: r.obtainedMarks ?? 'â€”', sub: 'marks' },
+                { label: 'Total', value: r.totalMarks ?? 'â€”', sub: 'marks' },
+                { label: 'Percentage', value: r.percentage ? `${r.percentage}%` : 'â€”', sub: 'score', highlight: true },
+                { label: 'Grade', value: r.grade || 'â€”', sub: 'overall', highlight: true },
               ].map(({ label, value, sub, highlight }) => (
                 <div key={label} className="py-4 text-center">
                   <div className={`text-xl font-black ${highlight ? 'text-blue-600' : 'text-gray-900'}`}>{value}</div>
@@ -514,7 +477,7 @@ function ResultsSection({ results, student, branch }) {
               ))}
             </div>
 
-            {/* ── Percentage Bar ── */}
+            {/* â”€â”€ Percentage Bar â”€â”€ */}
             <div className="px-6 pt-4 pb-2">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-bold text-gray-500 flex items-center gap-1"><TrendingUp className="w-3 h-3" /> Performance</span>
@@ -529,7 +492,7 @@ function ResultsSection({ results, student, branch }) {
               </div>
             </div>
 
-            {/* ── Subject Table ── */}
+            {/* â”€â”€ Subject Table â”€â”€ */}
             {r.subjects?.length > 0 && (
               <div className="px-6 pb-4">
                 <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-3 mt-2">Subject-wise Marks</p>
@@ -553,10 +516,10 @@ function ResultsSection({ results, student, branch }) {
                           <tr key={i} className={`border-b border-gray-100 last:border-0 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
                             <td className="px-4 py-3 text-gray-400 font-bold text-xs">{i + 1}</td>
                             <td className="px-4 py-3 font-semibold text-gray-800">{sub.name}</td>
-                            <td className="px-4 py-3 text-center text-gray-600 font-bold">{sub.maxMarks ?? '—'}</td>
-                            <td className="px-4 py-3 text-center font-black text-gray-900">{sub.obtainedMarks ?? '—'}</td>
+                            <td className="px-4 py-3 text-center text-gray-600 font-bold">{sub.maxMarks ?? 'â€”'}</td>
+                            <td className="px-4 py-3 text-center font-black text-gray-900">{sub.obtainedMarks ?? 'â€”'}</td>
                             <td className="px-4 py-3 text-center">
-                              <span className="text-xs font-bold text-blue-600">{subPct ? `${subPct}%` : '—'}</span>
+                              <span className="text-xs font-bold text-blue-600">{subPct ? `${subPct}%` : 'â€”'}</span>
                             </td>
                             <td className="px-4 py-3 text-center">
                               <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
@@ -570,9 +533,9 @@ function ResultsSection({ results, student, branch }) {
                     <tfoot>
                       <tr className="bg-blue-50 border-t-2 border-blue-200">
                         <td colSpan={2} className="px-4 py-3 font-black text-blue-800 text-sm">TOTAL</td>
-                        <td className="px-4 py-3 text-center font-black text-blue-800">{r.totalMarks ?? '—'}</td>
-                        <td className="px-4 py-3 text-center font-black text-blue-800">{r.obtainedMarks ?? '—'}</td>
-                        <td className="px-4 py-3 text-center font-black text-blue-600">{r.percentage ? `${r.percentage}%` : '—'}</td>
+                        <td className="px-4 py-3 text-center font-black text-blue-800">{r.totalMarks ?? 'â€”'}</td>
+                        <td className="px-4 py-3 text-center font-black text-blue-800">{r.obtainedMarks ?? 'â€”'}</td>
+                        <td className="px-4 py-3 text-center font-black text-blue-600">{r.percentage ? `${r.percentage}%` : 'â€”'}</td>
                         <td className="px-4 py-3 text-center">
                           <span className={`px-2 py-1 rounded-full text-xs font-black ${
                             r.status === 'Pass' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
@@ -585,7 +548,7 @@ function ResultsSection({ results, student, branch }) {
               </div>
             )}
 
-            {/* ── Footer Actions ── */}
+            {/* â”€â”€ Footer Actions â”€â”€ */}
             <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
               <div className="text-xs text-gray-400">
                 {r.examDate ? `Exam Date: ${new Date(r.examDate).toLocaleDateString('en-IN')}` : 'KCI Official Result'}
@@ -602,7 +565,7 @@ function ResultsSection({ results, student, branch }) {
   );
 }
 
-// ─── Certificate PDF Download ────────────────────────────────────────────────────
+// â”€â”€â”€ Certificate PDF Download â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function downloadCertificatePDF(c, student, branch) {
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   const W = 297, H = 210;
@@ -621,7 +584,7 @@ async function downloadCertificatePDF(c, student, branch) {
     logoUrl = cv.toDataURL('image/png');
   } catch (_) {}
 
-  // ── OUTER DECORATIVE BORDER ──
+  // â”€â”€ OUTER DECORATIVE BORDER â”€â”€
   doc.setDrawColor(180, 140, 40); doc.setLineWidth(3);
   doc.rect(6, 6, W - 12, H - 12);
   doc.setDrawColor(210, 170, 60); doc.setLineWidth(0.8);
@@ -638,7 +601,7 @@ async function downloadCertificatePDF(c, student, branch) {
     doc.circle(x, y, 1.2, 'F');
   });
 
-  // ── GOLD HEADER BG ──
+  // â”€â”€ GOLD HEADER BG â”€â”€
   doc.setFillColor(15, 40, 110);
   doc.rect(12, 12, W - 24, 38, 'F');
   doc.setFillColor(180, 140, 40);
@@ -656,15 +619,15 @@ async function downloadCertificatePDF(c, student, branch) {
   doc.setFontSize(8.5); doc.setTextColor(220, 200, 120);
   doc.text('ISO Certified Institute of Computer Education', W / 2, 48, { align: 'center' });
 
-  // ── CERTIFICATE TITLE ──
+  // â”€â”€ CERTIFICATE TITLE â”€â”€
   doc.setFontSize(28); doc.setFont('helvetica', 'bold'); doc.setTextColor(140, 100, 20);
   doc.text('CERTIFICATE OF COMPLETION', W / 2, 72, { align: 'center' });
   // underline
   doc.setDrawColor(180, 140, 40); doc.setLineWidth(0.8);
   doc.line(W/2 - 70, 75, W/2 + 70, 75);
 
-  // ── BODY TEXT ──
-  // ── Load Colonna MT font ──
+  // â”€â”€ BODY TEXT â”€â”€
+  // â”€â”€ Load Colonna MT font â”€â”€
   let colonnaLoaded = false;
   try {
     const fontRes = await fetch('/colonna_b64.txt');
@@ -677,8 +640,8 @@ async function downloadCertificatePDF(c, student, branch) {
   doc.setFontSize(11); doc.setFont('helvetica', 'normal'); doc.setTextColor(60, 60, 60);
   doc.text('This is to certify that', W / 2, 88, { align: 'center' });
 
-  // Student name — Colonna MT font
-  const nameText = c.studentName || student?.name || '—';
+  // Student name â€” Colonna MT font
+  const nameText = c.studentName || student?.name || 'â€”';
   doc.setFontSize(28);
   doc.setFont(colonnaLoaded ? 'Colonna' : 'times', colonnaLoaded ? 'normal' : 'bolditalic');
   doc.setTextColor(15, 40, 110);
@@ -692,10 +655,10 @@ async function downloadCertificatePDF(c, student, branch) {
 
   // Course name
   doc.setFontSize(17); doc.setFont('helvetica', 'bold'); doc.setTextColor(140, 100, 20);
-  doc.text(c.courseName || '—', W / 2, 128, { align: 'center' });
+  doc.text(c.courseName || 'â€”', W / 2, 128, { align: 'center' });
 
   doc.setFontSize(10.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(60, 60, 60);
-  const rollText = `Roll No: ${c.rollNumber || '—'}   |   Grade: ${c.grade || '—'}   |   Issue Date: ${c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' }) : '—'}`;
+  const rollText = `Roll No: ${c.rollNumber || 'â€”'}   |   Grade: ${c.grade || 'â€”'}   |   Issue Date: ${c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' }) : 'â€”'}`;
   doc.text(rollText, W / 2, 139, { align: 'center' });
 
   // Branch
@@ -704,14 +667,14 @@ async function downloadCertificatePDF(c, student, branch) {
     doc.text(`Branch: ${branch.branchName}${branch.branchCity ? ', ' + branch.branchCity : ''}`, W / 2, 147, { align: 'center' });
   }
 
-  // ── CERT NUMBER BADGE ──
+  // â”€â”€ CERT NUMBER BADGE â”€â”€
   doc.setFillColor(245, 240, 220);
   doc.setDrawColor(180, 140, 40); doc.setLineWidth(0.5);
   doc.roundedRect(W/2 - 45, 151, 90, 10, 2, 2, 'FD');
   doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(100, 70, 10);
-  doc.text(`Certificate No: ${c.certificateNumber || '—'}`, W / 2, 157.5, { align: 'center' });
+  doc.text(`Certificate No: ${c.certificateNumber || 'â€”'}`, W / 2, 157.5, { align: 'center' });
 
-  // ── GRADE BADGE ──
+  // â”€â”€ GRADE BADGE â”€â”€
   const gradeColors = { 'A+': [22,163,74], 'A': [37,99,235], 'B+': [124,58,237], 'B': [79,70,229], 'C': [217,119,6], 'D': [234,179,8] };
   const gc = gradeColors[c.grade] || [15, 40, 110];
   doc.setFillColor(...gc);
@@ -723,7 +686,7 @@ async function downloadCertificatePDF(c, student, branch) {
   doc.setFontSize(20); doc.setFont('helvetica', 'bold');
   doc.text(c.grade || 'A', W - 35, 110, { align: 'center' });
 
-  // ── FOOTER SIGNATURES ──
+  // â”€â”€ FOOTER SIGNATURES â”€â”€
   const SY = H - 30;
   doc.setDrawColor(100, 100, 100); doc.setLineWidth(0.4);
   // left sig
@@ -854,7 +817,7 @@ export default function StudentDashboard() {
       logoUrl = cv.toDataURL('image/png');
     } catch(_) {}
 
-    // ── HEADER ──
+    // â”€â”€ HEADER â”€â”€
     doc.setFillColor(15,40,110); doc.rect(0,0,W,46,'F');
     doc.setFillColor(250,204,21); doc.rect(0,46,W,2.5,'F');
     if (logoUrl) doc.addImage(logoUrl,'PNG',M,7,28,28);
@@ -868,7 +831,7 @@ export default function StudentDashboard() {
     doc.setTextColor(15,40,110); doc.setFontSize(8.5); doc.setFont('helvetica','bold');
     doc.text('TEST RESULT CARD', M+56, 36.2, { align:'center' });
 
-    // ── INFO BOX ──
+    // â”€â”€ INFO BOX â”€â”€
     doc.setFillColor(245,248,255); doc.setDrawColor(200,210,240);
     doc.roundedRect(M, 54, W-M*2, 46, 3, 3, 'FD');
     // section label
@@ -876,14 +839,14 @@ export default function StudentDashboard() {
     doc.setTextColor(255,255,255); doc.setFontSize(7); doc.setFont('helvetica','bold');
     doc.text('TEST DETAILS', M+18, 58.8, { align:'center' });
 
-    // PASS/FAIL badge — top right of info box
+    // PASS/FAIL badge â€” top right of info box
     const pass = attempt.percentage >= 33;
     doc.setFillColor(...(pass ? [22,163,74] : [220,38,38]));
     doc.roundedRect(W-M-26, 55, 24, 11, 2, 2, 'F');
     doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont('helvetica','bold');
     doc.text(pass ? 'PASS' : 'FAIL', W-M-14, 62, { align:'center' });
 
-    // Info rows — 2 columns, fixed positions
+    // Info rows â€” 2 columns, fixed positions
     // Left:  label @ M+4,  value @ M+30
     // Right: label @ W/2+4, value @ W/2+30
     const LL = M+4, LV = M+32;
@@ -892,8 +855,8 @@ export default function StudentDashboard() {
     const RMAX = W - M - RV - 2; // ~57mm
 
     const infoData = [
-      ['Test Title', test?.title||'—',   'Month',      test?.month||'—'],
-      ['Student',    attempt.studentName||'—', 'Roll No.', attempt.rollNumber||'—'],
+      ['Test Title', test?.title||'â€”',   'Month',      test?.month||'â€”'],
+      ['Student',    attempt.studentName||'â€”', 'Roll No.', attempt.rollNumber||'â€”'],
       ['Score',      `${attempt.score} / ${attempt.totalMarks}`, 'Percentage', `${attempt.percentage}%`],
     ];
 
@@ -916,12 +879,12 @@ export default function StudentDashboard() {
     if (attempt.timeTaken) doc.text(`Time Taken: ${Math.floor(attempt.timeTaken/60)}m ${attempt.timeTaken%60}s`, M, metaY);
     doc.text(`Date: ${new Date(attempt.submittedAt).toLocaleDateString('en-IN')}`, W-M, metaY, { align:'right' });
 
-    // ── QUESTIONS TABLE ──
+    // â”€â”€ QUESTIONS TABLE â”€â”€
     const rows = (questions||[]).map((q, i) => [
       i+1,
       q.question,
-      attempt.answers[i] !== undefined ? (q.options[attempt.answers[i]]||'—') : 'Not answered',
-      q.options[correctAnswers[i]]||'—',
+      attempt.answers[i] !== undefined ? (q.options[attempt.answers[i]]||'â€”') : 'Not answered',
+      q.options[correctAnswers[i]]||'â€”',
       attempt.answers[i] === correctAnswers[i] ? 'Correct' : 'Wrong',
     ]);
 
@@ -954,7 +917,7 @@ export default function StudentDashboard() {
       margin: { left:M, right:M },
     });
 
-    // ── SUMMARY BOX ──
+    // â”€â”€ SUMMARY BOX â”€â”€
     const tY = doc.lastAutoTable.finalY + 7;
     doc.setFillColor(15,40,110); doc.roundedRect(M, tY, W-M*2, 26, 3, 3, 'F');
     doc.setFillColor(250,204,21); doc.roundedRect(M, tY, W-M*2, 2, 1, 1, 'F');
@@ -976,7 +939,7 @@ export default function StudentDashboard() {
       doc.text(String(val), x, tY+22, { align:'center' });
     });
 
-    // ── FOOTER ──
+    // â”€â”€ FOOTER â”€â”€
     const fY = tY + 34;
     doc.setFillColor(245,248,255); doc.rect(0, fY, W, 12, 'F');
     doc.setTextColor(120,120,120); doc.setFontSize(7); doc.setFont('helvetica','italic');
@@ -1001,7 +964,7 @@ export default function StudentDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
 
-      {/* ── HEADER ── */}
+      {/* â”€â”€ HEADER â”€â”€ */}
       <header className="bg-white/80 backdrop-blur-xl border-b border-white/50 shadow-sm sticky top-0 z-40">
         <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -1035,7 +998,7 @@ export default function StudentDashboard() {
 
       <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
 
-        {/* ── TABS ── */}
+        {/* â”€â”€ TABS â”€â”€ */}
         <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide -mx-3 sm:mx-0 px-3 sm:px-0">
           {tabs.map(({ id, label, icon: Icon }) => (
             <button key={id} onClick={() => setActiveTab(id)}
@@ -1093,7 +1056,7 @@ export default function StudentDashboard() {
                       )}
                       {student?.fatherName && (
                         <span className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20">
-                          👨 {student.fatherName}
+                          ðŸ‘¨ {student.fatherName}
                         </span>
                       )}
                     </div>
@@ -1119,7 +1082,7 @@ export default function StudentDashboard() {
                         ? 'bg-green-400/20 border-green-400/50 text-green-300'
                         : 'bg-yellow-400/20 border-yellow-400/50 text-yellow-300'
                     }`}>
-                      {student?.isApproved ? '✅ Approved' : '⏳ Pending'}
+                      {student?.isApproved ? 'âœ… Approved' : 'â³ Pending'}
                     </div>
                   </div>
                 </div>
@@ -1140,18 +1103,18 @@ export default function StudentDashboard() {
                 </div>
                 <div className="p-4 space-y-3">
                   {[
-                    { icon: '👤', label: 'Full Name', value: student?.name },
-                    { icon: '📧', label: 'Email', value: student?.email },
-                    { icon: '📱', label: 'Phone', value: student?.phone },
-                    { icon: '👨', label: "Father's Name", value: student?.fatherName },
-                    { icon: '🎂', label: 'Date of Birth', value: student?.dob ? new Date(student.dob).toLocaleDateString('en-IN') : null },
-                    { icon: '📍', label: 'Address', value: student?.address },
+                    { icon: 'ðŸ‘¤', label: 'Full Name', value: student?.name },
+                    { icon: 'ðŸ“§', label: 'Email', value: student?.email },
+                    { icon: 'ðŸ“±', label: 'Phone', value: student?.phone },
+                    { icon: 'ðŸ‘¨', label: "Father's Name", value: student?.fatherName },
+                    { icon: 'ðŸŽ‚', label: 'Date of Birth', value: student?.dob ? new Date(student.dob).toLocaleDateString('en-IN') : null },
+                    { icon: 'ðŸ“', label: 'Address', value: student?.address },
                   ].map(({ icon, label, value }) => (
                     <div key={label} className="flex items-start gap-3 py-1.5 border-b border-gray-50 last:border-0">
                       <span className="text-base shrink-0 mt-0.5">{icon}</span>
                       <div className="flex-1 min-w-0">
                         <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label}</div>
-                        <div className="text-sm font-bold text-gray-800 truncate">{value || '—'}</div>
+                        <div className="text-sm font-bold text-gray-800 truncate">{value || 'â€”'}</div>
                       </div>
                     </div>
                   ))}
@@ -1169,13 +1132,13 @@ export default function StudentDashboard() {
                 </div>
                 <div className="p-4 space-y-3">
                   {[
-                    { icon: '🎫', label: 'Roll Number', value: student?.rollNumber, mono: true, highlight: true },
-                    { icon: '📋', label: 'Enrollment No.', value: student?.enrollmentNumber, mono: true },
-                    { icon: '📝', label: 'Form No.', value: student?.formNo, mono: true },
-                    { icon: '📚', label: 'Course', value: student?.courseName },
-                    { icon: '📅', label: 'Batch', value: student?.batch },
-                    { icon: '✅', label: 'Account Status', value: student?.isApproved ? 'Approved ✓' : 'Pending' },
-                    { icon: '📆', label: 'Admission Date', value: student?.admissionDate ? new Date(student.admissionDate).toLocaleDateString('en-IN') : null },
+                    { icon: 'ðŸŽ«', label: 'Roll Number', value: student?.rollNumber, mono: true, highlight: true },
+                    { icon: 'ðŸ“‹', label: 'Enrollment No.', value: student?.enrollmentNumber, mono: true },
+                    { icon: 'ðŸ“', label: 'Form No.', value: student?.formNo, mono: true },
+                    { icon: 'ðŸ“š', label: 'Course', value: student?.courseName },
+                    { icon: 'ðŸ“…', label: 'Batch', value: student?.batch },
+                    { icon: 'âœ…', label: 'Account Status', value: student?.isApproved ? 'Approved âœ“' : 'Pending' },
+                    { icon: 'ðŸ“†', label: 'Admission Date', value: student?.admissionDate ? new Date(student.admissionDate).toLocaleDateString('en-IN') : null },
                   ].map(({ icon, label, value, mono, highlight }) => (
                     <div key={label} className="flex items-start gap-3 py-1.5 border-b border-gray-50 last:border-0">
                       <span className="text-base shrink-0 mt-0.5">{icon}</span>
@@ -1183,7 +1146,7 @@ export default function StudentDashboard() {
                         <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label}</div>
                         <div className={`text-sm font-bold truncate ${
                           highlight ? 'font-mono text-blue-600 text-base' : mono ? 'font-mono text-blue-600' : 'text-gray-800'
-                        }`}>{value || '—'}</div>
+                        }`}>{value || 'â€”'}</div>
                       </div>
                     </div>
                   ))}
@@ -1192,7 +1155,7 @@ export default function StudentDashboard() {
                 <div className="px-4 pb-4">
                   <div className="bg-violet-50 rounded-xl p-3 border border-violet-100">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-violet-700">📊 Academic Progress</span>
+                      <span className="text-xs font-bold text-violet-700">ðŸ“Š Academic Progress</span>
                       <span className="text-xs font-black text-violet-700">{results.length > 0 ? Math.round(results.reduce((a,r) => a + (r.percentage||0), 0) / results.length) : 0}% avg</span>
                     </div>
                     <div className="h-2 bg-violet-200 rounded-full overflow-hidden">
@@ -1215,16 +1178,16 @@ export default function StudentDashboard() {
                   </div>
                   <div className="p-4 space-y-3">
                     {[
-                      { icon: '🏢', label: 'Branch Name', value: branch?.branchName },
-                      { icon: '📍', label: 'City', value: branch?.branchCity },
-                      { icon: '📞', label: 'Phone', value: branch?.phone },
-                      { icon: '📧', label: 'Email', value: branch?.email },
+                      { icon: 'ðŸ¢', label: 'Branch Name', value: branch?.branchName },
+                      { icon: 'ðŸ“', label: 'City', value: branch?.branchCity },
+                      { icon: 'ðŸ“ž', label: 'Phone', value: branch?.phone },
+                      { icon: 'ðŸ“§', label: 'Email', value: branch?.email },
                     ].map(({ icon, label, value }) => (
                       <div key={label} className="flex items-start gap-3 py-1.5 border-b border-gray-50 last:border-0">
                         <span className="text-base shrink-0 mt-0.5">{icon}</span>
                         <div className="flex-1 min-w-0">
                           <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label}</div>
-                          <div className="text-sm font-bold text-gray-800 truncate">{value || '—'}</div>
+                          <div className="text-sm font-bold text-gray-800 truncate">{value || 'â€”'}</div>
                         </div>
                       </div>
                     ))}
@@ -1236,7 +1199,7 @@ export default function StudentDashboard() {
                     </div>
                     <div>
                       <div className="text-xs font-black text-indigo-800">{branch?.branchName}</div>
-                      <div className="text-[10px] text-indigo-500">{branch?.branchCity} • KCI Authorized Center</div>
+                      <div className="text-[10px] text-indigo-500">{branch?.branchCity} â€¢ KCI Authorized Center</div>
                     </div>
                   </div>
                 </motion.div>
@@ -1246,7 +1209,7 @@ export default function StudentDashboard() {
             {/* Quick Actions */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
               className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <h3 className="font-black text-gray-900 mb-4 text-sm uppercase tracking-wide">⚡ Quick Actions</h3>
+              <h3 className="font-black text-gray-900 mb-4 text-sm uppercase tracking-wide">âš¡ Quick Actions</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-7 gap-2 sm:gap-3">
                 {[
                   { label: 'View ID Card', icon: CreditCard, color: 'from-blue-500 to-blue-600', tab: 'idcard' },
@@ -1290,14 +1253,14 @@ export default function StudentDashboard() {
         {/* Monthly Tests Tab */}
         {activeTab === 'tests' && (
           <div className="space-y-5">
-            {/* Active test — timer + questions */}
+            {/* Active test â€” timer + questions */}
             {activeTest ? (
               <div className="space-y-4">
                 {/* Timer bar */}
                 <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
                   <div>
                     <h3 className="font-black text-gray-900">{activeTest.title}</h3>
-                    <p className="text-xs text-gray-400">{activeTest.questions.length} questions • {activeTest.totalMarks} marks</p>
+                    <p className="text-xs text-gray-400">{activeTest.questions.length} questions â€¢ {activeTest.totalMarks} marks</p>
                   </div>
                   <div className={`flex items-center gap-2 px-4 py-2 rounded-xl font-black text-lg ${
                     timeLeft < 60 ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-indigo-100 text-indigo-700'
@@ -1333,7 +1296,7 @@ export default function StudentDashboard() {
                 ))}
                 <button onClick={() => handleSubmitTest(false)}
                   className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-base transition-colors shadow-lg">
-                  Submit Test →
+                  Submit Test â†’
                 </button>
               </div>
             ) : testResult ? (
@@ -1349,7 +1312,7 @@ export default function StudentDashboard() {
                   <div className="flex items-center gap-6 mt-3">
                     <div><div className="text-3xl font-black">{testResult.attempt.score}/{testResult.attempt.totalMarks}</div><div className="text-white/70 text-xs">Score</div></div>
                     <div><div className="text-3xl font-black">{testResult.attempt.percentage}%</div><div className="text-white/70 text-xs">Percentage</div></div>
-                    <div><div className="text-2xl font-black">{testResult.attempt.percentage >= 33 ? '✓ PASS' : '✗ FAIL'}</div><div className="text-white/70 text-xs">Result</div></div>
+                    <div><div className="text-2xl font-black">{testResult.attempt.percentage >= 33 ? 'âœ“ PASS' : 'âœ— FAIL'}</div><div className="text-white/70 text-xs">Result</div></div>
                   </div>
                 </div>
                 <div className="p-5 space-y-3">
@@ -1361,7 +1324,7 @@ export default function StudentDashboard() {
                       <div key={qi} className={`p-4 rounded-xl border-2 ${
                         isRight ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
                       }`}>
-                        <p className="font-semibold text-gray-900 text-sm mb-2"><span className="font-black">{isRight ? '✅' : '❌'} Q{qi+1}.</span> {q.question}</p>
+                        <p className="font-semibold text-gray-900 text-sm mb-2"><span className="font-black">{isRight ? 'âœ…' : 'âŒ'} Q{qi+1}.</span> {q.question}</p>
                         <p className="text-xs text-gray-600">Your answer: <span className={`font-bold ${isRight ? 'text-green-700' : 'text-red-600'}`}>{selected !== undefined ? q.options[selected] : 'Not answered'}</span></p>
                         {!isRight && <p className="text-xs text-green-700 font-bold">Correct: {q.options[correct]}</p>}
                       </div>
@@ -1370,7 +1333,7 @@ export default function StudentDashboard() {
                   <div className="flex gap-3 pt-2">
                     <button onClick={() => { setTestResult(null); }}
                       className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50">
-                      ← Back to Tests
+                      â† Back to Tests
                     </button>
                     <button onClick={() => downloadTestResult(testResult.attempt, testResult.test, testResult.test?.questions, testResult.correctAnswers)}
                       className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold">
@@ -1399,7 +1362,7 @@ export default function StudentDashboard() {
                             <p className="text-xs text-indigo-600 font-semibold">{t.month}</p>
                           </div>
                           {t.attempted
-                            ? <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-bold">✓ Done</span>
+                            ? <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-bold">âœ“ Done</span>
                             : <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold">New</span>
                           }
                         </div>
@@ -1440,14 +1403,14 @@ export default function StudentDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs text-gray-400 font-bold uppercase">Exam Name</p>
-                    <p className="font-black text-gray-900">{admitCard.examName || '—'}</p>
+                    <p className="font-black text-gray-900">{admitCard.examName || 'â€”'}</p>
                   </div>
                   <button onClick={() => window.open(`${import.meta.env.VITE_API_URL || ''}${admitCard.fileUrl}`, '_blank')}
                     className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold">
                     <Download className="w-4 h-4" /> Download
                   </button>
                 </div>
-                {[['Roll Number', admitCard.rollNumber], ['Exam Date', admitCard.examDate ? new Date(admitCard.examDate).toLocaleDateString('en-IN') : '—'], ['Exam Center', admitCard.examCenter || '—'], ['Course', admitCard.courseName || '—']].map(([l, v]) => (
+                {[['Roll Number', admitCard.rollNumber], ['Exam Date', admitCard.examDate ? new Date(admitCard.examDate).toLocaleDateString('en-IN') : 'â€”'], ['Exam Center', admitCard.examCenter || 'â€”'], ['Course', admitCard.courseName || 'â€”']].map(([l, v]) => (
                   <div key={l} className="flex justify-between py-2 border-b border-gray-50 last:border-0">
                     <span className="text-xs font-bold text-gray-400">{l}</span>
                     <span className="text-sm font-bold text-gray-800">{v}</span>
@@ -1484,7 +1447,7 @@ export default function StudentDashboard() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-black text-gray-900 truncate">{m.title}</p>
-                      <p className="text-xs text-gray-400">{m.subject || m.courseName || '—'}</p>
+                      <p className="text-xs text-gray-400">{m.subject || m.courseName || 'â€”'}</p>
                     </div>
                     <a href={`${import.meta.env.VITE_API_URL || ''}${m.fileUrl}`} target="_blank" rel="noreferrer"
                       className="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold shrink-0">
@@ -1582,7 +1545,7 @@ export default function StudentDashboard() {
                         <div className="grid grid-cols-2 gap-2 mb-4">
                           {[
                             ['Enrollment No.', c.rollNumber],
-                            ['Issue Date', c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '—'],
+                            ['Issue Date', c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : 'â€”'],
                           ].map(([l, v]) => (
                             <div key={l} className="bg-amber-50 rounded-xl p-2.5 border border-amber-100">
                               <div className="text-[9px] font-bold text-amber-600 uppercase tracking-wide">{l}</div>
