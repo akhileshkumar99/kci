@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
-export default function DevCredit({ dark = false }) {
+export default function DevCredit({ dark = false, popupDown = false }) {
   const [open, setOpen] = useState(false);
   const ref = useRef();
 
@@ -20,10 +20,11 @@ export default function DevCredit({ dark = false }) {
           Akhilesh Kumar
         </span>
         {/* Popup — hover (desktop) OR click/tap (mobile) */}
-        <div className={`absolute bottom-7 left-1/2 -translate-x-1/2 w-72 bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl p-4 transition-all duration-200 z-[999]
+        <div className={`absolute left-1/2 -translate-x-1/2 w-72 bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl p-4 transition-all duration-200 z-[999]
           pointer-events-none group-hover:pointer-events-auto
           scale-95 group-hover:scale-100
           opacity-0 group-hover:opacity-100
+          ${popupDown ? 'top-7 bottom-auto' : 'bottom-7 top-auto'}
           ${open ? '!opacity-100 !scale-100 !pointer-events-auto' : ''}`}>
           <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-700">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 via-violet-500 to-pink-500 flex items-center justify-center text-white font-black text-lg shrink-0">A</div>
@@ -48,7 +49,10 @@ export default function DevCredit({ dark = false }) {
             </a>
             <div className="text-[10px] text-gray-500">🌐 Web, Software, AI, SEO, Cloud & IT Consulting</div>
           </div>
-          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-gray-900 border-r border-b border-gray-700 rotate-45" />
+          {popupDown
+            ? <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-gray-900 border-l border-t border-gray-700 rotate-45" />
+            : <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-gray-900 border-r border-b border-gray-700 rotate-45" />
+          }
         </div>
       </div>
       <span className="text-[10px] animate-pulse">⚡</span>

@@ -289,7 +289,8 @@ export default function AdminLayout() {
         </main>
         {/* Dev credit */}
         <div className={`shrink-0 px-4 py-2 border-t flex justify-center ${dark ? 'border-gray-800' : 'border-gray-100'}`}>
-          <DevCredit dark={dark} />
+          <span className="hidden lg:flex"><DevCredit dark={dark} popupDown /></span>
+          <span className="flex lg:hidden"><DevCredit dark={dark} /></span>
         </div>
       </div>
     </div>

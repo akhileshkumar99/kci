@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-hot-toast';
-import { Trash2, Search, Plus, X, User, Mail, Phone, BookOpen, Hash, Calendar, Pencil, Eye, ImagePlus } from 'lucide-react';
+import { Trash2, Search, Plus, X, User, Mail, Phone, BookOpen, Hash, Calendar, Pencil, Eye, ImagePlus, Download, Upload, Filter } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import api from '../../utils/api';
 import Loader from '../../components/Loader';
 
@@ -47,6 +48,10 @@ export default function AdminStudents() {
   const [imgPreview, setImgPreview] = useState(null);
 
   const [migrating, setMigrating] = useState(false);
+  const [filterPeriod, setFilterPeriod] = useState('all'); // all | yearly | monthly | weekly
+  const [filterYear, setFilterYear] = useState(new Date().getFullYear());
+  const [filterMonth, setFilterMonth] = useState(new Date().getMonth()); // 0-11
+  const importRef = useRef();
 
   const handleMigrateFormNo = async () => {
     if (!confirm('Assign Form No to all students who don\'t have one?')) return;
@@ -130,30 +135,129 @@ export default function AdminStudents() {
     try { await api.delete(`/admin/students/${id}`); setStudents(s => s.filter(x => x._id !== id)); toast.success('Deleted'); } catch { toast.error('Error'); }
   };
 
-  const filtered = students.filter(s =>
-    s.name.toLowerCase().includes(search.toLowerCase()) ||
-    s.email.toLowerCase().includes(search.toLowerCase()) ||
-    (s.rollNumber || '').toLowerCase().includes(search.toLowerCase())
-  );
+  const now = new Date();
+  const filtered = students.filter(s => {
+    const match = s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.email.toLowerCase().includes(search.toLowerCase()) ||
+      (s.rollNumber || '').toLowerCase().includes(search.toLowerCase());
+    if (!match) return false;
+    const d = new Date(s.createdAt);
+    if (filterPeriod === 'yearly') return d.getFullYear() === Number(filterYear);
+    if (filterPeriod === 'monthly') return d.getFullYear() === Number(filterYear) && d.getMonth() === Number(filterMonth);
+    if (filterPeriod === 'weekly') {
+      const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
+      return d >= weekAgo;
+    }
+    return true;
+  });
+
+  const exportExcel = () => {
+    const rows = filtered.map(s => ({
+      Name: s.name, Email: s.email, Phone: s.phone || '',
+      'Roll No': s.rollNumber || '', 'Enrollment No': s.enrollmentNumber || '',
+      'Form No': s.formNo || '', Course: s.courseName || s.course?.title || '',
+      Batch: s.batch || '', 'Admission Date': s.admissionDate ? new Date(s.admissionDate).toLocaleDateString('en-IN') : '',
+      Joined: new Date(s.createdAt).toLocaleDateString('en-IN'),
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Students');
+    XLSX.writeFile(wb, `KCI_Students_${filterPeriod}_${Date.now()}.xlsx`);
+    toast.success('Exported to Excel!');
+  };
+
+  const importExcel = async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        const wb = XLSX.read(ev.target.result, { type: 'binary' });
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+        let added = 0;
+        for (const row of rows) {
+          if (!row.Name || !row.Email) continue;
+          try {
+            const fd = new FormData();
+            fd.append('name', row.Name); fd.append('email', row.Email);
+            fd.append('password', 'kci123456'); fd.append('phone', row.Phone || '');
+            fd.append('batch', row.Batch || ''); fd.append('courseName', row.Course || '');
+            fd.append('admissionDate', row['Admission Date'] || '');
+            await api.post('/admin/students', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+            added++;
+          } catch {}
+        }
+        toast.success(`${added} students imported!`);
+        fetchStudents();
+      } catch { toast.error('Invalid Excel file'); }
+    };
+    reader.readAsBinaryString(file);
+    e.target.value = '';
+  };
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Students ({students.length})</h1>
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search students..."
-              className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          </div>
+      <div className="flex flex-wrap items-center gap-2 mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mr-2">Students ({filtered.length}/{students.length})</h1>
+
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search students..."
+            className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+
+        {/* Period Filter */}
+        <div className="flex items-center gap-1.5 bg-gray-100 rounded-xl p-1">
+          {['all','weekly','monthly','yearly'].map(p => (
+            <button key={p} onClick={() => setFilterPeriod(p)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all capitalize ${
+                filterPeriod === p ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'
+              }`}>{p === 'all' ? 'All' : p.charAt(0).toUpperCase() + p.slice(1)}</button>
+          ))}
+        </div>
+
+        {/* Year picker */}
+        {(filterPeriod === 'yearly' || filterPeriod === 'monthly') && (
+          <select value={filterYear} onChange={e => setFilterYear(Number(e.target.value))}
+            className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            {Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i).map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+        )}
+
+        {/* Month picker */}
+        {filterPeriod === 'monthly' && (
+          <select value={filterMonth} onChange={e => setFilterMonth(Number(e.target.value))}
+            className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m, i) => (
+              <option key={i} value={i}>{m}</option>
+            ))}
+          </select>
+        )}
+
+        <div className="ml-auto flex items-center gap-2">
+          {/* Import */}
+          <input ref={importRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={importExcel} />
+          <button onClick={() => importRef.current.click()}
+            className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors">
+            <Upload className="w-4 h-4" /> Import
+          </button>
+
+          {/* Export */}
+          <button onClick={exportExcel}
+            className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors">
+            <Download className="w-4 h-4" /> Export
+          </button>
+
           <button onClick={handleMigrateFormNo} disabled={migrating}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-60">
+            className="flex items-center gap-2 px-3 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-60">
             {migrating ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Hash className="w-4 h-4" />}
             Assign Form No
           </button>
-          <button onClick={openModal} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors">
+          <button onClick={openModal} className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors">
             <Plus className="w-4 h-4" /> Add Student
           </button>
         </div>
