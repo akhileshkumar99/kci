@@ -13,6 +13,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import DevCredit from '../components/DevCredit';
+import AdmitCardComponent from '../components/AdmitCard';
 
 const tabs = [
   { id: 'profile', label: 'My Profile', icon: User },
@@ -1375,33 +1376,13 @@ export default function StudentDashboard() {
         {/* Admit Card Tab */}
         {activeTab === 'admitcard' && (
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-            <h2 className="text-xl font-black text-gray-900">My Admit Card</h2>
-            {admitCard ? (
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-gray-400 font-bold uppercase">Exam Name</p>
-                    <p className="font-black text-gray-900">{admitCard.examName || 'â€”'}</p>
-                  </div>
-                  <button onClick={() => window.open(`${import.meta.env.VITE_API_URL || ''}${admitCard.fileUrl}`, '_blank')}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold">
-                    <Download className="w-4 h-4" /> Download
-                  </button>
-                </div>
-                {[['Roll Number', admitCard.rollNumber], ['Exam Date', admitCard.examDate ? new Date(admitCard.examDate).toLocaleDateString('en-IN') : 'â€”'], ['Exam Center', admitCard.examCenter || 'â€”'], ['Course', admitCard.courseName || 'â€”']].map(([l, v]) => (
-                  <div key={l} className="flex justify-between py-2 border-b border-gray-50 last:border-0">
-                    <span className="text-xs font-bold text-gray-400">{l}</span>
-                    <span className="text-sm font-bold text-gray-800">{v}</span>
-                  </div>
-                ))}
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-xl flex items-center justify-center">
+                <FileText className="w-4 h-4 text-white" />
               </div>
-            ) : (
-              <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
-                <FileText className="w-12 h-12 mx-auto mb-3 text-gray-200" />
-                <p className="text-gray-500 font-semibold">No Admit Card issued yet</p>
-                <p className="text-xs text-gray-400 mt-1">Your admit card will appear here once issued by your branch</p>
-              </div>
-            )}
+              <h2 className="text-xl font-black text-gray-900">My Admit Card</h2>
+            </div>
+            <AdmitCardComponent student={student} admitCard={admitCard} branch={branch} />
           </motion.div>
         )}
 
