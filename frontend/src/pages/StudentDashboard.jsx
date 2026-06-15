@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
+import DevCredit from '../components/DevCredit';
 
 const tabs = [
   { id: 'profile', label: 'My Profile', icon: User },
@@ -1022,6 +1023,8 @@ export default function StudentDashboard() {
                 <div className="text-[10px] text-gray-400 font-medium truncate max-w-[120px]">{user?.courseName}</div>
               </div>
             </div>
+            {/* Dev credit */}
+            <DevCredit />
             <button onClick={handleLogout}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-red-500 hover:bg-red-50 border border-red-100 hover:border-red-200 transition-all whitespace-nowrap">
               <LogOut className="w-3.5 h-3.5" /> Logout

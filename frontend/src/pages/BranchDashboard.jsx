@@ -14,6 +14,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import api from '../utils/api';
+import DevCredit from '../components/DevCredit';
 
 const tabs = [
   { id: 'overview', label: 'Overview', icon: TrendingUp },
@@ -892,12 +893,14 @@ export default function BranchDashboard() {
             </div>
           </div>
 
-          {/* Right: City + Theme + Logout */}
+          {/* Right: City + Theme + Dev + Logout */}
           <div className="flex items-center gap-2">
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-xl border border-blue-100">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
               <span className="text-xs font-bold text-blue-700">{user?.branchCity}</span>
             </div>
+            {/* Dev credit */}
+            <DevCredit />
             <button onClick={toggle}
               className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-sm ${
                 dark ? 'bg-slate-700 text-yellow-400 hover:bg-slate-600 border border-slate-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'

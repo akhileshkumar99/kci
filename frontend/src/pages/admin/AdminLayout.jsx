@@ -8,6 +8,7 @@ import {
   AlertCircle, CheckCircle, Info, Trophy, Building2, Download
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import DevCredit from '../../components/DevCredit';
 
 const navItems = [
   { path: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true, color: 'text-blue-400' },
@@ -287,11 +288,8 @@ export default function AdminLayout() {
           <Outlet />
         </main>
         {/* Dev credit */}
-        <div className={`shrink-0 px-4 py-2 border-t text-center text-[10px] ${dark ? 'border-gray-800 text-gray-600' : 'border-gray-100 text-gray-400'}`}>
-          Developed by{' '}
-          <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-violet-500 to-pink-500">
-            Akhilesh Kumar
-          </span>
+        <div className={`shrink-0 px-4 py-2 border-t flex justify-center ${dark ? 'border-gray-800' : 'border-gray-100'}`}>
+          <DevCredit dark={dark} />
         </div>
       </div>
     </div>
