@@ -130,9 +130,9 @@ function CardContent({ student, admitCard, branch, qrUrl, scale = 1 }) {
         ))}
       </div>
 
-      {/* ── BODY 145mm ── */}
+      {/* ── BODY ── */}
       <div style={{
-        display: 'flex', height: p(145),
+        display: 'flex', minHeight: p(145),
         position: 'relative', background: '#fafbff',
         borderBottom: `${s(1)}px solid #d0d8f0`, flexShrink: 0,
       }}>
@@ -146,27 +146,51 @@ function CardContent({ student, admitCard, branch, qrUrl, scale = 1 }) {
           <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
 
-        {/* LEFT 70% */}
+        {/* LEFT 70% — flex column, rows grow with content */}
         <div style={{
-          flex: '0 0 70%', padding: `${p(4)} ${p(5)}`, zIndex: 1,
-          display: 'grid', gridTemplateRows: `repeat(${leftFields.length}, 1fr)`,
+          flex: '0 0 70%',
+          padding: `${s(6)}px ${s(12)}px`,
+          zIndex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: `${s(4)}px`,
         }}>
           {leftFields.map(([lbl, val], i) => (
             <div key={lbl} style={{
-              display: 'flex', alignItems: 'center',
+              display: 'grid',
+              gridTemplateColumns: `${s(140)}px ${s(20)}px 1fr`,
+              alignItems: 'start',
+              minHeight: s(36),
               background: i % 2 === 0 ? 'rgba(245,248,255,0.9)' : 'rgba(240,245,255,0.7)',
               borderBottom: i < leftFields.length - 1 ? `${s(1)}px solid #e0e8f5` : 'none',
-              padding: `0 ${p(2)}`,
+              padding: `${s(6)}px ${s(8)}px`,
+              boxSizing: 'border-box',
             }}>
-              <span style={{ color: '#5064a0', fontWeight: 700, fontSize: s(11), minWidth: p(38), flexShrink: 0 }}>{lbl}</span>
-              <span style={{ color: '#5064a0', fontWeight: 700, fontSize: s(11), marginRight: p(2) }}>:</span>
+              {/* Label */}
               <span style={{
-                color: '#0a1440', fontWeight: 700, fontSize: s(12), flex: 1,
-                overflow: 'hidden', textOverflow: 'ellipsis',
-                whiteSpace: lbl === 'Address' ? 'normal' : 'nowrap',
-                display: lbl === 'Address' ? '-webkit-box' : 'block',
-                WebkitLineClamp: lbl === 'Address' ? 2 : 1,
-                WebkitBoxOrient: 'vertical',
+                color: '#081d5b',
+                fontWeight: 700,
+                fontSize: s(15),
+                lineHeight: 1.5,
+                whiteSpace: 'nowrap',
+              }}>{lbl}</span>
+              {/* Colon */}
+              <span style={{
+                color: '#081d5b',
+                fontWeight: 700,
+                fontSize: s(15),
+                lineHeight: 1.5,
+                textAlign: 'center',
+              }}>:</span>
+              {/* Value */}
+              <span style={{
+                color: '#111111',
+                fontWeight: 600,
+                fontSize: s(15),
+                lineHeight: 1.5,
+                wordBreak: 'break-word',
+                overflowWrap: 'anywhere',
+                whiteSpace: 'normal',
               }}>
                 {val || '-'}
               </span>
