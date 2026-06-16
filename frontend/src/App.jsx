@@ -1,51 +1,57 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence as AnimatePresenceWA } from 'framer-motion';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Loader from './components/Loader';
-
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
-import Home from './pages/Home';
-import About from './pages/About';
-import Courses from './pages/Courses';
-import CourseDetail from './pages/CourseDetail';
-import Admission from './pages/Admission';
-import Login from './pages/Login';
-import ResultPage from './pages/ResultPage';
-import Gallery from './pages/Gallery';
-import Branches from './pages/Branches';
-import Staff from './pages/Staff';
-import Contact from './pages/Contact';
-import QuizPage from './pages/QuizPage';
-import StudyMaterial from './pages/StudyMaterial';
-import IDCard from './pages/IDCard';
-import Notifications from './pages/Notifications';
+// Lazy load all pages
+const Home = lazy(() => import('./pages/Home'));
+const About = lazy(() => import('./pages/About'));
+const Courses = lazy(() => import('./pages/Courses'));
+const CourseDetail = lazy(() => import('./pages/CourseDetail'));
+const Admission = lazy(() => import('./pages/Admission'));
+const Login = lazy(() => import('./pages/Login'));
+const ResultPage = lazy(() => import('./pages/ResultPage'));
+const Gallery = lazy(() => import('./pages/Gallery'));
+const Branches = lazy(() => import('./pages/Branches'));
+const Staff = lazy(() => import('./pages/Staff'));
+const Contact = lazy(() => import('./pages/Contact'));
+const QuizPage = lazy(() => import('./pages/QuizPage'));
+const StudyMaterial = lazy(() => import('./pages/StudyMaterial'));
+const IDCard = lazy(() => import('./pages/IDCard'));
+const Notifications = lazy(() => import('./pages/Notifications'));
+const ExaminationForm = lazy(() => import('./pages/ExaminationForm'));
+const AdmitCard = lazy(() => import('./pages/AdmitCard'));
+const BranchApply = lazy(() => import('./pages/BranchApply'));
+const BranchDashboard = lazy(() => import('./pages/BranchDashboard'));
+const StudentDashboard = lazy(() => import('./pages/StudentDashboard'));
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminCourses = lazy(() => import('./pages/admin/AdminCourses'));
+const AdminStudents = lazy(() => import('./pages/admin/AdminStudents'));
+const AdminResults = lazy(() => import('./pages/admin/AdminResults'));
+const AdminCertificates = lazy(() => import('./pages/admin/AdminCertificates'));
+const AdminGallery = lazy(() => import('./pages/admin/AdminGallery'));
+const AdminAdmissions = lazy(() => import('./pages/admin/AdminAdmissions'));
+const AdminStaff = lazy(() => import('./pages/admin/AdminStaff'));
+const AdminContacts = lazy(() => import('./pages/admin/AdminContacts'));
+const AdminQuiz = lazy(() => import('./pages/admin/AdminQuiz'));
+const AdminStudyMaterial = lazy(() => import('./pages/admin/AdminStudyMaterial'));
+const AdminNotifications = lazy(() => import('./pages/admin/AdminNotifications'));
+const AdminBranches = lazy(() => import('./pages/admin/AdminBranches'));
+const AdminExamForms = lazy(() => import('./pages/admin/AdminExamForms'));
+const AdminAdmitCard = lazy(() => import('./pages/admin/AdminAdmitCard'));
 
-import ExaminationForm from './pages/ExaminationForm';
-import AdmitCard from './pages/AdmitCard';
-import AdminLayout from './pages/admin/AdminLayout';
-import AdminExamForms from './pages/admin/AdminExamForms';
-import AdminAdmitCard from './pages/admin/AdminAdmitCard';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminCourses from './pages/admin/AdminCourses';
-import AdminStudents from './pages/admin/AdminStudents';
-import AdminResults from './pages/admin/AdminResults';
-import AdminCertificates from './pages/admin/AdminCertificates';
-import AdminGallery from './pages/admin/AdminGallery';
-import AdminAdmissions from './pages/admin/AdminAdmissions';
-import AdminStaff from './pages/admin/AdminStaff';
-import AdminContacts from './pages/admin/AdminContacts';
-import AdminQuiz from './pages/admin/AdminQuiz';
-import AdminStudyMaterial from './pages/admin/AdminStudyMaterial';
-import AdminNotifications from './pages/admin/AdminNotifications';
-import AdminBranches from './pages/admin/AdminBranches';
-import BranchDashboard from './pages/BranchDashboard';
-import BranchApply from './pages/BranchApply';
-import StudentDashboard from './pages/StudentDashboard';
+const PageLoader = () => (
+  <div className="min-h-[60vh] flex items-center justify-center">
+    <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+  </div>
+);
+
 
 const WHATSAPP_NUMBER = '919936384736';
 const AUTO_MESSAGES = [
@@ -75,7 +81,7 @@ function ChatBox() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[999] flex flex-col items-end gap-3">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[999] flex flex-col items-end gap-3">
 
       {/* Chat Box */}
       <AnimatePresenceWA>
@@ -85,7 +91,7 @@ function ChatBox() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.25 }}
-            className="w-80 rounded-2xl shadow-2xl overflow-hidden border border-green-100"
+            className="w-[calc(100vw-32px)] max-w-sm sm:w-80 rounded-2xl shadow-2xl overflow-hidden border border-green-100"
           >
             <div className="flex items-center gap-3 px-4 py-3" style={{ background: '#075E54' }}>
               <div className="relative">
@@ -228,6 +234,7 @@ export default function App() {
       <BrowserRouter>
         <RouteLoader />
         <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+        <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
           <Route path="/about" element={<PublicLayout><About /></PublicLayout>} />
@@ -268,6 +275,7 @@ export default function App() {
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </AuthProvider>
     </ThemeProvider>

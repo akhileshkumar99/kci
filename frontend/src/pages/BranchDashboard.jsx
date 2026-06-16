@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import {
   Building2, Users, ClipboardList, Award, FileText, LogOut,
   TrendingUp, BookOpen, CheckCircle, Clock, Search, Eye, X,
-  Plus, Pencil, Trash2, Check, UserCheck, ClipboardCheck, Sun, Moon
+  Plus, Pencil, Trash2, Check, UserCheck, ClipboardCheck, Sun, Moon, Download, Upload
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
+
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, AreaChart, Area
@@ -90,6 +92,7 @@ function StudentForm({ initial, onSave, onClose, saving }) {
   const [form, setForm] = useState(initial);
   const [showPass, setShowPass] = useState(false);
   const set = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
+  const [photoFile, setPhotoFile] = useState(null);
   const textFields = [
     { name: 'name', label: 'Full Name *', placeholder: 'Student full name', span2: true },
     { name: 'email', label: 'Email *', placeholder: 'student@email.com', type: 'email', span2: true },
@@ -99,7 +102,26 @@ function StudentForm({ initial, onSave, onClose, saving }) {
     { name: 'dob', label: 'Date of Birth', type: 'date' },
   ];
   return (
-    <form onSubmit={e => { e.preventDefault(); onSave(form); }} className="space-y-4">
+    <form onSubmit={e => { e.preventDefault(); onSave(form, photoFile); }} className="space-y-4">
+      {/* Photo */}
+      <div className="flex items-center gap-4">
+        {(photoFile || initial.photo) ? (
+          <img
+            src={photoFile ? URL.createObjectURL(photoFile) : `${import.meta.env.VITE_API_URL || ''}${initial.photo}`}
+            alt="" className="w-16 h-16 rounded-full object-cover border-2 border-blue-200 flex-shrink-0" />
+        ) : (
+          <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center border-2 border-blue-200 flex-shrink-0">
+            <span className="text-xl font-bold text-blue-600">{(form.name || 'S')[0].toUpperCase()}</span>
+          </div>
+        )}
+        <div className="flex-1">
+          <label className="text-xs font-semibold text-gray-600 block mb-1">Student Photo</label>
+          <label className="flex items-center gap-2 px-3 py-2 border border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
+            <input type="file" className="hidden" accept="image/*" onChange={e => setPhotoFile(e.target.files[0])} />
+            <span className="text-xs text-gray-500">{photoFile ? photoFile.name : initial.photo ? 'Click to change photo' : 'Click to upload photo'}</span>
+          </label>
+        </div>
+      </div>
       <div className="grid grid-cols-2 gap-4">
         {textFields.map(({ name, label, placeholder, type = 'text', span2 }) => (
           <div key={name} className={`space-y-1 ${span2 ? 'col-span-2' : ''}`}>
@@ -165,6 +187,7 @@ function StudentForm({ initial, onSave, onClose, saving }) {
 }
 
 function ViewModal({ title, data, fields, onClose }) {
+  const [imgPreview, setImgPreview] = useState(null);
   const format = (key, val) => {
     if (val === null || val === undefined || val === '') return '—';
     if (key === 'isApproved' || key === 'isActive') return val ? 'Approved ✓' : 'Pending';
@@ -176,6 +199,30 @@ function ViewModal({ title, data, fields, onClose }) {
   };
   return (
     <Modal title={title} onClose={onClose}>
+      {data.photo !== undefined && (
+        <div className="flex justify-center mb-5">
+          {data.photo ? (
+            <img
+              src={`${import.meta.env.VITE_API_URL || ''}${data.photo}`}
+              alt={data.name}
+              onClick={() => setImgPreview(`${import.meta.env.VITE_API_URL || ''}${data.photo}`)}
+              className="w-24 h-24 rounded-full object-cover border-4 border-blue-100 shadow-md cursor-pointer hover:opacity-90 hover:scale-105 transition-all"
+            />
+          ) : (
+            <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center border-4 border-blue-100 shadow-md">
+              <span className="text-3xl font-black text-blue-600">{(data.name || 'S')[0].toUpperCase()}</span>
+            </div>
+          )}
+        </div>
+      )}
+      {imgPreview && (
+        <div className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4" onClick={() => setImgPreview(null)}>
+          <img src={imgPreview} alt="Preview" className="max-w-full max-h-full rounded-2xl shadow-2xl object-contain" />
+          <button onClick={() => setImgPreview(null)} className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 rounded-full p-2 transition-colors">
+            <X className="w-6 h-6 text-white" />
+          </button>
+        </div>
+      )}
       <div className="space-y-2.5">
         {fields.map(([label, key]) => (
           <div key={key} className="flex justify-between items-start gap-4 py-2 border-b border-gray-50 last:border-0">
@@ -664,6 +711,44 @@ export default function BranchDashboard() {
   const [selectedTest, setSelectedTest] = useState(null);
   const [testAttempts, setTestAttempts] = useState([]);
   const [savingTest, setSavingTest] = useState(false);
+  const importRef = useRef();
+
+  const exportExcel = () => {
+    const rows = students.map(s => ({
+      Name: s.name, Email: s.email, Phone: s.phone || '',
+      'Enrollment No': s.enrollmentNumber || '', 'Roll No': s.rollNumber || '',
+      'Form No': s.formNo || '', Course: s.courseName || '',
+      Batch: s.batch || '', Status: s.isApproved ? 'Approved' : 'Pending',
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Students');
+    XLSX.writeFile(wb, `Branch_Students_${Date.now()}.xlsx`);
+    toast.success('Exported!');
+  };
+
+  const importExcel = async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        const wb = XLSX.read(ev.target.result, { type: 'binary' });
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+        let added = 0;
+        for (const row of rows) {
+          if (!row.Name || !row.Email) continue;
+          try {
+            await api.post('/branch/students', { name: row.Name, email: row.Email, phone: row.Phone || '', batch: row.Batch || '', courseName: row.Course || '' });
+            added++;
+          } catch {}
+        }
+        toast.success(`${added} students imported!`);
+        loadData();
+      } catch { toast.error('Invalid Excel file'); }
+    };
+    reader.readAsBinaryString(file);
+    e.target.value = '';
+  };
 
   const loadData = () => {
     api.get('/branch/dashboard-stats').then(r => setStats(r.data.stats)).catch(() => {});
@@ -681,11 +766,14 @@ export default function BranchDashboard() {
 
   const handleLogout = () => { logout(); navigate('/'); };
 
-  const handleAddStudent = async form => {
+  const handleAddStudent = async (form, photoFile) => {
     if (!form.name || !form.email) return toast.error('Name and email required');
     setSaving(true);
     try {
-      const r = await api.post('/branch/students', form);
+      const fd = new FormData();
+      Object.entries(form).forEach(([k, v]) => v && fd.append(k, v));
+      if (photoFile) fd.append('photo', photoFile);
+      const r = await api.post('/branch/students', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       setStudents(p => [r.data.student, ...p]);
       setModal(null);
       toast.success('Student added! Approve to send login credentials.');
@@ -693,10 +781,13 @@ export default function BranchDashboard() {
     setSaving(false);
   };
 
-  const handleEditStudent = async form => {
+  const handleEditStudent = async (form, photoFile) => {
     setSaving(true);
     try {
-      const r = await api.put(`/branch/students/${selected._id}`, form);
+      const fd = new FormData();
+      Object.entries(form).forEach(([k, v]) => v !== undefined && v !== null && fd.append(k, v));
+      if (photoFile) fd.append('photo', photoFile);
+      const r = await api.put(`/branch/students/${selected._id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       setStudents(p => p.map(s => s._id === selected._id ? r.data.student : s));
       setModal(null);
       toast.success('Student updated!');
@@ -1153,6 +1244,15 @@ export default function BranchDashboard() {
                   <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..."
                     className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-white w-48 font-medium" />
                 </div>
+                <input ref={importRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={importExcel} />
+                <button onClick={() => importRef.current.click()}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700 transition-colors shadow-md">
+                  <Upload className="w-4 h-4" /> Import
+                </button>
+                <button onClick={exportExcel}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-colors shadow-md">
+                  <Download className="w-4 h-4" /> Export
+                </button>
                 <button onClick={() => { setSelected(null); setModal('add'); }}
                   className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold transition-all shadow-md hover:-translate-y-0.5">
                   <Plus className="w-4 h-4" /> Add Student
@@ -1168,13 +1268,25 @@ export default function BranchDashboard() {
                     ))}</tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {filtered(students, ['name', 'rollNumber', 'courseName', 'phone']).map((s, i) => (
+                    {filtered(students, ['name', 'enrollmentNumber', 'rollNumber', 'courseName', 'phone']).map((s, i) => (
                       <tr key={s._id} className={`hover:bg-blue-50/50 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
                         <td className="px-4 py-3">
-                          <div className="font-black text-gray-900">{s.name}</div>
-                          <div className="text-xs font-semibold text-gray-500">{s.email}</div>
+                          <div className="flex items-center gap-3">
+                            {s.photo ? (
+                              <img src={`${import.meta.env.VITE_API_URL || ''}${s.photo}`} alt={s.name}
+                                className="w-9 h-9 rounded-full object-cover border-2 border-blue-100 flex-shrink-0" />
+                            ) : (
+                              <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                <span className="text-sm font-bold text-blue-600">{s.name[0].toUpperCase()}</span>
+                              </div>
+                            )}
+                            <div>
+                              <div className="font-black text-gray-900">{s.name}</div>
+                              <div className="text-xs font-semibold text-gray-500">{s.email}</div>
+                            </div>
+                          </div>
                         </td>
-                        <td className="px-4 py-3 font-black font-mono text-blue-700 text-sm">{s.rollNumber || '—'}</td>
+                        <td className="px-4 py-3 font-black font-mono text-green-700 text-sm">{s.enrollmentNumber || '—'}</td>
                         <td className="px-4 py-3 font-bold text-gray-700 text-xs">{s.courseName || '—'}</td>
                         <td className="px-4 py-3 font-bold text-gray-700 text-xs">{s.phone || '—'}</td>
                         <td className="px-4 py-3">
