@@ -15,7 +15,6 @@ const navLinks = [
   { label: 'Staff', path: '/staff' },
   { label: 'Contact', path: '/contact' },
   { label: 'Exam Form', path: '/exam-form' },
-  { label: 'Admit Card', path: '/admit-card' },
 ];
 
 export default function Navbar() {

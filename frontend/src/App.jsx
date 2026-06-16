@@ -247,7 +247,6 @@ export default function App() {
           <Route path="/notifications" element={<PublicLayout><Notifications /></PublicLayout>} />
           <Route path="/branch-apply" element={<PublicLayout><BranchApply /></PublicLayout>} />
           <Route path="/exam-form" element={<PublicLayout><ExaminationForm /></PublicLayout>} />
-          <Route path="/admit-card" element={<PublicLayout><AdmitCard /></PublicLayout>} />
           <Route path="/branch-dashboard" element={<BranchDashboard />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} />
           <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>

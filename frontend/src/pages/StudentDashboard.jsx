@@ -15,10 +15,10 @@ import api from '../utils/api';
 import DevCredit from '../components/DevCredit';
 import AdmitCardComponent from '../components/AdmitCard';
 
-const tabs = [
+const ALL_TABS = [
   { id: 'profile', label: 'My Profile', icon: User },
   { id: 'idcard', label: 'ID Card', icon: CreditCard },
-  { id: 'admitcard', label: 'Admit Card', icon: FileText },
+  { id: 'admitcard', label: 'Admit Card', icon: FileText, adminControlled: true },
   { id: 'results', label: 'My Results', icon: Award },
   { id: 'certificates', label: 'Certificates', icon: Award },
   { id: 'studymaterial', label: 'Study Material', icon: BookMarked },
@@ -714,6 +714,7 @@ export default function StudentDashboard() {
   const [pwForm, setPwForm] = useState({ current: '', newPw: '', confirm: '' });
   const [pwLoading, setPwLoading] = useState(false);
   const [admitCard, setAdmitCard] = useState(null);
+  const [admitCardEnabled, setAdmitCardEnabled] = useState(false);
 
   useEffect(() => {
     if (!user) { navigate('/login'); return; }
@@ -725,10 +726,14 @@ export default function StudentDashboard() {
     api.get('/branch/student/tests').then(r => setTests(r.data.tests || [])).catch(() => {});
     api.get('/study-material').then(r => setStudyMaterials(r.data.materials || [])).catch(() => {});
     api.get('/admit-card/my').then(r => setAdmitCard(r.data.admitCard || null)).catch(() => {});
+    api.get('/admit-card/setting').then(r => setAdmitCardEnabled(r.data.enabled || false)).catch(() => {});
   }, [user?.id]);
 
   const handleLogout = () => { logout(); navigate('/'); };
   const { student, results, certificates, branch } = data;
+
+  // Only show Admit Card tab when admin has enabled it
+  const tabs = ALL_TABS.filter(t => !t.adminControlled || admitCardEnabled);
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
@@ -1192,13 +1197,13 @@ export default function StudentDashboard() {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-7 gap-2 sm:gap-3">
                 {[
                   { label: 'View ID Card', icon: CreditCard, color: 'from-blue-500 to-blue-600', tab: 'idcard' },
-                  { label: 'Admit Card', icon: FileText, color: 'from-indigo-500 to-indigo-600', tab: 'admitcard' },
+                  { label: 'Admit Card', icon: FileText, color: 'from-indigo-500 to-indigo-600', tab: 'admitcard', adminControlled: true },
                   { label: 'My Results', icon: Award, color: 'from-yellow-500 to-orange-500', tab: 'results' },
                   { label: 'Certificates', icon: Award, color: 'from-teal-500 to-emerald-600', tab: 'certificates' },
                   { label: 'Study Material', icon: BookMarked, color: 'from-green-500 to-green-600', tab: 'studymaterial' },
                   { label: 'Take Test', icon: ClipboardCheck, color: 'from-violet-500 to-purple-600', tab: 'tests' },
                   { label: 'Change Password', icon: Lock, color: 'from-rose-500 to-red-600', tab: 'changepassword' },
-                ].map(({ label, icon: Icon, color, tab }) => (
+                ].filter(a => !a.adminControlled || admitCardEnabled).map(({ label, icon: Icon, color, tab }) => (
                   <button key={label} onClick={() => setActiveTab(tab)}
                     className={`flex flex-col items-center gap-2 p-4 bg-gradient-to-br ${color} rounded-2xl text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all`}>
                     <Icon className="w-6 h-6" />
