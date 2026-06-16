@@ -676,15 +676,19 @@ router.get('/student/tests/:id/result', protect, async (req, res) => {
 // Branch: Add student
 router.post('/students', protect, branchAuth, uploadStudent.single('photo'), async (req, res) => {
   try {
-    const { name, email, phone, fatherName, dob, address, courseName, batch, course } = req.body;
+    const { name, email, phone, fatherName, dob, address, courseName, batch } = req.body;
     if (!name || !email) return res.status(400).json({ success: false, message: 'Name and email required' });
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ success: false, message: 'Email already registered' });
     const { rollNumber, enrollmentNumber, registrationNumber, formNo } = await generateStudentNumbers();
     const tempPassword = 'pending_' + Date.now();
+    // Only set course if it's a valid 24-char ObjectId string
+    const courseId = req.body.course && typeof req.body.course === 'string' && /^[a-f\d]{24}$/i.test(req.body.course)
+      ? req.body.course : undefined;
     const student = await User.create({
       name, email, password: tempPassword, phone, fatherName, dob, address,
-      courseName, batch, course, rollNumber, enrollmentNumber, registrationNumber, formNo,
+      courseName, batch, rollNumber, enrollmentNumber, registrationNumber, formNo,
+      ...(courseId && { course: courseId }),
       role: 'student',
       branchId: req.user._id,
       branchName: req.user.branchName,
@@ -709,6 +713,14 @@ router.put('/students/:id', protect, branchAuth, uploadStudent.single('photo'), 
       return res.status(403).json({ success: false, message: 'Access denied' });
     const updates = { ...req.body };
     delete updates.role;
+    // Sanitize course — only keep valid ObjectId string
+    if (updates.course !== undefined) {
+      if (typeof updates.course === 'string' && /^[a-f\d]{24}$/i.test(updates.course)) {
+        // valid, keep it
+      } else {
+        delete updates.course;
+      }
+    }
     if (req.file) updates.photo = req.file.path;
     // Handle password change
     if (updates.newPassword && updates.newPassword.trim()) {
