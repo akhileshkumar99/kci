@@ -88,7 +88,11 @@ const COURSES = [
   'Course On Computer Concept (CCC from NIELIT)',
 ];
 
-function StudentForm({ initial, onSave, onClose, saving }) {
+const getPhotoUrl = (photo) => {
+  if (!photo) return null;
+  if (photo.startsWith('http')) return photo;
+  return `${import.meta.env.VITE_API_URL || ''}${photo}`;
+};
   const [form, setForm] = useState(initial);
   const [showPass, setShowPass] = useState(false);
   const set = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
@@ -107,7 +111,7 @@ function StudentForm({ initial, onSave, onClose, saving }) {
       <div className="flex items-center gap-4">
         {(photoFile || initial.photo) ? (
           <img
-            src={photoFile ? URL.createObjectURL(photoFile) : `${import.meta.env.VITE_API_URL || ''}${initial.photo}`}
+            src={photoFile ? URL.createObjectURL(photoFile) : getPhotoUrl(initial.photo)}
             alt="" className="w-16 h-16 rounded-full object-cover border-2 border-blue-200 flex-shrink-0" />
         ) : (
           <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center border-2 border-blue-200 flex-shrink-0">
@@ -203,9 +207,9 @@ function ViewModal({ title, data, fields, onClose }) {
         <div className="flex justify-center mb-5">
           {data.photo ? (
             <img
-              src={`${import.meta.env.VITE_API_URL || ''}${data.photo}`}
+              src={getPhotoUrl(data.photo)}
               alt={data.name}
-              onClick={() => setImgPreview(`${import.meta.env.VITE_API_URL || ''}${data.photo}`)}
+              onClick={() => setImgPreview(getPhotoUrl(data.photo))}
               className="w-24 h-24 rounded-full object-cover border-4 border-blue-100 shadow-md cursor-pointer hover:opacity-90 hover:scale-105 transition-all"
             />
           ) : (
@@ -1273,7 +1277,7 @@ export default function BranchDashboard() {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             {s.photo ? (
-                              <img src={`${import.meta.env.VITE_API_URL || ''}${s.photo}`} alt={s.name}
+                              <img src={getPhotoUrl(s.photo)} alt={s.name}
                                 className="w-9 h-9 rounded-full object-cover border-2 border-blue-100 flex-shrink-0" />
                             ) : (
                               <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">

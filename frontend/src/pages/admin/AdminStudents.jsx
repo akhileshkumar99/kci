@@ -29,6 +29,12 @@ const COURSES = [
   'Course On Computer Concept (CCC from NIELIT)',
 ];
 
+const getPhotoUrl = (photo) => {
+  if (!photo) return null;
+  if (photo.startsWith('http')) return photo;
+  return `${import.meta.env.VITE_API_URL || ''}${photo}`;
+};
+
 const emptyForm = { name: '', email: '', phone: '', batch: '', admissionDate: '', courseName: '', photo: null };
 
 export default function AdminStudents() {
@@ -267,20 +273,34 @@ export default function AdminStudents() {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
-              <tr>{['Name', 'Roll No.', 'Enrollment No.', 'Form No.', 'Phone', 'Course', 'Batch', 'Actions'].map(h => (
+              <tr>{['Name', 'Enrollment No.', 'Phone', 'Course', 'Batch', 'Status', 'Actions'].map(h => (
                 <th key={h} className="text-left p-4 font-semibold text-gray-600">{h}</th>
               ))}</tr>
             </thead>
             <tbody>
               {filtered.map(s => (
                 <tr key={s._id} className="border-t border-gray-100 hover:bg-gray-50">
-                  <td className="p-4 font-medium text-gray-900">{s.name}</td>
-                  <td className="p-4"><span className="px-2 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-mono">{s.rollNumber || '—'}</span></td>
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      {s.photo ? (
+                        <img src={getPhotoUrl(s.photo)} alt={s.name}
+                          className="w-9 h-9 rounded-full object-cover border-2 border-blue-100 flex-shrink-0" />
+                      ) : (
+                        <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-bold text-blue-600">{s.name[0].toUpperCase()}</span>
+                        </div>
+                      )}
+                      <div>
+                        <div className="font-medium text-gray-900">{s.name}</div>
+                        <div className="text-xs text-gray-400">{s.email}</div>
+                      </div>
+                    </div>
+                  </td>
                   <td className="p-4"><span className="px-2 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-mono">{s.enrollmentNumber || '—'}</span></td>
-                  <td className="p-4"><span className="px-2 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-mono">{s.formNo || '—'}</span></td>
                   <td className="p-4 text-gray-600">{s.phone || '—'}</td>
                   <td className="p-4 text-gray-600 max-w-[160px] truncate">{s.courseName || s.course?.title || '—'}</td>
                   <td className="p-4 text-gray-600">{s.batch || '—'}</td>
+                  <td className="p-4"><span className={`px-2 py-1 rounded-lg text-xs font-semibold ${s.isApproved ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>{s.isApproved ? '✓ Approved' : 'Pending'}</span></td>
                   <td className="p-4">
                     <div className="flex items-center gap-1">
                       <button onClick={() => { setViewStudent(s); setViewModal(true); }} className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="View"><Eye className="w-4 h-4" /></button>
@@ -290,7 +310,7 @@ export default function AdminStudents() {
                   </td>
                 </tr>
               ))}
-              {filtered.length === 0 && <tr><td colSpan={8} className="p-8 text-center text-gray-500">No students found</td></tr>}
+              {filtered.length === 0 && <tr><td colSpan={7} className="p-8 text-center text-gray-500">No students found</td></tr>}
             </tbody>
           </table>
         </div>
@@ -308,9 +328,9 @@ export default function AdminStudents() {
               <div className="flex items-center justify-center mb-4">
                 {viewStudent.photo ? (
                   <img
-                    src={`${import.meta.env.VITE_API_URL || ''}${viewStudent.photo}`}
+                    src={getPhotoUrl(viewStudent.photo)}
                     alt={viewStudent.name}
-                    onClick={() => setImgPreview(`${import.meta.env.VITE_API_URL || ''}${viewStudent.photo}`)}
+                    onClick={() => setImgPreview(getPhotoUrl(viewStudent.photo))}
                     className="w-20 h-20 rounded-full object-cover border-4 border-blue-100 shadow cursor-pointer hover:opacity-90 transition-opacity"
                   />
                 ) : (
