@@ -1139,7 +1139,7 @@ export default function StudentDashboard() {
                 <div className="px-4 pb-4">
                   <div className="bg-violet-50 rounded-xl p-3 border border-violet-100">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-violet-700">ðŸ“Š Academic Progress</span>
+                      <span className="text-xs font-bold text-violet-700 flex items-center gap-1"><TrendingUp className="w-3.5 h-3.5" /> Academic Progress</span>
                       <span className="text-xs font-black text-violet-700">{results.length > 0 ? Math.round(results.reduce((a,r) => a + (r.percentage||0), 0) / results.length) : 0}% avg</span>
                     </div>
                     <div className="h-2 bg-violet-200 rounded-full overflow-hidden">
