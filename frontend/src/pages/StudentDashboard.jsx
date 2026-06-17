@@ -242,15 +242,15 @@ function gradeColor(grade) {
 // â”€â”€â”€ PDF Download â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function downloadResultPDF(r, student, branch) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  const W = 210, M = 14;
+  const W = 210, H = 297, M = 10;
 
-  // â”€â”€ Circular logo via canvas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // circular logo
   let logoDataUrl = null;
   try {
     const img = await new Promise((res, rej) => {
       const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = '/logo.png';
     });
-    const sz = 300;
+    const sz = 400;
     const cv = document.createElement('canvas'); cv.width = sz; cv.height = sz;
     const cx = cv.getContext('2d');
     cx.beginPath(); cx.arc(sz/2, sz/2, sz/2, 0, Math.PI*2); cx.closePath(); cx.clip();
@@ -258,171 +258,230 @@ async function downloadResultPDF(r, student, branch) {
     logoDataUrl = cv.toDataURL('image/png');
   } catch (_) {}
 
-  // â”€â”€ HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  // Deep blue bg
-  doc.setFillColor(15, 40, 110);
-  doc.rect(0, 0, W, 48, 'F');
-  // Accent stripe
-  doc.setFillColor(250, 204, 21);
-  doc.rect(0, 48, W, 2.5, 'F');
+  // OUTER RED BORDER
+  doc.setDrawColor(214, 40, 40);
+  doc.setLineWidth(1.2);
+  doc.roundedRect(M, M, W - M*2, H - M*2, 5, 5, 'S');
+  doc.setLineWidth(0.4);
+  doc.roundedRect(M+2, M+2, W-M*2-4, H-M*2-4, 4, 4, 'S');
 
-  // Logo â€” left side, big
-  const LS = 34;
-  if (logoDataUrl) doc.addImage(logoDataUrl, 'PNG', M, 7, LS, LS);
+  let curY = M + 5;
 
-  // Institute text â€” right of logo
-  const tx = M + LS + 6;
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(17);
-  doc.setFont('helvetica', 'bold');
-  doc.text('KEERTI COMPUTER INSTITUTE', tx, 18);
+  // GOVT BAR
+  doc.setFillColor(214, 40, 40);
+  doc.rect(M+3, curY, W-M*2-6, 6, 'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(6); doc.setFont('helvetica','bold');
+  doc.text('Under Govt. of U.P Registration   |   Under Govt. of India (MHRD)   |   ISO Registration No. : UAS/2017/155491', W/2, curY+4, { align:'center' });
+  curY += 8;
 
-  doc.setFontSize(8.5);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(180, 210, 255);
-  doc.text('Govt. Recognised | Est. 2005 | www.kci.org.in', tx, 26);
+  // HEADER
+  const hdrTop = curY;
+  if (logoDataUrl) doc.addImage(logoDataUrl, 'PNG', M+5, hdrTop+1, 26, 26);
 
-  doc.setFontSize(7.5);
-  doc.setTextColor(200, 220, 255);
-  doc.text('Excellence in Computer Education Since 2005', tx, 33);
+  doc.setTextColor(8,29,91); doc.setFontSize(17); doc.setFont('helvetica','bold');
+  doc.text('KEERTI COMPUTER INSTITUTE', W/2, hdrTop+9, { align:'center' });
+  doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
+  doc.text('AN ISO 9001:2015 CERTIFIED ORGANIZATION', W/2, hdrTop+14.5, { align:'center' });
+  doc.setFontSize(6.5); doc.setTextColor(100,100,100);
+  doc.text('Regd. Under Govt. of U.P. & Govt. of India (MHRD)  |  Regd. No. KCI/2005/AYD', W/2, hdrTop+19.5, { align:'center' });
+  doc.text('Head Office: KCI Building, Civil Lines, Ayodhya, U.P. - 224001', W/2, hdrTop+24, { align:'center' });
+  doc.text('www.kci.org.in  |  info@kci.org.in  |  Mo.: 9936384736', W/2, hdrTop+28.5, { align:'center' });
 
-  // RESULT CARD pill
-  doc.setFillColor(250, 204, 21);
-  doc.roundedRect(tx, 37, 48, 8, 2, 2, 'F');
-  doc.setTextColor(15, 40, 110);
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
-  doc.text('RESULT CARD', tx + 24, 42.5, { align: 'center' });
+  // right cert box
+  const rbX = W-M-34;
+  doc.setDrawColor(214,40,40); doc.setLineWidth(0.5);
+  doc.rect(rbX, hdrTop+2, 31, 24, 'S');
+  doc.setFontSize(5.5); doc.setFont('helvetica','bold'); doc.setTextColor(214,40,40);
+  doc.text('AFFILIATED WITH', rbX+15.5, hdrTop+6, { align:'center' });
+  doc.setFontSize(5); doc.setFont('helvetica','normal'); doc.setTextColor(40,40,40);
+  doc.text('NSDC | MHRD | UP Govt.', rbX+15.5, hdrTop+10, { align:'center' });
+  doc.text('NIELIT | DOEACC', rbX+15.5, hdrTop+14, { align:'center' });
+  doc.text('ISO 9001:2015 CERTIFIED', rbX+15.5, hdrTop+18, { align:'center' });
+  curY = hdrTop + 32;
 
-  // â”€â”€ STUDENT INFO BOX â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  doc.setFillColor(245, 248, 255);
-  doc.setDrawColor(200, 210, 240);
-  doc.roundedRect(M, 56, W - M*2, 46, 3, 3, 'FD');
+  // RED DIVIDER
+  doc.setDrawColor(214,40,40); doc.setLineWidth(1.0);
+  doc.line(M+3, curY, W-M-3, curY);
+  curY += 3;
 
-  // Section label
-  doc.setFillColor(15, 40, 110);
-  doc.roundedRect(M, 56, 38, 7, 2, 2, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(7.5);
-  doc.setFont('helvetica', 'bold');
-  doc.text('STUDENT DETAILS', M + 19, 60.8, { align: 'center' });
+  // DEPT HEADING green
+  doc.setTextColor(15,123,15); doc.setFontSize(8); doc.setFont('helvetica','bold');
+  doc.text('(Department of Secondary and Higher Education)', W/2, curY+4, { align:'center' });
+  curY += 8;
 
-  // Fixed column positions â€” label | value | label | value
-  // Left:  label@18  value@46   (max width = 90-46 = 44mm)
-  // Right: label@108 value@132  (max width = 196-132 = 64mm)
-  const LBL1 = M + 4;        // 18
-  const VAL1 = M + 32;       // 46  â€” value starts here
-  const LBL2 = W / 2 + 2;   // 107
-  const VAL2 = W / 2 + 26;  // 131
-  const VMAXL = W / 2 - VAL1 - 4;   // ~49mm â€” left value max width
-  const VMAXR = W - M - VAL2 - 2;   // ~63mm â€” right value max width
+  // MEMORANDUM TITLE orange
+  doc.setTextColor(255,140,0); doc.setFontSize(13); doc.setFont('helvetica','bold');
+  doc.text('MEMORANDUM OF MARKS', W/2, curY+7, { align:'center' });
+  const tw = doc.getTextWidth('MEMORANDUM OF MARKS');
+  doc.setDrawColor(255,140,0); doc.setLineWidth(0.6);
+  doc.line(W/2 - tw/2, curY+9, W/2 + tw/2, curY+9);
+  curY += 14;
 
-  const infoRows = [
-    ['Student Name', student?.name || r.studentName || 'â€”', 'Roll No.', r.rollNumber || 'â€”'],
-    ['Course',       r.courseName || 'â€”',                   'Batch',    r.batch || 'â€”'],
-    ['Branch',       branch?.branchName || 'â€”',             'Exam Date', r.examDate ? new Date(r.examDate).toLocaleDateString('en-IN') : 'â€”'],
+  // RED DIVIDER 2
+  doc.setDrawColor(214,40,40); doc.setLineWidth(0.6);
+  doc.line(M+3, curY, W-M-3, curY);
+  curY += 4;
+
+  // STUDENT INFO BOX
+  const infoBoxTop = curY;
+  const infoBoxH = 28;
+  doc.setDrawColor(200,200,200); doc.setLineWidth(0.3);
+  doc.rect(M+3, infoBoxTop, W-M*2-6, infoBoxH, 'S');
+  doc.line(W/2+2, infoBoxTop, W/2+2, infoBoxTop+infoBoxH);
+
+  const pct = r.percentage ?? (r.totalMarks ? Math.round((r.obtainedMarks/r.totalMarks)*100) : 0);
+  const gradeCalc = (p) => p>=90?'S':p>=70?'A':p>=60?'B':p>=50?'C':p>=40?'D':'Fail';
+  const grade = r.grade || gradeCalc(pct);
+
+  const LX = M+6, RX = W/2+6;
+  const leftRows = [
+    ['Student Name', student?.name || r.studentName || '-'],
+    ['Father Name',  student?.fatherName || '-'],
+    ['Course',       r.courseName || '-'],
   ];
-  infoRows.forEach(([l1, v1, l2, v2], i) => {
-    const y = 70 + i * 11;
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(80, 100, 160);
-    doc.text(l1 + ' :', LBL1, y);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(15, 15, 15);
-    doc.text(String(v1), VAL1, y, { maxWidth: VMAXL });
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(80, 100, 160);
-    doc.text(l2 + ' :', LBL2, y);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(15, 15, 15);
-    doc.text(String(v2), VAL2, y, { maxWidth: VMAXR });
+  const rightRows = [
+    ['Enrollment No', student?.enrollmentNumber || student?.rollNumber || r.rollNumber || '-'],
+    ['Reg. No',       student?.formNo || r.rollNumber || '-'],
+    ['District',      student?.address?.split(',').pop()?.trim() || branch?.branchCity || '-'],
+  ];
+  doc.setFontSize(8);
+  leftRows.forEach(([lbl,val],i) => {
+    const y = infoBoxTop+7+i*8;
+    doc.setFont('helvetica','bold'); doc.setTextColor(8,29,91); doc.text(lbl+' :', LX, y);
+    const lw = doc.getTextWidth(lbl+' :');
+    doc.setFont('helvetica','normal'); doc.setTextColor(17,17,17);
+    doc.text(String(val), LX+lw+2, y, { maxWidth: W/2-LX-8 });
   });
+  rightRows.forEach(([lbl,val],i) => {
+    const y = infoBoxTop+7+i*8;
+    doc.setFont('helvetica','bold'); doc.setTextColor(8,29,91); doc.text(lbl+' :', RX, y);
+    const lw = doc.getTextWidth(lbl+' :');
+    doc.setFont('helvetica','normal'); doc.setTextColor(17,17,17);
+    doc.text(String(val), RX+lw+2, y, { maxWidth: W-M-6-RX-lw-2 });
+  });
+  curY = infoBoxTop + infoBoxH + 4;
 
-  // â”€â”€ SUBJECT TABLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  const subjectRows = (r.subjects || []).map((s, i) => [
-    i + 1,
-    s.name || 'â€”',
-    s.maxMarks ?? 'â€”',
-    s.obtainedMarks ?? 'â€”',
-    s.maxMarks && s.obtainedMarks != null ? ((s.obtainedMarks / s.maxMarks) * 100).toFixed(1) + '%' : 'â€”',
-    s.obtainedMarks >= s.maxMarks * 0.33 ? 'Pass' : 'Fail',
-  ]);
+  // WATERMARK behind table
+  if (logoDataUrl) {
+    doc.saveGraphicsState();
+    doc.setGState(new doc.GState({ opacity: 0.05 }));
+    doc.addImage(logoDataUrl, 'PNG', W/2-35, curY+15, 70, 70);
+    doc.restoreGraphicsState();
+  }
+
+  // SUBJECT TABLE
+  const kciSubjects = [
+    'Computer Fundamentals (MS-DOS, Windows & I/O System)',
+    'Microsoft Office (Word, Excel, PowerPoint & Access)',
+    'Desktop Publishing (PageMaker, CorelDraw & Photoshop)',
+    'Tally Accounting (Tally ERP)',
+    'C & C++ Language',
+    'HTML & DHTML',
+    'Java & Visual Basic',
+    'Printing, Multimedia & Internet',
+    'Practical',
+  ];
+
+  const subjectRows = (r.subjects && r.subjects.length > 0)
+    ? r.subjects.map((s, i) => [i+1, s.name || kciSubjects[i] || '-', s.maxMarks ?? 100, s.obtainedMarks ?? '-'])
+    : kciSubjects.map((name, i) => [i+1, name, 100, '-']);
 
   autoTable(doc, {
-    startY: 108,
-    head: [['#', 'Subject Name', 'Max Marks', 'Obtained', 'Percentage', 'Status']],
+    startY: curY,
+    head: [['S.No', 'Subjects', 'Max Marks', 'Obtained Marks']],
     body: subjectRows,
     theme: 'grid',
-    headStyles: { fillColor: [15, 40, 110], textColor: [255,255,255], fontStyle: 'bold', fontSize: 9, cellPadding: 3 },
-    bodyStyles: { fontSize: 9, textColor: [20, 20, 20], cellPadding: 3 },
-    alternateRowStyles: { fillColor: [245, 248, 255] },
+    headStyles: { fillColor:[214,40,40], textColor:[255,255,255], fontStyle:'bold', fontSize:8, cellPadding:2.5, halign:'center' },
+    bodyStyles: { fontSize:8, textColor:[17,17,17], cellPadding:2.2 },
+    alternateRowStyles: { fillColor:[253,245,245] },
     columnStyles: {
-      0: { halign: 'center', cellWidth: 10 },
-      1: { cellWidth: 68 },
-      2: { halign: 'center', cellWidth: 24 },
-      3: { halign: 'center', cellWidth: 24 },
-      4: { halign: 'center', cellWidth: 24 },
-      5: { halign: 'center', cellWidth: 20 },
+      0: { halign:'center', cellWidth:12 },
+      1: { cellWidth:100 },
+      2: { halign:'center', cellWidth:24 },
+      3: { halign:'center', cellWidth:24 },
     },
-    didDrawCell: (data) => {
-      // Color Pass/Fail cells
-      if (data.section === 'body' && data.column.index === 5) {
-        const val = data.cell.raw;
-        doc.setFillColor(val === 'Pass' ? 220 : 255, val === 'Pass' ? 255 : 220, val === 'Pass' ? 220 : 220);
-        doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, 'F');
-        doc.setTextColor(val === 'Pass' ? 22 : 180, val === 'Pass' ? 120 : 30, val === 'Pass' ? 22 : 30);
-        doc.setFontSize(9); doc.setFont('helvetica', 'bold');
-        doc.text(val, data.cell.x + data.cell.width/2, data.cell.y + data.cell.height/2 + 1.5, { align: 'center' });
-      }
-    },
-    margin: { left: M, right: M },
+    tableLineColor: [214,40,40],
+    tableLineWidth: 0.3,
+    margin: { left:M+3, right:M+3 },
   });
 
-  // â”€â”€ SUMMARY BOX â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  const tY = doc.lastAutoTable.finalY + 7;
-  doc.setFillColor(15, 40, 110);
-  doc.roundedRect(M, tY, W - M*2, 32, 3, 3, 'F');
-  // Gold top border
-  doc.setFillColor(250, 204, 21);
-  doc.roundedRect(M, tY, W - M*2, 2, 1, 1, 'F');
+  curY = doc.lastAutoTable.finalY + 2;
 
-  const sumItems = [
-    ['TOTAL MARKS', `${r.obtainedMarks ?? 'â€”'} / ${r.totalMarks ?? 'â€”'}`],
-    ['PERCENTAGE', r.percentage ? `${r.percentage}%` : 'â€”'],
-    ['GRADE', r.grade || 'â€”'],
-    ['RESULT', r.status || 'â€”'],
+  // TOTALS ROW
+  const totW = W-M*2-6;
+  doc.setFillColor(8,29,91);
+  doc.rect(M+3, curY, totW, 8, 'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont('helvetica','bold');
+  const colX = M+3+12+100;
+  doc.text('Total', M+3+56, curY+5.5, { align:'center' });
+  doc.setDrawColor(255,255,255); doc.setLineWidth(0.3);
+  doc.line(colX, curY, colX, curY+8);
+  doc.text(String(r.totalMarks ?? (subjectRows.length*100)), colX+12, curY+5.5, { align:'center' });
+  doc.line(colX+24, curY, colX+24, curY+8);
+  doc.text(String(r.obtainedMarks ?? '-'), colX+36, curY+5.5, { align:'center' });
+  curY += 11;
+
+  // GRADE + RESULT BOXES
+  const boxW = totW/4;
+  const boxH = 20;
+  const boxes = [
+    { label:'Grade',       value: grade,         color:[15,123,15] },
+    { label:'Total Marks', value: (r.obtainedMarks??'-')+' / '+(r.totalMarks??'-'), color:[8,29,91] },
+    { label:'Issue Date',  value: new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}), color:[8,29,91] },
+    { label:'Percentage',  value: pct+'%',        color: pct>=40?[15,123,15]:[214,40,40] },
   ];
-  const cW = (W - M*2) / 4;
-  sumItems.forEach(([lbl, val], i) => {
-    const x = M + i * cW + cW / 2;
-    // divider
-    if (i > 0) { doc.setDrawColor(255,255,255,0.2); doc.line(M + i*cW, tY+4, M + i*cW, tY+30); }
-    doc.setTextColor(180, 210, 255); doc.setFontSize(7); doc.setFont('helvetica', 'normal');
-    doc.text(lbl, x, tY + 11, { align: 'center' });
-    // highlight result/grade
-    const isSpecial = lbl === 'RESULT' || lbl === 'GRADE';
-    doc.setTextColor(isSpecial ? 250 : 255, isSpecial ? 204 : 255, isSpecial ? 21 : 255);
-    doc.setFontSize(13); doc.setFont('helvetica', 'bold');
-    doc.text(String(val), x, tY + 24, { align: 'center' });
+  boxes.forEach(({label,value,color},i) => {
+    const bx = M+3+i*boxW;
+    doc.setFillColor(253,245,245); doc.setDrawColor(214,40,40); doc.setLineWidth(0.4);
+    doc.rect(bx, curY, boxW, boxH, 'FD');
+    doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(100,100,100);
+    doc.text(label, bx+boxW/2, curY+5.5, { align:'center' });
+    doc.setFontSize(i===0?14:9.5); doc.setFont('helvetica','bold'); doc.setTextColor(...color);
+    doc.text(String(value), bx+boxW/2, curY+15, { align:'center' });
   });
+  curY += boxH + 4;
 
-  // â”€â”€ FOOTER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  const fY = tY + 42;
-  // Signature lines
-  doc.setDrawColor(150, 150, 150);
-  doc.line(M, fY, M + 50, fY);
-  doc.line(W - M - 50, fY, W - M, fY);
-  doc.setTextColor(80, 80, 80); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
-  doc.text('Student Signature', M + 25, fY + 5, { align: 'center' });
-  doc.text('Principal Signature', W - M - 25, fY + 5, { align: 'center' });
+  // GRADE SCALE
+  doc.setFillColor(253,245,245); doc.setDrawColor(214,40,40); doc.setLineWidth(0.4);
+  doc.rect(M+3, curY, totW, 8, 'FD');
+  doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(8,29,91);
+  doc.text('Grade Scale :', M+7, curY+5);
+  doc.setFont('helvetica','normal'); doc.setTextColor(40,40,40);
+  doc.text('S=Above 90%   A=70-90%   B=60-69%   C=50-59%   D=40-49%   Fail=Below 40%', M+30, curY+5);
+  curY += 12;
 
-  // Small logo watermark center
-  if (logoDataUrl) doc.addImage(logoDataUrl, 'PNG', W/2 - 8, fY - 10, 16, 16);
+  // CERT LOGOS ROW
+  const certLabels = ['ISO 9001:2015','NSDC Partner','NIELIT Approved','UP Govt. Regd.'];
+  const certW = totW/certLabels.length;
+  certLabels.forEach((lbl,i) => {
+    const cx2 = M+3+i*certW;
+    doc.setDrawColor(8,29,91); doc.setLineWidth(0.3);
+    doc.circle(cx2+certW/2, curY+5, 4.5, 'S');
+    doc.setFontSize(5.5); doc.setFont('helvetica','bold'); doc.setTextColor(8,29,91);
+    doc.text(lbl, cx2+certW/2, curY+13, { align:'center' });
+  });
+  curY += 18;
 
-  // Bottom note
-  doc.setFillColor(245, 248, 255);
-  doc.rect(0, fY + 10, W, 12, 'F');
-  doc.setTextColor(120, 120, 120); doc.setFontSize(7);
-  doc.text(
-    `Generated on ${new Date().toLocaleDateString('en-IN')}  |  This is a computer-generated document.  |  KCI Official Result`,
-    W / 2, fY + 17, { align: 'center' }
-  );
+  // SIGNATURES
+  doc.setDrawColor(150,150,150); doc.setLineWidth(0.4);
+  doc.line(M+8, curY+10, M+52, curY+10);
+  doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60);
+  doc.text("Student's Signature", M+30, curY+14, { align:'center' });
+
+  if (logoDataUrl) doc.addImage(logoDataUrl, 'PNG', W/2-9, curY, 18, 18);
+  doc.setFontSize(6.5); doc.setFont('helvetica','bold'); doc.setTextColor(214,40,40);
+  doc.text('OFFICIAL SEAL', W/2, curY+22, { align:'center' });
+
+  doc.line(W-M-52, curY+10, W-M-8, curY+10);
+  doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60);
+  doc.text('Director Signature', W-M-30, curY+14, { align:'center' });
+
+  // FOOTER RED BAR
+  const fY = H-M-11;
+  doc.setFillColor(214,40,40);
+  doc.rect(M+3, fY, W-M*2-6, 9, 'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(6.5); doc.setFont('helvetica','normal');
+  doc.text('Head Office: KCI Building, Civil Lines, Ayodhya, U.P. - 224001  |  www.kci.org.in  |  info@kci.org.in  |  Mo.: 9936384736', W/2, fY+6, { align:'center' });
 
   doc.save(`Result_${r.rollNumber}_${(r.courseName || 'KCI').replace(/\s+/g, '_')}.pdf`);
 }
