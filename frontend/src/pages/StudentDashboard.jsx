@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -703,6 +703,7 @@ export default function StudentDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [data, setData] = useState({ student: null, results: [], certificates: [], branch: null });
   const [loading, setLoading] = useState(true);
   const [tests, setTests] = useState([]);
@@ -950,58 +951,87 @@ export default function StudentDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex">
 
-      {/* â”€â”€ HEADER â”€â”€ */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-white/50 shadow-sm sticky top-0 z-40">
-        <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
-              <GraduationCap className="w-5 h-5 text-white" />
-            </div>
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 bg-black/40 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
+      )}
+
+      {/* SIDEBAR */}
+      <aside className={`fixed lg:static inset-y-0 left-0 z-40 flex flex-col bg-gradient-to-b from-[#081d5b] to-[#0f2a8a] shadow-2xl transition-all duration-300 shrink-0 ${sidebarOpen ? 'w-60' : 'w-0 lg:w-16 overflow-hidden'}`}>
+        <div className="flex items-center gap-3 px-4 py-4 border-b border-white/10 shrink-0 min-h-[60px]">
+          <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+            <GraduationCap className="w-5 h-5 text-white" />
+          </div>
+          {sidebarOpen && (
             <div className="min-w-0">
-              <div className="font-black text-gray-900 text-sm leading-tight">Student Portal</div>
-              <div className="text-[10px] text-blue-600 font-bold font-mono truncate">{user?.rollNumber}</div>
+              <div className="font-black text-white text-sm leading-tight truncate">Student Portal</div>
+              <div className="text-[10px] text-blue-300 font-bold font-mono truncate">{user?.rollNumber}</div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="hidden sm:flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white font-black text-sm shadow shrink-0">
-                {user?.name?.[0]?.toUpperCase()}
-              </div>
-              <div className="text-right hidden md:block">
-                <div className="text-sm font-black text-gray-900 leading-tight truncate max-w-[120px]">{user?.name}</div>
-                <div className="text-[10px] text-gray-400 font-medium truncate max-w-[120px]">{user?.courseName}</div>
-              </div>
-            </div>
-            {/* Dev credit */}
-            <DevCredit popupDown />
-            <button onClick={handleLogout}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-red-500 hover:bg-red-50 border border-red-100 hover:border-red-200 transition-all whitespace-nowrap">
-              <LogOut className="w-3.5 h-3.5" /> Logout
-            </button>
-          </div>
+          )}
         </div>
-      </header>
-
-      <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
-
-        {/* â”€â”€ TABS â”€â”€ */}
-        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide -mx-3 sm:mx-0 px-3 sm:px-0">
+        {sidebarOpen && (
+          <div className="px-4 py-3 border-b border-white/10 shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white font-black text-base shadow shrink-0 overflow-hidden">
+                {data.student?.photo ? <img src={data.student.photo} alt="" className="w-full h-full object-cover" /> : user?.name?.[0]?.toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-black text-white truncate">{user?.name}</div>
+                <div className="text-[10px] text-blue-300 truncate">{user?.courseName}</div>
+              </div>
+            </div>
+          </div>
+        )}
+        <nav className="flex-1 overflow-y-auto py-3 space-y-0.5 px-2">
           {tabs.map(({ id, label, icon: Icon }) => (
-            <button key={id} onClick={() => setActiveTab(id)}
-              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 shrink-0 ${
-                activeTab === id
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-200'
-                  : 'bg-white text-gray-500 border border-gray-200 hover:border-blue-200 hover:text-blue-600 hover:bg-blue-50'
-              }`}>
-              <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> {label}
+            <button key={id} onClick={() => { setActiveTab(id); if (window.innerWidth < 1024) setSidebarOpen(false); }}
+              title={!sidebarOpen ? label : undefined}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-150 relative ${activeTab === id ? 'bg-white/20 text-white' : 'text-blue-200 hover:bg-white/10 hover:text-white'}`}>
+              <Icon className="w-4 h-4 shrink-0" />
+              {sidebarOpen && <span className="flex-1 text-left truncate">{label}</span>}
               {id === 'notifications' && unreadCount > 0 && (
-                <span className="ml-1 min-w-[16px] h-4 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center px-0.5 shrink-0">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                sidebarOpen
+                  ? <span className="bg-red-500 text-white text-[9px] font-black rounded-full px-1.5 py-0.5 shrink-0">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                  : <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
               )}
             </button>
           ))}
+        </nav>
+        <div className="p-3 border-t border-white/10 shrink-0 space-y-1">
+          {sidebarOpen && <DevCredit popupDown />}
+          <button onClick={handleLogout} title={!sidebarOpen ? 'Logout' : undefined}
+            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-all">
+            <LogOut className="w-4 h-4 shrink-0" />
+            {sidebarOpen && 'Logout'}
+          </button>
         </div>
+      </aside>
+
+      {/* MAIN AREA */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+        <header className="bg-white/80 backdrop-blur-xl border-b border-white/50 shadow-sm sticky top-0 z-20 shrink-0">
+          <div className="px-3 sm:px-5 h-14 flex items-center justify-between">
+            <button onClick={() => setSidebarOpen(p => !p)}
+              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors text-gray-600">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <div className="font-black text-gray-900 text-sm">{tabs.find(t => t.id === activeTab)?.label || 'Dashboard'}</div>
+            <div className="flex items-center gap-2">
+              {unreadCount > 0 && (
+                <button onClick={() => setActiveTab('notifications')}
+                  className="relative w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 text-gray-600">
+                  <Bell className="w-5 h-5" />
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+                </button>
+              )}
+            </div>
+          </div>
+        </header>
+        <div className="flex-1 p-3 sm:p-5 space-y-4 sm:space-y-6 overflow-y-auto">
 
         {/* Profile Tab */}
         {activeTab === 'profile' && (
@@ -1651,6 +1681,7 @@ export default function StudentDashboard() {
             )}
           </div>
         )}
+        </div>
       </div>
     </div>
   );

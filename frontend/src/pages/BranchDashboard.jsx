@@ -93,6 +93,8 @@ const getPhotoUrl = (photo) => {
   if (photo.startsWith('http')) return photo;
   return `${import.meta.env.VITE_API_URL || ''}${photo}`;
 };
+
+function StudentForm({ initial, onSave, onClose, saving }) {
   const [form, setForm] = useState(initial);
   const [showPass, setShowPass] = useState(false);
   const set = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
@@ -695,6 +697,7 @@ export default function BranchDashboard() {
   const { dark, toggle } = useTheme();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [stats, setStats] = useState(null);
   const [students, setStudents] = useState([]);
   const [admissions, setAdmissions] = useState([]);
@@ -972,13 +975,19 @@ export default function BranchDashboard() {
   const certFields = [['Student', 'studentName'], ['Enrollment No', 'rollNumber'], ['Course', 'courseName'], ['Cert No', 'certificateNumber'], ['Grade', 'grade'], ['Issue Date', 'issueDate']];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10 flex flex-col">
 
       {/* ── HEADER ── */}
       <header className="bg-white/80 backdrop-blur-xl border-b border-white/60 shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          {/* Left: Logo + Branch */}
+        <div className="max-w-full px-4 h-16 flex items-center justify-between">
+          {/* Left: Hamburger + Logo + Branch */}
           <div className="flex items-center gap-3">
+            <button onClick={() => setSidebarOpen(o => !o)}
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 transition-all">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
             <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
               <Building2 className="w-5 h-5 text-white" />
             </div>
@@ -994,7 +1003,6 @@ export default function BranchDashboard() {
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
               <span className="text-xs font-bold text-blue-700">{user?.branchCity}</span>
             </div>
-            {/* Dev credit */}
             <DevCredit popupDown />
             <button onClick={toggle}
               className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-sm ${
@@ -1010,21 +1018,37 @@ export default function BranchDashboard() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-5 space-y-5">
+      <div className="flex flex-1 relative">
+        {/* ── SIDEBAR OVERLAY ── */}
+        {sidebarOpen && (
+          <div className="fixed inset-0 bg-black/30 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        )}
 
-        {/* ── TABS ── */}
-        <div className="flex gap-1.5 overflow-x-auto pb-1">
-          {tabs.map(({ id, label, icon: Icon }) => (
-            <button key={id} onClick={() => { setActiveTab(id); setSearch(''); }}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold whitespace-nowrap transition-all duration-200 ${
-                activeTab === id
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-200 scale-105'
-                  : 'bg-white text-gray-500 border border-gray-200 hover:border-blue-200 hover:text-blue-600 hover:bg-blue-50/50'
-              }`}>
-              <Icon className="w-4 h-4" /> {label}
-            </button>
-          ))}
-        </div>
+        {/* ── SIDEBAR ── */}
+        <aside className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-60 bg-white border-r border-gray-200 shadow-xl z-30 flex flex-col transition-transform duration-300 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:translate-x-0 lg:static lg:h-auto lg:shadow-none`}>
+          <div className="flex-1 py-4 overflow-y-auto">
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-5 mb-3">Navigation</p>
+            {tabs.map(({ id, label, icon: Icon }) => (
+              <button key={id}
+                onClick={() => { setActiveTab(id); setSearch(''); setSidebarOpen(false); }}
+                className={`w-full flex items-center gap-3 px-5 py-3 text-sm font-bold transition-all ${
+                  activeTab === id
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                    : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
+                }`}>
+                <Icon className="w-4 h-4 shrink-0" /> {label}
+              </button>
+            ))}
+          </div>
+          <div className="p-4 border-t border-gray-100">
+            <div className="text-xs text-gray-500 font-semibold truncate">{user?.email}</div>
+            <div className="text-[10px] text-gray-400 mt-0.5">{user?.branchCity}</div>
+          </div>
+        </aside>
+
+      <div className="flex-1 min-w-0 max-w-full px-4 py-5 space-y-5 lg:max-w-none">
 
         {/* ── OVERVIEW ── */}
         {activeTab === 'overview' && (
@@ -1609,6 +1633,7 @@ export default function BranchDashboard() {
             </div>
           </div>
         )}
+      </div>
       </div>
 
       {/* Modals */}
