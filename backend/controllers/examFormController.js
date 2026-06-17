@@ -3,14 +3,22 @@ const ExamForm = require('../models/ExamForm');
 exports.submitExamForm = async (req, res) => {
   try {
     const userId = req.user?.id || null;
-    // Prevent duplicate submission by same user
     if (userId) {
       const existing = await ExamForm.findOne({ userId });
       if (existing) {
         return res.status(400).json({ success: false, message: 'You have already submitted an examination form.', form: existing });
       }
     }
-    const form = await ExamForm.create({ ...req.body, userId });
+    // Validate UTR is provided
+    if (!req.body.paymentUtr || req.body.paymentUtr.trim().length < 6) {
+      return res.status(400).json({ success: false, message: 'Valid UTR / Transaction ID is required.' });
+    }
+    // Check UTR not already used by another student
+    const utrUsed = await ExamForm.findOne({ paymentUtr: req.body.paymentUtr.trim() });
+    if (utrUsed) {
+      return res.status(400).json({ success: false, message: 'This UTR / Transaction ID has already been used. Please enter your own payment UTR.' });
+    }
+    const form = await ExamForm.create({ ...req.body, paymentUtr: req.body.paymentUtr.trim(), userId });
     res.status(201).json({ success: true, message: 'Exam form submitted successfully', form });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

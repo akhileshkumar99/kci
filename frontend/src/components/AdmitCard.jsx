@@ -21,18 +21,18 @@ function CardContent({ student, admitCard, branch, qrUrl, scale = 1 }) {
     : new Date().toLocaleDateString('en-IN');
 
   const leftFields = [
-    ['Candidate Name',  student?.name],
-    ['Enrollment No',   student?.enrollmentNumber],
-    ['Course',          student?.courseName || admitCard?.courseName],
-    ["Father's Name",   student?.fatherName],
-    ["Mother's Name",   student?.motherName],
-    ['Date Of Birth',   dob],
-    ['Gender',          student?.gender],
-    ['Category',        student?.category || 'General'],
-    ['Batch',           student?.batch],
+    ['Candidate Name',  admitCard?.studentName || student?.name],
+    ['Enrollment No',   admitCard?.enrollmentNumber || student?.enrollmentNumber],
+    ['Course',          admitCard?.courseName || student?.courseName],
+    ["Father's Name",   admitCard?.fatherName || student?.fatherName],
+    ["Mother's Name",   admitCard?.motherName || student?.motherName],
+    ['Date Of Birth',   admitCard?.dob || dob],
+    ['Gender',          admitCard?.gender || student?.gender],
+    ['Category',        admitCard?.category || student?.category || 'General'],
+    ['Batch',           admitCard?.batch || student?.batch],
     ['Exam Type',       admitCard?.examType || 'Theory'],
     ['Exam Center',     admitCard?.examCenter || branch?.branchName],
-    ['Address',         student?.address],
+    ['Address',         admitCard?.address || student?.address],
   ];
 
   const examDetails = [

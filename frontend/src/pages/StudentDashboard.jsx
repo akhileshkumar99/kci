@@ -24,6 +24,7 @@ const ALL_TABS = [
   { id: 'studymaterial', label: 'Study Material', icon: BookMarked },
   { id: 'tests', label: 'Monthly Tests', icon: ClipboardCheck },
   { id: 'changepassword', label: 'Change Password', icon: Lock },
+  { id: 'examform', label: 'Exam Form', icon: FileText },
   { id: 'notifications', label: 'Notifications', icon: Bell },
 ];
 
@@ -782,6 +783,527 @@ async function downloadCertificatePDF(c, student, branch) {
   toast.success('Certificate downloaded!');
 }
 
+// ─── Exam Form Section ───────────────────────────────────────────────────────
+const COURSES = [
+  'Certificate In Fundamental (CIF)',
+  'Certificate in Computer Application (CCA)',
+  'Certificate In Office Package & Tally A/C (COPT)',
+  'Tally Specialist Course With GST',
+  'Advance Diploma in Computer Application (ADCA)',
+  'Desktop Publishing (DTP)',
+  'Computer Teacher Training Course',
+  'Certificate In Computer Hardware (CICH)',
+  'JAVA, VB.net, ASP.net, PHP',
+  'Computer Typing (Hindi + English)',
+  'C, C++ Programming',
+  'Diploma in Computer Application (DCA)',
+  'Certificate In Tally A/c With GST (CIT)',
+  'Multimedia Animation Course (N-Mass)',
+  'BCA / BBA / MCA / MBA / PGDCA & More',
+  'Course On Computer Concept (CCC from NIELIT)',
+];
+
+async function downloadReceiptPDF(form) {
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W = 210, M = 15;
+
+  // Logo
+  let logoUrl = null;
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = '/logo.png'; });
+    const sz = 300, cv = document.createElement('canvas'); cv.width = sz; cv.height = sz;
+    const cx = cv.getContext('2d'); cx.beginPath(); cx.arc(sz/2,sz/2,sz/2,0,Math.PI*2); cx.closePath(); cx.clip(); cx.drawImage(img,0,0,sz,sz);
+    logoUrl = cv.toDataURL('image/png');
+  } catch(_) {}
+
+  // Header
+  doc.setFillColor(8,29,91); doc.rect(0,0,W,42,'F');
+  doc.setFillColor(212,175,55); doc.rect(0,42,W,2,'F');
+  if (logoUrl) doc.addImage(logoUrl,'PNG',M,7,24,24);
+  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('KEERTI COMPUTER INSTITUTE', M+30, 18);
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(180,200,255);
+  doc.text('Govt. Recognised | ISO Certified | Ayodhya, U.P. | www.kci.org.in', M+30, 26);
+  // Receipt pill
+  doc.setFillColor(212,175,55);
+  doc.roundedRect(M+30, 30, 50, 8, 2, 2, 'F');
+  doc.setTextColor(8,29,91); doc.setFontSize(8.5); doc.setFont('helvetica','bold');
+  doc.text('PAYMENT RECEIPT', M+55, 35.2, { align:'center' });
+
+  let y = 56;
+
+  // Receipt No & Date
+  doc.setDrawColor(200,210,240); doc.setLineWidth(0.3);
+  doc.roundedRect(M, y, W-M*2, 14, 2, 2, 'FD');
+  doc.setFillColor(245,248,255); doc.roundedRect(M, y, W-M*2, 14, 2, 2, 'F');
+  doc.setTextColor(8,29,91); doc.setFontSize(8); doc.setFont('helvetica','bold');
+  doc.text(`Receipt No: KCI-${form.enrollmentNumber}-${Date.now().toString().slice(-6)}`, M+4, y+6);
+  doc.text(`Date: ${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}`, W-M-4, y+6, { align:'right' });
+  doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(100,100,100);
+  doc.text(`Status: ${form.status || 'Pending'} | Submitted: ${new Date(form.createdAt).toLocaleDateString('en-IN')}`, M+4, y+11);
+  y += 20;
+
+  // Section: Student Details
+  doc.setFillColor(8,29,91); doc.roundedRect(M, y, W-M*2, 7, 1, 1, 'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont('helvetica','bold');
+  doc.text('STUDENT DETAILS', M+4, y+5);
+  y += 10;
+
+  const studentRows = [
+    ['Student Name', form.studentName || '-'],
+    ['Father Name', form.fatherName || '-'],
+    ['Enrollment No.', form.enrollmentNumber || '-'],
+    ['Course', form.course || '-'],
+    ['Batch', form.batch || '-'],
+    ['Phone', form.phone || '-'],
+    ['Email', form.email || '-'],
+    ['Address', form.address || '-'],
+  ];
+  studentRows.forEach(([l,v], i) => {
+    doc.setFillColor(i%2===0?255:248,i%2===0?255:249,i%2===0?255:255);
+    doc.rect(M, y, W-M*2, 8, 'F');
+    doc.setDrawColor(220,225,240); doc.setLineWidth(0.2);
+    doc.rect(M, y, W-M*2, 8, 'S');
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(8,29,91);
+    doc.text(l, M+3, y+5.5);
+    doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30);
+    doc.text(String(v), M+65, y+5.5, { maxWidth: W-M*2-68 });
+    y += 8;
+  });
+  y += 5;
+
+  // Section: Payment Details
+  doc.setFillColor(22,101,52); doc.roundedRect(M, y, W-M*2, 7, 1, 1, 'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont('helvetica','bold');
+  doc.text('PAYMENT DETAILS', M+4, y+5);
+  y += 10;
+
+  const payRows = [
+    ['Payment Method', 'UPI'],
+    ['UPI ID', 'akhileshkumar5044@ybl'],
+    ['Amount Paid', `\u20B9${form.amount || 1}`],
+    ['UTR / Transaction ID', form.paymentUtr || '-'],
+    ['Payment Status', 'Paid'],
+  ];
+  payRows.forEach(([l,v], i) => {
+    doc.setFillColor(i%2===0?240:255, i%2===0?253:255, i%2===0?244:255);
+    doc.rect(M, y, W-M*2, 8, 'F');
+    doc.setDrawColor(187,247,208); doc.setLineWidth(0.2);
+    doc.rect(M, y, W-M*2, 8, 'S');
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(22,101,52);
+    doc.text(l, M+3, y+5.5);
+    doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30);
+    doc.text(String(v), M+65, y+5.5);
+    y += 8;
+  });
+  y += 8;
+
+  // Total box
+  doc.setFillColor(8,29,91); doc.roundedRect(M, y, W-M*2, 14, 3, 3, 'F');
+  doc.setTextColor(212,175,55); doc.setFontSize(12); doc.setFont('helvetica','bold');
+  doc.text('TOTAL PAID', M+6, y+9);
+  doc.setFontSize(16);
+  doc.text(`\u20B9${form.amount || 1}`, W-M-6, y+9, { align:'right' });
+  y += 20;
+
+  // Note
+  doc.setFillColor(254,252,232); doc.setDrawColor(234,179,8); doc.setLineWidth(0.4);
+  doc.roundedRect(M, y, W-M*2, 16, 2, 2, 'FD');
+  doc.setTextColor(120,80,0); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+  doc.text('NOTE:', M+4, y+6);
+  doc.setFont('helvetica','normal'); doc.setTextColor(80,60,0);
+  doc.text('This is a computer-generated payment receipt for your exam form submission.', M+4, y+11, { maxWidth: W-M*2-8 });
+  doc.text('Keep this receipt for your records. For queries: 9936384736', M+4, y+15.5, { maxWidth: W-M*2-8 });
+  y += 22;
+
+  // Footer
+  doc.setFillColor(8,29,91); doc.rect(0, 275, W, 22, 'F');
+  doc.setTextColor(180,200,255); doc.setFontSize(7.5); doc.setFont('helvetica','normal');
+  doc.text('Keerti Computer Institute | Civil Lines, Ayodhya, U.P. - 224001', W/2, 282, { align:'center' });
+  doc.text('www.kci.org.in | info@kci.org.in | Mo: 9936384736', W/2, 288, { align:'center' });
+  doc.setTextColor(212,175,55); doc.setFontSize(7);
+  doc.text('This receipt is system generated and does not require a physical signature.', W/2, 293, { align:'center' });
+
+  doc.save(`KCI_Receipt_${form.enrollmentNumber}_${Date.now()}.pdf`);
+  toast.success('Receipt downloaded!');
+}
+
+function PayStep({ upiQr, upiId, amount, enrollmentNumber, onPaid, onBack }) {
+  const upiDeepLink = `upi://pay?pa=${upiId}&pn=Keerti Computer Institute&am=${amount}&cu=INR&tn=${encodeURIComponent('KCI-EXAM-' + enrollmentNumber)}`;
+  const [waiting, setWaiting] = useState(false);
+  const [timer, setTimer] = useState(10 * 60); // 10 minutes
+
+  // Countdown timer
+  useEffect(() => {
+    const t = setInterval(() => setTimer(p => p > 0 ? p - 1 : 0), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const mins = String(Math.floor(timer / 60)).padStart(2, '0');
+  const secs = String(timer % 60).padStart(2, '0');
+  const timerUrgent = timer <= 60;
+
+  useEffect(() => {
+    if (!waiting) return;
+    const onVisibility = () => { if (!document.hidden) onPaid(); };
+    const onFocus = () => onPaid();
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('focus', onFocus);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [waiting, onPaid]);
+
+  const handlePayNow = () => {
+    setWaiting(true);
+    window.location.href = upiDeepLink;
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-sm mx-auto">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4 text-center">
+          <div className="text-white font-black text-lg">💳 Pay Exam Fee</div>
+          <div className="text-green-100 text-xs mt-1">Scan QR or tap Pay Now — auto-redirects after payment</div>
+        </div>
+
+        {/* Timer */}
+        <div className={`flex items-center justify-center gap-2 py-3 border-b ${
+          timerUrgent ? 'bg-red-50 border-red-100' : 'bg-green-50 border-green-100'
+        }`}>
+          <Clock className={`w-4 h-4 ${timerUrgent ? 'text-red-500 animate-pulse' : 'text-green-600'}`} />
+          <span className={`font-black text-lg font-mono ${timerUrgent ? 'text-red-600' : 'text-green-700'}`}>
+            {mins}:{secs}
+          </span>
+          <span className={`text-xs font-semibold ${timerUrgent ? 'text-red-500' : 'text-green-600'}`}>
+            {timerUrgent ? 'Hurry! Time is running out' : 'Time remaining to complete payment'}
+          </span>
+        </div>
+
+        <div className="p-6 flex flex-col items-center gap-4">
+          {upiQr
+            ? <img src={upiQr} alt="UPI QR" className="w-48 h-48 rounded-2xl border-4 border-green-200 shadow-lg" />
+            : <div className="w-48 h-48 rounded-2xl border-2 border-green-200 bg-gray-50 flex items-center justify-center text-xs text-gray-400">Generating QR...</div>
+          }
+          <div className="w-full bg-green-50 rounded-xl p-3 border border-green-200 space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-bold text-gray-500">UPI ID</span>
+              <span className="text-sm font-black text-green-700 font-mono">{upiId}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-bold text-gray-500">Amount</span>
+              <span className="text-lg font-black text-green-700">₹{amount}</span>
+            </div>
+          </div>
+          {!waiting ? (
+            <button onClick={handlePayNow}
+              className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-black text-sm text-center shadow-md transition-all">
+              📱 Pay Now via UPI App
+            </button>
+          ) : (
+            <div className="w-full py-3 bg-green-50 border-2 border-green-300 rounded-xl flex items-center justify-center gap-3">
+              <div className="w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+              <span className="text-green-700 font-black text-sm">Waiting... return here after paying</span>
+            </div>
+          )}
+          <div className="flex items-center gap-2 w-full">
+            <div className="h-px flex-1 bg-gray-200" />
+            <span className="text-xs text-gray-400">or scan QR (desktop)</span>
+            <div className="h-px flex-1 bg-gray-200" />
+          </div>
+          <p className="text-[10px] text-gray-400 text-center">After payment, you will be automatically redirected to enter your UTR.</p>
+          <button onClick={onBack} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
+            ← Go Back
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function ExamFormSection({ student, myExamForm, onSubmitted }) {
+  const [form, setForm] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [upiQr, setUpiQr] = useState('');
+  const [step, setStep] = useState('form'); // 'form' | 'pay' | 'utr'
+
+  const UPI_ID = 'akhileshkumar5044@ybl';
+  const AMOUNT = 1;
+
+  // Generate UPI QR with student-specific txn note
+  useEffect(() => {
+    if (!student) return;
+    const txnNote = `KCI-EXAM-${student.enrollmentNumber || student.rollNumber || Date.now()}`;
+    const upiString = `upi://pay?pa=${UPI_ID}&pn=Keerti Computer Institute&am=${AMOUNT}&cu=INR&tn=${encodeURIComponent(txnNote)}`;
+    QRCode.toDataURL(upiString, { width: 200, margin: 1, color: { dark: '#081d5b', light: '#ffffff' } })
+      .then(setUpiQr).catch(() => {});
+  }, [student]);
+
+  // Auto-fill when student data loads
+  useEffect(() => {
+    if (myExamForm) return; // already submitted, don't overwrite
+    if (!student) return;
+    setForm(f => f ? f : {
+      studentName:      student.name || '',
+      fatherName:       student.fatherName || '',
+      motherName:       '',
+      dob:              student.dob ? new Date(student.dob).toISOString().split('T')[0] : '',
+      gender:           '',
+      category:         'General',
+      enrollmentNumber: student.enrollmentNumber || student.rollNumber || '',
+      course:           student.courseName || '',
+      batch:            student.batch || '',
+      session:          '',
+      qualification:    '',
+      subjects:         '',
+      phone:            student.phone || '',
+      email:            student.email || '',
+      address:          student.address || '',
+      paymentUtr:       '',
+    });
+  }, [student, myExamForm]);
+
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const statusColor = {
+    Pending:  'bg-yellow-100 text-yellow-700 border-yellow-200',
+    Approved: 'bg-green-100 text-green-700 border-green-200',
+    Rejected: 'bg-red-100 text-red-700 border-red-200',
+  };
+
+  const inp = 'w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white';
+  const sel = inp + ' cursor-pointer';
+
+  if (myExamForm) return (
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto space-y-4">
+      <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl p-5 text-white">
+        <div className="flex items-center gap-3 mb-1">
+          <CheckCircle className="w-6 h-6" />
+          <h2 className="text-lg font-black">Exam Form Submitted</h2>
+        </div>
+        <p className="text-green-100 text-sm">Your examination registration form has been submitted.</p>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-3">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-black text-gray-900">Form Details</h3>
+          <div className="flex items-center gap-2">
+            <span className={`text-xs font-black px-3 py-1 rounded-full border ${statusColor[myExamForm.status] || statusColor.Pending}`}>
+              {myExamForm.status}
+            </span>
+            <button
+              onClick={() => downloadReceiptPDF(myExamForm)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black transition-all shadow-sm">
+              <Download className="w-3.5 h-3.5" /> Receipt
+            </button>
+          </div>
+        </div>
+        {[
+          ['Student Name', myExamForm.studentName],
+          ['Enrollment No.', myExamForm.enrollmentNumber],
+          ['Course', myExamForm.course],
+          ['Batch', myExamForm.batch],
+          ['Phone', myExamForm.phone],
+          ['Email', myExamForm.email],
+          ['Payment UTR', myExamForm.paymentUtr || '—'],
+          ['Submitted', new Date(myExamForm.createdAt).toLocaleDateString('en-IN')],
+        ].map(([l, v]) => (
+          <div key={l} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+            <span className="text-xs font-bold text-gray-500">{l}</span>
+            <span className="text-sm font-bold text-gray-800">{v}</span>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+
+  if (!form) return <div className="flex justify-center py-12"><div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin" /></div>;
+
+  // ── STEP: PAY ──
+  if (step === 'pay') return (
+    <PayStep
+      upiQr={upiQr}
+      upiId={UPI_ID}
+      amount={AMOUNT}
+      enrollmentNumber={form.enrollmentNumber}
+      onPaid={() => setStep('utr')}
+      onBack={() => setStep('form')}
+    />
+  );
+
+  // ── STEP: UTR ──
+  if (step === 'utr') return (
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-sm mx-auto">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 text-center">
+          <div className="text-white font-black text-lg">🔐 Verify Payment</div>
+          <div className="text-blue-100 text-xs mt-1">Enter your UTR / Transaction ID</div>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="bg-blue-50 rounded-xl p-3 border border-blue-100 text-xs text-blue-700 font-semibold text-center">
+            ₹{AMOUNT} paid to <span className="font-mono font-black">{UPI_ID}</span>
+          </div>
+          <div>
+            <label className="text-xs font-black text-gray-700 mb-2 block">UTR / Transaction ID <span className="text-red-500">*</span></label>
+            <input
+              autoFocus
+              value={form.paymentUtr}
+              onChange={e => set('paymentUtr', e.target.value)}
+              placeholder="e.g. 426112345678"
+              className="w-full px-4 py-3 border-2 border-blue-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-mono text-center tracking-widest text-lg"
+            />
+            <p className="text-[10px] text-gray-400 mt-1.5 text-center">Find UTR in your UPI app under transaction history. Each UTR can only be used once.</p>
+          </div>
+          <button
+            onClick={async () => {
+              if (!form.paymentUtr || form.paymentUtr.trim().length < 6)
+                return toast.error('Enter valid UTR / Transaction ID');
+              setSubmitting(true);
+              try {
+                const { data } = await api.post('/exam-forms', form);
+                toast.success('Exam form submitted successfully!');
+                onSubmitted(data.form);
+              } catch (err) {
+                toast.error(err.response?.data?.message || 'Submission failed');
+              }
+              setSubmitting(false);
+            }}
+            disabled={submitting || !form.paymentUtr}
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 disabled:opacity-60 transition-all shadow-md">
+            {submitting ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <FileText className="w-4 h-4" />}
+            {submitting ? 'Submitting...' : 'Submit Examination Form'}
+          </button>
+          <button onClick={() => setStep('pay')} className="w-full text-xs text-gray-400 hover:text-gray-600 transition-colors py-1">
+            ← Back to Payment
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+
+  // ── STEP: FORM ──
+  return (
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
+              <FileText className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-white font-black text-lg">Examination Registration Form</h2>
+              <p className="text-blue-200 text-xs">Fields are auto-filled from your profile</p>
+            </div>
+          </div>
+        </div>
+
+        <form onSubmit={e => { e.preventDefault(); setStep('pay'); }} className="p-6 space-y-5">
+          {/* Personal Info */}
+          <div>
+            <h3 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+              <User className="w-3.5 h-3.5" /> Personal Information
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-bold text-gray-600 mb-1 block">Student Name *</label>
+                <input value={form.studentName} onChange={e => set('studentName', e.target.value)} required className={inp} />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-600 mb-1 block">Father's Name *</label>
+                <input value={form.fatherName} onChange={e => set('fatherName', e.target.value)} required className={inp} />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-600 mb-1 block">Mother's Name</label>
+                <input value={form.motherName} onChange={e => set('motherName', e.target.value)} className={inp} />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-600 mb-1 block">Date of Birth *</label>
+                <input type="date" value={form.dob} onChange={e => set('dob', e.target.value)} required className={inp} />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-600 mb-1 block">Gender *</label>
+                <select value={form.gender} onChange={e => set('gender', e.target.value)} required className={sel}>
+                  <option value="">-- Select --</option>
+                  <option>Male</option><option>Female</option><option>Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-600 mb-1 block">Category</label>
+                <select value={form.category} onChange={e => set('category', e.target.value)} className={sel}>
+                  <option>General</option><option>OBC</option><option>SC</option><option>ST</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Academic Info */}
+          <div>
+            <h3 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+              <BookOpen className="w-3.5 h-3.5" /> Academic Information
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-bold text-gray-600 mb-1 block">Enrollment Number *</label>
+                <input value={form.enrollmentNumber} onChange={e => set('enrollmentNumber', e.target.value)} required className={inp} />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-600 mb-1 block">Course *</label>
+                <select value={form.course} onChange={e => set('course', e.target.value)} required className={sel}>
+                  <option value="">-- Select Course --</option>
+                  {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-600 mb-1 block">Batch *</label>
+                <input value={form.batch} onChange={e => set('batch', e.target.value)} required className={inp} />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-600 mb-1 block">Session</label>
+                <input value={form.session} onChange={e => set('session', e.target.value)} placeholder="e.g. 2024-25" className={inp} />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-600 mb-1 block">Qualification</label>
+                <input value={form.qualification} onChange={e => set('qualification', e.target.value)} placeholder="e.g. 12th Pass" className={inp} />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-600 mb-1 block">Subjects</label>
+                <input value={form.subjects} onChange={e => set('subjects', e.target.value)} placeholder="e.g. All" className={inp} />
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Info */}
+          <div>
+            <h3 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+              <Phone className="w-3.5 h-3.5" /> Contact Information
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-bold text-gray-600 mb-1 block">Phone *</label>
+                <input value={form.phone} onChange={e => set('phone', e.target.value)} required className={inp} />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-600 mb-1 block">Email *</label>
+                <input type="email" value={form.email} onChange={e => set('email', e.target.value)} required className={inp} />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="text-xs font-bold text-gray-600 mb-1 block">Address</label>
+                <input value={form.address} onChange={e => set('address', e.target.value)} className={inp} />
+              </div>
+            </div>
+          </div>
+
+          {/* Proceed to Pay */}
+          <button type="button" onClick={e => { e.preventDefault(); setStep('pay'); }}
+            className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md">
+            💳 Proceed to Pay ₹{AMOUNT}
+          </button>
+        </form>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function StudentDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -801,6 +1323,8 @@ export default function StudentDashboard() {
   const [admitCard, setAdmitCard] = useState(null);
   const [admitCardEnabled, setAdmitCardEnabled] = useState(false);
   const [myExamForm, setMyExamForm] = useState(null);
+  const [examFormData, setExamFormData] = useState(null);
+  const [examFormLoading, setExamFormLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -816,6 +1340,7 @@ export default function StudentDashboard() {
     api.get('/admit-card/setting').then(r => setAdmitCardEnabled(r.data.enabled || false)).catch(() => {});
     api.get('/exam-forms/my').then(r => {
       setMyExamForm(r.data.form || null);
+      setExamFormData(r.data.form || null);
       if (r.data.form) {
         api.get('/admit-card/my').then(r2 => setAdmitCard(r2.data.admitCard || null)).catch(() => {});
       }
@@ -1322,7 +1847,8 @@ export default function StudentDashboard() {
               <h3 className="font-black text-gray-900 mb-4 text-sm uppercase tracking-wide">Quick Actions</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-7 gap-2 sm:gap-3">
                 {[
-                  { label: 'View ID Card', icon: CreditCard, color: 'from-blue-500 to-blue-600', tab: 'idcard' },
+                  { label: 'Exam Form', icon: FileText, color: 'from-blue-500 to-blue-600', tab: 'examform' },
+                  { label: 'View ID Card', icon: CreditCard, color: 'from-cyan-500 to-blue-600', tab: 'idcard' },
                   { label: 'Admit Card', icon: FileText, color: 'from-indigo-500 to-indigo-600', tab: 'admitcard', adminControlled: true },
                   { label: 'My Results', icon: Award, color: 'from-yellow-500 to-orange-500', tab: 'results' },
                   { label: 'Certificates', icon: Award, color: 'from-teal-500 to-emerald-600', tab: 'certificates' },
@@ -1678,6 +2204,18 @@ export default function StudentDashboard() {
               </div>
             )}
           </motion.div>
+        )}
+
+        {/* Exam Form Tab */}
+        {activeTab === 'examform' && (
+          <ExamFormSection
+            student={student}
+            myExamForm={examFormData}
+            onSubmitted={(form) => {
+              setExamFormData(form);
+              setMyExamForm(form);
+            }}
+          />
         )}
 
         {/* Certificates Tab */}

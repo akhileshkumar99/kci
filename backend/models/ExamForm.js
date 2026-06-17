@@ -27,6 +27,10 @@ const examFormSchema = new mongoose.Schema({
   examDate:         { type: String },
   examType:         { type: String, enum: ['Regular', 'Ex-Student', 'Improvement'], default: 'Regular' },
 
+  // Payment
+  paymentUtr:       { type: String, unique: true, sparse: true },
+  paymentStatus:    { type: String, enum: ['Paid', 'Pending'], default: 'Pending' },
+
   // Status
   status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
 

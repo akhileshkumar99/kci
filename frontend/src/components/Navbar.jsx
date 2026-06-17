@@ -14,8 +14,8 @@ const navLinks = [
   { label: 'Branches', path: '/branches' },
   { label: 'Staff', path: '/staff' },
   { label: 'Contact', path: '/contact' },
-  { label: 'Exam Form', path: '/exam-form' },
 ];
+
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);

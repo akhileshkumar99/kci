@@ -72,9 +72,15 @@ exports.getStudents = async (req, res) => {
 
 exports.updateStudent = async (req, res) => {
   try {
-    const updates = { name: req.body.name, email: req.body.email, phone: req.body.phone, batch: req.body.batch, courseName: req.body.courseName };
+    const allowed = ['name', 'email', 'phone', 'batch', 'courseName', 'fatherName', 'dob', 'address'];
+    const updates = {};
+    allowed.forEach(f => { if (req.body[f] !== undefined) updates[f] = req.body[f]; });
     if (req.file) updates.photo = req.file.path;
-    const student = await User.findByIdAndUpdate(req.params.id, updates, { new: true }).select('-password');
+    if (req.body.password && req.body.password.trim()) {
+      const bcrypt = require('bcryptjs');
+      updates.password = await bcrypt.hash(req.body.password.trim(), 10);
+    }
+    const student = await User.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: false }).select('-password');
     res.json({ success: true, student });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
