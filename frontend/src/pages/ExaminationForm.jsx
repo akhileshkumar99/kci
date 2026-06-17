@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, CheckCircle, User, BookOpen, Phone } from 'lucide-react';
+import { FileText, CheckCircle, User, BookOpen, Phone, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
 const COURSES = ['DCA', 'ADCA', 'CCA', 'PGDCA', 'Tally with GST', 'Web Design', 'Web Development', 'Python', 'MS Office', 'Graphic Design', 'AI & Machine Learning', 'Other'];
@@ -19,14 +21,27 @@ function SectionHeader({ icon: Icon, title, color }) {
 }
 
 export default function ExaminationForm() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     studentName: '', fatherName: '', motherName: '', dob: '', gender: '', category: 'General',
     enrollmentNumber: '', course: '', batch: '', session: '', qualification: '', subjects: '',
     phone: '', email: '', address: '',
   });
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [alreadySubmitted, setAlreadySubmitted] = useState(false);
+  const [existingForm, setExistingForm] = useState(null);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!user) { setChecking(false); return; }
+    api.get('/exam-forms/my')
+      .then(r => { if (r.data.form) { setAlreadySubmitted(true); setExistingForm(r.data.form); } })
+      .catch(() => {})
+      .finally(() => setChecking(false));
+  }, [user]);
 
   const handle = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -43,6 +58,39 @@ export default function ExaminationForm() {
     }
   };
 
+  if (checking) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+
+  if (alreadySubmitted && existingForm) return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 pt-28 pb-16 px-4 flex items-center justify-center">
+      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+        className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-12 text-center max-w-md w-full">
+        <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-5">
+          <AlertCircle className="w-10 h-10 text-blue-500" />
+        </div>
+        <h2 className="text-2xl font-black text-gray-900 mb-2">Already Submitted</h2>
+        <p className="text-gray-500 text-sm mb-4">You have already submitted your examination form.</p>
+        <div className="bg-blue-50 rounded-xl p-4 mb-4 text-left">
+          <p className="text-xs text-blue-600 font-semibold mb-1">Enrollment Number</p>
+          <p className="text-blue-800 font-black text-lg">{existingForm.enrollmentNumber}</p>
+          <p className="text-xs text-gray-400 mt-2">Status: <span className={`font-bold ${
+            existingForm.status === 'Approved' ? 'text-green-600' :
+            existingForm.status === 'Rejected' ? 'text-red-600' : 'text-yellow-600'
+          }`}>{existingForm.status}</span></p>
+        </div>
+        {user && (
+          <button onClick={() => navigate('/dashboard')}
+            className="w-full px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:shadow-lg transition-all">
+            Go to Dashboard
+          </button>
+        )}
+      </motion.div>
+    </div>
+  );
+
   if (success) return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 pt-28 pb-16 px-4 flex items-center justify-center">
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
@@ -57,10 +105,17 @@ export default function ExaminationForm() {
           <p className="text-xs text-blue-600 font-semibold mb-1">Enrollment Number</p>
           <p className="text-blue-800 font-black text-lg">{form.enrollmentNumber}</p>
         </div>
+        {user ? (
+          <button onClick={() => navigate('/dashboard')}
+            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:shadow-lg transition-all">
+            Go to Dashboard
+          </button>
+        ) : (
         <button onClick={() => { setSuccess(false); setForm({ studentName:'',fatherName:'',motherName:'',dob:'',gender:'',category:'General',enrollmentNumber:'',course:'',batch:'',session:'',qualification:'',subjects:'',phone:'',email:'',address:'' }); }}
           className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:shadow-lg transition-all">
           Submit Another Form
         </button>
+        )}
       </motion.div>
     </div>
   );

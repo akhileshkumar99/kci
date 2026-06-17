@@ -2,8 +2,25 @@ const ExamForm = require('../models/ExamForm');
 
 exports.submitExamForm = async (req, res) => {
   try {
-    const form = await ExamForm.create(req.body);
+    const userId = req.user?.id || null;
+    // Prevent duplicate submission by same user
+    if (userId) {
+      const existing = await ExamForm.findOne({ userId });
+      if (existing) {
+        return res.status(400).json({ success: false, message: 'You have already submitted an examination form.', form: existing });
+      }
+    }
+    const form = await ExamForm.create({ ...req.body, userId });
     res.status(201).json({ success: true, message: 'Exam form submitted successfully', form });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.getMyExamForm = async (req, res) => {
+  try {
+    const form = await ExamForm.findOne({ userId: req.user.id });
+    res.json({ success: true, form: form || null });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

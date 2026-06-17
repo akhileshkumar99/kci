@@ -184,34 +184,43 @@ function buildEmailHTML(student, { examDateFmt, examCenter, reportingTime, examT
 // ── Student: get own admit card ──
 exports.getMyAdmitCard = async (req, res) => {
   try {
+    // Check admin toggle
+    const setting = await Setting.findOne({ key: 'admitCardEnabled' });
+    if (!setting?.value) return res.status(403).json({ success: false, message: 'Admit card not enabled by admin.' });
+
+    // Check student submitted exam form
+    const examForm = await ExamForm.findOne({ userId: req.user.id });
+    if (!examForm) return res.status(403).json({ success: false, message: 'You have not submitted an examination form yet.' });
+
     const student = await User.findById(req.user.id).select('-password');
     if (!student) return res.status(404).json({ success: false, message: 'Student not found' });
 
     const scheduleSetting = await Setting.findOne({ key: 'examSchedule' });
     const sch = scheduleSetting?.value || {};
-    const row = getCourseSchedule(sch, student.courseName);
+    const row = getCourseSchedule(sch, student.courseName || examForm.course);
 
     const count = await User.countDocuments({ role: 'student', createdAt: { $lte: student.createdAt } });
     res.json({
       success: true,
       admitCard: {
         studentName:      student.name,
-        fatherName:       student.fatherName || '-',
-        motherName:       student.motherName || '-',
+        fatherName:       student.fatherName || examForm.fatherName || '-',
+        motherName:       student.motherName || examForm.motherName || '-',
         dob:              student.dob ? new Date(student.dob).toLocaleDateString('en-IN') : '-',
-        gender:           student.gender    || '-',
-        category:         student.category  || 'General',
-        enrollmentNumber: student.enrollmentNumber || student.rollNumber,
-        courseName:       student.courseName || '-',
-        batch:            student.batch      || '-',
-        session:          student.batch      || '-',
-        address:          student.address    || '-',
+        gender:           student.gender    || examForm.gender || '-',
+        category:         student.category  || examForm.category || 'General',
+        enrollmentNumber: student.enrollmentNumber || student.rollNumber || examForm.enrollmentNumber,
+        courseName:       student.courseName || examForm.course || '-',
+        batch:            student.batch      || examForm.batch || '-',
+        session:          student.batch      || examForm.session || '-',
+        address:          student.address    || examForm.address || '-',
         serialNumber:     String(count).padStart(6, '0'),
         rollNumber:       student.rollNumber,
         examDate:         row?.examDate      || null,
         examCenter:       sch.examCenter     || null,
         reportingTime:    row?.reportingTime || sch.reportingTime || '9:00 AM',
         examType:         row?.examType      || sch.examType      || 'Theory',
+        examFormStatus:   examForm.status,
       },
     });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }

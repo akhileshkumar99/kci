@@ -29,6 +29,9 @@ const examFormSchema = new mongoose.Schema({
 
   // Status
   status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
+
+  // Linked student
+  userId: { type: require('mongoose').Schema.Types.ObjectId, ref: 'User', default: null },
 }, { timestamps: true });
 
 module.exports = mongoose.model('ExamForm', examFormSchema);

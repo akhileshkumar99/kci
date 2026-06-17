@@ -800,6 +800,7 @@ export default function StudentDashboard() {
   const [pwLoading, setPwLoading] = useState(false);
   const [admitCard, setAdmitCard] = useState(null);
   const [admitCardEnabled, setAdmitCardEnabled] = useState(false);
+  const [myExamForm, setMyExamForm] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -812,16 +813,21 @@ export default function StudentDashboard() {
       .catch(() => { toast.error('Failed to load data'); setLoading(false); });
     api.get('/branch/student/tests').then(r => setTests(r.data.tests || [])).catch(() => {});
     api.get('/study-material').then(r => setStudyMaterials(r.data.materials || [])).catch(() => {});
-    api.get('/admit-card/my').then(r => setAdmitCard(r.data.admitCard || null)).catch(() => {});
     api.get('/admit-card/setting').then(r => setAdmitCardEnabled(r.data.enabled || false)).catch(() => {});
+    api.get('/exam-forms/my').then(r => {
+      setMyExamForm(r.data.form || null);
+      if (r.data.form) {
+        api.get('/admit-card/my').then(r2 => setAdmitCard(r2.data.admitCard || null)).catch(() => {});
+      }
+    }).catch(() => {});
     api.get('/notifications/my').then(r => { setNotifications(r.data.notifications || []); setUnreadCount(r.data.unreadCount || 0); }).catch(() => {});
   }, [user?.id]);
 
   const handleLogout = () => { logout(); navigate('/'); };
   const { student, results, certificates, branch } = data;
 
-  // Only show Admit Card tab when admin has enabled it
-  const tabs = ALL_TABS.filter(t => !t.adminControlled || admitCardEnabled);
+  // Show Admit Card tab only when admin enabled it AND student submitted exam form
+  const tabs = ALL_TABS.filter(t => !t.adminControlled || (admitCardEnabled && myExamForm));
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
@@ -1323,7 +1329,7 @@ export default function StudentDashboard() {
                   { label: 'Study Material', icon: BookMarked, color: 'from-green-500 to-green-600', tab: 'studymaterial' },
                   { label: 'Take Test', icon: ClipboardCheck, color: 'from-violet-500 to-purple-600', tab: 'tests' },
                   { label: 'Change Password', icon: Lock, color: 'from-rose-500 to-red-600', tab: 'changepassword' },
-                ].filter(a => !a.adminControlled || admitCardEnabled).map(({ label, icon: Icon, color, tab }) => (
+                ].filter(a => !a.adminControlled || (admitCardEnabled && myExamForm)).map(({ label, icon: Icon, color, tab }) => (
                   <button key={label} onClick={() => setActiveTab(tab)}
                     className={`flex flex-col items-center gap-2 p-4 bg-gradient-to-br ${color} rounded-2xl text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all`}>
                     <Icon className="w-6 h-6" />
