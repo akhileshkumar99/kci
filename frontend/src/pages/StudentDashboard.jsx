@@ -980,10 +980,6 @@ function PayStep({ upiQr, upiId, amount, enrollmentNumber, onPaid, onBack }) {
             </div>
           )}
 
-          <button onClick={onPaid}
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 shadow-md transition-all">
-            ✅ I Have Paid → Enter UTR
-          </button>
 
           <button onClick={onBack} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
             ← Go Back
