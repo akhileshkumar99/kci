@@ -930,6 +930,19 @@ async function downloadReceiptPDF(form) {
 
 function PayStep({ upiQr, upiId, amount, enrollmentNumber, onPaid, onBack }) {
   const upiDeepLink = `upi://pay?pa=${upiId}&pn=Keerti Computer Institute&am=${amount}&cu=INR&tn=${encodeURIComponent('KCI-EXAM-' + enrollmentNumber)}`;
+  const [waiting, setWaiting] = useState(false);
+
+  useEffect(() => {
+    if (!waiting) return;
+    const onVisibility = () => { if (!document.hidden) onPaid(); };
+    const onFocus = () => onPaid();
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('focus', onFocus);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [waiting, onPaid]);
 
   return (
     <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-sm mx-auto">
@@ -955,10 +968,17 @@ function PayStep({ upiQr, upiId, amount, enrollmentNumber, onPaid, onBack }) {
             </div>
           </div>
 
-          <a href={upiDeepLink}
+          <a href={upiDeepLink} onClick={() => setWaiting(true)}
             className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-black text-sm text-center shadow-md transition-all">
             📱 Pay Now via UPI App
           </a>
+
+          {waiting && (
+            <div className="w-full py-3 bg-blue-50 border-2 border-blue-200 rounded-xl flex items-center justify-center gap-2">
+              <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <span className="text-blue-700 font-bold text-sm">Waiting... return here after paying</span>
+            </div>
+          )}
 
           <button onClick={onPaid}
             className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 shadow-md transition-all">
