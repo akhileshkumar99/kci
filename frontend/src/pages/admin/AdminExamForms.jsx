@@ -98,7 +98,9 @@ export default function AdminExamForms() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-2">
                     <h3 className="font-bold text-gray-900">{f.studentName}</h3>
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusColor[f.status]}`}>{f.status}</span>
+                    {f.status !== 'Pending' && (
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusColor[f.status]}`}>{f.status}</span>
+                    )}
                   </div>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-1 text-sm text-gray-600">
                     <span><b className="text-gray-700">Enrollment:</b> {f.enrollmentNumber}</span>
@@ -147,7 +149,7 @@ export default function AdminExamForms() {
                 ['Subjects', viewForm.subjects],
                 ['Phone', viewForm.phone],
                 ['Email', viewForm.email],
-                ['Status', viewForm.status],
+                ['UTR / Transaction ID', viewForm.paymentUtr],
                 ['Submitted', new Date(viewForm.createdAt).toLocaleDateString()],
               ].map(([label, val]) => val ? (
                 <div key={label} className="bg-gray-50 rounded-xl px-4 py-3">
@@ -199,7 +201,7 @@ export default function AdminExamForms() {
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-1">Status</label>
                 <select value={editData.status || 'Pending'} onChange={e => setEditData(p => ({ ...p, status: e.target.value }))} className={inputCls}>
-                  <option>Pending</option><option>Approved</option><option>Rejected</option>
+                  <option>Approved</option><option>Rejected</option>
                 </select>
               </div>
               <div className="sm:col-span-2">
