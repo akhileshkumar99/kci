@@ -930,55 +930,13 @@ async function downloadReceiptPDF(form) {
 
 function PayStep({ upiQr, upiId, amount, enrollmentNumber, onPaid, onBack }) {
   const upiDeepLink = `upi://pay?pa=${upiId}&pn=Keerti Computer Institute&am=${amount}&cu=INR&tn=${encodeURIComponent('KCI-EXAM-' + enrollmentNumber)}`;
-  const [waiting, setWaiting] = useState(false);
-  const [timer, setTimer] = useState(10 * 60); // 10 minutes
-
-  // Countdown timer
-  useEffect(() => {
-    const t = setInterval(() => setTimer(p => p > 0 ? p - 1 : 0), 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  const mins = String(Math.floor(timer / 60)).padStart(2, '0');
-  const secs = String(timer % 60).padStart(2, '0');
-  const timerUrgent = timer <= 60;
-
-  useEffect(() => {
-    if (!waiting) return;
-    const onVisibility = () => { if (!document.hidden) onPaid(); };
-    const onFocus = () => onPaid();
-    document.addEventListener('visibilitychange', onVisibility);
-    window.addEventListener('focus', onFocus);
-    return () => {
-      document.removeEventListener('visibilitychange', onVisibility);
-      window.removeEventListener('focus', onFocus);
-    };
-  }, [waiting, onPaid]);
-
-  const handlePayNow = () => {
-    setWaiting(true);
-    window.location.href = upiDeepLink;
-  };
 
   return (
     <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-sm mx-auto">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4 text-center">
           <div className="text-white font-black text-lg">💳 Pay Exam Fee</div>
-          <div className="text-green-100 text-xs mt-1">Scan QR or tap Pay Now — auto-redirects after payment</div>
-        </div>
-
-        {/* Timer */}
-        <div className={`flex items-center justify-center gap-2 py-3 border-b ${
-          timerUrgent ? 'bg-red-50 border-red-100' : 'bg-green-50 border-green-100'
-        }`}>
-          <Clock className={`w-4 h-4 ${timerUrgent ? 'text-red-500 animate-pulse' : 'text-green-600'}`} />
-          <span className={`font-black text-lg font-mono ${timerUrgent ? 'text-red-600' : 'text-green-700'}`}>
-            {mins}:{secs}
-          </span>
-          <span className={`text-xs font-semibold ${timerUrgent ? 'text-red-500' : 'text-green-600'}`}>
-            {timerUrgent ? 'Hurry! Time is running out' : 'Time remaining to complete payment'}
-          </span>
+          <div className="text-green-100 text-xs mt-1">Scan QR code or tap Pay Now to pay</div>
         </div>
 
         <div className="p-6 flex flex-col items-center gap-4">
@@ -996,23 +954,17 @@ function PayStep({ upiQr, upiId, amount, enrollmentNumber, onPaid, onBack }) {
               <span className="text-lg font-black text-green-700">₹{amount}</span>
             </div>
           </div>
-          {!waiting ? (
-            <button onClick={handlePayNow}
-              className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-black text-sm text-center shadow-md transition-all">
-              📱 Pay Now via UPI App
-            </button>
-          ) : (
-            <div className="w-full py-3 bg-green-50 border-2 border-green-300 rounded-xl flex items-center justify-center gap-3">
-              <div className="w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
-              <span className="text-green-700 font-black text-sm">Waiting... return here after paying</span>
-            </div>
-          )}
-          <div className="flex items-center gap-2 w-full">
-            <div className="h-px flex-1 bg-gray-200" />
-            <span className="text-xs text-gray-400">or scan QR (desktop)</span>
-            <div className="h-px flex-1 bg-gray-200" />
-          </div>
-          <p className="text-[10px] text-gray-400 text-center">After payment, you will be automatically redirected to enter your UTR.</p>
+
+          <a href={upiDeepLink}
+            className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-black text-sm text-center shadow-md transition-all">
+            📱 Pay Now via UPI App
+          </a>
+
+          <button onClick={onPaid}
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 shadow-md transition-all">
+            ✅ I Have Paid → Enter UTR
+          </button>
+
           <button onClick={onBack} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
             ← Go Back
           </button>
