@@ -30,7 +30,14 @@ exports.getMyResult = async (req, res) => {
 exports.getAllResults = async (req, res) => {
   try {
     const results = await Result.find().populate('course', 'title').sort({ createdAt: -1 });
-    res.json({ success: true, results });
+    const rollNumbers = results.map(r => r.rollNumber).filter(Boolean);
+    const students = await User.find({ rollNumber: { $in: rollNumbers } }).select('rollNumber branchName branchId').populate('branchId', 'branchName');
+    const branchMap = {};
+    students.forEach(s => {
+      branchMap[s.rollNumber] = s.branchId?.branchName || s.branchName || null;
+    });
+    const enriched = results.map(r => ({ ...r.toObject(), branchName: branchMap[r.rollNumber] || null }));
+    res.json({ success: true, results: enriched });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

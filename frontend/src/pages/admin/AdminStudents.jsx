@@ -35,7 +35,7 @@ const getPhotoUrl = (photo) => {
   return `${import.meta.env.VITE_API_URL || ''}${photo}`;
 };
 
-const emptyForm = { name: '', email: '', phone: '', batch: '', admissionDate: '', courseName: '', photo: null };
+const emptyForm = { name: '', email: '', phone: '', batch: '', admissionDate: '', courseName: '', fatherName: '', dob: '', address: '', branchId: '', photo: null };
 
 export default function AdminStudents() {
   const [students, setStudents] = useState([]);
@@ -58,6 +58,8 @@ export default function AdminStudents() {
   const [filterYear, setFilterYear] = useState(new Date().getFullYear());
   const [filterMonth, setFilterMonth] = useState(new Date().getMonth()); // 0-11
   const importRef = useRef();
+
+  const [branches, setBranches] = useState([]);
 
   const handleMigrateFormNo = async () => {
     if (!confirm('Assign Form No to all students who don\'t have one?')) return;
@@ -82,7 +84,10 @@ export default function AdminStudents() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchStudents(); }, []);
+  useEffect(() => {
+    fetchStudents();
+    api.get('/admin/branch-users').then(r => setBranches(r.data.branches || [])).catch(() => {});
+  }, []);
 
   const openModal = () => { setForm(emptyForm); setModal(true); };
 
@@ -99,6 +104,10 @@ export default function AdminStudents() {
       fd.append('batch', form.batch);
       fd.append('admissionDate', form.admissionDate);
       fd.append('courseName', form.courseName);
+      fd.append('fatherName', form.fatherName || '');
+      fd.append('dob', form.dob || '');
+      fd.append('address', form.address || '');
+      if (form.branchId) fd.append('branchId', form.branchId);
       if (form.photo) fd.append('photo', form.photo);
       await api.post('/admin/students', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       toast.success(`Student added — Roll: ${nextRoll}`);
@@ -110,8 +119,22 @@ export default function AdminStudents() {
 
   const openEdit = (s) => {
     setEditStudent(s);
-    setEditForm({ name: s.name, email: s.email, phone: s.phone || '', batch: s.batch || '', courseName: s.courseName || s.course?.title || '', photo: null });
+    setEditForm({
+      name: s.name, email: s.email, phone: s.phone || '',
+      batch: s.batch || '', courseName: s.courseName || s.course?.title || '',
+      fatherName: s.fatherName || '', dob: s.dob ? new Date(s.dob).toISOString().split('T')[0] : '',
+      address: s.address || '', admissionDate: s.admissionDate ? new Date(s.admissionDate).toISOString().split('T')[0] : '',
+      isApproved: s.isApproved || false, branchId: s.branchId?._id || s.branchId || '', photo: null
+    });
     setEditModal(true);
+  };
+
+  const handleApprove = async (s) => {
+    try {
+      await api.put(`/admin/students/${s._id}`, { isApproved: true });
+      setStudents(p => p.map(x => x._id === s._id ? { ...x, isApproved: true } : x));
+      toast.success(`${s.name} approved!`);
+    } catch { toast.error('Approval failed'); }
   };
 
   const handleEdit = async (e) => {
@@ -120,11 +143,9 @@ export default function AdminStudents() {
     setSaving(true);
     try {
       const fd = new FormData();
-      fd.append('name', editForm.name);
-      fd.append('email', editForm.email);
-      fd.append('phone', editForm.phone);
-      fd.append('batch', editForm.batch);
-      fd.append('courseName', editForm.courseName);
+      ['name','email','phone','batch','courseName','fatherName','dob','address','admissionDate'].forEach(k => fd.append(k, editForm[k] || ''));
+      fd.append('isApproved', editForm.isApproved);
+      if (editForm.branchId) fd.append('branchId', editForm.branchId);
       if (editForm.photo) fd.append('photo', editForm.photo);
       await api.put(`/admin/students/${editStudent._id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       toast.success('Student updated');
@@ -303,6 +324,9 @@ export default function AdminStudents() {
                   <td className="p-4"><span className={`px-2 py-1 rounded-lg text-xs font-semibold ${s.isApproved ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>{s.isApproved ? '✓ Approved' : 'Pending'}</span></td>
                   <td className="p-4">
                     <div className="flex items-center gap-1">
+                      {!s.isApproved && (
+                        <button onClick={() => handleApprove(s)} className="px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold transition-colors" title="Approve">Approve</button>
+                      )}
                       <button onClick={() => { setViewStudent(s); setViewModal(true); }} className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="View"><Eye className="w-4 h-4" /></button>
                       <button onClick={() => openEdit(s)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><Pencil className="w-4 h-4" /></button>
                       <button onClick={() => handleDelete(s._id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>
@@ -354,6 +378,15 @@ export default function AdminStudents() {
                 ['Admission Date', viewStudent.admissionDate ? new Date(viewStudent.admissionDate).toLocaleDateString('en-IN') : '—'],
                 ['Status', viewStudent.isApproved ? 'Approved ✓' : 'Pending'],
                 ['Joined', new Date(viewStudent.createdAt).toLocaleDateString('en-IN')],
+                ...(viewStudent.branchId ? [
+                  ['Branch Name', viewStudent.branchId.branchName || viewStudent.branchId.name || '—'],
+                  ['Branch Code', viewStudent.branchId.branchCode || '—'],
+                  ['Branch City', viewStudent.branchId.branchCity || '—'],
+                  ['Branch Owner', viewStudent.branchId.name || '—'],
+                ] : [
+                  ['Branch Name', viewStudent.branchName || '—'],
+                  ['Branch Code', viewStudent.branchCode || '—'],
+                ]),
               ].map(([label, val, cls = '']) => (
                 <div key={label} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
                   <span className="text-xs font-semibold text-gray-500">{label}</span>
@@ -379,28 +412,29 @@ export default function AdminStudents() {
             <form onSubmit={handleEdit} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><User className="w-3.5 h-3.5" /> Full Name <span className="text-red-500">*</span></label>
-                  <input value={editForm.name} onChange={e => setE('name', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><User className="w-3.5 h-3.5" /> Full Name *</label>
+                  <input value={editForm.name} onChange={e => setE('name', e.target.value)} required className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
                   <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><Phone className="w-3.5 h-3.5" /> Phone</label>
                   <input type="tel" value={editForm.phone} onChange={e => setE('phone', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
-              </div>
-              <div>
-                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><Mail className="w-3.5 h-3.5" /> Email <span className="text-red-500">*</span></label>
-                <input type="email" value={editForm.email} onChange={e => setE('email', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div>
-                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><ImagePlus className="w-3.5 h-3.5" /> Update Photo (optional)</label>
-                <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
-                  <input type="file" className="hidden" accept="image/*" onChange={e => setE('photo', e.target.files[0])} />
-                  {editForm.photo
-                    ? <span className="text-sm text-blue-600 font-medium px-4 truncate max-w-full">{editForm.photo.name}</span>
-                    : <><ImagePlus className="w-5 h-5 text-gray-400 mb-1" /><span className="text-xs text-gray-400">{editStudent?.photo ? 'Click to change photo' : 'Click to upload photo'}</span></>}
-                </label>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><Mail className="w-3.5 h-3.5" /> Email *</label>
+                  <input type="email" value={editForm.email} onChange={e => setE('email', e.target.value)} required className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><User className="w-3.5 h-3.5" /> Father's Name</label>
+                  <input value={editForm.fatherName} onChange={e => setE('fatherName', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><Calendar className="w-3.5 h-3.5" /> Date of Birth</label>
+                  <input type="date" value={editForm.dob} onChange={e => setE('dob', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><Calendar className="w-3.5 h-3.5" /> Admission Date</label>
+                  <input type="date" value={editForm.admissionDate} onChange={e => setE('admissionDate', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
                 <div>
                   <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><Calendar className="w-3.5 h-3.5" /> Batch</label>
                   <input value={editForm.batch} onChange={e => setE('batch', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -412,6 +446,31 @@ export default function AdminStudents() {
                     {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
+              </div>
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5">Address</label>
+                <input value={editForm.address} onChange={e => setE('address', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5">Assign Branch</label>
+                <select value={editForm.branchId} onChange={e => setE('branchId', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  <option value="">-- No Branch --</option>
+                  {branches.map(b => (
+                    <option key={b._id} value={b._id}>{b.branchName} {b.branchCode ? `(${b.branchCode})` : ''} — {b.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <input type="checkbox" id="isApproved" checked={editForm.isApproved} onChange={e => setE('isApproved', e.target.checked)} className="w-4 h-4 accent-green-600 cursor-pointer" />
+                <label htmlFor="isApproved" className="text-sm font-semibold text-gray-700 cursor-pointer">Mark as Approved</label>
+              </div>
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><ImagePlus className="w-3.5 h-3.5" /> Update Photo (optional)</label>
+                <label className="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
+                  <input type="file" className="hidden" accept="image/*" onChange={e => setE('photo', e.target.files[0])} />
+                  {editForm.photo ? <span className="text-sm text-blue-600 font-medium px-4 truncate max-w-full">{editForm.photo.name}</span>
+                    : <><ImagePlus className="w-5 h-5 text-gray-400 mb-1" /><span className="text-xs text-gray-400">{editStudent?.photo ? 'Click to change photo' : 'Click to upload photo'}</span></>}
+                </label>
               </div>
               <button type="submit" disabled={saving} className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
                 {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Pencil className="w-4 h-4" />}
@@ -439,45 +498,62 @@ export default function AdminStudents() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><User className="w-3.5 h-3.5" /> Full Name <span className="text-red-500">*</span></label>
-                  <input value={form.name} onChange={e => set('name', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><User className="w-3.5 h-3.5" /> Full Name *</label>
+                  <input value={form.name} onChange={e => set('name', e.target.value)} required className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
                   <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><Phone className="w-3.5 h-3.5" /> Phone</label>
                   <input type="tel" value={form.phone} onChange={e => set('phone', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
-              </div>
-              <div>
-                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><Mail className="w-3.5 h-3.5" /> Email <span className="text-red-500">*</span></label>
-                <input type="email" value={form.email} onChange={e => set('email', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div>
-                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><ImagePlus className="w-3.5 h-3.5" /> Student Photo (optional)</label>
-                <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
-                  <input type="file" className="hidden" accept="image/*" onChange={e => set('photo', e.target.files[0])} />
-                  {form.photo
-                    ? <span className="text-sm text-blue-600 font-medium px-4 truncate max-w-full">{form.photo.name}</span>
-                    : <><ImagePlus className="w-5 h-5 text-gray-400 mb-1" /><span className="text-xs text-gray-400">Click to upload photo</span></>}
-                </label>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><Calendar className="w-3.5 h-3.5" /> Batch</label>
-                  <input value={form.batch} onChange={e => set('batch', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><Mail className="w-3.5 h-3.5" /> Email *</label>
+                  <input type="email" value={form.email} onChange={e => set('email', e.target.value)} required className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><User className="w-3.5 h-3.5" /> Father's Name</label>
+                  <input value={form.fatherName} onChange={e => set('fatherName', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><Calendar className="w-3.5 h-3.5" /> Date of Birth</label>
+                  <input type="date" value={form.dob} onChange={e => set('dob', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
                   <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><Calendar className="w-3.5 h-3.5" /> Admission Date</label>
                   <input type="date" value={form.admissionDate} onChange={e => set('admissionDate', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><Calendar className="w-3.5 h-3.5" /> Batch</label>
+                  <input value={form.batch} onChange={e => set('batch', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><BookOpen className="w-3.5 h-3.5" /> Course</label>
+                  <select value={form.courseName} onChange={e => set('courseName', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    <option value="">-- Select Course --</option>
+                    {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
               </div>
               <div>
-                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><BookOpen className="w-3.5 h-3.5" /> Course</label>
-                <select value={form.courseName} onChange={e => set('courseName', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                  <option value="">-- Select Course --</option>
-                  {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5">Address</label>
+                <input value={form.address} onChange={e => set('address', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5">Assign Branch</label>
+                <select value={form.branchId} onChange={e => set('branchId', e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  <option value="">-- No Branch --</option>
+                  {branches.map(b => (
+                    <option key={b._id} value={b._id}>{b.branchName} {b.branchCode ? `(${b.branchCode})` : ''} — {b.name}</option>
+                  ))}
                 </select>
               </div>
-
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><ImagePlus className="w-3.5 h-3.5" /> Student Photo (optional)</label>
+                <label className="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
+                  <input type="file" className="hidden" accept="image/*" onChange={e => set('photo', e.target.files[0])} />
+                  {form.photo ? <span className="text-sm text-blue-600 font-medium px-4 truncate max-w-full">{form.photo.name}</span>
+                    : <><ImagePlus className="w-5 h-5 text-gray-400 mb-1" /><span className="text-xs text-gray-400">Click to upload photo</span></>}
+                </label>
+              </div>
               <button type="submit" disabled={saving}
                 className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
                 {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Plus className="w-4 h-4" />}

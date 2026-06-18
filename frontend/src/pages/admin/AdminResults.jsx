@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { Plus, Trash2, X, Save, Pencil, User, Upload } from 'lucide-react';
+import { Plus, Trash2, X, Save, Pencil, User, Upload, Search, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import api from '../../utils/api';
 import Loader from '../../components/Loader';
 
@@ -67,6 +68,35 @@ export default function AdminResults() {
   const [editFile, setEditFile] = useState(null);
   const [nameSearch, setNameSearch] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [search, setSearch] = useState('');
+  const [filterPeriod, setFilterPeriod] = useState('all');
+  const [filterYear, setFilterYear] = useState(new Date().getFullYear());
+  const [filterMonth, setFilterMonth] = useState(new Date().getMonth());
+
+  const now = new Date();
+  const filtered = results.filter(r => {
+    const matchSearch = [r.rollNumber, r.studentName, r.courseName].join(' ').toLowerCase().includes(search.toLowerCase());
+    if (!matchSearch) return false;
+    const d = new Date(r.createdAt);
+    if (filterPeriod === 'yearly') return d.getFullYear() === Number(filterYear);
+    if (filterPeriod === 'monthly') return d.getFullYear() === Number(filterYear) && d.getMonth() === Number(filterMonth);
+    if (filterPeriod === 'weekly') { const w = new Date(now); w.setDate(now.getDate()-7); return d >= w; }
+    return true;
+  });
+
+  const exportExcel = () => {
+    const rows = filtered.map(r => ({
+      'Roll No': r.rollNumber, 'Student': r.studentName, 'Course': r.courseName || '',
+      'Batch': r.batch || '', 'Obtained': r.obtainedMarks, 'Total': r.totalMarks,
+      'Percentage': r.percentage + '%', 'Grade': r.grade, 'Status': r.status,
+      'Exam Date': r.examDate ? new Date(r.examDate).toLocaleDateString('en-IN') : '',
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Results');
+    XLSX.writeFile(wb, `KCI_Results_${Date.now()}.xlsx`);
+    toast.success('Exported!');
+  };
 
   const studentNames = [...new Set(results.map(r => r.studentName).filter(Boolean))];
 
@@ -124,29 +154,67 @@ export default function AdminResults() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center gap-2 mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Results</h1>
-        <button onClick={() => { 
-          const nums = results.map(r => parseInt(r.rollNumber?.replace(/\D/g, '')) || 0);
-          const next = (nums.length ? Math.max(...nums) : 0) + 1;
-          const autoRoll = `KCI${new Date().getFullYear()}${String(next).padStart(4, '0')}`;
-          setForm({ ...emptyForm, rollNumber: autoRoll }); 
-          setModal(true); 
-        }} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors">
-          <Plus className="w-4 h-4" /> Add Result
-        </button>
+
+        {/* Search */}
+        <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 w-56 focus-within:border-blue-500 transition-all">
+          <Search className="w-4 h-4 text-gray-400 shrink-0" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search results..."
+            className="bg-transparent text-sm outline-none flex-1 text-gray-700 placeholder:text-gray-400" />
+          {search && <button onClick={() => setSearch('')}><X className="w-3.5 h-3.5 text-gray-400" /></button>}
+        </div>
+
+        {/* Period Filter */}
+        <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+          {['all','weekly','monthly','yearly'].map(p => (
+            <button key={p} onClick={() => setFilterPeriod(p)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${
+                filterPeriod === p ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'
+              }`}>{p === 'all' ? 'All' : p.charAt(0).toUpperCase()+p.slice(1)}</button>
+          ))}
+        </div>
+
+        {(filterPeriod === 'yearly' || filterPeriod === 'monthly') && (
+          <select value={filterYear} onChange={e => setFilterYear(Number(e.target.value))}
+            className="px-3 py-2 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            {Array.from({length:6},(_,i)=>new Date().getFullYear()-i).map(y=><option key={y} value={y}>{y}</option>)}
+          </select>
+        )}
+        {filterPeriod === 'monthly' && (
+          <select value={filterMonth} onChange={e => setFilterMonth(Number(e.target.value))}
+            className="px-3 py-2 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m,i)=><option key={i} value={i}>{m}</option>)}
+          </select>
+        )}
+
+        <div className="ml-auto flex items-center gap-2">
+          <button onClick={exportExcel}
+            className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors">
+            <Download className="w-4 h-4" /> Export
+          </button>
+          <button onClick={() => {
+            const nums = results.map(r => parseInt(r.rollNumber?.replace(/\D/g, '')) || 0);
+            const next = (nums.length ? Math.max(...nums) : 0) + 1;
+            setForm({ ...emptyForm, rollNumber: `KCI${new Date().getFullYear()}${String(next).padStart(4,'0')}` });
+            setModal(true);
+          }} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors">
+            <Plus className="w-4 h-4" /> Add Result
+          </button>
+        </div>
       </div>
 
       {loading ? <Loader /> : (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50"><tr>{['Roll No.', 'Student', 'Course', 'Percentage', 'Grade', 'Status', 'Actions'].map(h => <th key={h} className="text-left p-4 font-semibold text-gray-600">{h}</th>)}</tr></thead>
+            <thead className="bg-gray-50"><tr>{['Roll No.', 'Student', 'Course', 'Branch', 'Percentage', 'Grade', 'Status', 'Actions'].map(h => <th key={h} className="text-left p-4 font-semibold text-gray-600">{h}</th>)}</tr></thead>
             <tbody>
-              {results.map((r) => (
+              {filtered.map((r) => (
                 <tr key={r._id} className="border-t border-gray-100 hover:bg-gray-50">
                   <td className="p-4 font-mono text-xs text-blue-700">{r.rollNumber}</td>
                   <td className="p-4 font-medium text-gray-900">{r.studentName}</td>
                   <td className="p-4 text-gray-600">{r.courseName || r.course?.title}</td>
+                  <td className="p-4 text-gray-600 text-xs">{r.branchName || '—'}</td>
                   <td className="p-4 font-semibold text-blue-700">{r.percentage}%</td>
                   <td className="p-4"><span className="px-2 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-bold">{r.grade}</span></td>
                   <td className="p-4"><span className={`px-2 py-1 rounded-lg text-xs font-medium ${r.status === 'Pass' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>{r.status}</span></td>
@@ -156,7 +224,7 @@ export default function AdminResults() {
                   </td>
                 </tr>
               ))}
-              {results.length === 0 && <tr><td colSpan={7} className="p-8 text-center text-gray-500">No results yet</td></tr>}
+              {filtered.length === 0 && <tr><td colSpan={7} className="p-8 text-center text-gray-500">No results found</td></tr>}
             </tbody>
           </table>
         </div>

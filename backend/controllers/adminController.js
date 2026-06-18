@@ -48,13 +48,13 @@ exports.getDashboardStats = async (req, res) => {
 
 exports.createStudent = async (req, res) => {
   try {
-    const { name, email, password, phone, batch, courseName } = req.body;
+    const { name, email, password, phone, batch, courseName, fatherName, dob, address } = req.body;
     if (!name || !email || !password) return res.status(400).json({ success: false, message: 'Name, email and password required' });
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ success: false, message: 'Email already registered' });
     const { rollNumber, enrollmentNumber, registrationNumber, formNo } = await generateStudentNumbers();
     const photo = req.file ? req.file.path : undefined;
-    const student = await User.create({ name, email, password, phone, batch, courseName, rollNumber, enrollmentNumber, registrationNumber, formNo, role: 'student', ...(photo && { photo }) });
+    const student = await User.create({ name, email, password, phone, batch, courseName, fatherName, dob, address, rollNumber, enrollmentNumber, registrationNumber, formNo, role: 'student', ...(req.body.branchId && { branchId: req.body.branchId }), ...(photo && { photo }) });
     res.status(201).json({ success: true, student });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -63,7 +63,10 @@ exports.createStudent = async (req, res) => {
 
 exports.getStudents = async (req, res) => {
   try {
-    const students = await User.find({ role: 'student' }).populate('course', 'title').sort({ createdAt: -1 });
+    const students = await User.find({ role: 'student' })
+      .populate('course', 'title')
+      .populate('branchId', 'branchName branchCode branchCity name')
+      .sort({ createdAt: -1 });
     res.json({ success: true, students });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -72,9 +75,10 @@ exports.getStudents = async (req, res) => {
 
 exports.updateStudent = async (req, res) => {
   try {
-    const allowed = ['name', 'email', 'phone', 'batch', 'courseName', 'fatherName', 'dob', 'address'];
+    const allowed = ['name', 'email', 'phone', 'batch', 'courseName', 'fatherName', 'dob', 'address', 'admissionDate', 'branchId'];
     const updates = {};
     allowed.forEach(f => { if (req.body[f] !== undefined) updates[f] = req.body[f]; });
+    if (req.body.isApproved !== undefined) updates.isApproved = req.body.isApproved === 'true' || req.body.isApproved === true;
     if (req.file) updates.photo = req.file.path;
     if (req.body.password && req.body.password.trim()) {
       const bcrypt = require('bcryptjs');
@@ -82,6 +86,15 @@ exports.updateStudent = async (req, res) => {
     }
     const student = await User.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: false }).select('-password');
     res.json({ success: true, student });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.getBranchUsers = async (req, res) => {
+  try {
+    const branches = await User.find({ role: 'branch' }).select('name branchName branchCode branchCity').sort({ branchName: 1 });
+    res.json({ success: true, branches });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
