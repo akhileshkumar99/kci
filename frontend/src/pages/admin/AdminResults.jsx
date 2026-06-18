@@ -87,7 +87,8 @@ export default function AdminResults() {
   const exportExcel = () => {
     const rows = filtered.map(r => ({
       'Roll No': r.rollNumber, 'Student': r.studentName, 'Course': r.courseName || '',
-      'Batch': r.batch || '', 'Obtained': r.obtainedMarks, 'Total': r.totalMarks,
+      'Branch': r.branchName || '—', 'Batch': r.batch || '',
+      'Obtained': r.obtainedMarks, 'Total': r.totalMarks,
       'Percentage': r.percentage + '%', 'Grade': r.grade, 'Status': r.status,
       'Exam Date': r.examDate ? new Date(r.examDate).toLocaleDateString('en-IN') : '',
     }));

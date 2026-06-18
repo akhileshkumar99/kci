@@ -20,7 +20,6 @@ const Gallery = lazy(() => import('./pages/Gallery'));
 const Branches = lazy(() => import('./pages/Branches'));
 const Staff = lazy(() => import('./pages/Staff'));
 const Contact = lazy(() => import('./pages/Contact'));
-const QuizPage = lazy(() => import('./pages/QuizPage'));
 const StudyMaterial = lazy(() => import('./pages/StudyMaterial'));
 const IDCard = lazy(() => import('./pages/IDCard'));
 const Notifications = lazy(() => import('./pages/Notifications'));
@@ -39,7 +38,6 @@ const AdminGallery = lazy(() => import('./pages/admin/AdminGallery'));
 const AdminAdmissions = lazy(() => import('./pages/admin/AdminAdmissions'));
 const AdminStaff = lazy(() => import('./pages/admin/AdminStaff'));
 const AdminContacts = lazy(() => import('./pages/admin/AdminContacts'));
-const AdminQuiz = lazy(() => import('./pages/admin/AdminQuiz'));
 const AdminStudyMaterial = lazy(() => import('./pages/admin/AdminStudyMaterial'));
 const AdminNotifications = lazy(() => import('./pages/admin/AdminNotifications'));
 const AdminBranches = lazy(() => import('./pages/admin/AdminBranches'));
@@ -247,8 +245,6 @@ export default function App() {
           <Route path="/branches" element={<PublicLayout><Branches /></PublicLayout>} />
           <Route path="/staff" element={<PublicLayout><Staff /></PublicLayout>} />
           <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
-          <Route path="/quiz" element={<PublicLayout><QuizPage /></PublicLayout>} />
-          <Route path="/quiz/:id" element={<PublicLayout><QuizPage /></PublicLayout>} />
           <Route path="/study-material" element={<PublicLayout><StudyMaterial /></PublicLayout>} />
           <Route path="/id-card" element={<PublicLayout><IDCard /></PublicLayout>} />
           <Route path="/notifications" element={<PublicLayout><Notifications /></PublicLayout>} />
@@ -265,7 +261,6 @@ export default function App() {
             <Route path="certificates" element={<AdminCertificates />} />
             <Route path="gallery" element={<AdminGallery />} />
             <Route path="staff" element={<AdminStaff />} />
-            <Route path="quiz" element={<AdminQuiz />} />
             <Route path="study-material" element={<AdminStudyMaterial />} />
             <Route path="notifications" element={<AdminNotifications />} />
             <Route path="branches" element={<AdminBranches />} />

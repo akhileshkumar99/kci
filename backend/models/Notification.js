@@ -5,9 +5,9 @@ const notificationSchema = new mongoose.Schema({
   message:    { type: String, required: true },
   type:       { type: String, enum: ['exam', 'result', 'course', 'general', 'admission', 'fee', 'holiday', 'urgent'], default: 'general' },
   targetRole: { type: String, enum: ['all', 'student', 'franchise', 'teacher'], default: 'all' },
-  // null = global (admin), ObjectId = branch-specific
   branchId:   { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   isActive:   { type: Boolean, default: true },
+  image:      { type: String },
   createdBy:  { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   readBy:     [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 }, { timestamps: true });
