@@ -40,23 +40,30 @@ function InfoRow({ label, value }) {
 // â”€â”€â”€ Grade color helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function CardInner({ W, H, student, branch, fields, qrDataUrl }) {
   const scale = W / 856;
-  const HDR  = Math.round(H * 0.18);
-  const FOOT = Math.round(H * 0.12);
-  const BODY = H - HDR - FOOT;
   const s = (n) => Math.round(n * scale);
+  const HDR  = s(106);
+  const FOOT = s(72);
   return (
-    <div style={{ width: W, height: H, fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif", border: s(3) + 'px solid #d4af37', borderRadius: s(18), overflow: 'hidden', background: '#f8f9fc', display: 'flex', flexDirection: 'column', boxSizing: 'border-box', position: 'relative' }}>
+    <div style={{
+      width: W,
+      fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif",
+      border: s(3) + 'px solid #d4af37',
+      borderRadius: s(18),
+      overflow: 'hidden',
+      background: '#f8f9fc',
+      display: 'flex',
+      flexDirection: 'column',
+      boxSizing: 'border-box',
+    }}>
       {/* HEADER */}
-      <div style={{ height: HDR, background: '#081d5b', display: 'flex', alignItems: 'center', padding: '0 ' + s(20) + 'px', gap: s(14), flexShrink: 0, borderBottom: s(3) + 'px solid #d4af37', position: 'relative', zIndex: 1 }}>
+      <div style={{ height: HDR, background: '#081d5b', display: 'flex', alignItems: 'center', padding: '0 ' + s(20) + 'px', gap: s(14), flexShrink: 0, borderBottom: s(3) + 'px solid #d4af37' }}>
         <div style={{ width: s(63), height: s(63), borderRadius: '50%', background: '#fff', border: s(2) + 'px solid #d4af37', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <img src="/logo.png" alt="KCI" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
         <div style={{ flex: 1, minWidth: 0, textAlign: 'center' }}>
-          <div style={{ color: '#ffffff', fontWeight: 900, fontSize: s(26), letterSpacing: 1, lineHeight: 1.15, textTransform: 'uppercase' }}>KEERTI COMPUTER INSTITUTE</div>
-          <div style={{ color: '#b4c8f0', fontSize: s(13), marginTop: s(5), lineHeight: 1.6 }}>
-            <span>&#128205; Ayodhya, Uttar Pradesh</span>&nbsp;&nbsp;
-            <span>&#127760; www.kci.org.in</span>&nbsp;&nbsp;
-            <span>&#128222; 9936384736</span>
+          <div style={{ color: '#ffffff', fontWeight: 900, fontSize: s(26), letterSpacing: 1, lineHeight: 1.15 }}>KEERTI COMPUTER INSTITUTE</div>
+          <div style={{ color: '#b4c8f0', fontSize: s(13), marginTop: s(5), lineHeight: 1.5 }}>
+            Ayodhya, Uttar Pradesh &nbsp;|&nbsp; www.kci.org.in &nbsp;|&nbsp; 9936384736
           </div>
         </div>
         <div style={{ background: '#d4af37', borderRadius: s(10), padding: s(8) + 'px ' + s(13) + 'px', flexShrink: 0, textAlign: 'center', border: '1.5px solid #f0d060' }}>
@@ -64,28 +71,52 @@ function CardInner({ W, H, student, branch, fields, qrDataUrl }) {
           <div style={{ color: '#081d5b', fontWeight: 900, fontSize: s(14), lineHeight: 1.4, whiteSpace: 'nowrap' }}>IDENTITY CARD</div>
         </div>
       </div>
-      {/* BODY */}
-      <div style={{ height: BODY, background: '#f8f9fc', display: 'flex', flexShrink: 0, position: 'relative', overflow: 'hidden' }}>
+
+      {/* BODY — height auto, never clipped */}
+      <div style={{ background: '#f8f9fc', display: 'flex', flexShrink: 0, position: 'relative' }}>
+        {/* Watermark */}
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: s(220), height: s(220), opacity: 0.05, pointerEvents: 'none', zIndex: 0 }}>
           <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
-        <div style={{ flex: '0 0 76%', padding: s(6) + 'px ' + s(14) + 'px ' + s(6) + 'px ' + s(20) + 'px', display: 'grid', gridTemplateRows: 'repeat(8, 1fr)', position: 'relative', zIndex: 1 }}>
+
+        {/* LEFT — fields, strict 3-column: label | colon | value */}
+        <div style={{ flex: '0 0 76%', paddingTop: s(10), paddingBottom: s(10), paddingLeft: s(20), paddingRight: s(12), position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: s(4) }}>
           {fields.map(([lbl, val], i) => (
-            <div key={lbl} style={{ display: 'flex', alignItems: 'center', borderBottom: i < fields.length - 1 ? '1px solid #dde4f0' : 'none' }}>
-              <span style={{ color: '#0b1f5b', fontWeight: 700, fontSize: s(15), minWidth: s(150), flexShrink: 0, lineHeight: 1.4 }}>{lbl}</span>
-              <span style={{ color: '#0b1f5b', fontWeight: 700, fontSize: s(15), width: s(20), flexShrink: 0 }}>:</span>
-              <span style={{ color: '#111111', fontWeight: 700, fontSize: s(16), lineHeight: 1.4, flex: 1, overflow: 'hidden', whiteSpace: lbl === 'Address' ? 'normal' : 'nowrap', textOverflow: 'ellipsis' }}>{val || '-'}</span>
+            <div key={lbl} style={{
+              display: 'grid',
+              gridTemplateColumns: s(120) + 'px ' + s(18) + 'px 1fr',
+              alignItems: 'start',
+              minHeight: s(28),
+              borderBottom: i < fields.length - 1 ? '1px solid #dde4f0' : 'none',
+              paddingBottom: s(4),
+            }}>
+              <span style={{ color: '#0b1f5b', fontWeight: 700, fontSize: s(14), lineHeight: 1.5, whiteSpace: 'nowrap', overflow: 'visible' }}>{lbl}</span>
+              <span style={{ color: '#0b1f5b', fontWeight: 700, fontSize: s(14), lineHeight: 1.5, textAlign: 'center' }}>:</span>
+              <span style={{
+                color: '#111111',
+                fontWeight: 600,
+                fontSize: s(14),
+                lineHeight: 1.5,
+                wordBreak: 'break-word',
+                overflowWrap: 'anywhere',
+                whiteSpace: 'normal',
+                display: '-webkit-box',
+                WebkitLineClamp: (lbl === 'Course' || lbl === 'Address') ? 2 : undefined,
+                WebkitBoxOrient: (lbl === 'Course' || lbl === 'Address') ? 'vertical' : undefined,
+              }}>{val || '-'}</span>
             </div>
           ))}
         </div>
-        <div style={{ flex: '0 0 24%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: s(8), padding: s(8) + 'px ' + s(10) + 'px ' + s(8) + 'px ' + s(4) + 'px', position: 'relative', zIndex: 1 }}>
+
+        {/* RIGHT — photo + QR */}
+        <div style={{ flex: '0 0 24%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: s(8), padding: s(10) + 'px ' + s(10) + 'px ' + s(10) + 'px ' + s(4) + 'px', position: 'relative', zIndex: 1 }}>
           <div style={{ width: s(140), height: s(170), border: '2.5px solid #d4af37', borderRadius: s(16), overflow: 'hidden', background: '#dce7f8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             {student?.photo
               ? <img src={student.photo} alt="photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               : <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}><User size={s(36)} color="#8aaad8" /><span style={{ color: '#8aaad8', fontSize: s(12), fontWeight: 700 }}>PHOTO</span></div>
             }
           </div>
-          <div style={{ width: s(120), height: s(120), border: '2px solid #d4af37', borderRadius: s(10), background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: s(4) }}>
+          <div style={{ width: s(120), height: s(120), border: '2px solid #d4af37', borderRadius: s(10), background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: s(4) }}>
             {qrDataUrl
               ? <img src={qrDataUrl} alt="QR" style={{ width: s(104), height: s(104), objectFit: 'contain' }} />
               : <QrCode size={s(64)} color="#081d5b" />
@@ -94,6 +125,7 @@ function CardInner({ W, H, student, branch, fields, qrDataUrl }) {
           <span style={{ color: '#5070b4', fontSize: s(10), fontWeight: 700, textAlign: 'center' }}>Unique ID / QR Code</span>
         </div>
       </div>
+
       {/* FOOTER */}
       <div style={{ height: FOOT, background: '#081d5b', borderTop: s(3) + 'px solid #d4af37', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid rgba(255,255,255,0.2)', height: '100%' }}>
@@ -127,32 +159,33 @@ function IDCard({ student, branch }) {
     if (!pdfRef.current) return;
     setExporting(true);
     try {
+      const el = pdfRef.current;
+      el.style.display = 'block';
+      await new Promise(r => setTimeout(r, 80)); // let browser paint
       const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(pdfRef.current, {
+      const canvas = await html2canvas(el, {
         scale: 4,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        width: 856,
-        height: 540,
         windowWidth: 856,
-        windowHeight: 540,
       });
+      el.style.display = 'none';
+      const pxW = canvas.width;
+      const pxH = canvas.height;
+      const mmW = 85.6;
+      const mmH = (pxH / pxW) * mmW;
       const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [85.6, 54] });
-      doc.addImage(imgData, 'JPEG', 0, 0, 85.6, 54);
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [mmW, mmH] });
+      doc.addImage(imgData, 'JPEG', 0, 0, mmW, mmH);
       doc.save('IDCard_' + uniqueId + '.pdf');
       toast.success('ID Card downloaded!');
     } catch { toast.error('Download failed'); }
     setExporting(false);
   };
 
-  // Card 856x590px — slightly taller body to fit 8 fields
-  const W = 856, H = 590;
-  const HDR  = Math.round(H * 0.18); // 106px
-  const FOOT = Math.round(H * 0.12); // 71px
-  const BODY = H - HDR - FOOT;       // 413px
+  const W = 856;
 
   // Real dynamic QR via qrcode lib
   const [qrDataUrl, setQrDataUrl] = useState('');
@@ -189,42 +222,28 @@ function IDCard({ student, branch }) {
         <Download size={16} /> {exporting ? 'Generating PDF...' : 'Download ID Card PDF'}
       </button>
 
-      {/* Hidden fixed PDF container - off-screen, always 856x540, never responsive */}
+      {/* Hidden PDF container — fixed 856px wide, never responsive, off-screen */}
       <div
         ref={pdfRef}
         style={{
+          display: 'none',
           position: 'fixed',
-          top: '-99999px',
-          left: '-99999px',
+          top: 0,
+          left: '-9999px',
           width: 856,
-          height: 540,
           minWidth: 856,
-          minHeight: 540,
-          overflow: 'visible',
           zIndex: -9999,
           pointerEvents: 'none',
+          boxSizing: 'border-box',
         }}
       >
-        <CardInner W={856} H={540} student={student} branch={branch} fields={fields} qrDataUrl={qrDataUrl} />
+        <CardInner W={856} student={student} branch={branch} fields={fields} qrDataUrl={qrDataUrl} />
       </div>
 
-      {/* Screen Preview - responsive */}
+      {/* Screen Preview — scales responsively, does NOT affect PDF */}
       <div style={{ width: '100%', overflowX: 'auto', display: 'flex', justifyContent: 'center' }}>
-        <div style={{
-          width: '100%',
-          maxWidth: 700,
-          aspectRatio: '856/540',
-          fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif",
-          border: '3px solid #d4af37',
-          borderRadius: 18,
-          overflow: 'hidden',
-          background: '#f8f9fc',
-          display: 'flex',
-          flexDirection: 'column',
-          boxSizing: 'border-box',
-          position: 'relative',
-        }}>
-          <CardInner W={700} H={Math.round(700 * 540 / 856)} student={student} branch={branch} fields={fields} qrDataUrl={qrDataUrl} />
+        <div style={{ transform: 'scale(0.82)', transformOrigin: 'top center', marginBottom: -60 }}>
+          <CardInner W={856} student={student} branch={branch} fields={fields} qrDataUrl={qrDataUrl} />
         </div>
       </div>
       <p style={{ color: '#9ca3af', fontSize: 12, marginTop: 4 }}>⬆ Preview — Download PDF for print-ready card</p>
@@ -1295,6 +1314,7 @@ export default function StudentDashboard() {
   const [examFormLoading, setExamFormLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [viewedNotification, setViewedNotification] = useState(null);
 
   useEffect(() => {
     if (!user) { navigate('/login'); return; }
@@ -2073,6 +2093,79 @@ export default function StudentDashboard() {
           </motion.div>
         )}
 
+        {/* Notification View Modal */}
+        {viewedNotification && (() => {
+          const typeConfig = {
+            exam: { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200', label: 'Exam' },
+            result: { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-200', label: 'Result' },
+            course: { bg: 'bg-violet-100', text: 'text-violet-700', border: 'border-violet-200', label: 'Course' },
+            fee: { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200', label: 'Fee' },
+            holiday: { bg: 'bg-teal-100', text: 'text-teal-700', border: 'border-teal-200', label: 'Holiday' },
+            urgent: { bg: 'bg-red-100', text: 'text-red-700', border: 'border-red-200', label: 'Urgent' },
+            admission: { bg: 'bg-indigo-100', text: 'text-indigo-700', border: 'border-indigo-200', label: 'Admission' },
+            general: { bg: 'bg-gray-100', text: 'text-gray-600', border: 'border-gray-200', label: 'General' },
+          };
+          const tc = typeConfig[viewedNotification.type] || typeConfig.general;
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setViewedNotification(null)}>
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                onClick={e => e.stopPropagation()}
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+
+                {/* Modal Header */}
+                <div className="bg-gradient-to-r from-[#081d5b] to-[#1a3a8f] px-5 py-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+                      <Bell className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="text-white font-black text-sm truncate">{viewedNotification.title}</span>
+                  </div>
+                  <button onClick={() => setViewedNotification(null)}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 text-white font-black text-base transition-colors shrink-0 ml-2">
+                    ×
+                  </button>
+                </div>
+
+                {/* Image (if exists) */}
+                {viewedNotification.image && (
+                  <div className="w-full bg-gray-100">
+                    <img
+                      src={viewedNotification.image}
+                      alt={viewedNotification.title}
+                      className="w-full max-h-56 object-cover"
+                    />
+                  </div>
+                )}
+
+                {/* Modal Body */}
+                <div className="p-5 space-y-4">
+                  <p className="text-gray-800 text-sm leading-relaxed">{viewedNotification.message}</p>
+
+                  {/* Meta row */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${tc.bg} ${tc.text} ${tc.border}`}>
+                      {tc.label}
+                    </span>
+                    <span className="text-[11px] text-gray-400 font-medium">
+                      {new Date(viewedNotification.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </span>
+                    {viewedNotification.createdBy && (
+                      <span className="text-[11px] text-gray-400">
+                        From: <span className="font-semibold text-gray-600">{viewedNotification.createdBy.branchName || viewedNotification.createdBy.name || 'KCI Admin'}</span>
+                      </span>
+                    )}
+                  </div>
+
+                  <button onClick={() => setViewedNotification(null)}
+                    className="w-full py-2.5 bg-gradient-to-r from-[#081d5b] to-[#1a3a8f] hover:opacity-90 text-white rounded-xl text-sm font-bold transition-all">
+                    Close
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          );
+        })()}
+
         {/* Notifications Tab */}
         {activeTab === 'notifications' && (
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
@@ -2158,12 +2251,19 @@ export default function StudentDashboard() {
                               </span>
                             )}
                           </div>
-                          <p className="text-sm text-gray-600 leading-relaxed">{n.message}</p>
-                          {n.createdBy && (
-                            <p className="text-[10px] text-gray-400 mt-1.5">
-                              From: {n.createdBy.branchName || n.createdBy.name || 'KCI Admin'}
-                            </p>
-                          )}
+                          <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">{n.message}</p>
+                          <div className="flex items-center justify-between mt-2">
+                            {n.createdBy && (
+                              <p className="text-[10px] text-gray-400">
+                                From: {n.createdBy.branchName || n.createdBy.name || 'KCI Admin'}
+                              </p>
+                            )}
+                            <button
+                              onClick={e => { e.stopPropagation(); markRead(); setViewedNotification(n); }}
+                              className="ml-auto flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors shrink-0">
+                              <Eye className="w-3 h-3" /> View
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </motion.div>

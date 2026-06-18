@@ -975,44 +975,39 @@ export default function BranchDashboard() {
   const certFields = [['Student', 'studentName'], ['Enrollment No', 'rollNumber'], ['Course', 'courseName'], ['Cert No', 'certificateNumber'], ['Grade', 'grade'], ['Issue Date', 'issueDate']];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-sky-50 flex flex-col">
 
       {/* ── HEADER ── */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-white/60 shadow-sm sticky top-0 z-40">
-        <div className="max-w-full px-4 h-16 flex items-center justify-between">
-          {/* Left: Hamburger + Logo + Branch */}
-          <div className="flex items-center gap-3">
+      <header className="bg-white border-b border-blue-100 shadow-md sticky top-0 z-40">
+        <div className="max-w-full px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button onClick={() => setSidebarOpen(o => !o)}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 transition-all">
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-700 transition-all shrink-0">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
-              <Building2 className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md shrink-0">
+              <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
-            <div>
-              <div className="font-black text-gray-900 text-sm leading-tight truncate max-w-[180px] sm:max-w-xs">{user?.branchName || 'Branch Dashboard'}</div>
-              <div className="text-[10px] font-bold text-blue-600 font-mono">{user?.branchCode}</div>
+            <div className="min-w-0">
+              <div className="font-black text-gray-900 text-xs sm:text-sm leading-tight truncate max-w-[130px] sm:max-w-[200px] md:max-w-xs">{user?.branchName || 'Branch Dashboard'}</div>
+              <div className="text-[9px] sm:text-[10px] font-bold text-blue-600 font-mono">{user?.branchCode}</div>
             </div>
           </div>
-
-          {/* Right: City + Theme + Dev + Logout */}
-          <div className="flex items-center gap-2">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-xl border border-blue-100">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-xs font-bold text-blue-700">{user?.branchCity}</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-green-50 rounded-xl border border-green-200">
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-[11px] font-bold text-green-700">{user?.branchCity}</span>
             </div>
             <DevCredit popupDown />
             <button onClick={toggle}
-              className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-sm ${
-                dark ? 'bg-slate-700 text-yellow-400 hover:bg-slate-600 border border-slate-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
-              }`}>
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all">
               {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
             <button onClick={handleLogout}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 shadow-md shadow-red-200 transition-all hover:-translate-y-0.5">
-              <LogOut className="w-3.5 h-3.5" /> Logout
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold text-white bg-red-500 hover:bg-red-600 border border-red-400 transition-all">
+              <LogOut className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
         </div>
@@ -1025,30 +1020,30 @@ export default function BranchDashboard() {
         )}
 
         {/* ── SIDEBAR ── */}
-        <aside className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-60 bg-white border-r border-gray-200 shadow-xl z-30 flex flex-col transition-transform duration-300 ${
+        <aside className={`fixed top-14 sm:top-16 left-0 h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] w-56 sm:w-60 bg-white border-r border-blue-100 shadow-xl z-30 flex flex-col transition-transform duration-300 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0 lg:static lg:h-auto lg:shadow-none`}>
-          <div className="flex-1 py-4 overflow-y-auto">
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-5 mb-3">Navigation</p>
+          <div className="flex-1 py-3 overflow-y-auto">
+            <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest px-4 mb-2">Navigation</p>
             {tabs.map(({ id, label, icon: Icon }) => (
               <button key={id}
                 onClick={() => { setActiveTab(id); setSearch(''); setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-5 py-3 text-sm font-bold transition-all ${
+                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold transition-all ${
                   activeTab === id
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                    ? 'bg-blue-600 text-white rounded-xl mx-2 w-[calc(100%-1rem)]'
                     : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
                 }`}>
                 <Icon className="w-4 h-4 shrink-0" /> {label}
               </button>
             ))}
           </div>
-          <div className="p-4 border-t border-gray-100">
-            <div className="text-xs text-gray-500 font-semibold truncate">{user?.email}</div>
-            <div className="text-[10px] text-gray-400 mt-0.5">{user?.branchCity}</div>
+          <div className="p-3 border-t border-blue-100">
+            <div className="text-[10px] text-gray-500 font-semibold truncate">{user?.email}</div>
+            <div className="text-[9px] text-blue-400 mt-0.5">{user?.branchCity}</div>
           </div>
         </aside>
 
-      <div className="flex-1 min-w-0 max-w-full px-4 py-5 space-y-5 lg:max-w-none">
+      <div className="flex-1 min-w-0 max-w-full px-3 sm:px-4 py-4 sm:py-5 space-y-4 sm:space-y-5">
 
         {/* ── OVERVIEW ── */}
         {activeTab === 'overview' && (
@@ -1056,7 +1051,7 @@ export default function BranchDashboard() {
 
             {/* Hero card */}
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-              className="relative bg-gradient-to-br from-blue-700 via-indigo-700 to-violet-700 rounded-3xl overflow-hidden shadow-2xl">
+              className="relative bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 rounded-3xl overflow-hidden shadow-xl">
               <div className="absolute -top-8 -right-8 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
               <div className="absolute -bottom-6 -left-6 w-36 h-36 bg-violet-400/20 rounded-full blur-2xl" />
               <div className="relative px-6 py-6 flex flex-col sm:flex-row items-center sm:items-start gap-5">
@@ -1093,7 +1088,7 @@ export default function BranchDashboard() {
             </motion.div>
 
             {/* Stat cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
               {[
                 { icon: Users, label: 'Students', value: stats?.students, gradient: 'from-blue-500 to-blue-600', delay: 0, tab: 'students' },
                 { icon: CheckCircle, label: 'Active', value: stats?.active, gradient: 'from-green-500 to-emerald-600', delay: 0.05, tab: 'students' },
@@ -1104,25 +1099,23 @@ export default function BranchDashboard() {
               ].map(({ icon: Icon, label, value, gradient, delay, tab }) => (
                 <motion.div key={label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}
                   onClick={tab ? () => { setActiveTab(tab); setSearch(''); } : undefined}
-                  className={`bg-white rounded-2xl p-4 shadow-sm border border-gray-100 overflow-hidden relative group ${
-                    tab ? 'cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300' : ''
+                  className={`bg-white rounded-2xl p-3 sm:p-4 border border-blue-100 overflow-hidden relative group shadow-sm ${
+                    tab ? 'cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all duration-300' : ''
                   }`}>
-                  <div className={`absolute top-0 right-0 w-16 h-16 bg-gradient-to-br ${gradient} opacity-10 rounded-full translate-x-4 -translate-y-4 group-hover:opacity-20 transition-opacity`} />
-                  <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-3 shadow-md`}>
-                    <Icon className="w-4.5 h-4.5 text-white w-5 h-5" />
+                  <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-2 sm:mb-3 shadow-md`}>
+                    <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
-                  <div className="text-2xl font-black text-gray-900">{value ?? 0}</div>
-                  <div className="text-[11px] text-gray-400 font-semibold mt-0.5">{label}</div>
+                  <div className="text-xl sm:text-2xl font-black text-gray-900">{value ?? 0}</div>
+                  <div className="text-[10px] sm:text-[11px] text-gray-500 font-semibold mt-0.5">{label}</div>
                 </motion.div>
               ))}
             </div>
 
             {/* Analytics Charts */}
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-
-              {/* Students by Course - Bar Chart */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+              className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+              {/* Students by Course */}
+              <div className="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-5">
                 <h3 className="text-sm font-black text-gray-800 mb-4">📊 Students by Course</h3>
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={(() => {
@@ -1133,17 +1126,17 @@ export default function BranchDashboard() {
                     });
                     return Object.entries(map).map(([name, count]) => ({ name, count }));
                   })()} margin={{ top: 0, right: 10, left: -20, bottom: 40 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 600 }} angle={-35} textAnchor="end" interval={0} />
-                    <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
-                    <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 600, fill: '#64748b' }} angle={-35} textAnchor="end" interval={0} />
+                    <YAxis tick={{ fontSize: 10, fill: '#64748b' }} allowDecimals={false} />
+                    <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b' }} />
                     <Bar dataKey="count" fill="#6366f1" radius={[6, 6, 0, 0]} name="Students" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
 
-              {/* Admission Status - Pie Chart */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+              {/* Admission Status */}
+              <div className="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-5">
                 <h3 className="text-sm font-black text-gray-800 mb-4">📋 Admission Status</h3>
                 <ResponsiveContainer width="100%" height={200}>
                   <PieChart>
@@ -1163,14 +1156,14 @@ export default function BranchDashboard() {
                     >
                       {['#10b981', '#f59e0b', '#ef4444'].map((color, i) => <Cell key={i} fill={color} />)}
                     </Pie>
-                    <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11 }} />
-                    <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+                    <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11, color: '#475569' }} />
+                    <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b' }} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
 
-              {/* Results Pass/Fail - Bar Chart */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+              {/* Results Overview */}
+              <div className="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-5">
                 <h3 className="text-sm font-black text-gray-800 mb-4">🏆 Results Overview</h3>
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={(() => {
@@ -1182,19 +1175,19 @@ export default function BranchDashboard() {
                     });
                     return Object.values(map);
                   })()} margin={{ top: 0, right: 10, left: -20, bottom: 40 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 600 }} angle={-35} textAnchor="end" interval={0} />
-                    <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
-                    <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }} />
-                    <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 600, fill: '#64748b' }} angle={-35} textAnchor="end" interval={0} />
+                    <YAxis tick={{ fontSize: 10, fill: '#64748b' }} allowDecimals={false} />
+                    <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b' }} />
+                    <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11, color: '#475569' }} />
                     <Bar dataKey="Pass" fill="#10b981" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="Fail" fill="#ef4444" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
 
-              {/* Student Approval Status - Area Chart */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+              {/* Student Approval Status */}
+              <div className="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-5">
                 <h3 className="text-sm font-black text-gray-800 mb-4">👥 Student Approval Status</h3>
                 <ResponsiveContainer width="100%" height={200}>
                   <PieChart>
@@ -1208,23 +1201,23 @@ export default function BranchDashboard() {
                       <Cell fill="#3b82f6" />
                       <Cell fill="#f59e0b" />
                     </Pie>
-                    <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11 }} />
-                    <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }}
+                    <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11, color: '#475569' }} />
+                    <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b' }}
                       formatter={(value, name) => [value, name]} />
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="flex justify-center gap-6 mt-2">
                   <div className="text-center">
                     <div className="text-xl font-black text-blue-600">{students.filter(s => s.isApproved).length}</div>
-                    <div className="text-xs text-gray-400 font-medium">Approved</div>
+                    <div className="text-xs text-gray-500 font-medium">Approved</div>
                   </div>
                   <div className="text-center">
                     <div className="text-xl font-black text-amber-500">{students.filter(s => !s.isApproved).length}</div>
-                    <div className="text-xs text-gray-400 font-medium">Pending</div>
+                    <div className="text-xs text-gray-500 font-medium">Pending</div>
                   </div>
                   <div className="text-center">
                     <div className="text-xl font-black text-teal-600">{certificates.length}</div>
-                    <div className="text-xs text-gray-400 font-medium">Certificates</div>
+                    <div className="text-xs text-gray-500 font-medium">Certificates</div>
                   </div>
                 </div>
               </div>
@@ -1232,14 +1225,14 @@ export default function BranchDashboard() {
 
             {/* Branch info card */}
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-5 py-3 flex items-center gap-2">
-                <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
+              className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
+              <div className="px-5 py-3 flex items-center gap-2 border-b border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
                   <Building2 className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-white font-black text-sm">Branch Information</span>
+                <span className="text-gray-800 font-black text-sm">Branch Information</span>
               </div>
-              <div className="p-5 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {[
                   { icon: '🏢', label: 'Branch Name', value: user?.branchName },
                   { icon: '🎫', label: 'Branch Code', value: user?.branchCode, mono: true },
@@ -1248,10 +1241,10 @@ export default function BranchDashboard() {
                   { icon: '📧', label: 'Email', value: user?.email },
                   { icon: '📮', label: 'Address', value: user?.branchAddress || user?.address || '—' },
                 ].map(({ icon, label, value, mono }) => (
-                  <div key={label} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                  <div key={label} className="flex items-start gap-3 p-3 bg-blue-50/60 rounded-xl border border-blue-100">
                     <span className="text-lg shrink-0">{icon}</span>
                     <div className="min-w-0">
-                      <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label}</div>
+                      <div className="text-[10px] font-bold text-blue-400 uppercase tracking-wide">{label}</div>
                       <div className={`text-sm font-bold text-gray-800 truncate ${mono ? 'font-mono text-blue-600' : ''}`}>{value || '—'}</div>
                     </div>
                   </div>
