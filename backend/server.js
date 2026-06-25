@@ -1,6 +1,10 @@
 require('dotenv').config();
 const dns = require('dns');
-dns.setServers(['8.8.8.8', '8.8.4.4']);
+const dnsPromises = require('dns').promises;
+// Force Google DNS for MongoDB Atlas SRV resolution
+dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+dnsPromises.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+dns.setDefaultResultOrder('ipv4first');
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -34,7 +38,11 @@ app.use('/api/test', require('./routes/test'));
 app.get('/', (req, res) => res.json({ message: 'KCI API Running' }));
 app.get('/api/auth/ping', (req, res) => res.json({ status: 'ok' }));
 
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI, {
+  serverSelectionTimeoutMS: 10000,
+  socketTimeoutMS: 45000,
+  family: 4,  // Force IPv4
+})
   .then(() => {
     console.log('MongoDB connected');
     const PORT = process.env.PORT || 5000;
