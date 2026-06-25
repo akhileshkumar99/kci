@@ -2147,7 +2147,7 @@ export default function StudentDashboard() {
                       className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                       {thumb ? (
                         <div className="relative">
-                          <img src={thumb} alt={fixT(m.title)} className="w-full h-36 object-cover" />
+                          <img src={thumb} alt={fixT(m.title)} className="w-full h-44 object-contain bg-white p-2" />
                           {m.videoUrl && (
                             <a href={m.videoUrl} target="_blank" rel="noreferrer"
                               className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/50 transition-colors">

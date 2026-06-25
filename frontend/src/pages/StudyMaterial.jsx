@@ -101,7 +101,7 @@ export default function StudyMaterialPage() {
                   const thumb = m.thumbnailUrl || ytThumb;
                   return thumb ? (
                     <div className="relative">
-                      <img src={thumb} alt={decode(m.title)} className="w-full h-40 object-cover" />
+                      <img src={thumb} alt={decode(m.title)} className="w-full h-44 object-contain bg-white p-2" />
                       {m.videoUrl && (
                         <a href={m.videoUrl} target="_blank" rel="noreferrer"
                           className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/50 transition-colors">
