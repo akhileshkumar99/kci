@@ -10,6 +10,7 @@ export default function AdminStudyMaterial() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: '', description: '', category: 'notes', course: '', videoUrl: '' });
   const [file, setFile] = useState(null);
+  const [thumbnail, setThumbnail] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -25,11 +26,13 @@ export default function AdminStudyMaterial() {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => fd.append(k, v));
       if (file) fd.append('file', file);
+      if (thumbnail) fd.append('thumbnail', thumbnail);
       const { data } = await api.post('/study-material', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       setMaterials(p => [data.material, ...p]);
       setShowForm(false);
       setForm({ title: '', description: '', category: 'notes', course: '', videoUrl: '' });
       setFile(null);
+      setThumbnail(null);
       toast.success('Material added!');
     } catch { toast.error('Failed'); }
     setLoading(false);
@@ -68,7 +71,14 @@ export default function AdminStudyMaterial() {
                 <option value="">Select Course</option>
                 {courses.map(c => <option key={c._id} value={c._id}>{c.title}</option>)}
               </select>
-              <input type="file" onChange={e => setFile(e.target.files[0])} accept=".pdf,.doc,.docx,.ppt,.pptx" className="px-4 py-2.5 border-2 border-gray-100 rounded-xl bg-gray-50 text-sm" />
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-gray-500">Document (PDF/DOC)</label>
+                <input type="file" onChange={e => setFile(e.target.files[0])} accept=".pdf,.doc,.docx,.ppt,.pptx" className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl bg-gray-50 text-sm" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-gray-500">Thumbnail Image (optional)</label>
+                <input type="file" onChange={e => setThumbnail(e.target.files[0])} accept="image/*" className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl bg-gray-50 text-sm" />
+              </div>
             </div>
             <input value={form.videoUrl} onChange={e => setForm(p => ({ ...p, videoUrl: e.target.value }))} placeholder="Video URL (YouTube/Drive link)" className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50" />
             <textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Description" rows={2} className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50 resize-none" />

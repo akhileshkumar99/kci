@@ -2,7 +2,22 @@ const express = require('express');
 const router = express.Router();
 const StudyMaterial = require('../models/StudyMaterial');
 const { protect, admin } = require('../middleware/auth');
-const { uploadDocument } = require('../middleware/cloudinary');
+const { uploadDocument, uploadGeneral, cloudinary } = require('../middleware/cloudinary');
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+// Combined upload: file (raw) + thumbnail (image)
+const combinedUpload = multer({
+  storage: new (require('multer-storage-cloudinary').CloudinaryStorage)({
+    cloudinary,
+    params: (req, file) => ({
+      folder: 'kci/documents',
+      resource_type: file.fieldname === 'thumbnail' ? 'image' : 'raw',
+      allowed_formats: file.fieldname === 'thumbnail' ? ['jpg', 'jpeg', 'png', 'webp'] : ['pdf', 'doc', 'docx', 'ppt', 'pptx'],
+    }),
+  }),
+  limits: { fileSize: 20 * 1024 * 1024 },
+});
 
 router.get('/', async (req, res) => {
   try {
@@ -17,10 +32,11 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', protect, uploadDocument.single('file'), async (req, res) => {
+router.post('/', protect, combinedUpload.fields([{ name: 'file', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]), async (req, res) => {
   try {
     const data = { ...req.body, uploadedBy: req.user._id };
-    if (req.file) data.fileUrl = req.file.path;
+    if (req.files?.file?.[0]) data.fileUrl = req.files.file[0].path;
+    if (req.files?.thumbnail?.[0]) data.thumbnailUrl = req.files.thumbnail[0].path;
     const material = await StudyMaterial.create(data);
     res.status(201).json({ success: true, material });
   } catch (err) {

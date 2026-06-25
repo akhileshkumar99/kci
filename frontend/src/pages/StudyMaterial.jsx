@@ -12,6 +12,12 @@ const categories = [
   { value: 'video', label: 'Videos', icon: Video, color: 'bg-pink-100 text-pink-700' },
 ];
 
+const decode = str => {
+  const txt = document.createElement('textarea');
+  txt.innerHTML = str;
+  return txt.value;
+};
+
 export default function StudyMaterialPage() {
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -68,30 +74,40 @@ export default function StudyMaterialPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {filtered.map((m, i) => (
               <motion.div key={m._id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.06 }}
-                whileHover={{ y: -4 }} className="bg-white rounded-2xl p-5 shadow-md border border-gray-100 hover:shadow-xl transition-all">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${categories.find(c => c.value === m.category)?.color || 'bg-gray-100 text-gray-600'}`}>
-                    <FileText className="w-6 h-6" />
+                whileHover={{ y: -4 }} className="bg-white rounded-2xl shadow-md border border-gray-100 hover:shadow-xl transition-all overflow-hidden">
+                {/* Thumbnail */}
+                {m.thumbnailUrl ? (
+                  <img src={m.thumbnailUrl} alt={decode(m.title)} className="w-full h-40 object-cover" />
+                ) : (
+                  <div className={`w-full h-40 flex items-center justify-center ${categories.find(c => c.value === m.category)?.color || 'bg-gray-100 text-gray-400'}`}>
+                    <FileText className="w-12 h-12 opacity-30" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-gray-900 truncate">{m.title}</h3>
-                    <p className="text-xs text-gray-400 capitalize">{m.category?.replace('_', ' ')}</p>
+                )}
+                <div className="p-5">
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${categories.find(c => c.value === m.category)?.color || 'bg-gray-100 text-gray-600'}`}>
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-gray-900 leading-snug">{decode(m.title)}</h3>
+                      <p className="text-xs text-gray-400 capitalize mt-0.5">{m.category?.replace('_', ' ')}</p>
+                    </div>
                   </div>
-                </div>
-                {m.description && <p className="text-gray-500 text-sm mb-4 line-clamp-2">{m.description}</p>}
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-400">{m.downloads || 0} downloads</span>
-                  {m.fileUrl ? (
-                    <a href={`${import.meta.env.VITE_API_URL || ''}/uploads/${m.fileUrl}`} target="_blank" rel="noreferrer"
-                      className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 text-white text-xs font-bold rounded-xl hover:bg-violet-700 transition-colors">
-                      <Download className="w-3.5 h-3.5" /> Download
-                    </a>
-                  ) : m.videoUrl ? (
-                    <a href={m.videoUrl} target="_blank" rel="noreferrer"
-                      className="flex items-center gap-1.5 px-4 py-2 bg-pink-600 text-white text-xs font-bold rounded-xl hover:bg-pink-700 transition-colors">
-                      <Video className="w-3.5 h-3.5" /> Watch
-                    </a>
-                  ) : null}
+                  {m.description && <p className="text-gray-500 text-sm mb-4 line-clamp-2">{decode(m.description)}</p>}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-400">{m.downloads || 0} downloads</span>
+                    {m.fileUrl ? (
+                      <a href={m.fileUrl} download target="_blank" rel="noreferrer"
+                        className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 text-white text-xs font-bold rounded-xl hover:bg-violet-700 transition-colors">
+                        <Download className="w-3.5 h-3.5" /> Download
+                      </a>
+                    ) : m.videoUrl ? (
+                      <a href={m.videoUrl} target="_blank" rel="noreferrer"
+                        className="flex items-center gap-1.5 px-4 py-2 bg-pink-600 text-white text-xs font-bold rounded-xl hover:bg-pink-700 transition-colors">
+                        <Video className="w-3.5 h-3.5" /> Watch
+                      </a>
+                    ) : null}
+                  </div>
                 </div>
               </motion.div>
             ))}
