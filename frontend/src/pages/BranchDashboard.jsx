@@ -697,6 +697,13 @@ export default function BranchDashboard() {
   const { dark, toggle } = useTheme();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+  const [studyMaterials, setStudyMaterials] = useState([]);
+  const [smForm, setSmForm] = useState({ title: '', description: '', category: 'notes', videoUrl: '' });
+  const [smThumbnail, setSmThumbnail] = useState(null);
+  const [smThumbPreview, setSmThumbPreview] = useState(null);
+  const [smPdfFile, setSmPdfFile] = useState(null);
+  const [smShowForm, setSmShowForm] = useState(false);
+  const [smLoading, setSmLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [stats, setStats] = useState(null);
   const [students, setStudents] = useState([]);
