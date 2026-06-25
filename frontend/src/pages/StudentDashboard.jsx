@@ -2077,7 +2077,71 @@ export default function StudentDashboard() {
                   const ytMatch = m.videoUrl && m.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^?&/]+)/);
                   const ytThumb = ytMatch ? ('https://img.youtube.com/vi/' + ytMatch[1] + '/hqdefault.jpg') : null;
                   const thumb = m.thumbnailUrl || ytThumb;
-                  const fixT = s => s ? s.replace(/\u00e2\u0080\u0093/g,'\u2013').replace(/\u00e2\u0080\u0094/g,'\u2014').replace(/\u00c2\u00a0/g,' ').replace(/â€"/g,'\u2013').replace(/â€"/g,'\u2014').replace(/Â /g,' ') : s;
+                  const fixT = s => s ? s.replace(/â€"/g,'\u2013').replace(/â€"/g,'\u2014').replace(/Â /g,' ') : s;
+                  const dateStr = m.createdAt ? new Date(m.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+                  const handleDownloadPdf = async () => {
+                    const { default: jsPDF } = await import('jspdf');
+                    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                    const W = 210, M = 15;
+                    let logoUrl = null;
+                    try {
+                      const img = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = '/logo.png'; });
+                      const sz = 200, cv = document.createElement('canvas'); cv.width = sz; cv.height = sz;
+                      const cx = cv.getContext('2d'); cx.beginPath(); cx.arc(sz/2,sz/2,sz/2,0,Math.PI*2); cx.closePath(); cx.clip(); cx.drawImage(img,0,0,sz,sz);
+                      logoUrl = cv.toDataURL('image/png');
+                    } catch(_) {}
+                    doc.setFillColor(8,29,91); doc.rect(0,0,W,40,'F');
+                    doc.setFillColor(212,175,55); doc.rect(0,40,W,2,'F');
+                    if (logoUrl) doc.addImage(logoUrl,'PNG',M,7,24,24);
+                    doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+                    doc.text('KEERTI COMPUTER INSTITUTE', M+30,18);
+                    doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(180,200,255);
+                    doc.text('Govt. Recognised | ISO Certified | Ayodhya, U.P. | www.kci.org.in', M+30,26);
+                    doc.setFillColor(212,175,55); doc.roundedRect(M+30,30,50,8,2,2,'F');
+                    doc.setTextColor(8,29,91); doc.setFontSize(8.5); doc.setFont('helvetica','bold');
+                    doc.text('STUDY MATERIAL', M+55,35.5,{align:'center'});
+                    let y = 52;
+                    doc.setTextColor(8,29,91); doc.setFontSize(15); doc.setFont('helvetica','bold');
+                    doc.text(fixT(m.title) || 'Study Material', W/2, y, {align:'center', maxWidth: W-M*2});
+                    y += 8;
+                    doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(100,100,100);
+                    doc.text('Category: ' + (m.category ? m.category.replace('_',' ') : 'General') + '   |   Date: ' + (dateStr || 'N/A'), W/2, y, {align:'center'});
+                    y += 5;
+                    doc.setDrawColor(212,175,55); doc.setLineWidth(0.8); doc.line(M,y,W-M,y);
+                    y += 8;
+                    if (m.description) {
+                      doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(40,40,40);
+                      const lines = doc.splitTextToSize(m.description, W-M*2);
+                      doc.text(lines, M, y); y += lines.length * 6 + 6;
+                    }
+                    if (thumb) {
+                      try {
+                        const imgEl = await new Promise((res,rej) => { const im = new Image(); im.crossOrigin='anonymous'; im.onload=()=>res(im); im.onerror=rej; im.src=thumb; });
+                        const cvT = document.createElement('canvas'); cvT.width=imgEl.naturalWidth; cvT.height=imgEl.naturalHeight;
+                        cvT.getContext('2d').drawImage(imgEl,0,0);
+                        const imgH = Math.min(60, (imgEl.naturalHeight/imgEl.naturalWidth)*(W-M*2));
+                        doc.addImage(cvT.toDataURL('image/jpeg',0.9),'JPEG',M,y,W-M*2,imgH);
+                        y += imgH + 8;
+                      } catch(_) {}
+                    }
+                    if (m.fileUrl) {
+                      doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(8,29,91);
+                      doc.text('Document Link:', M, y); y += 6;
+                      doc.setFont('helvetica','normal'); doc.setTextColor(0,0,200);
+                      doc.textWithLink(m.fileUrl, M, y, { url: m.fileUrl }); y += 10;
+                    }
+                    if (m.videoUrl) {
+                      doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(8,29,91);
+                      doc.text('Video Link:', M, y); y += 6;
+                      doc.setFont('helvetica','normal'); doc.setTextColor(200,0,0);
+                      doc.textWithLink(m.videoUrl, M, y, { url: m.videoUrl }); y += 10;
+                    }
+                    doc.setFillColor(8,29,91); doc.rect(0,275,W,22,'F');
+                    doc.setTextColor(180,200,255); doc.setFontSize(7.5); doc.setFont('helvetica','normal');
+                    doc.text('Keerti Computer Institute | Civil Lines, Ayodhya, U.P. - 224001 | www.kci.org.in', W/2,284,{align:'center'});
+                    doc.save((fixT(m.title)||'StudyMaterial').replace(/[^a-zA-Z0-9]/g,'_') + '.pdf');
+                    toast.success('PDF downloaded!');
+                  };
                   return (
                     <motion.div key={m._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                       className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -2099,7 +2163,10 @@ export default function StudentDashboard() {
                         </div>
                       )}
                       <div className="p-4">
-                        <p className="font-black text-gray-900 leading-snug mb-1">{fixT(m.title)}</p>
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <p className="font-black text-gray-900 leading-snug flex-1">{fixT(m.title)}</p>
+                          {dateStr && <span className="text-[10px] text-gray-400 whitespace-nowrap shrink-0 mt-0.5">{dateStr}</span>}
+                        </div>
                         <p className="text-xs text-gray-400 mb-3 capitalize">{m.category ? m.category.replace('_',' ') : ''}</p>
                         <div className="flex gap-2 flex-wrap">
                           {m.fileUrl && (
@@ -2108,6 +2175,10 @@ export default function StudentDashboard() {
                               <Download className="w-3.5 h-3.5" /> Download
                             </button>
                           )}
+                          <button onClick={handleDownloadPdf}
+                            className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold">
+                            <Download className="w-3.5 h-3.5" /> PDF
+                          </button>
                           {m.videoUrl && (
                             <a href={m.videoUrl} target="_blank" rel="noreferrer"
                               className="flex items-center gap-1.5 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold">
@@ -2124,7 +2195,7 @@ export default function StudentDashboard() {
           </motion.div>
         )}
 
-                {/* Change Password Tab */}
+                                {/* Change Password Tab */}
         {activeTab === 'changepassword' && (
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-md mx-auto">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
