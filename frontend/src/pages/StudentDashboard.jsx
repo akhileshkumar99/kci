@@ -2070,32 +2070,61 @@ export default function StudentDashboard() {
               <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
                 <BookMarked className="w-12 h-12 mx-auto mb-3 text-gray-200" />
                 <p className="text-gray-500 font-semibold">No study material available yet</p>
-                <p className="text-xs text-gray-400 mt-1">Materials uploaded by your branch will appear here</p>
               </div>
             ) : (
               <div className="grid sm:grid-cols-2 gap-4">
-                {studyMaterials.map((m, i) => (
-                  <motion.div key={m._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                    className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center shrink-0">
-                      <BookMarked className="w-6 h-6 text-green-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-black text-gray-900 truncate">{m.title}</p>
-                      <p className="text-xs text-gray-400">{m.subject || m.courseName || 'â€”'}</p>
-                    </div>
-                    <a href={`${import.meta.env.VITE_API_URL || ''}${m.fileUrl}`} target="_blank" rel="noreferrer"
-                      className="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold shrink-0">
-                      <Download className="w-3.5 h-3.5" /> Download
-                    </a>
-                  </motion.div>
-                ))}
+                {studyMaterials.map((m, i) => {
+                  const ytMatch = m.videoUrl && m.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^?&/]+)/);
+                  const ytThumb = ytMatch ? ('https://img.youtube.com/vi/' + ytMatch[1] + '/hqdefault.jpg') : null;
+                  const thumb = m.thumbnailUrl || ytThumb;
+                  const fixT = s => s ? s.replace(/\u00e2\u0080\u0093/g,'\u2013').replace(/\u00e2\u0080\u0094/g,'\u2014').replace(/\u00c2\u00a0/g,' ').replace(/â€"/g,'\u2013').replace(/â€"/g,'\u2014').replace(/Â /g,' ') : s;
+                  return (
+                    <motion.div key={m._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                      {thumb ? (
+                        <div className="relative">
+                          <img src={thumb} alt={fixT(m.title)} className="w-full h-36 object-cover" />
+                          {m.videoUrl && (
+                            <a href={m.videoUrl} target="_blank" rel="noreferrer"
+                              className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/50 transition-colors">
+                              <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+                                <svg className="w-5 h-5 text-red-600 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                              </div>
+                            </a>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="w-full h-36 bg-green-50 flex items-center justify-center">
+                          <BookMarked className="w-10 h-10 text-green-300" />
+                        </div>
+                      )}
+                      <div className="p-4">
+                        <p className="font-black text-gray-900 leading-snug mb-1">{fixT(m.title)}</p>
+                        <p className="text-xs text-gray-400 mb-3 capitalize">{m.category ? m.category.replace('_',' ') : ''}</p>
+                        <div className="flex gap-2 flex-wrap">
+                          {m.fileUrl && (
+                            <button onClick={async () => { try { const r = await fetch(m.fileUrl); const b = await r.blob(); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = fixT(m.title) || 'file'; a.click(); URL.revokeObjectURL(a.href); } catch(e) { window.open(m.fileUrl,'_blank'); } }}
+                              className="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold">
+                              <Download className="w-3.5 h-3.5" /> Download
+                            </button>
+                          )}
+                          {m.videoUrl && (
+                            <a href={m.videoUrl} target="_blank" rel="noreferrer"
+                              className="flex items-center gap-1.5 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold">
+                              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Watch
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
             )}
           </motion.div>
         )}
 
-        {/* Change Password Tab */}
+                {/* Change Password Tab */}
         {activeTab === 'changepassword' && (
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-md mx-auto">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
