@@ -710,39 +710,33 @@ router.put('/students/:id', protect, branchAuth, uploadStudent.single('photo'), 
     if (!student) return res.status(404).json({ success: false, message: 'Student not found' });
     if (req.user.role === 'branch' && student.branchId?.toString() !== req.user._id.toString())
       return res.status(403).json({ success: false, message: 'Access denied' });
-    const updates = { ...req.body };
-    delete updates.role;
-    // Remove fields that can break Mongoose validation
-    delete updates.videoProgress;
-    delete updates.otp;
-    delete updates.otpExpiry;
-    // Sanitize course — only keep valid ObjectId string
+
+    // Strip all fields that are arrays/objects in schema — never sent from edit form
+    const STRIP = ['videoProgress', 'otp', 'otpExpiry', 'role', 'password', 'newPassword'];
+    const updates = Object.fromEntries(
+      Object.entries(req.body).filter(([k]) => !STRIP.includes(k))
+    );
+
+    // Sanitize course — only keep valid ObjectId
     if (updates.course !== undefined) {
-      if (typeof updates.course === 'string' && /^[a-f\d]{24}$/i.test(updates.course)) {
-        // valid, keep it
-      } else {
+      if (typeof updates.course !== 'string' || !/^[a-f\d]{24}$/i.test(updates.course))
         delete updates.course;
-      }
     }
+
     if (req.file) updates.photo = req.file.path;
-    // Handle password change
-    if (updates.newPassword && updates.newPassword.trim()) {
-      student.password = updates.newPassword.trim();
-      delete updates.newPassword;
-      delete updates.password;
-      // Don't assign array/object fields that come as empty strings
-      delete updates.videoProgress;
-      delete updates.otp;
-      delete updates.otpExpiry;
-      Object.assign(student, updates);
-      await student.save();
-      const result = student.toObject();
-      delete result.password;
-      return res.json({ success: true, student: result });
+
+    // Handle password change separately via .save() with bcrypt hook
+    const newPw = req.body.newPassword?.trim();
+    if (newPw) {
+      student.password = newPw;
+      await student.save({ validateBeforeSave: false });
     }
-    delete updates.newPassword;
-    delete updates.password;
-    const updated = await User.findByIdAndUpdate(req.params.id, updates, { new: true }).select('-password');
+
+    // Update remaining fields — skip validators to avoid videoProgress/array issues
+    const updated = await User.findByIdAndUpdate(
+      req.params.id, updates, { new: true, runValidators: false }
+    ).select('-password');
+
     res.json({ success: true, student: updated });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
