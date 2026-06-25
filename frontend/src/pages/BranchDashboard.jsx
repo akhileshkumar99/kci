@@ -5,7 +5,7 @@ import { toast } from 'react-hot-toast';
 import {
   Building2, Users, ClipboardList, Award, FileText, LogOut,
   TrendingUp, BookOpen, CheckCircle, Clock, Search, Eye, X,
-  Plus, Pencil, Trash2, Check, UserCheck, ClipboardCheck, Sun, Moon, Download, Upload
+  Plus, Pencil, Trash2, Check, UserCheck, ClipboardCheck, Sun, Moon, Download, Upload, BookMarked
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
@@ -25,6 +25,7 @@ const tabs = [
   { id: 'results', label: 'Results', icon: Award },
   { id: 'certificates', label: 'Certificates', icon: FileText },
   { id: 'tests', label: 'Monthly Tests', icon: ClipboardCheck },
+  { id: 'studymaterial', label: 'Study Material', icon: BookMarked },
 ];
 
 const EMPTY_STUDENT = { name: '', email: '', phone: '', fatherName: '', dob: '', address: '', courseName: '', batch: '' };
@@ -1635,6 +1636,131 @@ export default function BranchDashboard() {
         )}
       </div>
       </div>
+
+
+        {/* Study Material Tab */}
+        {activeTab === 'studymaterial' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <h2 className="text-xl font-black text-gray-900">Study Material ({studyMaterials.length})</h2>
+              <button onClick={() => setSmShowForm(p => !p)}
+                className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-bold transition-colors shadow-md">
+                {smShowForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />} {smShowForm ? 'Cancel' : 'Add Material'}
+              </button>
+            </div>
+
+            {smShowForm && (
+              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                <form onSubmit={async e => {
+                  e.preventDefault();
+                  if (!smForm.title) return toast.error('Title required');
+                  setSmLoading(true);
+                  try {
+                    const fd = new FormData();
+                    Object.entries(smForm).forEach(([k, v]) => v && fd.append(k, v));
+                    if (smThumbnail) fd.append('thumbnail', smThumbnail);
+                    if (smPdfFile) fd.append('file', smPdfFile);
+                    const { data } = await api.post('/study-material', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+                    setStudyMaterials(p => [data.material, ...p]);
+                    setSmForm({ title: '', description: '', category: 'notes', videoUrl: '' });
+                    setSmThumbnail(null); setSmThumbPreview(null); setSmPdfFile(null);
+                    setSmShowForm(false);
+                    toast.success('Added!');
+                  } catch { toast.error('Failed'); }
+                  setSmLoading(false);
+                }} className="space-y-3">
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <input value={smForm.title} onChange={e => setSmForm(p => ({ ...p, title: e.target.value }))} placeholder="Title *"
+                      className="px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50" />
+                    <select value={smForm.category} onChange={e => setSmForm(p => ({ ...p, category: e.target.value }))}
+                      className="px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50">
+                      <option value="notes">Notes</option>
+                      <option value="assignment">Assignment</option>
+                      <option value="previous_paper">Previous Paper</option>
+                      <option value="video">Video</option>
+                      <option value="other">Other</option>
+                    </select>
+                    <div>
+                      <label className="text-xs font-semibold text-gray-500 mb-1 block">Thumbnail Image</label>
+                      <input type="file" accept="image/*" onChange={e => { const f = e.target.files[0]; if(f){ setSmThumbnail(f); setSmThumbPreview(URL.createObjectURL(f)); }}}
+                        className="w-full px-3 py-2 border-2 border-gray-100 rounded-xl bg-gray-50 text-sm" />
+                      {smThumbPreview && <img src={smThumbPreview} className="mt-2 h-20 w-full object-contain bg-gray-100 rounded-xl" />}
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-gray-500 mb-1 block">PDF / Document</label>
+                      <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" onChange={e => setSmPdfFile(e.target.files[0])}
+                        className="w-full px-3 py-2 border-2 border-gray-100 rounded-xl bg-gray-50 text-sm" />
+                      {smPdfFile && <p className="text-xs text-green-600 font-semibold mt-1">✓ {smPdfFile.name}</p>}
+                    </div>
+                  </div>
+                  <input value={smForm.videoUrl} onChange={e => setSmForm(p => ({ ...p, videoUrl: e.target.value }))} placeholder="Video URL (YouTube link)"
+                    className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50" />
+                  <textarea value={smForm.description} onChange={e => setSmForm(p => ({ ...p, description: e.target.value }))} placeholder="Description" rows={2}
+                    className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50 resize-none" />
+                  <button type="submit" disabled={smLoading}
+                    className="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl disabled:opacity-60 transition-colors">
+                    {smLoading ? 'Uploading...' : 'Add Material'}
+                  </button>
+                </form>
+              </motion.div>
+            )}
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {studyMaterials.map((m, i) => {
+                const ytMatch = m.videoUrl && m.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^?&/]+)/);
+                const ytThumb = ytMatch ? ('https://img.youtube.com/vi/' + ytMatch[1] + '/hqdefault.jpg') : null;
+                const thumb = m.thumbnailUrl || ytThumb;
+                const catColors = { notes: 'bg-blue-100 text-blue-700', assignment: 'bg-violet-100 text-violet-700', previous_paper: 'bg-orange-100 text-orange-700', video: 'bg-pink-100 text-pink-700', other: 'bg-gray-100 text-gray-700' };
+                return (
+                  <motion.div key={m._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                    className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    {thumb ? (
+                      <img src={thumb} alt={m.title} className="w-full object-contain bg-white" style={{maxHeight:'160px'}} />
+                    ) : (
+                      <div className="w-full h-32 bg-violet-50 flex items-center justify-center">
+                        <BookMarked className="w-10 h-10 text-violet-200" />
+                      </div>
+                    )}
+                    <div className="p-4">
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <p className="font-black text-gray-900 text-sm leading-snug flex-1">{m.title}</p>
+                        <button onClick={async () => { if(!confirm('Delete?')) return; try { await api.delete('/study-material/' + m._id); setStudyMaterials(p => p.filter(x => x._id !== m._id)); toast.success('Deleted'); } catch { toast.error('Failed'); }}}
+                          className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold capitalize ${catColors[m.category] || 'bg-gray-100 text-gray-700'}`}>{m.category?.replace('_',' ')}</span>
+                        {m.createdAt && <span className="text-[10px] text-gray-400">{new Date(m.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</span>}
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        {m.fileUrl && (
+                          <a href={m.fileUrl} target="_blank" rel="noreferrer"
+                            className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold">
+                            <Download className="w-3 h-3" /> Download
+                          </a>
+                        )}
+                        {m.videoUrl && (
+                          <a href={m.videoUrl} target="_blank" rel="noreferrer"
+                            className="flex items-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold">
+                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Watch
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+              {studyMaterials.length === 0 && (
+                <div className="col-span-3 text-center py-16 text-gray-400">
+                  <BookMarked className="w-10 h-10 mx-auto mb-2 text-gray-200" />
+                  <p className="font-semibold">No study materials yet. Click "Add Material" to add one.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
       {/* Modals */}
       <AnimatePresence>
