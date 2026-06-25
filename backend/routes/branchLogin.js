@@ -712,6 +712,10 @@ router.put('/students/:id', protect, branchAuth, uploadStudent.single('photo'), 
       return res.status(403).json({ success: false, message: 'Access denied' });
     const updates = { ...req.body };
     delete updates.role;
+    // Remove fields that can break Mongoose validation
+    delete updates.videoProgress;
+    delete updates.otp;
+    delete updates.otpExpiry;
     // Sanitize course — only keep valid ObjectId string
     if (updates.course !== undefined) {
       if (typeof updates.course === 'string' && /^[a-f\d]{24}$/i.test(updates.course)) {
@@ -726,6 +730,10 @@ router.put('/students/:id', protect, branchAuth, uploadStudent.single('photo'), 
       student.password = updates.newPassword.trim();
       delete updates.newPassword;
       delete updates.password;
+      // Don't assign array/object fields that come as empty strings
+      delete updates.videoProgress;
+      delete updates.otp;
+      delete updates.otpExpiry;
       Object.assign(student, updates);
       await student.save();
       const result = student.toObject();
