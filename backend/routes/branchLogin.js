@@ -182,7 +182,7 @@ router.put('/:id', protect, admin, async (req, res) => {
   }
 });
 
-// Admin: Approve branch — generate password & send email
+// Admin: Approve branch — respond immediately, send email in background
 router.put('/:id/approve', protect, admin, async (req, res) => {
   try {
     const branch = await User.findById(req.params.id);
@@ -191,8 +191,11 @@ router.put('/:id/approve', protect, admin, async (req, res) => {
     branch.isApproved = true;
     branch.password = newPassword;
     await branch.save();
-    await sendApprovalEmail(branch.email, branch.name, branch.branchName, branch.branchCode, newPassword);
-    res.json({ success: true, message: 'Branch approved and credentials sent via email', password: newPassword });
+    // Respond immediately — don't wait for email
+    res.json({ success: true, message: 'Branch approved! Credentials email sending in background.', password: newPassword });
+    // Fire email after response
+    sendApprovalEmail(branch.email, branch.name, branch.branchName, branch.branchCode, newPassword)
+      .catch(err => console.error('Branch approval email failed:', err.message));
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -311,9 +314,8 @@ router.put('/admissions/:id/status', protect, branchAuth, async (req, res) => {
         studentData = created.toObject();
         delete studentData.password;
 
-        // Send credentials email
-        try {
-          await getTransporter().sendMail({
+        // Fire email in background — don't block response
+        getTransporter().sendMail({
             from: `"Keerti Computer Institute" <${process.env.EMAIL_USER}>`,
             to: admission.email,
             subject: '🎉 Your KCI Admission is Approved — Login Credentials Inside!',
@@ -340,10 +342,7 @@ router.put('/admissions/:id/status', protect, branchAuth, async (req, res) => {
               </div>
               <div style="background:#f9fafb;padding:16px;text-align:center;color:#9ca3af;font-size:12px">Keerti Computer Institute | 9936384736</div>
             </div>`,
-          });
-        } catch (emailErr) {
-          console.error('Email failed:', emailErr.message);
-        }
+          }).catch(emailErr => console.error('Email failed:', emailErr.message));
       } else {
         // Existing student — auto-fill missing fields from admission
         const updates = {};
@@ -742,7 +741,7 @@ router.put('/students/:id', protect, branchAuth, uploadStudent.single('photo'), 
   }
 });
 
-// Branch: Approve student — generate password & send email
+// Branch: Approve student — respond immediately, send email in background
 router.put('/students/:id/approve', protect, branchAuth, async (req, res) => {
   try {
     const student = await User.findById(req.params.id);
@@ -754,11 +753,13 @@ router.put('/students/:id/approve', protect, branchAuth, async (req, res) => {
     student.isActive = true;
     student.password = newPassword;
     await student.save();
-    await sendStudentApprovalEmail(
+    // Respond immediately
+    res.json({ success: true, message: 'Student approved! Credentials email sending in background.' });
+    // Fire email after response
+    sendStudentApprovalEmail(
       student.email, student.name, student.rollNumber, student.formNo, newPassword,
       req.user.branchName || 'KCI Branch', student.courseName || 'Course'
-    );
-    res.json({ success: true, message: 'Student approved and credentials sent via email' });
+    ).catch(err => console.error('Student approval email failed:', err.message));
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
