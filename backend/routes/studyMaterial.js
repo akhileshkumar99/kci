@@ -44,6 +44,18 @@ router.post('/', protect, combinedUpload.fields([{ name: 'file', maxCount: 1 }, 
   }
 });
 
+router.put('/:id', protect, combinedUpload.fields([{ name: 'file', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]), async (req, res) => {
+  try {
+    const data = { ...req.body };
+    if (req.files?.file?.[0]) data.fileUrl = req.files.file[0].path;
+    if (req.files?.thumbnail?.[0]) data.thumbnailUrl = req.files.thumbnail[0].path;
+    const material = await StudyMaterial.findByIdAndUpdate(req.params.id, data, { new: true });
+    res.json({ success: true, material });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 router.delete('/:id', protect, admin, async (req, res) => {
   try {
     await StudyMaterial.findByIdAndDelete(req.params.id);

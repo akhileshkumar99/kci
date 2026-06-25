@@ -11,6 +11,12 @@ const categories = [
   { value: 'video', label: 'Videos', icon: Video, color: 'bg-pink-100 text-pink-700' },
 ];
 
+const getYouTubeThumbnail = url => {
+  if (!url) return null;
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^?&/]+)/);
+  return m ? `https://img.youtube.com/vi/${m[1]}/hqdefault.jpg` : null;
+};
+
 const decode = str => {
   if (!str) return str;
   return str
@@ -90,13 +96,27 @@ export default function StudyMaterialPage() {
             {filtered.map((m, i) => (
               <motion.div key={m._id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.06 }}
                 whileHover={{ y: -4 }} className="bg-white rounded-2xl shadow-md border border-gray-100 hover:shadow-xl transition-all overflow-hidden">
-                {m.thumbnailUrl ? (
-                  <img src={m.thumbnailUrl} alt={decode(m.title)} className="w-full h-40 object-cover" />
-                ) : (
-                  <div className={`w-full h-40 flex items-center justify-center ${categories.find(c => c.value === m.category)?.color || 'bg-gray-100 text-gray-400'}`}>
-                    <FileText className="w-12 h-12 opacity-30" />
-                  </div>
-                )}
+{(() => {
+                  const ytThumb = getYouTubeThumbnail(m.videoUrl);
+                  const thumb = m.thumbnailUrl || ytThumb;
+                  return thumb ? (
+                    <div className="relative">
+                      <img src={thumb} alt={decode(m.title)} className="w-full h-40 object-cover" />
+                      {m.videoUrl && (
+                        <a href={m.videoUrl} target="_blank" rel="noreferrer"
+                          className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/50 transition-colors">
+                          <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
+                            <svg className="w-5 h-5 text-red-600 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                          </div>
+                        </a>
+                      )}
+                    </div>
+                  ) : (
+                    <div className={`w-full h-40 flex items-center justify-center ${categories.find(c => c.value === m.category)?.color || 'bg-gray-100 text-gray-400'}`}>
+                      <FileText className="w-12 h-12 opacity-30" />
+                    </div>
+                  );
+                })()}
                 <div className="p-5">
                   <div className="flex items-start gap-3 mb-3">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${categories.find(c => c.value === m.category)?.color || 'bg-gray-100 text-gray-600'}`}>
