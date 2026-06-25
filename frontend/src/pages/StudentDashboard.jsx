@@ -1014,6 +1014,7 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
   const [submitting, setSubmitting] = useState(false);
   const [upiQr, setUpiQr] = useState('');
   const [step, setStep] = useState('form'); // 'form' | 'pay' | 'utr'
+  const [errs, setErrs] = useState({});
 
   const UPI_ID = 'akhileshkumar5044@ybl';
   const AMOUNT = 1;
@@ -1051,7 +1052,23 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
     });
   }, [student, myExamForm]);
 
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const set = (k, v) => { setForm(f => ({ ...f, [k]: v })); setErrs(e => ({ ...e, [k]: '' })); };
+
+  const validate = (f) => {
+    const e = {};
+    if (!f.studentName.trim()) e.studentName = 'Required';
+    if (!f.fatherName.trim()) e.fatherName = 'Required';
+    if (!f.dob) e.dob = 'Required';
+    if (!f.gender) e.gender = 'Required';
+    if (!f.enrollmentNumber.trim()) e.enrollmentNumber = 'Required';
+    if (!f.course) e.course = 'Required';
+    if (!f.batch.trim()) e.batch = 'Required';
+    if (!f.phone.trim()) e.phone = 'Required';
+    else if (!/^[6-9]\d{9}$/.test(f.phone.trim())) e.phone = 'Enter valid 10-digit number';
+    if (!f.email.trim()) e.email = 'Required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email.trim())) e.email = 'Invalid email';
+    return e;
+  };
 
   const statusColor = {
     Pending:  'bg-yellow-100 text-yellow-700 border-yellow-200',
@@ -1184,7 +1201,12 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
           </div>
         </div>
 
-        <form onSubmit={e => { e.preventDefault(); setStep('pay'); }} className="p-6 space-y-5">
+        <form onSubmit={e => {
+          e.preventDefault();
+          const e2 = validate(form);
+          if (Object.keys(e2).length) { setErrs(e2); return; }
+          setStep('pay');
+        }} className="p-6 space-y-5">
           {/* Personal Info */}
           <div>
             <h3 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
@@ -1193,11 +1215,13 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-bold text-gray-600 mb-1 block">Student Name *</label>
-                <input value={form.studentName} onChange={e => set('studentName', e.target.value)} required className={inp} />
+                <input value={form.studentName} onChange={e => set('studentName', e.target.value)} className={`${inp} ${errs.studentName ? 'border-red-400' : ''}`} />
+                {errs.studentName && <p className="text-red-500 text-[10px] mt-0.5">{errs.studentName}</p>}
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-600 mb-1 block">Father's Name *</label>
-                <input value={form.fatherName} onChange={e => set('fatherName', e.target.value)} required className={inp} />
+                <input value={form.fatherName} onChange={e => set('fatherName', e.target.value)} className={`${inp} ${errs.fatherName ? 'border-red-400' : ''}`} />
+                {errs.fatherName && <p className="text-red-500 text-[10px] mt-0.5">{errs.fatherName}</p>}
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-600 mb-1 block">Mother's Name</label>
@@ -1205,14 +1229,16 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-600 mb-1 block">Date of Birth *</label>
-                <input type="date" value={form.dob} onChange={e => set('dob', e.target.value)} required className={inp} />
+                <input type="date" value={form.dob} onChange={e => set('dob', e.target.value)} className={`${inp} ${errs.dob ? 'border-red-400' : ''}`} />
+                {errs.dob && <p className="text-red-500 text-[10px] mt-0.5">{errs.dob}</p>}
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-600 mb-1 block">Gender *</label>
-                <select value={form.gender} onChange={e => set('gender', e.target.value)} required className={sel}>
+                <select value={form.gender} onChange={e => set('gender', e.target.value)} className={`${sel} ${errs.gender ? 'border-red-400' : ''}`}>
                   <option value="">-- Select --</option>
                   <option>Male</option><option>Female</option><option>Other</option>
                 </select>
+                {errs.gender && <p className="text-red-500 text-[10px] mt-0.5">{errs.gender}</p>}
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-600 mb-1 block">Category</label>
@@ -1231,18 +1257,21 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-bold text-gray-600 mb-1 block">Enrollment Number *</label>
-                <input value={form.enrollmentNumber} onChange={e => set('enrollmentNumber', e.target.value)} required className={inp} />
+                <input value={form.enrollmentNumber} onChange={e => set('enrollmentNumber', e.target.value)} className={`${inp} ${errs.enrollmentNumber ? 'border-red-400' : ''}`} />
+                {errs.enrollmentNumber && <p className="text-red-500 text-[10px] mt-0.5">{errs.enrollmentNumber}</p>}
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-600 mb-1 block">Course *</label>
-                <select value={form.course} onChange={e => set('course', e.target.value)} required className={sel}>
+                <select value={form.course} onChange={e => set('course', e.target.value)} className={`${sel} ${errs.course ? 'border-red-400' : ''}`}>
                   <option value="">-- Select Course --</option>
                   {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
+                {errs.course && <p className="text-red-500 text-[10px] mt-0.5">{errs.course}</p>}
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-600 mb-1 block">Batch *</label>
-                <input value={form.batch} onChange={e => set('batch', e.target.value)} required className={inp} />
+                <input value={form.batch} onChange={e => set('batch', e.target.value)} className={`${inp} ${errs.batch ? 'border-red-400' : ''}`} />
+                {errs.batch && <p className="text-red-500 text-[10px] mt-0.5">{errs.batch}</p>}
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-600 mb-1 block">Session</label>
@@ -1267,11 +1296,13 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-bold text-gray-600 mb-1 block">Phone *</label>
-                <input value={form.phone} onChange={e => set('phone', e.target.value)} required className={inp} />
+                <input value={form.phone} onChange={e => set('phone', e.target.value)} maxLength={10} className={`${inp} ${errs.phone ? 'border-red-400' : ''}`} />
+                {errs.phone && <p className="text-red-500 text-[10px] mt-0.5">{errs.phone}</p>}
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-600 mb-1 block">Email *</label>
-                <input type="email" value={form.email} onChange={e => set('email', e.target.value)} required className={inp} />
+                <input value={form.email} onChange={e => set('email', e.target.value)} className={`${inp} ${errs.email ? 'border-red-400' : ''}`} />
+                {errs.email && <p className="text-red-500 text-[10px] mt-0.5">{errs.email}</p>}
               </div>
               <div className="sm:col-span-2">
                 <label className="text-xs font-bold text-gray-600 mb-1 block">Address</label>
@@ -1281,7 +1312,7 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
           </div>
 
           {/* Proceed to Pay */}
-          <button type="button" onClick={e => { e.preventDefault(); setStep('pay'); }}
+          <button type="submit"
             className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md">
             💳 Proceed to Pay ₹{AMOUNT}
           </button>
