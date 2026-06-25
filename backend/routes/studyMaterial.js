@@ -32,10 +32,22 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Add fl_attachment to Cloudinary raw URL so browser downloads with correct filename
+const makeDownloadUrl = (url, originalName) => {
+  if (!url || !url.includes('cloudinary')) return url;
+  // Insert fl_attachment:filename transformation
+  const name = (originalName || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
+  return url.replace('/upload/', `/upload/fl_attachment:${name}/`);
+};
+
 router.post('/', protect, combinedUpload.fields([{ name: 'file', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]), async (req, res) => {
   try {
     const data = { ...req.body, uploadedBy: req.user._id };
-    if (req.files?.file?.[0]) data.fileUrl = req.files.file[0].path;
+    if (req.files?.file?.[0]) {
+      const f = req.files.file[0];
+      data.fileName = f.originalname;
+      data.fileUrl = makeDownloadUrl(f.path, f.originalname);
+    }
     if (req.files?.thumbnail?.[0]) data.thumbnailUrl = req.files.thumbnail[0].path;
     const material = await StudyMaterial.create(data);
     res.status(201).json({ success: true, material });
@@ -47,7 +59,11 @@ router.post('/', protect, combinedUpload.fields([{ name: 'file', maxCount: 1 }, 
 router.put('/:id', protect, combinedUpload.fields([{ name: 'file', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]), async (req, res) => {
   try {
     const data = { ...req.body };
-    if (req.files?.file?.[0]) data.fileUrl = req.files.file[0].path;
+    if (req.files?.file?.[0]) {
+      const f = req.files.file[0];
+      data.fileName = f.originalname;
+      data.fileUrl = makeDownloadUrl(f.path, f.originalname);
+    }
     if (req.files?.thumbnail?.[0]) data.thumbnailUrl = req.files.thumbnail[0].path;
     const material = await StudyMaterial.findByIdAndUpdate(req.params.id, data, { new: true });
     res.json({ success: true, material });

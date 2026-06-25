@@ -6,6 +6,7 @@ const studyMaterialSchema = new mongoose.Schema({
   category: { type: String, enum: ['notes', 'assignment', 'previous_paper', 'video', 'other'], default: 'notes' },
   course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
   fileUrl: { type: String },
+  fileName: { type: String },
   thumbnailUrl: { type: String },
   videoUrl: { type: String },
   uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

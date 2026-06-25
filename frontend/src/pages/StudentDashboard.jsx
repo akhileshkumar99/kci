@@ -2170,10 +2170,10 @@ export default function StudentDashboard() {
                         <p className="text-xs text-gray-400 mb-3 capitalize">{m.category ? m.category.replace('_',' ') : ''}</p>
                         <div className="flex gap-2 flex-wrap">
                           {m.fileUrl && (
-                            <button onClick={async () => { try { const r = await fetch(m.fileUrl); const b = await r.blob(); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = fixT(m.title) || 'file'; a.click(); URL.revokeObjectURL(a.href); } catch(e) { window.open(m.fileUrl,'_blank'); } }}
+                            <a href={m.fileUrl} target="_blank" rel="noreferrer"
                               className="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold">
                               <Download className="w-3.5 h-3.5" /> Download
-                            </button>
+                            </a>
                           )}
                           <button onClick={handleDownloadPdf}
                             className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold">
