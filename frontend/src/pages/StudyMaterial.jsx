@@ -23,6 +23,18 @@ const decode = str => {
     .replace(/Â /g, ' ');
 };
 
+const handleDownload = async (url, title) => {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = title || 'file';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch { window.open(url, '_blank'); }
+};
+
 export default function StudyMaterialPage() {
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -99,10 +111,10 @@ export default function StudyMaterialPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-400">{m.downloads || 0} downloads</span>
                     {m.fileUrl ? (
-                      <a href={m.fileUrl} download target="_blank" rel="noreferrer"
+                      <button onClick={() => handleDownload(m.fileUrl, decode(m.title))}
                         className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 text-white text-xs font-bold rounded-xl hover:bg-violet-700 transition-colors">
                         <Download className="w-3.5 h-3.5" /> Download
-                      </a>
+                      </button>
                     ) : m.videoUrl ? (
                       <a href={m.videoUrl} target="_blank" rel="noreferrer"
                         className="flex items-center gap-1.5 px-4 py-2 bg-pink-600 text-white text-xs font-bold rounded-xl hover:bg-pink-700 transition-colors">
