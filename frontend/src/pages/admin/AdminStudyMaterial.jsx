@@ -21,6 +21,7 @@ export default function AdminStudyMaterial() {
   const [form, setForm] = useState(empty);
   const [thumbnail, setThumbnail] = useState(null);
   const [thumbPreview, setThumbPreview] = useState(null);
+  const [pdfFile, setPdfFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export default function AdminStudyMaterial() {
     setThumbPreview(m.thumbnailUrl || null);
     setShowForm(true);
   };
-  const closeForm = () => { setShowForm(false); setEditId(null); setForm(empty); setThumbnail(null); setThumbPreview(null); };
+  const closeForm = () => { setShowForm(false); setEditId(null); setForm(empty); setThumbnail(null); setThumbPreview(null); setPdfFile(null); };
 
   const handleThumb = e => {
     const f = e.target.files[0];
@@ -53,6 +54,7 @@ export default function AdminStudyMaterial() {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => v && fd.append(k, v));
       if (thumbnail) fd.append('thumbnail', thumbnail);
+      if (pdfFile) fd.append('file', pdfFile);
       if (editId) {
         const { data } = await api.put(`/study-material/${editId}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
         setMaterials(p => p.map(m => m._id === editId ? data.material : m));
@@ -102,7 +104,12 @@ export default function AdminStudyMaterial() {
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-gray-500">Thumbnail Image</label>
                 <input type="file" onChange={handleThumb} accept="image/*" className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl bg-gray-50 text-sm" />
-                {thumbPreview && <img src={thumbPreview} className="mt-2 h-24 w-full object-cover rounded-xl" />}
+                {thumbPreview && <img src={thumbPreview} className="mt-2 h-24 w-full object-contain bg-gray-100 rounded-xl" />}
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-gray-500">PDF / Document File</label>
+                <input type="file" onChange={e => setPdfFile(e.target.files[0])} accept=".pdf,.doc,.docx,.ppt,.pptx" className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl bg-gray-50 text-sm" />
+                {pdfFile && <p className="text-xs text-green-600 font-semibold mt-1">✓ {pdfFile.name}</p>}
               </div>
             </div>
             <input value={form.videoUrl} onChange={e => setForm(p => ({ ...p, videoUrl: e.target.value }))} placeholder="Video URL (YouTube/Drive link)" className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50" />
