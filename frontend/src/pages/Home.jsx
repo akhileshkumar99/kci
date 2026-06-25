@@ -299,13 +299,13 @@ export default function Home() {
           <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-white text-sm mb-6">
               <Award className="w-4 h-4 text-yellow-400" />
-              Government Recognized Institute
+              <span className="font-bold">Government Recognized Institute</span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
               Shape Your Future with
               <span className="text-yellow-400"> Digital Skills</span>
             </h1>
-            <p className="text-blue-100 text-lg mb-8 leading-relaxed">
+            <p className="text-white text-lg mb-8 leading-relaxed font-bold">
               Join Keerti Computer Institute — most trusted computer training center with 18+ years of excellence, 10,000+ successful students, and 25+ industry-relevant courses.
             </p>
             <div className="flex flex-wrap gap-4">
@@ -313,7 +313,7 @@ export default function Home() {
                 Apply for Admission
               </Link>
               <Link to="/courses" className="px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/30 transition-all duration-200 flex items-center gap-2">
-                Explore Courses <ArrowRight className="w-4 h-4" />
+                <span className="font-bold">Explore Courses</span> <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </motion.div>
@@ -347,10 +347,10 @@ export default function Home() {
                 <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-md`}>
                   <Icon className="w-7 h-7 text-white" />
                 </div>
-                <div className="text-3xl font-extrabold text-gray-900 mb-1">
+                <div className="text-3xl font-extrabold text-gray-950 mb-1">
                   <Counter value={value} suffix={suffix} />
                 </div>
-                <div className="text-sm text-gray-500 font-medium">{label}</div>
+                <div className="text-sm text-gray-700 font-semibold">{label}</div>
               </motion.div>
             ))}
           </div>

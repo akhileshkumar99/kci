@@ -97,7 +97,7 @@ export default function Navbar() {
               return (
                 <motion.div key={link.path} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 * i + 0.2 }}>
                   <Link to={link.path}
-                    className={`relative px-4 py-2 rounded-lg text-[15px] font-semibold transition-all duration-200 group ${
+                    className={`relative px-4 py-2 rounded-lg text-[15px] font-bold transition-all duration-200 group ${
                       active ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'
                     }`}>
                     {active && (
