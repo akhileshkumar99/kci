@@ -19,18 +19,6 @@ const combinedUpload = multer({
   limits: { fileSize: 20 * 1024 * 1024 },
 });
 
-const fixEncoding = str => {
-  if (!str) return str;
-  try { return Buffer.from(str, 'latin1').toString('utf8'); } catch { return str; }
-};
-
-const fixMaterial = m => {
-  const obj = m.toObject ? m.toObject() : { ...m };
-  obj.title = fixEncoding(obj.title);
-  obj.description = fixEncoding(obj.description);
-  return obj;
-};
-
 router.get('/', async (req, res) => {
   try {
     const { category, course } = req.query;
@@ -38,7 +26,7 @@ router.get('/', async (req, res) => {
     if (category) filter.category = category;
     if (course) filter.course = course;
     const materials = await StudyMaterial.find(filter).populate('course', 'title').populate('uploadedBy', 'name').sort('-createdAt');
-    res.json({ success: true, materials: materials.map(fixMaterial) });
+    res.json({ success: true, materials });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

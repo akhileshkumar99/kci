@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Download, Search, BookOpen, Video, FileQuestion, Filter } from 'lucide-react';
 import api from '../utils/api';
-import SectionTitle from '../components/SectionTitle';
 
 const categories = [
   { value: 'all', label: 'All', icon: Filter, color: 'bg-gray-100 text-gray-700' },
@@ -13,9 +12,15 @@ const categories = [
 ];
 
 const decode = str => {
-  const txt = document.createElement('textarea');
-  txt.innerHTML = str;
-  return txt.value;
+  if (!str) return str;
+  return str
+    .replace(/â€"/g, '\u2013')
+    .replace(/â€"/g, '\u2014')
+    .replace(/â€˜/g, '\u2018')
+    .replace(/â€™/g, '\u2019')
+    .replace(/â€œ/g, '\u201C')
+    .replace(/â€/g, '\u201D')
+    .replace(/Â /g, ' ');
 };
 
 export default function StudyMaterialPage() {
@@ -46,14 +51,12 @@ export default function StudyMaterialPage() {
       </section>
 
       <div className="max-w-6xl mx-auto px-4 py-10">
-        {/* Search */}
         <div className="relative mb-6">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search materials..."
             className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-100 rounded-2xl bg-white focus:outline-none focus:border-violet-500 transition-all text-gray-800" />
         </div>
 
-        {/* Category Filters */}
         <div className="flex gap-3 flex-wrap mb-8">
           {categories.map(({ value, label, icon: Icon, color }) => (
             <button key={value} onClick={() => setCategory(value)}
@@ -75,7 +78,6 @@ export default function StudyMaterialPage() {
             {filtered.map((m, i) => (
               <motion.div key={m._id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.06 }}
                 whileHover={{ y: -4 }} className="bg-white rounded-2xl shadow-md border border-gray-100 hover:shadow-xl transition-all overflow-hidden">
-                {/* Thumbnail */}
                 {m.thumbnailUrl ? (
                   <img src={m.thumbnailUrl} alt={decode(m.title)} className="w-full h-40 object-cover" />
                 ) : (
