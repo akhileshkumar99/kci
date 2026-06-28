@@ -772,6 +772,7 @@ export default function BranchDashboard() {
     api.get('/branch/results').then(r => setResults(r.data.results || [])).catch(() => {});
     api.get('/branch/certificates').then(r => setCertificates(r.data.certificates || [])).catch(() => {});
     api.get('/branch/tests').then(r => setTests(r.data.tests || [])).catch(() => {});
+    api.get('/study-material').then(r => setStudyMaterials(r.data.materials || [])).catch(() => {});
   };
 
   useEffect(() => {
@@ -1564,80 +1565,6 @@ export default function BranchDashboard() {
             </div>
           </div>
         )}
-
-        {/* Certificates */}
-        {activeTab === 'certificates' && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <h2 className="text-xl font-black text-gray-900">Certificates <span className="text-teal-600">({certificates.length})</span></h2>
-              <div className="flex items-center gap-3">
-                <select value={certFilter} onChange={e => setCertFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 bg-white text-gray-700">
-                  <option value="all">All</option>
-                  <option value="pending">⏳ Pending</option>
-                  <option value="approved">✓ Approved</option>
-                </select>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..."
-                    className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-blue-500 bg-white w-48" />
-                </div>
-                <button onClick={() => { setSelected(null); setModal('add-cert'); }}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl text-sm font-bold transition-all shadow-md hover:-translate-y-0.5">
-                  <Plus className="w-4 h-4" /> Add Certificate
-                </button>
-              </div>
-            </div>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gradient-to-r from-teal-600 to-cyan-600">
-                    <tr>{['Student', 'Enrollment No', 'Course', 'Certificate No', 'Grade', 'Issue Date', 'Approval', 'Actions'].map(h => (
-                      <th key={h} className="text-left px-4 py-3 text-xs font-black text-white uppercase tracking-wider">{h}</th>
-                    ))}</tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filtered(certificates, ['studentName', 'rollNumber', 'courseName', 'certificateNumber'])
-                      .filter(c => certFilter === 'all' ? true : certFilter === 'approved' ? c.isApproved === true : c.isApproved !== true)
-                      .map((c, i) => (
-                      <tr key={c._id} className={`hover:bg-teal-50/40 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
-                        <td className="px-4 py-3 font-black text-gray-900">{c.studentName}</td>
-                        <td className="px-4 py-3 font-black font-mono text-blue-700 text-xs">{c.rollNumber}</td>
-                        <td className="px-4 py-3 font-bold text-gray-700 text-xs">{c.courseName || '—'}</td>
-                        <td className="px-4 py-3 font-black font-mono text-indigo-700 text-xs">{c.certificateNumber}</td>
-                        <td className="px-4 py-3"><span className="font-black text-green-700 text-base">{c.grade || '—'}</span></td>
-                        <td className="px-4 py-3 font-bold text-gray-700 text-xs">{c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN') : '—'}</td>
-                        <td className="px-4 py-3">
-                          <button onClick={() => handleApproveCert(c._id, c.isApproved === true)}
-                            className={`px-3 py-1 rounded-full text-xs font-black border transition-all ${
-                              c.isApproved === true ? 'bg-green-100 text-green-800 border-green-200 hover:bg-red-100 hover:text-red-700 hover:border-red-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-green-100 hover:text-green-800'
-                            }`}>
-                            {c.isApproved === true ? '✓ Approved' : '⏳ Pending'}
-                          </button>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-1.5">
-                            <button onClick={() => { setViewItem(c); setViewType('certificate'); }} className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg"><Eye className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => { setSelected(c); setModal('edit-cert'); }} className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg"><Pencil className="w-3.5 h-3.5" /></button>
-                            {c.isApproved !== true && (
-                              <button onClick={() => handleApproveCert(c._id)} className="p-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg"><Check className="w-3.5 h-3.5" /></button>
-                            )}
-                            <button onClick={() => handleDeleteCert(c._id)} className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                    {certificates.length === 0 && <tr><td colSpan={7} className="text-center py-12 text-gray-400"><p className="font-semibold">No certificates found. Click "Add Certificate" to add one.</p></td></tr>}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-      </div>
-
-
         {/* Study Material Tab */}
         {activeTab === 'studymaterial' && (
           <div className="space-y-4">
@@ -1667,7 +1594,7 @@ export default function BranchDashboard() {
                     setSmThumbnail(null); setSmThumbPreview(null); setSmPdfFile(null);
                     setSmShowForm(false);
                     toast.success('Added!');
-                  } catch { toast.error('Failed'); }
+                  } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
                   setSmLoading(false);
                 }} className="space-y-3">
                   <div className="grid sm:grid-cols-2 gap-3">
@@ -1688,10 +1615,10 @@ export default function BranchDashboard() {
                       {smThumbPreview && <img src={smThumbPreview} className="mt-2 h-20 w-full object-contain bg-gray-100 rounded-xl" />}
                     </div>
                     <div>
-                      <label className="text-xs font-semibold text-gray-500 mb-1 block">PDF / Document</label>
-                      <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" onChange={e => setSmPdfFile(e.target.files[0])}
+                      <label className="text-xs font-semibold text-gray-500 mb-1 block">Upload Image</label>
+                      <input type="file" accept="image/*" onChange={e => setSmPdfFile(e.target.files[0])}
                         className="w-full px-3 py-2 border-2 border-gray-100 rounded-xl bg-gray-50 text-sm" />
-                      {smPdfFile && <p className="text-xs text-green-600 font-semibold mt-1">✓ {smPdfFile.name}</p>}
+                      {smPdfFile && <img src={URL.createObjectURL(smPdfFile)} className="mt-2 h-20 w-full object-contain bg-gray-100 rounded-xl" />}
                     </div>
                   </div>
                   <input value={smForm.videoUrl} onChange={e => setSmForm(p => ({ ...p, videoUrl: e.target.value }))} placeholder="Video URL (YouTube link)"
@@ -1734,20 +1661,7 @@ export default function BranchDashboard() {
                         <span className={`text-xs px-2 py-0.5 rounded-full font-semibold capitalize ${catColors[m.category] || 'bg-gray-100 text-gray-700'}`}>{m.category?.replace('_',' ')}</span>
                         {m.createdAt && <span className="text-[10px] text-gray-400">{new Date(m.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</span>}
                       </div>
-                      <div className="flex gap-2 flex-wrap">
-                        {m.fileUrl && (
-                          <a href={m.fileUrl} target="_blank" rel="noreferrer"
-                            className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold">
-                            <Download className="w-3 h-3" /> Download
-                          </a>
-                        )}
-                        {m.videoUrl && (
-                          <a href={m.videoUrl} target="_blank" rel="noreferrer"
-                            className="flex items-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold">
-                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Watch
-                          </a>
-                        )}
-                      </div>
+
                     </div>
                   </motion.div>
                 );
@@ -1762,40 +1676,109 @@ export default function BranchDashboard() {
           </div>
         )}
 
+        {/* Certificates */}
+        {activeTab === 'certificates' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <h2 className="text-xl font-black text-gray-900">Certificates <span className="text-teal-600">({certificates.length})</span></h2>
+              <div className="flex items-center gap-3">
+                <select value={certFilter} onChange={e => setCertFilter(e.target.value)}
+                  className="px-3 py-2 border border-gray-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 bg-white text-gray-700">
+                  <option value="all">All</option>
+                  <option value="pending">⏳ Pending</option>
+                  <option value="approved">✓ Approved</option>
+                </select>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..."
+                    className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-blue-500 bg-white w-48" />
+                </div>
+                <button onClick={() => { setSelected(null); setModal('add-cert'); }}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl text-sm font-bold transition-all shadow-md hover:-translate-y-0.5">
+                  <Plus className="w-4 h-4" /> Add Certificate
+                </button>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gradient-to-r from-teal-600 to-cyan-600">
+                    <tr>{['Student', 'Enrollment No', 'Course', 'Certificate No', 'Grade', 'Issue Date', 'Approval', 'Actions'].map(h => (
+                      <th key={h} className="text-left px-4 py-3 text-xs font-black text-white uppercase tracking-wider">{h}</th>
+                    ))}</tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {filtered(certificates, ['studentName', 'rollNumber', 'courseName', 'certificateNumber'],
+                    )
+                      .filter(c => certFilter === 'all' ? true : certFilter === 'approved' ? c.isApproved === true : c.isApproved !== true)
+                      .map((c, i) => (
+                      <tr key={c._id} className={`hover:bg-teal-50/40 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
+                        <td className="px-4 py-3 font-black text-gray-900">{c.studentName}</td>
+                        <td className="px-4 py-3 font-black font-mono text-blue-700 text-xs">{c.rollNumber}</td>
+                        <td className="px-4 py-3 font-bold text-gray-700 text-xs">{c.courseName || '—'}</td>
+                        <td className="px-4 py-3 font-black font-mono text-indigo-700 text-xs">{c.certificateNumber}</td>
+                        <td className="px-4 py-3"><span className="font-black text-green-700 text-base">{c.grade || '—'}</span></td>
+                        <td className="px-4 py-3 font-bold text-gray-700 text-xs">{c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN') : '—'}</td>
+                        <td className="px-4 py-3">
+                          <button onClick={() => handleApproveCert(c._id, c.isApproved === true)}
+                            className={`px-3 py-1 rounded-full text-xs font-black border transition-all ${
+                              c.isApproved === true ? 'bg-green-100 text-green-800 border-green-200 hover:bg-red-100 hover:text-red-700 hover:border-red-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-green-100 hover:text-green-800'
+                            }`}>
+                            {c.isApproved === true ? '✓ Approved' : '⏳ Pending'}
+                          </button>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-1.5">
+                            <button onClick={() => { setViewItem(c); setViewType('certificate'); }} className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg"><Eye className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => { setSelected(c); setModal('edit-cert'); }} className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg"><Pencil className="w-3.5 h-3.5" /></button>
+                            {c.isApproved !== true && (
+                              <button onClick={() => handleApproveCert(c._id)} className="p-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg"><Check className="w-3.5 h-3.5" /></button>
+                            )}
+                            <button onClick={() => handleDeleteCert(c._id)} className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {certificates.length === 0 && <tr><td colSpan={7} className="text-center py-12 text-gray-400"><p className="font-semibold">No certificates found. Click "Add Certificate" to add one.</p></td></tr>}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
       {/* Modals */}
-      <AnimatePresence>
-        {modal === 'add' && (
-          <Modal title="Add New Student" onClose={() => setModal(null)}>
-            <StudentForm initial={EMPTY_STUDENT} onSave={handleAddStudent} onClose={() => setModal(null)} saving={saving} />
-          </Modal>
-        )}
-        {modal === 'edit' && selected && (
-          <Modal title="Edit Student" onClose={() => setModal(null)}>
-            <StudentForm initial={selected} onSave={handleEditStudent} onClose={() => setModal(null)} saving={saving} />
-          </Modal>
-        )}
-        {modal === 'add-result' && (
-          <Modal title="Add Result" onClose={() => setModal(null)}>
-            <ResultForm initial={EMPTY_RESULT} students={students} onSave={handleAddResult} onClose={() => setModal(null)} saving={saving} />
-          </Modal>
-        )}
-        {modal === 'edit-result' && selected && (
-          <Modal title="Edit Result" onClose={() => setModal(null)}>
-            <ResultForm initial={selected} students={students} onSave={handleEditResult} onClose={() => setModal(null)} saving={saving} />
-          </Modal>
-        )}
-        {(modal === 'add-cert' || (modal === 'edit-cert' && selected)) && (
-          <Modal title={modal === 'add-cert' ? 'Add Certificate' : 'Edit Certificate'} onClose={() => setModal(null)}>
-            <CertForm
-              initial={modal === 'add-cert' ? EMPTY_CERT : selected}
-              students={students}
-              onSave={modal === 'add-cert' ? handleAddCert : handleEditCert}
-              onClose={() => setModal(null)}
-              saving={saving}
-            />
-          </Modal>
-        )}
-      </AnimatePresence>
+      {modal === 'add' && (
+        <Modal title="Add New Student" onClose={() => setModal(null)}>
+          <StudentForm initial={EMPTY_STUDENT} onSave={handleAddStudent} onClose={() => setModal(null)} saving={saving} />
+        </Modal>
+      )}
+      {modal === 'edit' && selected && (
+        <Modal title="Edit Student" onClose={() => setModal(null)}>
+          <StudentForm initial={selected} onSave={handleEditStudent} onClose={() => setModal(null)} saving={saving} />
+        </Modal>
+      )}
+      {modal === 'add-result' && (
+        <Modal title="Add Result" onClose={() => setModal(null)}>
+          <ResultForm initial={EMPTY_RESULT} students={students} onSave={handleAddResult} onClose={() => setModal(null)} saving={saving} />
+        </Modal>
+      )}
+      {modal === 'edit-result' && selected && (
+        <Modal title="Edit Result" onClose={() => setModal(null)}>
+          <ResultForm initial={selected} students={students} onSave={handleEditResult} onClose={() => setModal(null)} saving={saving} />
+        </Modal>
+      )}
+      {(modal === 'add-cert' || (modal === 'edit-cert' && selected)) && (
+        <Modal title={modal === 'add-cert' ? 'Add Certificate' : 'Edit Certificate'} onClose={() => setModal(null)}>
+          <CertForm
+            initial={modal === 'add-cert' ? EMPTY_CERT : selected}
+            students={students}
+            onSave={modal === 'add-cert' ? handleAddCert : handleEditCert}
+            onClose={() => setModal(null)}
+            saving={saving}
+          />
+        </Modal>
+      )}
 
       {viewItem && (
         <ViewModal
@@ -1862,6 +1845,8 @@ export default function BranchDashboard() {
           </motion.div>
         </div>
       )}
+      </div>
+      </div>
     </div>
   );
 }

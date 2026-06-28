@@ -6,14 +6,14 @@ const { uploadDocument, uploadGeneral, cloudinary } = require('../middleware/clo
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-// Combined upload: file (raw) + thumbnail (image)
+// Combined upload: file (image) + thumbnail (image)
 const combinedUpload = multer({
   storage: new (require('multer-storage-cloudinary').CloudinaryStorage)({
     cloudinary,
     params: (req, file) => ({
       folder: 'kci/documents',
-      resource_type: file.fieldname === 'thumbnail' ? 'image' : 'raw',
-      allowed_formats: file.fieldname === 'thumbnail' ? ['jpg', 'jpeg', 'png', 'webp'] : ['pdf', 'doc', 'docx', 'ppt', 'pptx'],
+      resource_type: 'image',
+      allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
     }),
   }),
   limits: { fileSize: 20 * 1024 * 1024 },
@@ -42,12 +42,8 @@ const makeDownloadUrl = (url, originalName) => {
 
 router.post('/', protect, combinedUpload.fields([{ name: 'file', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]), async (req, res) => {
   try {
-    const data = { ...req.body, uploadedBy: req.user._id };
-    if (req.files?.file?.[0]) {
-      const f = req.files.file[0];
-      data.fileName = f.originalname;
-      data.fileUrl = makeDownloadUrl(f.path, f.originalname);
-    }
+    const data = { ...req.body, uploadedBy: req.user._id, isActive: true };
+    if (req.files?.file?.[0]) data.thumbnailUrl = req.files.file[0].path;
     if (req.files?.thumbnail?.[0]) data.thumbnailUrl = req.files.thumbnail[0].path;
     const material = await StudyMaterial.create(data);
     res.status(201).json({ success: true, material });
@@ -72,7 +68,7 @@ router.put('/:id', protect, combinedUpload.fields([{ name: 'file', maxCount: 1 }
   }
 });
 
-router.delete('/:id', protect, admin, async (req, res) => {
+router.delete('/:id', protect, async (req, res) => {
   try {
     await StudyMaterial.findByIdAndDelete(req.params.id);
     res.json({ success: true });

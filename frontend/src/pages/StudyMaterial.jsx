@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Download, Search, BookOpen, Video, FileQuestion, Filter } from 'lucide-react';
+import { FileText, Download, Search, BookOpen, Video, FileQuestion, Filter, FileDown } from 'lucide-react';
 import api from '../utils/api';
+import { generateStudyMaterialPDF } from '../utils/generateStudyMaterialPDF';
 
 const categories = [
   { value: 'all', label: 'All', icon: Filter, color: 'bg-gray-100 text-gray-700' },
@@ -46,6 +47,14 @@ export default function StudyMaterialPage() {
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState('all');
   const [search, setSearch] = useState('');
+  const [pdfLoading, setPdfLoading] = useState('');
+
+  const handleDownloadPDF = async (material) => {
+    setPdfLoading(material._id);
+    try { await generateStudyMaterialPDF(material); }
+    catch (e) { console.error(e); }
+    setPdfLoading('');
+  };
 
   useEffect(() => {
     const params = category !== 'all' ? `?category=${category}` : '';
@@ -130,17 +139,26 @@ export default function StudyMaterialPage() {
                   {m.description && <p className="text-gray-500 text-sm mb-4 line-clamp-2">{decode(m.description)}</p>}
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-400">{m.downloads || 0} downloads</span>
-                    {m.fileUrl ? (
-                      <a href={m.fileUrl} target="_blank" rel="noreferrer"
-                        className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 text-white text-xs font-bold rounded-xl hover:bg-violet-700 transition-colors">
-                        <Download className="w-3.5 h-3.5" /> Download
-                      </a>
-                    ) : m.videoUrl ? (
-                      <a href={m.videoUrl} target="_blank" rel="noreferrer"
-                        className="flex items-center gap-1.5 px-4 py-2 bg-pink-600 text-white text-xs font-bold rounded-xl hover:bg-pink-700 transition-colors">
-                        <Video className="w-3.5 h-3.5" /> Watch
-                      </a>
-                    ) : null}
+                    <div className="flex items-center gap-2">
+                      {m.fileUrl ? (
+                        <a href={m.fileUrl} target="_blank" rel="noreferrer"
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-600 text-white text-xs font-bold rounded-xl hover:bg-violet-700 transition-colors">
+                          <Download className="w-3.5 h-3.5" /> File
+                        </a>
+                      ) : m.videoUrl ? (
+                        <a href={m.videoUrl} target="_blank" rel="noreferrer"
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-pink-600 text-white text-xs font-bold rounded-xl hover:bg-pink-700 transition-colors">
+                          <Video className="w-3.5 h-3.5" /> Watch
+                        </a>
+                      ) : null}
+                      <button onClick={() => handleDownloadPDF(m)} disabled={pdfLoading === m._id}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0B1F5B] text-white text-xs font-bold rounded-xl hover:bg-[#162d7a] transition-colors disabled:opacity-60">
+                        {pdfLoading === m._id
+                          ? <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          : <FileDown className="w-3.5 h-3.5" />}
+                        PDF
+                      </button>
+                    </div>
                   </div>
                 </div>
               </motion.div>

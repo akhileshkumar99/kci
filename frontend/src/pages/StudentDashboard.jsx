@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import QRCode from 'qrcode';
+import { generateStudyMaterialPDF } from '../utils/generateStudyMaterialPDF';
 import {
   GraduationCap, Award, FileText, LogOut, User, Lock, BookMarked,
   Building2, Calendar, BookOpen, CheckCircle, CreditCard, Download, TrendingUp, ClipboardCheck, Clock, ChevronRight, Eye, KeyRound, QrCode,
