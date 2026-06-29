@@ -271,14 +271,7 @@ export default function Navbar() {
             <Link to="/" className="flex items-center gap-3 group">
               <motion.div whileHover={{ scale: 1.05, rotate: 2 }} transition={{ type: 'spring', stiffness: 300 }} className="relative">
                 <img src={logo} alt="KCI Logo" className="w-14 h-14 rounded-full object-cover shadow-lg ring-2 ring-blue-500/30" />
-                {user && (
-                  <button type="button" onClick={e => { e.preventDefault(); logoRef.current.click(); }}
-                    className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow hover:bg-blue-700 transition-colors text-white text-[10px]">
-                    📷
-                  </button>
-                )}
-                <input ref={logoRef} type="file" accept="image/*" className="hidden"
-                  onChange={e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => { setLogo(ev.target.result); localStorage.setItem('kci_logo', ev.target.result); }; r.readAsDataURL(f); }} />
+
               </motion.div>
               <div className="hidden sm:block">
                 <div className="text-xl font-black bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent leading-tight tracking-wide">KEERTI</div>
