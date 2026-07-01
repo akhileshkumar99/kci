@@ -38,7 +38,7 @@ function InfoRow({ label, value }) {
   );
 }
 
-// â”€â”€â”€ Grade color helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// €€€ Grade color helper €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
 function CardInner({ W, H, student, branch, fields, qrDataUrl }) {
   const scale = W / 856;
   const s = (n) => Math.round(n * scale);
@@ -260,7 +260,7 @@ function gradeColor(grade) {
   return { bg: 'bg-red-100', text: 'text-red-700', bar: 'bg-red-500' };
 }
 
-// â”€â”€â”€ PDF Download â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// €€€ PDF Download €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
 async function downloadResultPDF(r, student, branch) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const W = 210, H = 297, M = 10;
@@ -507,7 +507,7 @@ async function downloadResultPDF(r, student, branch) {
   doc.save(`Result_${r.rollNumber}_${(r.courseName || 'KCI').replace(/\s+/g, '_')}.pdf`);
 }
 
-// â”€â”€â”€ Results Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// €€€ Results Section €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
 function ResultsSection({ results, student, branch }) {
   if (results.length === 0) return (
     <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
@@ -530,28 +530,28 @@ function ResultsSection({ results, student, branch }) {
           <motion.div key={r._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
             className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
 
-            {/* â”€â”€ Card Header â”€â”€ */}
+            {/* €€ Card Header €€ */}
             <div className="bg-gradient-to-r from-blue-700 to-indigo-700 px-6 py-4 flex items-center justify-between">
               <div>
                 <p className="text-blue-200 text-xs font-semibold uppercase tracking-widest mb-0.5">Result Card</p>
                 <h3 className="text-white font-black text-lg leading-tight">{r.courseName}</h3>
-                <p className="text-blue-300 text-xs mt-0.5">Roll No: <span className="font-mono font-bold text-yellow-300">{r.rollNumber}</span>{r.batch ? ` â€¢ Batch: ${r.batch}` : ''}</p>
+                <p className="text-blue-300 text-xs mt-0.5">Roll No: <span className="font-mono font-bold text-yellow-300">{r.rollNumber}</span>{r.batch ? ` | Batch: ${r.batch}` : ''}</p>
               </div>
               <div className="flex flex-col items-end gap-2">
                 <span className={`px-3 py-1 rounded-full text-sm font-black border-2 ${
                   r.status === 'Pass' ? 'bg-green-400/20 border-green-400 text-green-300' : 'bg-red-400/20 border-red-400 text-red-300'
-                }`}>{r.status === 'Pass' ? 'âœ“ PASS' : 'âœ— FAIL'}</span>
+                }`}>{r.status === 'Pass' ? '“ PASS' : 'FAIL'}</span>
                 <div className={`text-3xl font-black ${gc.text.replace('text-', 'text-').replace('700', '300')}`} style={{ color: '#fde68a' }}>{r.grade}</div>
               </div>
             </div>
 
-            {/* â”€â”€ Summary Strip â”€â”€ */}
+            {/* €€ Summary Strip €€ */}
             <div className="grid grid-cols-4 divide-x divide-gray-100 border-b border-gray-100">
               {[
-                { label: 'Obtained', value: r.obtainedMarks ?? 'â€”', sub: 'marks' },
-                { label: 'Total', value: r.totalMarks ?? 'â€”', sub: 'marks' },
-                { label: 'Percentage', value: r.percentage ? `${r.percentage}%` : 'â€”', sub: 'score', highlight: true },
-                { label: 'Grade', value: r.grade || 'â€”', sub: 'overall', highlight: true },
+                { label: 'Obtained', value: r.obtainedMarks ?? '””', sub: 'marks' },
+                { label: 'Total', value: r.totalMarks ?? '””', sub: 'marks' },
+                { label: 'Percentage', value: r.percentage ? `${r.percentage}%` : '””', sub: 'score', highlight: true },
+                { label: 'Grade', value: r.grade || '””', sub: 'overall', highlight: true },
               ].map(({ label, value, sub, highlight }) => (
                 <div key={label} className="py-4 text-center">
                   <div className={`text-xl font-black ${highlight ? 'text-blue-600' : 'text-gray-900'}`}>{value}</div>
@@ -561,7 +561,7 @@ function ResultsSection({ results, student, branch }) {
               ))}
             </div>
 
-            {/* â”€â”€ Percentage Bar â”€â”€ */}
+            {/* €€ Percentage Bar €€ */}
             <div className="px-6 pt-4 pb-2">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-bold text-gray-500 flex items-center gap-1"><TrendingUp className="w-3 h-3" /> Performance</span>
@@ -576,7 +576,7 @@ function ResultsSection({ results, student, branch }) {
               </div>
             </div>
 
-            {/* â”€â”€ Subject Table â”€â”€ */}
+            {/* €€ Subject Table €€ */}
             {r.subjects?.length > 0 && (
               <div className="px-6 pb-4">
                 <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-3 mt-2">Subject-wise Marks</p>
@@ -600,10 +600,10 @@ function ResultsSection({ results, student, branch }) {
                           <tr key={i} className={`border-b border-gray-100 last:border-0 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
                             <td className="px-4 py-3 text-gray-400 font-bold text-xs">{i + 1}</td>
                             <td className="px-4 py-3 font-semibold text-gray-800">{sub.name}</td>
-                            <td className="px-4 py-3 text-center text-gray-600 font-bold">{sub.maxMarks ?? 'â€”'}</td>
-                            <td className="px-4 py-3 text-center font-black text-gray-900">{sub.obtainedMarks ?? 'â€”'}</td>
+                            <td className="px-4 py-3 text-center text-gray-600 font-bold">{sub.maxMarks ?? '””'}</td>
+                            <td className="px-4 py-3 text-center font-black text-gray-900">{sub.obtainedMarks ?? '””'}</td>
                             <td className="px-4 py-3 text-center">
-                              <span className="text-xs font-bold text-blue-600">{subPct ? `${subPct}%` : 'â€”'}</span>
+                              <span className="text-xs font-bold text-blue-600">{subPct ? `${subPct}%` : '””'}</span>
                             </td>
                             <td className="px-4 py-3 text-center">
                               <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
@@ -617,9 +617,9 @@ function ResultsSection({ results, student, branch }) {
                     <tfoot>
                       <tr className="bg-blue-50 border-t-2 border-blue-200">
                         <td colSpan={2} className="px-4 py-3 font-black text-blue-800 text-sm">TOTAL</td>
-                        <td className="px-4 py-3 text-center font-black text-blue-800">{r.totalMarks ?? 'â€”'}</td>
-                        <td className="px-4 py-3 text-center font-black text-blue-800">{r.obtainedMarks ?? 'â€”'}</td>
-                        <td className="px-4 py-3 text-center font-black text-blue-600">{r.percentage ? `${r.percentage}%` : 'â€”'}</td>
+                        <td className="px-4 py-3 text-center font-black text-blue-800">{r.totalMarks ?? '””'}</td>
+                        <td className="px-4 py-3 text-center font-black text-blue-800">{r.obtainedMarks ?? '””'}</td>
+                        <td className="px-4 py-3 text-center font-black text-blue-600">{r.percentage ? `${r.percentage}%` : '””'}</td>
                         <td className="px-4 py-3 text-center">
                           <span className={`px-2 py-1 rounded-full text-xs font-black ${
                             r.status === 'Pass' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
@@ -632,7 +632,7 @@ function ResultsSection({ results, student, branch }) {
               </div>
             )}
 
-            {/* â”€â”€ Footer Actions â”€â”€ */}
+            {/* €€ Footer Actions €€ */}
             <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
               <div className="text-xs text-gray-400">
                 {r.examDate ? `Exam Date: ${new Date(r.examDate).toLocaleDateString('en-IN')}` : 'KCI Official Result'}
@@ -649,7 +649,7 @@ function ResultsSection({ results, student, branch }) {
   );
 }
 
-// â”€â”€â”€ Certificate PDF Download â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// €€€ Certificate PDF Download €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
 async function downloadCertificatePDF(c, student, branch) {
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   const W = 297, H = 210;
@@ -668,7 +668,7 @@ async function downloadCertificatePDF(c, student, branch) {
     logoUrl = cv.toDataURL('image/png');
   } catch (_) {}
 
-  // â”€â”€ OUTER DECORATIVE BORDER â”€â”€
+  // €€ OUTER DECORATIVE BORDER €€
   doc.setDrawColor(180, 140, 40); doc.setLineWidth(3);
   doc.rect(6, 6, W - 12, H - 12);
   doc.setDrawColor(210, 170, 60); doc.setLineWidth(0.8);
@@ -685,7 +685,7 @@ async function downloadCertificatePDF(c, student, branch) {
     doc.circle(x, y, 1.2, 'F');
   });
 
-  // â”€â”€ GOLD HEADER BG â”€â”€
+  // €€ GOLD HEADER BG €€
   doc.setFillColor(15, 40, 110);
   doc.rect(12, 12, W - 24, 38, 'F');
   doc.setFillColor(180, 140, 40);
@@ -703,15 +703,15 @@ async function downloadCertificatePDF(c, student, branch) {
   doc.setFontSize(8.5); doc.setTextColor(220, 200, 120);
   doc.text('ISO Certified Institute of Computer Education', W / 2, 48, { align: 'center' });
 
-  // â”€â”€ CERTIFICATE TITLE â”€â”€
+  // €€ CERTIFICATE TITLE €€
   doc.setFontSize(28); doc.setFont('helvetica', 'bold'); doc.setTextColor(140, 100, 20);
   doc.text('CERTIFICATE OF COMPLETION', W / 2, 72, { align: 'center' });
   // underline
   doc.setDrawColor(180, 140, 40); doc.setLineWidth(0.8);
   doc.line(W/2 - 70, 75, W/2 + 70, 75);
 
-  // â”€â”€ BODY TEXT â”€â”€
-  // â”€â”€ Load Colonna MT font â”€â”€
+  // €€ BODY TEXT €€
+  // €€ Load Colonna MT font €€
   let colonnaLoaded = false;
   try {
     const fontRes = await fetch('/colonna_b64.txt');
@@ -724,8 +724,8 @@ async function downloadCertificatePDF(c, student, branch) {
   doc.setFontSize(11); doc.setFont('helvetica', 'normal'); doc.setTextColor(60, 60, 60);
   doc.text('This is to certify that', W / 2, 88, { align: 'center' });
 
-  // Student name â€” Colonna MT font
-  const nameText = c.studentName || student?.name || 'â€”';
+  // Student name ”” Colonna MT font
+  const nameText = c.studentName || student?.name || '””';
   doc.setFontSize(28);
   doc.setFont(colonnaLoaded ? 'Colonna' : 'times', colonnaLoaded ? 'normal' : 'bolditalic');
   doc.setTextColor(15, 40, 110);
@@ -739,10 +739,10 @@ async function downloadCertificatePDF(c, student, branch) {
 
   // Course name
   doc.setFontSize(17); doc.setFont('helvetica', 'bold'); doc.setTextColor(140, 100, 20);
-  doc.text(c.courseName || 'â€”', W / 2, 128, { align: 'center' });
+  doc.text(c.courseName || '””', W / 2, 128, { align: 'center' });
 
   doc.setFontSize(10.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(60, 60, 60);
-  const rollText = `Roll No: ${c.rollNumber || 'â€”'}   |   Grade: ${c.grade || 'â€”'}   |   Issue Date: ${c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' }) : 'â€”'}`;
+  const rollText = `Roll No: ${c.rollNumber || '””'}   |   Grade: ${c.grade || '””'}   |   Issue Date: ${c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' }) : '””'}`;
   doc.text(rollText, W / 2, 139, { align: 'center' });
 
   // Branch
@@ -751,14 +751,14 @@ async function downloadCertificatePDF(c, student, branch) {
     doc.text(`Branch: ${branch.branchName}${branch.branchCity ? ', ' + branch.branchCity : ''}`, W / 2, 147, { align: 'center' });
   }
 
-  // â”€â”€ CERT NUMBER BADGE â”€â”€
+  // €€ CERT NUMBER BADGE €€
   doc.setFillColor(245, 240, 220);
   doc.setDrawColor(180, 140, 40); doc.setLineWidth(0.5);
   doc.roundedRect(W/2 - 45, 151, 90, 10, 2, 2, 'FD');
   doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(100, 70, 10);
-  doc.text(`Certificate No: ${c.certificateNumber || 'â€”'}`, W / 2, 157.5, { align: 'center' });
+  doc.text(`Certificate No: ${c.certificateNumber || '””'}`, W / 2, 157.5, { align: 'center' });
 
-  // â”€â”€ GRADE BADGE â”€â”€
+  // €€ GRADE BADGE €€
   const gradeColors = { 'A+': [22,163,74], 'A': [37,99,235], 'B+': [124,58,237], 'B': [79,70,229], 'C': [217,119,6], 'D': [234,179,8] };
   const gc = gradeColors[c.grade] || [15, 40, 110];
   doc.setFillColor(...gc);
@@ -770,7 +770,7 @@ async function downloadCertificatePDF(c, student, branch) {
   doc.setFontSize(20); doc.setFont('helvetica', 'bold');
   doc.text(c.grade || 'A', W - 35, 110, { align: 'center' });
 
-  // â”€â”€ FOOTER SIGNATURES â”€â”€
+  // €€ FOOTER SIGNATURES €€
   const SY = H - 30;
   doc.setDrawColor(100, 100, 100); doc.setLineWidth(0.4);
   // left sig
@@ -1002,7 +1002,7 @@ function PayStep({ upiQr, upiId, amount, enrollmentNumber, onPaid, onBack }) {
 
 
           <button onClick={onBack} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
-            ← Go Back
+            Back to Tests� Go Back
           </button>
         </div>
       </div>
@@ -1179,7 +1179,7 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
             {submitting ? 'Submitting...' : 'Submit Examination Form'}
           </button>
           <button onClick={() => setStep('pay')} className="w-full text-xs text-gray-400 hover:text-gray-600 transition-colors py-1">
-            ← Back to Payment
+            Back to Tests� Back to Payment
           </button>
         </div>
       </div>
@@ -1440,7 +1440,7 @@ export default function StudentDashboard() {
       logoUrl = cv.toDataURL('image/png');
     } catch(_) {}
 
-    // â”€â”€ HEADER â”€â”€
+    // €€ HEADER €€
     doc.setFillColor(15,40,110); doc.rect(0,0,W,46,'F');
     doc.setFillColor(250,204,21); doc.rect(0,46,W,2.5,'F');
     if (logoUrl) doc.addImage(logoUrl,'PNG',M,7,28,28);
@@ -1454,7 +1454,7 @@ export default function StudentDashboard() {
     doc.setTextColor(15,40,110); doc.setFontSize(8.5); doc.setFont('helvetica','bold');
     doc.text('TEST RESULT CARD', M+56, 36.2, { align:'center' });
 
-    // â”€â”€ INFO BOX â”€â”€
+    // €€ INFO BOX €€
     doc.setFillColor(245,248,255); doc.setDrawColor(200,210,240);
     doc.roundedRect(M, 54, W-M*2, 46, 3, 3, 'FD');
     // section label
@@ -1462,14 +1462,14 @@ export default function StudentDashboard() {
     doc.setTextColor(255,255,255); doc.setFontSize(7); doc.setFont('helvetica','bold');
     doc.text('TEST DETAILS', M+18, 58.8, { align:'center' });
 
-    // PASS/FAIL badge â€” top right of info box
+    // PASS/FAIL badge ”” top right of info box
     const pass = attempt.percentage >= 33;
     doc.setFillColor(...(pass ? [22,163,74] : [220,38,38]));
     doc.roundedRect(W-M-26, 55, 24, 11, 2, 2, 'F');
     doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont('helvetica','bold');
     doc.text(pass ? 'PASS' : 'FAIL', W-M-14, 62, { align:'center' });
 
-    // Info rows â€” 2 columns, fixed positions
+    // Info rows ”” 2 columns, fixed positions
     // Left:  label @ M+4,  value @ M+30
     // Right: label @ W/2+4, value @ W/2+30
     const LL = M+4, LV = M+32;
@@ -1478,8 +1478,8 @@ export default function StudentDashboard() {
     const RMAX = W - M - RV - 2; // ~57mm
 
     const infoData = [
-      ['Test Title', test?.title||'â€”',   'Month',      test?.month||'â€”'],
-      ['Student',    attempt.studentName||'â€”', 'Roll No.', attempt.rollNumber||'â€”'],
+      ['Test Title', test?.title||'””',   'Month',      test?.month||'””'],
+      ['Student',    attempt.studentName||'””', 'Roll No.', attempt.rollNumber||'””'],
       ['Score',      `${attempt.score} / ${attempt.totalMarks}`, 'Percentage', `${attempt.percentage}%`],
     ];
 
@@ -1502,12 +1502,12 @@ export default function StudentDashboard() {
     if (attempt.timeTaken) doc.text(`Time Taken: ${Math.floor(attempt.timeTaken/60)}m ${attempt.timeTaken%60}s`, M, metaY);
     doc.text(`Date: ${new Date(attempt.submittedAt).toLocaleDateString('en-IN')}`, W-M, metaY, { align:'right' });
 
-    // â”€â”€ QUESTIONS TABLE â”€â”€
+    // €€ QUESTIONS TABLE €€
     const rows = (questions||[]).map((q, i) => [
       i+1,
       q.question,
-      attempt.answers[i] !== undefined ? (q.options[attempt.answers[i]]||'â€”') : 'Not answered',
-      q.options[correctAnswers[i]]||'â€”',
+      attempt.answers[i] !== undefined ? (q.options[attempt.answers[i]]||'””') : 'Not answered',
+      q.options[correctAnswers[i]]||'””',
       attempt.answers[i] === correctAnswers[i] ? 'Correct' : 'Wrong',
     ]);
 
@@ -1540,7 +1540,7 @@ export default function StudentDashboard() {
       margin: { left:M, right:M },
     });
 
-    // â”€â”€ SUMMARY BOX â”€â”€
+    // €€ SUMMARY BOX €€
     const tY = doc.lastAutoTable.finalY + 7;
     doc.setFillColor(15,40,110); doc.roundedRect(M, tY, W-M*2, 26, 3, 3, 'F');
     doc.setFillColor(250,204,21); doc.roundedRect(M, tY, W-M*2, 2, 1, 1, 'F');
@@ -1562,7 +1562,7 @@ export default function StudentDashboard() {
       doc.text(String(val), x, tY+22, { align:'center' });
     });
 
-    // â”€â”€ FOOTER â”€â”€
+    // €€ FOOTER €€
     const fY = tY + 34;
     doc.setFillColor(245,248,255); doc.rect(0, fY, W, 12, 'F');
     doc.setTextColor(120,120,120); doc.setFontSize(7); doc.setFont('helvetica','italic');
@@ -1737,7 +1737,7 @@ export default function StudentDashboard() {
                         ? 'bg-green-400/20 border-green-400/50 text-green-300'
                         : 'bg-yellow-400/20 border-yellow-400/50 text-yellow-300'
                     }`}>
-                      {student?.isApproved ? '✅ Approved' : 'â³ Pending'}
+                      {student?.isApproved ? 'Approved' : '³ Pending'}
                     </div>
                   </div>
                 </div>
@@ -1854,7 +1854,7 @@ export default function StudentDashboard() {
                     </div>
                     <div>
                       <div className="text-xs font-black text-indigo-800">{branch?.branchName}</div>
-                      <div className="text-[10px] text-indigo-500">{branch?.branchCity} â€¢ KCI Authorized Center</div>
+                      <div className="text-[10px] text-indigo-500">{branch?.branchCity} | KCI Authorized Center</div>
                     </div>
                   </div>
                 </motion.div>
@@ -1909,14 +1909,14 @@ export default function StudentDashboard() {
         {/* Monthly Tests Tab */}
         {activeTab === 'tests' && (
           <div className="space-y-5">
-            {/* Active test â€” timer + questions */}
+            {/* Active test ”” timer + questions */}
             {activeTest ? (
               <div className="space-y-4">
                 {/* Timer bar */}
                 <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
                   <div>
                     <h3 className="font-black text-gray-900">{activeTest.title}</h3>
-                    <p className="text-xs text-gray-400">{activeTest.questions.length} questions â€¢ {activeTest.totalMarks} marks</p>
+                    <p className="text-xs text-gray-400">{activeTest.questions.length} questions | {activeTest.totalMarks} marks</p>
                   </div>
                   <div className={`flex items-center gap-2 px-4 py-2 rounded-xl font-black text-lg ${
                     timeLeft < 60 ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-indigo-100 text-indigo-700'
@@ -1952,7 +1952,7 @@ export default function StudentDashboard() {
                 ))}
                 <button onClick={() => handleSubmitTest(false)}
                   className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-base transition-colors shadow-lg">
-                  Submit Test â†’
+                  Submit Test →’
                 </button>
               </div>
             ) : testResult ? (
@@ -1968,7 +1968,7 @@ export default function StudentDashboard() {
                   <div className="flex items-center gap-6 mt-3">
                     <div><div className="text-3xl font-black">{testResult.attempt.score}/{testResult.attempt.totalMarks}</div><div className="text-white/70 text-xs">Score</div></div>
                     <div><div className="text-3xl font-black">{testResult.attempt.percentage}%</div><div className="text-white/70 text-xs">Percentage</div></div>
-                    <div><div className="text-2xl font-black">{testResult.attempt.percentage >= 33 ? 'âœ“ PASS' : 'âœ— FAIL'}</div><div className="text-white/70 text-xs">Result</div></div>
+                    <div><div className="text-2xl font-black">{testResult.attempt.percentage >= 33 ? '“ PASS' : 'FAIL'}</div><div className="text-white/70 text-xs">Result</div></div>
                   </div>
                 </div>
                 <div className="p-5 space-y-3">
@@ -1980,7 +1980,7 @@ export default function StudentDashboard() {
                       <div key={qi} className={`p-4 rounded-xl border-2 ${
                         isRight ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
                       }`}>
-                        <p className="font-semibold text-gray-900 text-sm mb-2"><span className="font-black">{isRight ? '✅' : 'âŒ'} Q{qi+1}.</span> {q.question}</p>
+                        <p className="font-semibold text-gray-900 text-sm mb-2"><span className="font-black">{isRight ? '' : 'Œ'} Q{qi+1}.</span> {q.question}</p>
                         <p className="text-xs text-gray-600">Your answer: <span className={`font-bold ${isRight ? 'text-green-700' : 'text-red-600'}`}>{selected !== undefined ? q.options[selected] : 'Not answered'}</span></p>
                         {!isRight && <p className="text-xs text-green-700 font-bold">Correct: {q.options[correct]}</p>}
                       </div>
@@ -1989,7 +1989,7 @@ export default function StudentDashboard() {
                   <div className="flex gap-3 pt-2">
                     <button onClick={() => { setTestResult(null); }}
                       className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50">
-                      â† Back to Tests
+                      → Back to Tests
                     </button>
                     <button onClick={() => downloadTestResult(testResult.attempt, testResult.test, testResult.test?.questions, testResult.correctAnswers)}
                       className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold">
@@ -2018,7 +2018,7 @@ export default function StudentDashboard() {
                             <p className="text-xs text-indigo-600 font-semibold">{t.month}</p>
                           </div>
                           {t.attempted
-                            ? <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-bold">âœ“ Done</span>
+                            ? <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-bold">“ Done</span>
                             : <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold">New</span>
                           }
                         </div>
@@ -2078,7 +2078,7 @@ export default function StudentDashboard() {
                   const ytMatch = m.videoUrl && m.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^?&/]+)/);
                   const ytThumb = ytMatch ? ('https://img.youtube.com/vi/' + ytMatch[1] + '/hqdefault.jpg') : null;
                   const thumb = m.thumbnailUrl || ytThumb;
-                  const fixT = s => s ? s.replace(/â€"/g,'\u2013').replace(/â€"/g,'\u2014').replace(/Â /g,' ') : s;
+                  const fixT = s => s ? s.replace(/-/g,'\u2013').replace(/-/g,'\u2014').replace(/ /g,' ') : s;
                   const dateStr = m.createdAt ? new Date(m.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
                   const handleDownloadPdf = async () => {
                     const { default: jsPDF } = await import('jspdf');
@@ -2474,7 +2474,7 @@ export default function StudentDashboard() {
                         <div className="grid grid-cols-2 gap-2 mb-4">
                           {[
                             ['Enrollment No.', c.rollNumber],
-                            ['Issue Date', c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : 'â€”'],
+                            ['Issue Date', c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '””'],
                           ].map(([l, v]) => (
                             <div key={l} className="bg-amber-50 rounded-xl p-2.5 border border-amber-100">
                               <div className="text-[9px] font-bold text-amber-600 uppercase tracking-wide">{l}</div>
