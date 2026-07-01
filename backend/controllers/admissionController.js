@@ -138,8 +138,19 @@ exports.updateAdmissionStatus = async (req, res) => {
           admission.email,
           admission.name,
           enrollmentId,
-          rollNumber, // plain password before hashing
+          password,
           courseName,
+          admission.franchise?.franchiseCenter || 'KCI'
+        );
+      } else {
+        // Student already exists — still send approval email
+        admission.studentUserId = existingUser._id;
+        await sendStudentApprovalEmail(
+          admission.email,
+          admission.name,
+          enrollmentId,
+          '(use your existing password)',
+          existingUser.courseName || admission.course?.title || '',
           admission.franchise?.franchiseCenter || 'KCI'
         );
       }
