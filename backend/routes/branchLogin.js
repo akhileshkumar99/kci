@@ -320,27 +320,35 @@ router.put('/admissions/:id/status', protect, branchAuth, async (req, res) => {
         getTransporter().sendMail({
             from: `"Keerti Computer Institute" <${process.env.EMAIL_USER}>`,
             to: admission.email,
-            subject: '🎉 Your KCI Admission is Approved — Login Credentials Inside!',
+            subject: '🎉 Admission Approved — Your KCI Student Login Credentials',
             html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden">
               <div style="background:linear-gradient(135deg,#1d4ed8,#4f46e5);padding:32px;text-align:center">
+                <img src="https://kci-seven.vercel.app/logo.png" alt="KCI" style="width:56px;height:56px;border-radius:12px;margin-bottom:12px" />
                 <h1 style="color:#fff;margin:0;font-size:26px">🎉 Admission Approved!</h1>
-                <p style="color:#bfdbfe;margin:8px 0 0">Keerti Computer Institute</p>
+                <p style="color:#bfdbfe;margin:8px 0 0;font-size:14px">Keerti Computer Institute</p>
               </div>
               <div style="padding:32px">
                 <p style="font-size:16px;color:#111">Dear <strong>${admission.name}</strong>,</p>
-                <p style="color:#374151">Your admission at <strong>${branchName}</strong> is approved. Your student account is ready.</p>
-                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:20px;margin:20px 0">
-                  <h3 style="margin:0 0 14px;color:#1d4ed8">🔐 Login Credentials</h3>
-                  <p style="margin:6px 0;color:#374151"><strong>Email:</strong> ${admission.email}</p>
-                  <p style="margin:6px 0;color:#374151"><strong>Password:</strong> <code style="background:#dbeafe;padding:3px 10px;border-radius:4px;font-size:15px;font-weight:bold">${plainPassword}</code></p>
-                  <p style="margin:6px 0;color:#374151"><strong>Form Number:</strong> <code style="background:#dbeafe;padding:3px 10px;border-radius:4px;font-size:15px;font-weight:bold">${formNo}</code></p>
-                  <p style="margin:6px 0;color:#374151"><strong>Login with:</strong> Form Number + Password</p>
-                  <p style="margin:6px 0;color:#374151"><strong>Branch:</strong> ${branchName}</p>
+                <p style="color:#374151;line-height:1.6">Welcome to <strong>Keerti Computer Institute</strong>! 🎓<br/>Your admission at <strong>${branchName}</strong> has been <strong style="color:#16a34a">approved</strong>. Your student account is now active.</p>
+                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:24px;margin:24px 0">
+                  <h3 style="margin:0 0 16px;color:#1d4ed8;font-size:16px">🔐 Your Login Credentials</h3>
+                  <table style="width:100%;border-collapse:collapse">
+                    <tr><td style="padding:6px 0;color:#6b7280;font-size:13px;width:140px">Login Email</td><td style="padding:6px 0"><code style="background:#dbeafe;padding:3px 10px;border-radius:4px;font-size:14px;color:#1e40af">${admission.email}</code></td></tr>
+                    <tr><td style="padding:6px 0;color:#6b7280;font-size:13px">Temporary Password</td><td style="padding:6px 0"><code style="background:#dbeafe;padding:3px 10px;border-radius:4px;font-size:15px;font-weight:bold;color:#1e40af">${plainPassword}</code></td></tr>
+                    <tr><td style="padding:6px 0;color:#6b7280;font-size:13px">Enrollment Number</td><td style="padding:6px 0"><code style="background:#dcfce7;padding:3px 10px;border-radius:4px;font-size:14px;font-weight:bold;color:#15803d">${created.enrollmentNumber}</code></td></tr>
+                    <tr><td style="padding:6px 0;color:#6b7280;font-size:13px">Roll Number</td><td style="padding:6px 0"><code style="background:#dcfce7;padding:3px 10px;border-radius:4px;font-size:14px;color:#15803d">${created.rollNumber}</code></td></tr>
+                    <tr><td style="padding:6px 0;color:#6b7280;font-size:13px">Form Number</td><td style="padding:6px 0"><code style="background:#dcfce7;padding:3px 10px;border-radius:4px;font-size:14px;color:#15803d">${created.formNo}</code></td></tr>
+                    <tr><td style="padding:6px 0;color:#6b7280;font-size:13px">Course</td><td style="padding:6px 0;color:#374151;font-size:13px;font-weight:600">${courseName}</td></tr>
+                    <tr><td style="padding:6px 0;color:#6b7280;font-size:13px">Branch</td><td style="padding:6px 0;color:#374151;font-size:13px">${branchName}</td></tr>
+                  </table>
                 </div>
-                <div style="text-align:center;margin:24px 0">
-                  <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login" style="background:#1d4ed8;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px">Login to Student Portal →</a>
+                <div style="text-align:center;margin:28px 0">
+                  <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login" style="background:linear-gradient(135deg,#1d4ed8,#4f46e5);color:#fff;padding:14px 36px;border-radius:10px;text-decoration:none;font-weight:bold;font-size:15px;display:inline-block">Login to Student Portal →</a>
                 </div>
-                <p style="color:#6b7280;font-size:13px">For help: <strong>9936384736 / 9919660880</strong></p>
+                <div style="background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:16px">
+                  <p style="margin:0;color:#92400e;font-size:13px">⚠️ <strong>Important:</strong> Please change your password after your first login. Go to Dashboard → Profile → Change Password.</p>
+                </div>
+                <p style="color:#6b7280;font-size:13px;margin-top:20px">For help: <strong>9936384736 / 9919660880</strong></p>
               </div>
               <div style="background:#f9fafb;padding:16px;text-align:center;color:#9ca3af;font-size:12px">Keerti Computer Institute | 9936384736</div>
             </div>`,
