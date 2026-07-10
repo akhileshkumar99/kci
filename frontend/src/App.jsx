@@ -43,6 +43,7 @@ const AdminNotifications = lazy(() => import('./pages/admin/AdminNotifications')
 const AdminBranches = lazy(() => import('./pages/admin/AdminBranches'));
 const AdminExamForms = lazy(() => import('./pages/admin/AdminExamForms'));
 const AdminAdmitCard = lazy(() => import('./pages/admin/AdminAdmitCard'));
+const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
 
 const PageLoader = () => (
   <div className="min-h-[60vh] flex items-center justify-center">
@@ -276,6 +277,7 @@ export default function App() {
             <Route path="contacts" element={<AdminContacts />} />
             <Route path="exam-forms" element={<AdminExamForms />} />
             <Route path="admit-card" element={<AdminAdmitCard />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

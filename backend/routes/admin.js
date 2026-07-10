@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { getDashboardStats, createStudent, getStudents, updateStudent, deleteStudent, getBranchUsers } = require('../controllers/adminController');
+const { getDashboardStats, getAnalytics, getMonthlyStudentsDetail, createStudent, getStudents, updateStudent, deleteStudent, getBranchUsers } = require('../controllers/adminController');
 const generateStudentNumbers = require('../utils/generateStudentNumbers');
 const { protect, admin } = require('../middleware/auth');
 const { uploadStudent } = require('../middleware/cloudinary');
@@ -12,6 +12,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.get('/stats', protect, admin, getDashboardStats);
+router.get('/analytics', protect, admin, getAnalytics);
+router.get('/monthly-students-detail', protect, admin, getMonthlyStudentsDetail);
 router.get('/students', protect, admin, getStudents);
 router.get('/branch-users', protect, admin, getBranchUsers);
 router.post('/students', protect, admin, uploadStudent.single('photo'), createStudent);

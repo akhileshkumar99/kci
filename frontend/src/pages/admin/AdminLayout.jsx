@@ -5,7 +5,7 @@ import {
   LayoutDashboard, BookOpen, Users, FileText, Award, Image,
   ClipboardList, UserCheck, MessageSquare, LogOut, Menu,
   ChevronRight, Bell, Sun, Moon, Search, ChevronDown,
-  AlertCircle, CheckCircle, Info, Building2, Download
+  AlertCircle, CheckCircle, Info, Building2, Download, BarChart2
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import DevCredit from '../../components/DevCredit';
@@ -25,6 +25,7 @@ const navItems = [
   { path: '/admin/contacts', label: 'Messages', icon: MessageSquare, color: 'text-rose-400' },
   { path: '/admin/exam-forms', label: 'Exam Forms', icon: FileText, color: 'text-blue-400' },
   { path: '/admin/admit-card', label: 'Admit Card', icon: Download, color: 'text-yellow-400' },
+  { path: '/admin/analytics', label: 'Analytics', icon: BarChart2, color: 'text-pink-400' },
 ];
 
 const mockNotifications = [

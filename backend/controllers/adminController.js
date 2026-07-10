@@ -60,8 +60,17 @@ const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
 
 exports.getDashboardStats = async (req, res) => {
   try {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const weekStart = new Date(todayStart); weekStart.setDate(todayStart.getDate() - 6);
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const yearStart = new Date(now.getFullYear(), 0, 1);
+
     const [students, courses, admissions, results, certificates, unreadContacts,
-      admissionMonthly, resultMonthly, courseCategories] = await Promise.all([
+      admissionMonthly, resultMonthly, courseCategories,
+      todayStudents, weekStudents, monthStudents, yearStudents,
+      branchList
+    ] = await Promise.all([
       User.countDocuments({ role: 'student' }),
       Course.countDocuments({ isActive: true }),
       Admission.countDocuments(),
@@ -71,18 +80,72 @@ exports.getDashboardStats = async (req, res) => {
       monthlyAgg(Admission),
       monthlyAgg(Result),
       Course.aggregate([{ $group: { _id: '$category', count: { $sum: 1 } } }]),
+      User.countDocuments({ role: 'student', createdAt: { $gte: todayStart } }),
+      User.countDocuments({ role: 'student', createdAt: { $gte: weekStart } }),
+      User.countDocuments({ role: 'student', createdAt: { $gte: monthStart } }),
+      User.countDocuments({ role: 'student', createdAt: { $gte: yearStart } }),
+      User.find({ role: 'branch', isApproved: true }).select('_id branchName branchCity branchCode name').lean(),
     ]);
+
+    // Branch-wise performance
+    const branchIds = branchList.map(b => b._id);
+    const [branchStudentCounts, branchAdmissionCounts, branchResultCounts, branchCertCounts, branchLoginActivity] = await Promise.all([
+      User.aggregate([{ $match: { role: 'student', branchId: { $in: branchIds } } }, { $group: { _id: '$branchId', count: { $sum: 1 }, approved: { $sum: { $cond: ['$isApproved', 1, 0] } }, thisMonth: { $sum: { $cond: [{ $gte: ['$createdAt', monthStart] }, 1, 0] } } } }]),
+      Admission.aggregate([{ $match: { branchId: { $in: branchIds } } }, { $group: { _id: '$branchId', count: { $sum: 1 }, approved: { $sum: { $cond: [{ $eq: ['$status', 'Approved'] }, 1, 0] } } } }]),
+      Result.aggregate([{ $match: {} }, { $group: { _id: null, rollNumbers: { $push: '$rollNumber' } } }]).then(async () => {
+        return User.aggregate([
+          { $match: { role: 'student', branchId: { $in: branchIds } } },
+          { $lookup: { from: 'results', localField: 'rollNumber', foreignField: 'rollNumber', as: 'results' } },
+          { $group: { _id: '$branchId', count: { $sum: { $size: '$results' } } } },
+        ]);
+      }),
+      User.aggregate([
+        { $match: { role: 'student', branchId: { $in: branchIds } } },
+        { $lookup: { from: 'certificates', localField: 'rollNumber', foreignField: 'rollNumber', as: 'certs' } },
+        { $group: { _id: '$branchId', count: { $sum: { $size: '$certs' } } } },
+      ]),
+      // Login activity: students logged in last 7 days (using updatedAt as proxy)
+      User.aggregate([{ $match: { role: 'student', branchId: { $in: branchIds }, updatedAt: { $gte: weekStart } } }, { $group: { _id: '$branchId', count: { $sum: 1 } } }]),
+    ]);
+
+    const toMap = (arr) => { const m = {}; arr.forEach(x => { m[x._id?.toString()] = x; }); return m; };
+    const scMap = toMap(branchStudentCounts);
+    const acMap = toMap(branchAdmissionCounts);
+    const rcMap = toMap(branchResultCounts);
+    const ccMap = toMap(branchCertCounts);
+    const laMap = toMap(branchLoginActivity);
+
+    const branchPerformance = branchList.map(b => {
+      const id = b._id.toString();
+      return {
+        _id: b._id,
+        branchName: b.branchName,
+        branchCity: b.branchCity,
+        branchCode: b.branchCode,
+        managerName: b.name,
+        students: scMap[id]?.count || 0,
+        approvedStudents: scMap[id]?.approved || 0,
+        newStudentsThisMonth: scMap[id]?.thisMonth || 0,
+        admissions: acMap[id]?.count || 0,
+        approvedAdmissions: acMap[id]?.approved || 0,
+        results: rcMap[id]?.count || 0,
+        certificates: ccMap[id]?.count || 0,
+        recentActivity: laMap[id]?.count || 0,
+      };
+    });
 
     const toChartData = (agg) => agg.map(d => ({ name: MONTHS[d._id.month - 1], count: d.count }));
 
     res.json({
       success: true,
-      stats: { students, courses, admissions, results, certificates, unreadContacts },
+      stats: { students, courses, admissions, results, certificates, unreadContacts,
+        todayStudents, weekStudents, monthStudents, yearStudents },
       charts: {
         admissions: toChartData(admissionMonthly),
         results: toChartData(resultMonthly),
         courseCategories: courseCategories.map(d => ({ name: d._id || 'Other', value: d.count })),
       },
+      branchPerformance,
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -139,6 +202,159 @@ exports.updateStudent = async (req, res) => {
     }
 
     res.json({ success: true, student });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.getAnalytics = async (req, res) => {
+  try {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const weekStart = new Date(todayStart); weekStart.setDate(todayStart.getDate() - 6);
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const yearStart = new Date(now.getFullYear(), 0, 1);
+
+    const branchList = await User.find({ role: 'branch', isApproved: true })
+      .select('_id branchName branchCity branchCode name email branchPhone').lean();
+    const branchIds = branchList.map(b => b._id);
+
+    // Global student counts
+    const [totalStudents, todayStudents, weekStudents, monthStudents, yearStudents] = await Promise.all([
+      User.countDocuments({ role: 'student' }),
+      User.countDocuments({ role: 'student', createdAt: { $gte: todayStart } }),
+      User.countDocuments({ role: 'student', createdAt: { $gte: weekStart } }),
+      User.countDocuments({ role: 'student', createdAt: { $gte: monthStart } }),
+      User.countDocuments({ role: 'student', createdAt: { $gte: yearStart } }),
+    ]);
+
+    // Monthly student registrations (last 12 months)
+    const monthlyStudents = await User.aggregate([
+      { $match: { role: 'student', createdAt: { $gte: new Date(now.getFullYear() - 1, now.getMonth(), 1) } } },
+      { $group: { _id: { month: { $month: '$createdAt' }, year: { $year: '$createdAt' } }, count: { $sum: 1 } } },
+      { $sort: { '_id.year': 1, '_id.month': 1 } },
+    ]);
+
+    // Login activity: last 30 days daily logins (using updatedAt as proxy)
+    const loginActivity = await User.aggregate([
+      { $match: { role: 'student', updatedAt: { $gte: new Date(now - 30 * 24 * 60 * 60 * 1000) } } },
+      { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$updatedAt' } }, count: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+    ]);
+
+    // Branch-wise aggregations
+    const [branchStudents, branchAdmissions, branchResults, branchCerts, branchWeeklyLogins, branchMonthlyStudents] = await Promise.all([
+      User.aggregate([
+        { $match: { role: 'student', branchId: { $in: branchIds } } },
+        { $group: { _id: '$branchId', total: { $sum: 1 }, approved: { $sum: { $cond: ['$isApproved', 1, 0] } }, today: { $sum: { $cond: [{ $gte: ['$createdAt', todayStart] }, 1, 0] } }, week: { $sum: { $cond: [{ $gte: ['$createdAt', weekStart] }, 1, 0] } }, month: { $sum: { $cond: [{ $gte: ['$createdAt', monthStart] }, 1, 0] } }, year: { $sum: { $cond: [{ $gte: ['$createdAt', yearStart] }, 1, 0] } } } },
+      ]),
+      Admission.aggregate([
+        { $match: { branchId: { $in: branchIds } } },
+        { $group: { _id: '$branchId', total: { $sum: 1 }, approved: { $sum: { $cond: [{ $eq: ['$status', 'Approved'] }, 1, 0] } }, pending: { $sum: { $cond: [{ $eq: ['$status', 'Pending'] }, 1, 0] } } } },
+      ]),
+      User.aggregate([
+        { $match: { role: 'student', branchId: { $in: branchIds } } },
+        { $lookup: { from: 'results', localField: 'rollNumber', foreignField: 'rollNumber', as: 'r' } },
+        { $group: { _id: '$branchId', count: { $sum: { $size: '$r' } } } },
+      ]),
+      User.aggregate([
+        { $match: { role: 'student', branchId: { $in: branchIds } } },
+        { $lookup: { from: 'certificates', localField: 'rollNumber', foreignField: 'rollNumber', as: 'c' } },
+        { $group: { _id: '$branchId', count: { $sum: { $size: '$c' } } } },
+      ]),
+      // Weekly login activity per branch
+      User.aggregate([
+        { $match: { role: 'student', branchId: { $in: branchIds }, updatedAt: { $gte: weekStart } } },
+        { $group: { _id: '$branchId', count: { $sum: 1 } } },
+      ]),
+      // Monthly new students per branch
+      User.aggregate([
+        { $match: { role: 'student', branchId: { $in: branchIds }, createdAt: { $gte: new Date(now.getFullYear() - 1, now.getMonth(), 1) } } },
+        { $group: { _id: { branchId: '$branchId', month: { $month: '$createdAt' }, year: { $year: '$createdAt' } }, count: { $sum: 1 } } },
+        { $sort: { '_id.year': 1, '_id.month': 1 } },
+      ]),
+    ]);
+
+    const toMap = (arr, key = '_id') => { const m = {}; arr.forEach(x => { m[x[key]?.toString()] = x; }); return m; };
+    const bsMap = toMap(branchStudents);
+    const baMap = toMap(branchAdmissions);
+    const brMap = toMap(branchResults);
+    const bcMap = toMap(branchCerts);
+    const blMap = toMap(branchWeeklyLogins);
+
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    const branchPerformance = branchList.map(b => {
+      const id = b._id.toString();
+      const monthlyData = branchMonthlyStudents
+        .filter(x => x._id.branchId?.toString() === id)
+        .map(x => ({ name: MONTHS[x._id.month - 1], count: x.count }));
+      return {
+        _id: b._id,
+        branchName: b.branchName || b.name,
+        branchCity: b.branchCity,
+        branchCode: b.branchCode,
+        managerName: b.name,
+        email: b.email,
+        phone: b.branchPhone,
+        students: { total: bsMap[id]?.total || 0, approved: bsMap[id]?.approved || 0, today: bsMap[id]?.today || 0, week: bsMap[id]?.week || 0, month: bsMap[id]?.month || 0, year: bsMap[id]?.year || 0 },
+        admissions: { total: baMap[id]?.total || 0, approved: baMap[id]?.approved || 0, pending: baMap[id]?.pending || 0 },
+        results: brMap[id]?.count || 0,
+        certificates: bcMap[id]?.count || 0,
+        loginActivity: blMap[id]?.count || 0,
+        monthlyStudents: monthlyData,
+      };
+    });
+
+    res.json({
+      success: true,
+      global: { totalStudents, todayStudents, weekStudents, monthStudents, yearStudents },
+      monthlyStudents: monthlyStudents.map(d => ({ name: MONTHS[d._id.month - 1], year: d._id.year, count: d.count })),
+      loginActivity: loginActivity.map(d => ({ date: d._id, count: d.count })),
+      branchPerformance,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.getMonthlyStudentsDetail = async (req, res) => {
+  try {
+    const now = new Date();
+    const since = new Date(now.getFullYear() - 1, now.getMonth(), 1);
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    const match = { role: 'student', createdAt: { $gte: since } };
+    if (req.query.branchId) match.branchId = require('mongoose').Types.ObjectId.createFromHexString(req.query.branchId);
+
+    const students = await User.find(match)
+      .populate('branchId', 'branchName branchCode branchCity')
+      .select('name email phone rollNumber enrollmentNumber registrationNumber formNo courseName batch fatherName dob address isApproved createdAt branchId')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const rows = students.map(s => ({
+      'Registration Month': `${MONTHS[new Date(s.createdAt).getMonth()]} ${new Date(s.createdAt).getFullYear()}`,
+      'Registration Date': new Date(s.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+      'Name': s.name || '',
+      'Email': s.email || '',
+      'Phone': s.phone || '',
+      'Roll Number': s.rollNumber || '',
+      'Enrollment No': s.enrollmentNumber || '',
+      'Registration No': s.registrationNumber || '',
+      'Form No': s.formNo || '',
+      'Course': s.courseName || '',
+      'Batch': s.batch || '',
+      'Father Name': s.fatherName || '',
+      'DOB': s.dob ? new Date(s.dob).toLocaleDateString('en-IN') : '',
+      'Address': s.address || '',
+      'Status': s.isApproved ? 'Approved' : 'Pending',
+      'Branch': s.branchId?.branchName || 'Direct',
+      'Branch Code': s.branchId?.branchCode || '',
+      'Branch City': s.branchId?.branchCity || '',
+    }));
+
+    res.json({ success: true, rows });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
