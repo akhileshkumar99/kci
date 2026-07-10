@@ -16,7 +16,6 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import api from '../utils/api';
-import DevCredit from '../components/DevCredit';
 
 const tabs = [
   { id: 'overview', label: 'Overview', icon: TrendingUp },
@@ -1009,7 +1008,6 @@ export default function BranchDashboard() {
               <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
               <span className="text-[11px] font-bold text-green-700">{user?.branchCity}</span>
             </div>
-            <DevCredit popupDown />
             <button onClick={toggle}
               className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all">
               {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
