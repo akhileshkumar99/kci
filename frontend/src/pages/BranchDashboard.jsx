@@ -1287,7 +1287,47 @@ export default function BranchDashboard() {
                 </button>
               </div>
             </div>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            {/* Mobile Cards */}
+            <div className="block sm:hidden space-y-3">
+              {filtered(students, ['name', 'enrollmentNumber', 'rollNumber', 'courseName', 'phone']).map(s => (
+                <div key={s._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    {s.photo ? (
+                      <img src={getPhotoUrl(s.photo)} alt={s.name} className="w-10 h-10 rounded-full object-cover border-2 border-blue-100 shrink-0" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                        <span className="text-sm font-bold text-blue-600">{s.name[0].toUpperCase()}</span>
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="font-black text-gray-900 text-sm truncate">{s.name}</div>
+                      <div className="text-xs text-gray-500 truncate">{s.email}</div>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-black shrink-0 ${s.isApproved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                      {s.isApproved ? '✓' : '⏳'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5 text-xs mb-3">
+                    <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Enroll: </span><span className="font-bold text-green-700 font-mono">{s.enrollmentNumber || '—'}</span></div>
+                    <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Phone: </span><span className="font-bold">{s.phone || '—'}</span></div>
+                    <div className="bg-gray-50 rounded-lg px-2 py-1 col-span-2"><span className="text-gray-400">Course: </span><span className="font-bold text-indigo-700">{s.courseName || '—'}</span></div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => { setViewItem(s); setViewType('student'); }} className="flex-1 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold flex items-center justify-center gap-1"><Eye className="w-3 h-3" /> View</button>
+                    <button onClick={() => { setSelected(s); setModal('edit'); }} className="flex-1 py-1.5 bg-amber-50 text-amber-700 rounded-lg text-xs font-bold flex items-center justify-center gap-1"><Pencil className="w-3 h-3" /> Edit</button>
+                    {!s.isApproved && (
+                      <button onClick={() => handleApprove(s._id)} disabled={approving === s._id} className="flex-1 py-1.5 bg-green-50 text-green-700 rounded-lg text-xs font-bold flex items-center justify-center gap-1">
+                        {approving === s._id ? <div className="w-3 h-3 border-2 border-green-600 border-t-transparent rounded-full animate-spin" /> : <><Check className="w-3 h-3" /> OK</>}
+                      </button>
+                    )}
+                    <button onClick={() => handleDelete(s._id, s.name)} className="flex-1 py-1.5 bg-red-50 text-red-700 rounded-lg text-xs font-bold flex items-center justify-center gap-1"><Trash2 className="w-3 h-3" /> Del</button>
+                  </div>
+                </div>
+              ))}
+              {students.length === 0 && <div className="text-center py-12 text-gray-400"><Users className="w-10 h-10 mx-auto mb-2 text-gray-200" /><p className="font-semibold">No students yet.</p></div>}
+            </div>
+            {/* Desktop Table */}
+            <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-gradient-to-r from-blue-600 to-indigo-600">
@@ -1301,8 +1341,7 @@ export default function BranchDashboard() {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             {s.photo ? (
-                              <img src={getPhotoUrl(s.photo)} alt={s.name}
-                                className="w-9 h-9 rounded-full object-cover border-2 border-blue-100 flex-shrink-0" />
+                              <img src={getPhotoUrl(s.photo)} alt={s.name} className="w-9 h-9 rounded-full object-cover border-2 border-blue-100 flex-shrink-0" />
                             ) : (
                               <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
                                 <span className="text-sm font-bold text-blue-600">{s.name[0].toUpperCase()}</span>
@@ -1377,7 +1416,42 @@ export default function BranchDashboard() {
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            {/* Mobile Cards */}
+            <div className="block sm:hidden space-y-3">
+              {filtered(admissions, ['name', 'email', 'phone', 'qualification'])
+                .filter(a => admissionFilter === 'all' ? true : (a.status || 'Pending') === admissionFilter)
+                .map(a => (
+                <div key={a._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="min-w-0">
+                      <div className="font-black text-gray-900 text-sm">{a.name}</div>
+                      <div className="text-xs text-gray-500 truncate">{a.email}</div>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-black shrink-0 border ${
+                      a.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' :
+                      a.status === 'Rejected' ? 'bg-red-100 text-red-700 border-red-200' :
+                      'bg-yellow-100 text-yellow-800 border-yellow-200'
+                    }`}>{a.status || 'Pending'}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5 text-xs mb-3">
+                    <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Phone: </span><span className="font-bold">{a.phone}</span></div>
+                    <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Gender: </span><span className="font-bold">{a.gender || '—'}</span></div>
+                    <div className="bg-gray-50 rounded-lg px-2 py-1 col-span-2"><span className="text-gray-400">Course: </span><span className="font-bold text-indigo-700">{a.course?.title || a.courseName || '—'}</span></div>
+                    <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Qual: </span><span className="font-bold">{a.qualification || '—'}</span></div>
+                    <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Date: </span><span className="font-bold">{a.createdAt ? new Date(a.createdAt).toLocaleDateString('en-IN') : '—'}</span></div>
+                  </div>
+                  <div className="flex gap-2">
+                    {a.status !== 'Approved' && <button onClick={() => handleAdmissionStatus(a._id, 'Approved')} className="flex-1 py-1.5 bg-green-100 text-green-800 rounded-lg text-xs font-black">✓ Approve</button>}
+                    {a.status !== 'Rejected' && <button onClick={() => handleAdmissionStatus(a._id, 'Rejected')} className="flex-1 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-black">✗ Reject</button>}
+                    {a.status !== 'Pending' && <button onClick={() => handleAdmissionStatus(a._id, 'Pending')} className="py-1.5 px-3 bg-yellow-100 text-yellow-800 rounded-lg text-xs font-black">↺</button>}
+                    <button onClick={() => handleDeleteAdmission(a._id)} className="py-1.5 px-3 bg-red-50 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
+                  </div>
+                </div>
+              ))}
+              {admissions.length === 0 && <div className="text-center py-12 text-gray-400"><ClipboardList className="w-10 h-10 mx-auto mb-2 text-gray-200" /><p className="font-semibold">No admissions found.</p></div>}
+            </div>
+            {/* Desktop Table */}
+            <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-gradient-to-r from-orange-500 to-amber-500">
@@ -1390,47 +1464,27 @@ export default function BranchDashboard() {
                       .filter(a => admissionFilter === 'all' ? true : (a.status || 'Pending') === admissionFilter)
                       .map((a, i) => (
                       <tr key={a._id} className={`hover:bg-orange-50/40 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
-                        <td className="px-4 py-3">
-                          <div className="font-black text-gray-900">{a.name}</div>
-                          {a.address && <div className="text-xs font-semibold text-gray-500 truncate max-w-[120px]">{a.address}</div>}
-                        </td>
+                        <td className="px-4 py-3"><div className="font-black text-gray-900">{a.name}</div>{a.address && <div className="text-xs font-semibold text-gray-500 truncate max-w-[120px]">{a.address}</div>}</td>
                         <td className="px-4 py-3 font-bold text-gray-700 text-xs">{a.email}</td>
                         <td className="px-4 py-3 font-black text-gray-800 text-xs">{a.phone}</td>
                         <td className="px-4 py-3 font-bold text-indigo-700 text-xs">{a.course?.title || a.courseName || '—'}</td>
                         <td className="px-4 py-3 font-bold text-gray-700 text-xs">{a.qualification || '—'}</td>
                         <td className="px-4 py-3 font-bold text-gray-700 text-xs">{a.gender || '—'}</td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2.5 py-1 rounded-full text-xs font-black border ${
-                            a.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' :
-                            a.status === 'Rejected' ? 'bg-red-100 text-red-700 border-red-200' :
-                            'bg-yellow-100 text-yellow-800 border-yellow-200'
-                          }`}>{a.status || 'Pending'}</span>
-                        </td>
-                        <td className="px-4 py-3 font-bold text-gray-600 text-xs">
-                          {a.createdAt ? new Date(a.createdAt).toLocaleDateString('en-IN') : '—'}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-1">
-                            {a.status !== 'Approved' && (
-                              <button onClick={() => handleAdmissionStatus(a._id, 'Approved')} className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-800 rounded-lg text-xs font-black transition-colors">✓ Approve</button>
-                            )}
-                            {a.status !== 'Rejected' && (
-                              <button onClick={() => handleAdmissionStatus(a._id, 'Rejected')} className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-black transition-colors">✗ Reject</button>
-                            )}
-                            {a.status !== 'Pending' && (
-                              <button onClick={() => handleAdmissionStatus(a._id, 'Pending')} className="px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded-lg text-xs font-black transition-colors">↺</button>
-                            )}
-                            <button onClick={() => handleDeleteAdmission(a._id)} className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                          </div>
-                        </td>
+                        <td className="px-4 py-3"><span className={`px-2.5 py-1 rounded-full text-xs font-black border ${
+                          a.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' :
+                          a.status === 'Rejected' ? 'bg-red-100 text-red-700 border-red-200' :
+                          'bg-yellow-100 text-yellow-800 border-yellow-200'
+                        }`}>{a.status || 'Pending'}</span></td>
+                        <td className="px-4 py-3 font-bold text-gray-600 text-xs">{a.createdAt ? new Date(a.createdAt).toLocaleDateString('en-IN') : '—'}</td>
+                        <td className="px-4 py-3"><div className="flex items-center gap-1">
+                          {a.status !== 'Approved' && <button onClick={() => handleAdmissionStatus(a._id, 'Approved')} className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-800 rounded-lg text-xs font-black">✓ Approve</button>}
+                          {a.status !== 'Rejected' && <button onClick={() => handleAdmissionStatus(a._id, 'Rejected')} className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-black">✗ Reject</button>}
+                          {a.status !== 'Pending' && <button onClick={() => handleAdmissionStatus(a._id, 'Pending')} className="px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded-lg text-xs font-black">↺</button>}
+                          <button onClick={() => handleDeleteAdmission(a._id)} className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
+                        </div></td>
                       </tr>
                     ))}
-                    {admissions.length === 0 && (
-                      <tr><td colSpan={9} className="text-center py-12 text-gray-400">
-                        <ClipboardList className="w-10 h-10 mx-auto mb-2 text-gray-200" />
-                        <p className="font-semibold">No admissions found for your branch.</p>
-                      </td></tr>
-                    )}
+                    {admissions.length === 0 && <tr><td colSpan={9} className="text-center py-12 text-gray-400"><ClipboardList className="w-10 h-10 mx-auto mb-2 text-gray-200" /><p className="font-semibold">No admissions found for your branch.</p></td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -1461,7 +1515,42 @@ export default function BranchDashboard() {
                 </button>
               </div>
             </div>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            {/* Mobile Cards */}
+            <div className="block sm:hidden space-y-3">
+              {filtered(results, ['studentName', 'rollNumber', 'courseName'])
+                .filter(r => resultFilter === 'all' ? true : resultFilter === 'approved' ? r.isApproved === true : r.isApproved !== true)
+                .map(r => (
+                <div key={r._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div>
+                      <div className="font-black text-gray-900 text-sm">{r.studentName}</div>
+                      <div className="text-xs font-mono text-blue-700">{r.rollNumber}</div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-black border ${r.status === 'Pass' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}`}>{r.status || '—'}</span>
+                      <span className="font-black text-indigo-700 text-sm">{r.grade || '—'}</span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5 text-xs mb-3">
+                    <div className="bg-gray-50 rounded-lg px-2 py-1 col-span-2"><span className="text-gray-400">Course: </span><span className="font-bold text-indigo-700">{r.courseName || '—'}</span></div>
+                    <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Marks: </span><span className="font-bold">{r.obtainedMarks ?? '—'}/{r.totalMarks ?? '—'}</span></div>
+                    <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">%: </span><span className="font-bold">{r.percentage ?? '—'}%</span></div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => handleApproveResult(r._id, r.isApproved === true)}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-black border transition-all ${
+                        r.isApproved === true ? 'bg-green-100 text-green-800 border-green-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                      }`}>{r.isApproved === true ? '✓ Approved' : '⏳ Pending'}</button>
+                    <button onClick={() => { setViewItem(r); setViewType('result'); }} className="py-1.5 px-3 bg-blue-50 text-blue-700 rounded-lg"><Eye className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => { setSelected(r); setModal('edit-result'); }} className="py-1.5 px-3 bg-amber-50 text-amber-700 rounded-lg"><Pencil className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => handleDeleteResult(r._id)} className="py-1.5 px-3 bg-red-50 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
+                  </div>
+                </div>
+              ))}
+              {results.length === 0 && <div className="text-center py-12 text-gray-400"><p className="font-semibold">No results found.</p></div>}
+            </div>
+            {/* Desktop Table */}
+            <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-gradient-to-r from-yellow-500 to-orange-500">
@@ -1479,24 +1568,18 @@ export default function BranchDashboard() {
                         <td className="px-4 py-3 font-bold text-gray-700 text-xs">{r.courseName || '—'}</td>
                         <td className="px-4 py-3 font-black text-gray-900">{r.obtainedMarks ?? '—'}<span className="text-gray-400 font-bold">/{r.totalMarks ?? '—'}</span></td>
                         <td className="px-4 py-3"><span className="font-black text-indigo-700 text-base">{r.grade || '—'}</span></td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2.5 py-1 rounded-full text-xs font-black border ${r.status === 'Pass' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}`}>{r.status || '—'}</span>
-                        </td>
+                        <td className="px-4 py-3"><span className={`px-2.5 py-1 rounded-full text-xs font-black border ${r.status === 'Pass' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}`}>{r.status || '—'}</span></td>
                         <td className="px-4 py-3">
                           <button onClick={() => handleApproveResult(r._id, r.isApproved === true)}
                             className={`px-3 py-1 rounded-full text-xs font-black border transition-all ${
                               r.isApproved === true ? 'bg-green-100 text-green-800 border-green-200 hover:bg-red-100 hover:text-red-700 hover:border-red-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-green-100 hover:text-green-800'
-                            }`}>
-                            {r.isApproved === true ? '✓ Approved' : '⏳ Pending'}
-                          </button>
+                            }`}>{r.isApproved === true ? '✓ Approved' : '⏳ Pending'}</button>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-1.5">
-                            <button onClick={() => { setViewItem(r); setViewType('result'); }} className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg"><Eye className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => { setSelected(r); setModal('edit-result'); }} className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg"><Pencil className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => handleDeleteResult(r._id)} className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
-                          </div>
-                        </td>
+                        <td className="px-4 py-3"><div className="flex items-center gap-1.5">
+                          <button onClick={() => { setViewItem(r); setViewType('result'); }} className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg"><Eye className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => { setSelected(r); setModal('edit-result'); }} className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg"><Pencil className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => handleDeleteResult(r._id)} className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
+                        </div></td>
                       </tr>
                     ))}
                     {results.length === 0 && <tr><td colSpan={7} className="text-center py-12 text-gray-400"><p className="font-semibold">No results found. Click "Add Result" to add one.</p></td></tr>}
@@ -1697,7 +1780,39 @@ export default function BranchDashboard() {
                 </button>
               </div>
             </div>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            {/* Mobile Cards */}
+            <div className="block sm:hidden space-y-3">
+              {filtered(certificates, ['studentName', 'rollNumber', 'courseName', 'certificateNumber'])
+                .filter(c => certFilter === 'all' ? true : certFilter === 'approved' ? c.isApproved === true : c.isApproved !== true)
+                .map(c => (
+                <div key={c._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div>
+                      <div className="font-black text-gray-900 text-sm">{c.studentName}</div>
+                      <div className="text-xs font-mono text-blue-700">{c.rollNumber}</div>
+                    </div>
+                    <span className="font-black text-green-700 text-base">{c.grade || '—'}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5 text-xs mb-3">
+                    <div className="bg-gray-50 rounded-lg px-2 py-1 col-span-2"><span className="text-gray-400">Course: </span><span className="font-bold text-indigo-700">{c.courseName || '—'}</span></div>
+                    <div className="bg-gray-50 rounded-lg px-2 py-1 col-span-2"><span className="text-gray-400">Cert No: </span><span className="font-bold font-mono text-indigo-700">{c.certificateNumber}</span></div>
+                    <div className="bg-gray-50 rounded-lg px-2 py-1 col-span-2"><span className="text-gray-400">Issue Date: </span><span className="font-bold">{c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN') : '—'}</span></div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => handleApproveCert(c._id, c.isApproved === true)}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-black border ${
+                        c.isApproved === true ? 'bg-green-100 text-green-800 border-green-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                      }`}>{c.isApproved === true ? '✓ Approved' : '⏳ Pending'}</button>
+                    <button onClick={() => { setViewItem(c); setViewType('certificate'); }} className="py-1.5 px-3 bg-blue-50 text-blue-700 rounded-lg"><Eye className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => { setSelected(c); setModal('edit-cert'); }} className="py-1.5 px-3 bg-amber-50 text-amber-700 rounded-lg"><Pencil className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => handleDeleteCert(c._id)} className="py-1.5 px-3 bg-red-50 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
+                  </div>
+                </div>
+              ))}
+              {certificates.length === 0 && <div className="text-center py-12 text-gray-400"><p className="font-semibold">No certificates found.</p></div>}
+            </div>
+            {/* Desktop Table */}
+            <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-gradient-to-r from-teal-600 to-cyan-600">
@@ -1706,8 +1821,7 @@ export default function BranchDashboard() {
                     ))}</tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {filtered(certificates, ['studentName', 'rollNumber', 'courseName', 'certificateNumber'],
-                    )
+                    {filtered(certificates, ['studentName', 'rollNumber', 'courseName', 'certificateNumber'])
                       .filter(c => certFilter === 'all' ? true : certFilter === 'approved' ? c.isApproved === true : c.isApproved !== true)
                       .map((c, i) => (
                       <tr key={c._id} className={`hover:bg-teal-50/40 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
@@ -1721,20 +1835,14 @@ export default function BranchDashboard() {
                           <button onClick={() => handleApproveCert(c._id, c.isApproved === true)}
                             className={`px-3 py-1 rounded-full text-xs font-black border transition-all ${
                               c.isApproved === true ? 'bg-green-100 text-green-800 border-green-200 hover:bg-red-100 hover:text-red-700 hover:border-red-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-green-100 hover:text-green-800'
-                            }`}>
-                            {c.isApproved === true ? '✓ Approved' : '⏳ Pending'}
-                          </button>
+                            }`}>{c.isApproved === true ? '✓ Approved' : '⏳ Pending'}</button>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-1.5">
-                            <button onClick={() => { setViewItem(c); setViewType('certificate'); }} className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg"><Eye className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => { setSelected(c); setModal('edit-cert'); }} className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg"><Pencil className="w-3.5 h-3.5" /></button>
-                            {c.isApproved !== true && (
-                              <button onClick={() => handleApproveCert(c._id)} className="p-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg"><Check className="w-3.5 h-3.5" /></button>
-                            )}
-                            <button onClick={() => handleDeleteCert(c._id)} className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
-                          </div>
-                        </td>
+                        <td className="px-4 py-3"><div className="flex items-center gap-1.5">
+                          <button onClick={() => { setViewItem(c); setViewType('certificate'); }} className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg"><Eye className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => { setSelected(c); setModal('edit-cert'); }} className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg"><Pencil className="w-3.5 h-3.5" /></button>
+                          {c.isApproved !== true && <button onClick={() => handleApproveCert(c._id)} className="p-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg"><Check className="w-3.5 h-3.5" /></button>}
+                          <button onClick={() => handleDeleteCert(c._id)} className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
+                        </div></td>
                       </tr>
                     ))}
                     {certificates.length === 0 && <tr><td colSpan={7} className="text-center py-12 text-gray-400"><p className="font-semibold">No certificates found. Click "Add Certificate" to add one.</p></td></tr>}
@@ -1815,29 +1923,29 @@ export default function BranchDashboard() {
               {testAttempts.length === 0 ? (
                 <p className="text-center py-8 text-gray-400">No attempts yet.</p>
               ) : (
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50">
-                    <tr>{['Student', 'Enrollment No', 'Score', 'Percentage', 'Time', 'Date'].map(h => (
-                      <th key={h} className="text-left px-3 py-2 text-xs font-bold text-gray-500 uppercase">{h}</th>
-                    ))}</tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {testAttempts.map(a => (
-                      <tr key={a._id} className="hover:bg-gray-50">
-                        <td className="px-3 py-2 font-semibold text-gray-900">{a.studentName}</td>
-                        <td className="px-3 py-2 font-mono text-blue-600 text-xs">{a.rollNumber}</td>
-                        <td className="px-3 py-2 font-bold">{a.score}/{a.totalMarks}</td>
-                        <td className="px-3 py-2">
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm min-w-[480px]">
+                    <thead className="bg-gray-50">
+                      <tr>{['Student', 'Enrollment No', 'Score', 'Percentage', 'Time', 'Date'].map(h => (
+                        <th key={h} className="text-left px-3 py-2 text-xs font-bold text-gray-500 uppercase">{h}</th>
+                      ))}</tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {testAttempts.map(a => (
+                        <tr key={a._id} className="hover:bg-gray-50">
+                          <td className="px-3 py-2 font-semibold text-gray-900">{a.studentName}</td>
+                          <td className="px-3 py-2 font-mono text-blue-600 text-xs">{a.rollNumber}</td>
+                          <td className="px-3 py-2 font-bold">{a.score}/{a.totalMarks}</td>
+                          <td className="px-3 py-2"><span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
                             a.percentage >= 60 ? 'bg-green-100 text-green-700' : a.percentage >= 33 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'
-                          }`}>{a.percentage}%</span>
-                        </td>
-                        <td className="px-3 py-2 text-gray-500 text-xs">{a.timeTaken ? `${Math.floor(a.timeTaken/60)}m ${a.timeTaken%60}s` : '—'}</td>
-                        <td className="px-3 py-2 text-gray-400 text-xs">{new Date(a.submittedAt).toLocaleDateString('en-IN')}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          }`}>{a.percentage}%</span></td>
+                          <td className="px-3 py-2 text-gray-500 text-xs">{a.timeTaken ? `${Math.floor(a.timeTaken/60)}m ${a.timeTaken%60}s` : '—'}</td>
+                          <td className="px-3 py-2 text-gray-400 text-xs">{new Date(a.submittedAt).toLocaleDateString('en-IN')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           </motion.div>

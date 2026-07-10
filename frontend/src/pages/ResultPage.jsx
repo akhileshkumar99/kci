@@ -1,14 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, AlertCircle, Phone, Hash, BookOpen, Award } from 'lucide-react';
+import { Search, AlertCircle, Phone, Hash, BookOpen, Award, GraduationCap, Calendar } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../utils/api';
 import MemorandumOfMarks from './MemorandumOfMarks';
 
-const QUICK = ['KCI20240001', 'KCI20230001'];
+const COURSES = [
+  'All Courses',
+  'DCA',
+  'ADCA',
+  'Tally with GST',
+  'CCC',
+  'MS Office',
+  'Web Designing',
+  'Python',
+  'Hardware & Networking',
+];
+
+const YEARS = ['All Years', '2024', '2023', '2022', '2021', '2020'];
 
 export default function ResultPage() {
   const [rollNumber, setRollNumber] = useState('');
+  const [course, setCourse] = useState('All Courses');
+  const [year, setYear] = useState('All Years');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -29,24 +43,22 @@ export default function ResultPage() {
     setLoading(false);
   };
 
+  const selectClass = "w-full px-4 py-3.5 text-sm font-semibold border-2 border-gray-100 rounded-2xl bg-gray-50 focus:bg-white focus:border-[#0B1F5B] focus:outline-none transition-all duration-200 text-gray-700 appearance-none cursor-pointer";
+
   return (
     <div className="pt-20 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
 
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="relative bg-gradient-to-br from-[#0B1F5B] via-[#1a3a8f] to-[#0e2d7a] py-14 overflow-hidden">
-        {/* Background decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-20 -right-20 w-80 h-80 bg-blue-400/10 rounded-full blur-3xl" />
           <div className="absolute -bottom-10 -left-10 w-60 h-60 bg-indigo-400/10 rounded-full blur-2xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/[0.02] rounded-full" />
         </div>
-
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 40" className="w-full" preserveAspectRatio="none">
             <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="rgb(248 250 252)" />
           </svg>
         </div>
-
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
           className="relative max-w-3xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-xs font-semibold text-blue-200 mb-5 tracking-wide uppercase">
@@ -62,7 +74,7 @@ export default function ResultPage() {
       {/* Search Card */}
       <div className="max-w-2xl mx-auto px-4 -mt-2 pb-16">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }}
-          className="bg-white rounded-3xl shadow-2xl shadow-blue-100/60 border border-gray-100 p-8">
+          className="bg-white rounded-3xl shadow-2xl shadow-blue-100/60 border border-gray-100 p-6 sm:p-8">
 
           {/* Card header */}
           <div className="flex items-center gap-3 mb-6">
@@ -77,17 +89,49 @@ export default function ResultPage() {
 
           {/* Form */}
           <form onSubmit={handleSearch} className="space-y-4">
+
+            {/* 1. Roll Number */}
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
               <input
                 type="text"
                 value={rollNumber}
                 onChange={e => setRollNumber(e.target.value.toUpperCase())}
-                placeholder="e.g. KCI20240001"
-                className="w-full pl-12 pr-4 py-4 text-base font-semibold border-2 border-gray-100 rounded-2xl bg-gray-50 focus:bg-white focus:border-[#0B1F5B] focus:outline-none transition-all duration-200 placeholder:font-normal placeholder:text-gray-400 text-gray-800 tracking-wider"
+                placeholder="e.g. 1234567890"
+                className="w-full pl-12 pr-4 py-3.5 text-base font-semibold border-2 border-gray-100 rounded-2xl bg-gray-50 focus:bg-white focus:border-[#0B1F5B] focus:outline-none transition-all duration-200 placeholder:font-normal placeholder:text-gray-400 text-gray-800 tracking-wider"
               />
             </div>
 
+            {/* 2 & 3. Course + Year selectors */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Course */}
+              <div className="relative">
+                <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400 pointer-events-none z-10" style={{width:'18px',height:'18px'}} />
+                <select value={course} onChange={e => setCourse(e.target.value)} className={`${selectClass} pl-11`}>
+                  {COURSES.map(c => <option key={c}>{c}</option>)}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Year */}
+              <div className="relative">
+                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10 text-gray-400" style={{width:'18px',height:'18px'}} />
+                <select value={year} onChange={e => setYear(e.target.value)} className={`${selectClass} pl-11`}>
+                  {YEARS.map(y => <option key={y}>{y}</option>)}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Submit */}
             <motion.button
               type="submit"
               disabled={loading}
@@ -108,16 +152,7 @@ export default function ResultPage() {
             </motion.button>
           </form>
 
-          {/* Quick try */}
-          <div className="mt-5 flex items-center gap-3 flex-wrap">
-            <span className="text-xs text-gray-400 font-medium">Try:</span>
-            {QUICK.map(r => (
-              <button key={r} onClick={() => setRollNumber(r)}
-                className="text-xs font-bold px-3 py-1.5 rounded-xl border-2 border-[#0B1F5B]/20 text-[#0B1F5B] bg-blue-50 hover:bg-[#0B1F5B] hover:text-white hover:border-[#0B1F5B] transition-all duration-200">
-                {r}
-              </button>
-            ))}
-          </div>
+
 
           {/* Info chips */}
           <div className="mt-6 grid grid-cols-2 gap-3">
