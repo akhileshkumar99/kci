@@ -316,8 +316,9 @@ router.put('/admissions/:id/status', protect, branchAuth, async (req, res) => {
         studentData = created.toObject();
         delete studentData.password;
 
-        // Fire email in background — don't block response
-        getTransporter().sendMail({
+        // Send email and wait for it
+        try {
+          await getTransporter().sendMail({
             from: `"Keerti Computer Institute" <${process.env.EMAIL_USER}>`,
             to: admission.email,
             subject: '🎉 Admission Approved — Your KCI Student Login Credentials',
@@ -352,7 +353,11 @@ router.put('/admissions/:id/status', protect, branchAuth, async (req, res) => {
               </div>
               <div style="background:#f9fafb;padding:16px;text-align:center;color:#9ca3af;font-size:12px">Keerti Computer Institute | 9936384736</div>
             </div>`,
-          }).catch(emailErr => console.error('Email failed:', emailErr.message));
+          });
+          console.log('✅ Admission approval email sent to:', admission.email);
+        } catch (emailErr) {
+          console.error('❌ Email failed:', emailErr.message);
+        }
       } else {
         // Existing student — auto-fill missing fields from admission
         const updates = {};
@@ -765,13 +770,12 @@ router.put('/students/:id/approve', protect, branchAuth, async (req, res) => {
     student.isActive = true;
     student.password = newPassword;
     await student.save();
-    // Respond immediately
-    res.json({ success: true, message: 'Student approved! Credentials email sending in background.' });
-    // Fire email after response
-    sendStudentApprovalEmail(
+    // Send email first, then respond
+    await sendStudentApprovalEmail(
       student.email, student.name, student.rollNumber, student.formNo, newPassword,
       req.user.branchName || 'KCI Branch', student.courseName || 'Course'
-    ).catch(err => console.error('Student approval email failed:', err.message));
+    );
+    res.json({ success: true, message: 'Student approved! Credentials sent via email.' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
