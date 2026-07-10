@@ -192,8 +192,8 @@ export default function Staff() {
           ) : (
             /* Table View */
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
-              <table className="w-full text-sm">
+              className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-x-auto">
+              <table className="w-full text-sm min-w-[500px]">
                 <thead>
                   <tr className="bg-gradient-to-r from-blue-700 to-indigo-700 text-white">
                     <th className="text-left px-5 py-4 font-semibold w-10">#</th>

@@ -48,7 +48,7 @@ export default function Register() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-8 space-y-5">
+          <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-5">
             <div className="grid sm:grid-cols-2 gap-5">
               {[
                 { name: 'name', label: 'Full Name *', icon: User, placeholder: 'Your full name', type: 'text' },

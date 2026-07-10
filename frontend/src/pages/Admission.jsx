@@ -142,7 +142,7 @@ export default function Admission() {
                     </div>
                   </div>
 
-                  <form onSubmit={handleSubmit} className="p-8 space-y-8">
+                  <form onSubmit={handleSubmit} className="p-4 sm:p-8 space-y-8">
 
                     {/* Section 1: Personal Info */}
                     <div>

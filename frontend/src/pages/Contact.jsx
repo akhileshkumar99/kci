@@ -52,7 +52,7 @@ export default function Contact() {
           </div>
 
           {/* Contact Form */}
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-5 sm:p-8 border border-gray-100">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Send a Message</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid sm:grid-cols-2 gap-4">

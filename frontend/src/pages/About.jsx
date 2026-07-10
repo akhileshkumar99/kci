@@ -106,7 +106,7 @@ export default function About() {
           >
             <div className="grid lg:grid-cols-3">
               {/* Director Image */}
-              <div className="relative bg-gradient-to-br from-blue-700 to-indigo-800 flex flex-col items-center justify-center p-10">
+              <div className="relative bg-gradient-to-br from-blue-700 to-indigo-800 flex flex-col items-center justify-center p-8 sm:p-10">
                 <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }} className="relative">
                   <div className="absolute inset-0 rounded-full bg-yellow-400/30 blur-xl" />
                   <img
@@ -127,7 +127,7 @@ export default function About() {
               </div>
 
               {/* Director Message */}
-              <div className="lg:col-span-2 p-8 sm:p-12 flex flex-col justify-center">
+              <div className="lg:col-span-2 p-6 sm:p-8 sm:p-12 flex flex-col justify-center">
                 <div className="text-5xl text-blue-200 font-serif leading-none mb-4">"</div>
                 <p className="text-gray-700 text-lg leading-relaxed mb-4">
                   At Keerti Computer Institute, our mission has always been simple — to empower every student with the digital skills they need to succeed in today's world. Since 2005, we have been dedicated to providing quality, affordable, and practical computer education.
@@ -208,11 +208,11 @@ export default function About() {
           <div className="relative mt-10">
 
             {/* Static background line */}
-            <div className="absolute left-1/2 -translate-x-0.5 h-full w-0.5 bg-blue-100" />
+            <div className="absolute left-4 md:left-1/2 -translate-x-0.5 h-full w-0.5 bg-blue-100" />
 
             {/* Animated growing line */}
             <motion.div
-              className="absolute left-1/2 -translate-x-0.5 w-0.5 bg-gradient-to-b from-blue-400 to-indigo-500 origin-top"
+              className="absolute left-4 md:left-1/2 -translate-x-0.5 w-0.5 bg-gradient-to-b from-blue-400 to-indigo-500 origin-top"
               initial={{ scaleY: 0 }}
               whileInView={{ scaleY: 1 }}
               viewport={{ once: true }}
@@ -222,7 +222,7 @@ export default function About() {
 
             {/* Car running along the line */}
             <motion.div
-              className="absolute left-1/2 -translate-x-1/2 z-20 text-2xl select-none"
+              className="absolute left-4 md:left-1/2 -translate-x-1/2 z-20 text-2xl select-none"
               style={{ top: 0 }}
               initial={{ top: '0%' }}
               whileInView={{ top: '100%' }}
@@ -234,13 +234,14 @@ export default function About() {
 
             {milestones.map((m, i) => (
               <motion.div key={i}
-                initial={{ opacity: 0, x: i % 2 === 0 ? -60 : 60 }}
+                initial={{ opacity: 0, x: -30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 1.1, duration: 0.6, ease: 'easeOut' }}
-                className={`relative flex items-center mb-10 ${i % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}
+                transition={{ delay: i * 0.15, duration: 0.5 }}
+                className="relative flex items-center mb-6 md:mb-10 flex-row md:flex-row"
               >
-                <div className={`w-1/2 ${i % 2 === 0 ? 'pr-10 text-right' : 'pl-10 text-left'}`}>
+                {/* Mobile: full width left aligned */}
+                <div className="w-full pl-10 md:w-1/2 md:pl-0 md:pr-10 md:text-right">
                   <motion.div
                     whileHover={{ scale: 1.04 }}
                     className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-blue-300 transition-all"
@@ -253,10 +254,10 @@ export default function About() {
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 1.1 + 0.3, type: 'spring', stiffness: 300 }}
-                  className="absolute left-1/2 -translate-x-1/2 w-5 h-5 bg-blue-600 rounded-full border-4 border-white shadow-lg z-10"
+                  transition={{ delay: i * 0.15 + 0.2, type: 'spring', stiffness: 300 }}
+                  className="absolute left-0 md:left-1/2 -translate-x-1/2 w-5 h-5 bg-blue-600 rounded-full border-4 border-white shadow-lg z-10"
                 />
-                <div className="w-1/2" />
+                <div className="hidden md:block md:w-1/2" />
               </motion.div>
             ))}
           </div>

@@ -301,23 +301,22 @@ export default function Home() {
               <Award className="w-4 h-4 text-yellow-400" />
               <span className="font-bold">Government Recognized Institute</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
               Shape Your Future with
               <span className="text-yellow-400"> Digital Skills</span>
             </h1>
-            <p className="text-white text-lg mb-8 leading-relaxed font-bold">
+            <p className="text-white text-base sm:text-lg mb-8 leading-relaxed font-bold">
               Join Keerti Computer Institute — most trusted computer training center with 18+ years of excellence, 10,000+ successful students, and 25+ industry-relevant courses.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <Link to="/admission" className="px-8 py-3.5 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold rounded-xl transition-all duration-200 hover:scale-105 shadow-lg">
+            <div className="flex flex-wrap gap-3 sm:gap-4">
+              <Link to="/admission" className="px-6 sm:px-8 py-3 sm:py-3.5 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold rounded-xl transition-all duration-200 hover:scale-105 shadow-lg text-sm sm:text-base">
                 Apply for Admission
               </Link>
-              <Link to="/courses" className="px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/30 transition-all duration-200 flex items-center gap-2">
+              <Link to="/courses" className="px-6 sm:px-8 py-3 sm:py-3.5 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/30 transition-all duration-200 flex items-center gap-2 text-sm sm:text-base">
                 <span className="font-bold">Explore Courses</span> <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </motion.div>
-
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-16 bg-white" style={{ clipPath: 'ellipse(55% 100% at 50% 100%)' }} />
       </section>
@@ -386,7 +385,7 @@ export default function Home() {
       {/* Certificate & Recognition */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-8 sm:p-12 flex flex-col lg:flex-row items-center gap-8">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-6 sm:p-8 sm:p-12 flex flex-col lg:flex-row items-center gap-8">
             <div className="flex-1 text-white">
               <div className="text-yellow-400 font-bold text-sm uppercase tracking-widest mb-2">Certifications</div>
               <h2 className="text-3xl font-black mb-3">Nationally Recognized Certificates</h2>
@@ -524,17 +523,17 @@ export default function Home() {
         <section className="py-16 bg-gradient-to-r from-blue-700 to-indigo-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="flex flex-col lg:flex-row items-center justify-between gap-8">
+              className="flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8">
               <div className="text-white text-center lg:text-left">
                 <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm font-semibold mb-4">
                   <FileText className="w-4 h-4" /> Exam Season Active
                 </div>
-                <h2 className="text-3xl sm:text-4xl font-black mb-3">Download Your Admit Card</h2>
-                <p className="text-blue-200 text-base max-w-md">Admit cards are now available. Enter your enrollment number to download your examination admit card instantly.</p>
+                <h2 className="text-2xl sm:text-3xl sm:text-4xl font-black mb-3">Download Your Admit Card</h2>
+                <p className="text-blue-200 text-sm sm:text-base max-w-md">Admit cards are now available. Enter your enrollment number to download your examination admit card instantly.</p>
               </div>
               <Link to="/admit-card"
-                className="flex items-center gap-3 px-8 py-4 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-black rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 text-lg whitespace-nowrap">
-                <FileText className="w-6 h-6" /> Download Admit Card
+                className="flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-black rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 text-base sm:text-lg whitespace-nowrap">
+                <FileText className="w-5 sm:w-6 h-5 sm:h-6" /> Download Admit Card
               </Link>
             </motion.div>
           </div>

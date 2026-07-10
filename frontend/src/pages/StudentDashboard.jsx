@@ -242,9 +242,11 @@ function IDCard({ student, branch }) {
       </div>
 
       {/* Screen Preview — scales responsively, does NOT affect PDF */}
-      <div style={{ width: '100%', overflowX: 'auto', display: 'flex', justifyContent: 'center' }}>
-        <div style={{ transform: 'scale(0.82)', transformOrigin: 'top center', marginBottom: -60 }}>
-          <CardInner W={856} student={student} branch={branch} fields={fields} qrDataUrl={qrDataUrl} />
+      <div style={{ width: '100%', overflowX: 'hidden', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: 856, overflowX: 'auto' }}>
+          <div style={{ transform: 'scale(0.45)', transformOrigin: 'top left', width: 856, marginBottom: -280 }}>
+            <CardInner W={856} student={student} branch={branch} fields={fields} qrDataUrl={qrDataUrl} />
+          </div>
         </div>
       </div>
       <p style={{ color: '#9ca3af', fontSize: 12, marginTop: 4 }}>⬆ Preview — Download PDF for print-ready card</p>
@@ -546,7 +548,7 @@ function ResultsSection({ results, student, branch }) {
             </div>
 
             {/* €€ Summary Strip €€ */}
-            <div className="grid grid-cols-4 divide-x divide-gray-100 border-b border-gray-100">
+            <div className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 divide-x-0 sm:divide-x divide-gray-100 border-b border-gray-100">
               {[
                 { label: 'Obtained', value: r.obtainedMarks ?? '””', sub: 'marks' },
                 { label: 'Total', value: r.totalMarks ?? '””', sub: 'marks' },
@@ -578,10 +580,10 @@ function ResultsSection({ results, student, branch }) {
 
             {/* €€ Subject Table €€ */}
             {r.subjects?.length > 0 && (
-              <div className="px-6 pb-4">
+              <div className="px-4 sm:px-6 pb-4">
                 <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-3 mt-2">Subject-wise Marks</p>
-                <div className="border border-gray-200 rounded-xl overflow-hidden">
-                  <table className="w-full text-sm">
+                <div className="border border-gray-200 rounded-xl overflow-x-auto">
+                  <table className="w-full text-sm min-w-[480px]">
                     <thead>
                       <tr className="bg-gray-50 border-b border-gray-200">
                         <th className="text-left px-4 py-2.5 text-xs font-black text-gray-500 uppercase tracking-wide">#</th>
