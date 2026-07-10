@@ -221,7 +221,7 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => { setOpen(false); setBranchDropdown(false); window.scrollTo(0, 0); }, [location]);
+  useEffect(() => { setOpen(false); setBranchDropdown(false); }, [location]);
 
   useEffect(() => {
     const handler = (e) => { if (branchDropdownRef.current && !branchDropdownRef.current.contains(e.target)) setBranchDropdown(false); };

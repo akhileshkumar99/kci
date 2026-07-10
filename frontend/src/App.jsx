@@ -171,6 +171,14 @@ function ChatBox() {
 
 function WhatsAppButton() { return null; }
 
+function ScrollToTop() {
+  const location = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [location.pathname]);
+  return null;
+}
+
 function RouteLoader() {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
@@ -231,6 +239,7 @@ export default function App() {
       <WhatsAppButton />
       <BrowserRouter>
         <RouteLoader />
+        <ScrollToTop />
         <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
         <Suspense fallback={<PageLoader />}>
         <Routes>
