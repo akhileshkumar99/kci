@@ -97,7 +97,7 @@ export default function ResultPage() {
                 type="text"
                 value={rollNumber}
                 onChange={e => setRollNumber(e.target.value.toUpperCase())}
-                placeholder="e.g. 1234567890"
+                placeholder="e.g. 2026010007"
                 className="w-full pl-12 pr-4 py-3.5 text-base font-semibold border-2 border-gray-100 rounded-2xl bg-gray-50 focus:bg-white focus:border-[#0B1F5B] focus:outline-none transition-all duration-200 placeholder:font-normal placeholder:text-gray-400 text-gray-800 tracking-wider"
               />
             </div>
