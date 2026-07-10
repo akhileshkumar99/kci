@@ -385,7 +385,7 @@ export default function Home() {
       {/* Certificate & Recognition */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-6 sm:p-8 sm:p-12 flex flex-col lg:flex-row items-center gap-8">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-6 sm:p-10 flex flex-col lg:flex-row items-center gap-8">
             <div className="flex-1 text-white">
               <div className="text-yellow-400 font-bold text-sm uppercase tracking-widest mb-2">Certifications</div>
               <h2 className="text-3xl font-black mb-3">Nationally Recognized Certificates</h2>
@@ -528,7 +528,7 @@ export default function Home() {
                 <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm font-semibold mb-4">
                   <FileText className="w-4 h-4" /> Exam Season Active
                 </div>
-                <h2 className="text-2xl sm:text-3xl sm:text-4xl font-black mb-3">Download Your Admit Card</h2>
+                <h2 className="text-2xl sm:text-4xl font-black mb-3">Download Your Admit Card</h2>
                 <p className="text-blue-200 text-sm sm:text-base max-w-md">Admit cards are now available. Enter your enrollment number to download your examination admit card instantly.</p>
               </div>
               <Link to="/admit-card"

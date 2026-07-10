@@ -127,7 +127,7 @@ export default function About() {
               </div>
 
               {/* Director Message */}
-              <div className="lg:col-span-2 p-6 sm:p-8 sm:p-12 flex flex-col justify-center">
+              <div className="lg:col-span-2 p-6 sm:p-10 flex flex-col justify-center">
                 <div className="text-5xl text-blue-200 font-serif leading-none mb-4">"</div>
                 <p className="text-gray-700 text-lg leading-relaxed mb-4">
                   At Keerti Computer Institute, our mission has always been simple — to empower every student with the digital skills they need to succeed in today's world. Since 2005, we have been dedicated to providing quality, affordable, and practical computer education.

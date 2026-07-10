@@ -243,8 +243,14 @@ function IDCard({ student, branch }) {
 
       {/* Screen Preview — scales responsively, does NOT affect PDF */}
       <div style={{ width: '100%', overflowX: 'hidden', display: 'flex', justifyContent: 'center' }}>
-        <div style={{ width: '100%', maxWidth: 856, overflowX: 'auto' }}>
-          <div style={{ transform: 'scale(0.45)', transformOrigin: 'top left', width: 856, marginBottom: -280 }}>
+        <div style={{ width: '100%', maxWidth: 856 }}>
+          <div style={{
+            transform: window.innerWidth < 480 ? 'scale(0.35)' : window.innerWidth < 768 ? 'scale(0.42)' : 'scale(0.55)',
+            transformOrigin: 'top center',
+            width: 856,
+            marginLeft: window.innerWidth < 480 ? '-27%' : window.innerWidth < 768 ? '-22%' : '-10%',
+            marginBottom: window.innerWidth < 480 ? -360 : window.innerWidth < 768 ? -310 : -230,
+          }}>
             <CardInner W={856} student={student} branch={branch} fields={fields} qrDataUrl={qrDataUrl} />
           </div>
         </div>
