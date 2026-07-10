@@ -9,7 +9,7 @@ const franchiseOrAdmin = (req, res, next) => {
 
 router.post('/', submitAdmission);
 router.get('/', protect, admin, getAdmissions);
-router.get('/my', protect, franchiseAuth, getFranchiseAdmissions);
+router.get('/my', protect, franchiseOrAdmin, getFranchiseAdmissions);
 router.put('/:id', protect, franchiseOrAdmin, updateAdmissionStatus);
 router.delete('/:id', protect, admin, deleteAdmission);
 
