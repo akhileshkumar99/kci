@@ -31,10 +31,10 @@ export default function AdminContacts() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Messages ({contacts.filter(c => !c.isRead).length} unread)</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Messages ({contacts.filter(c => !c.isRead).length} unread)</h1>
       {loading ? <Loader /> : (
-        <div className="grid lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-1 space-y-2">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-1 space-y-2 max-h-[60vh] lg:max-h-none overflow-y-auto">
             {contacts.map((c) => (
               <div key={c._id} onClick={() => openMessage(c)} className={`p-4 rounded-xl cursor-pointer border transition-all ${selected?._id === c._id ? 'border-blue-500 bg-blue-50' : 'border-gray-100 bg-white hover:bg-gray-50'} ${!c.isRead ? 'border-l-4 border-l-blue-500' : ''}`}>
                 <div className="flex items-center justify-between mb-1">

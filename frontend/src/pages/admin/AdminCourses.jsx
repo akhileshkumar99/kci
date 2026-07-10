@@ -49,16 +49,16 @@ export default function AdminCourses() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Courses</h1>
-        <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors">
-          <Plus className="w-4 h-4" /> Add Course
+      <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Courses</h1>
+        <button onClick={openAdd} className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors">
+          <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add Course</span><span className="sm:hidden">Add</span>
         </button>
       </div>
 
       {loading ? <Loader /> : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+          <table className="w-full text-sm min-w-[500px]">
             <thead className="bg-gray-50"><tr>{['Title', 'Category', 'Duration', 'Fee', 'Featured', 'Actions'].map(h => <th key={h} className="text-left p-4 font-semibold text-gray-600">{h}</th>)}</tr></thead>
             <tbody>
               {courses.map((c) => (

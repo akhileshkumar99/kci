@@ -63,17 +63,16 @@ export default function AdminExamForms() {
   return (
     <div>
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-            <FileText className="w-5 h-5 text-white" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-black text-gray-900">Examination Forms</h1>
-            <p className="text-sm text-gray-500">{filtered.length} of {forms.length} submission{forms.length !== 1 ? 's' : ''}</p>
+            <h1 className="text-lg sm:text-xl font-black text-gray-900">Examination Forms</h1>
+            <p className="text-xs text-gray-500">{filtered.length} of {forms.length} submission{forms.length !== 1 ? 's' : ''}</p>
           </div>
         </div>
-        {/* Search */}
         <div className="flex items-center gap-2 bg-white border-2 border-gray-100 rounded-xl px-3 py-2 w-full sm:w-72 focus-within:border-blue-500 transition-all">
           <Search className="w-4 h-4 text-gray-400 shrink-0" />
           <input value={search} onChange={e => setSearch(e.target.value)}

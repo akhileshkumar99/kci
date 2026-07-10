@@ -41,10 +41,10 @@ export default function AdminGallery() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Gallery ({items.length})</h1>
-        <button onClick={() => { setForm({ title: '', category: 'Events', description: '' }); setFile(null); setModal(true); }} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors">
-          <Plus className="w-4 h-4" /> Add Image
+      <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Gallery ({items.length})</h1>
+        <button onClick={() => { setForm({ title: '', category: 'Events', description: '' }); setFile(null); setModal(true); }} className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors">
+          <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add Image</span><span className="sm:hidden">Add</span>
         </button>
       </div>
 

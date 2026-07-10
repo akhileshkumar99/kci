@@ -225,73 +225,88 @@ export default function AdminStudents() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-2 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mr-2">Students ({filtered.length}/{students.length})</h1>
-
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search students..."
-            className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        </div>
-
-        {/* Period Filter */}
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Students ({filtered.length}/{students.length})</h1>
         <div className="flex items-center gap-1.5 bg-gray-100 rounded-xl p-1">
           {['all','weekly','monthly','yearly'].map(p => (
             <button key={p} onClick={() => setFilterPeriod(p)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all capitalize ${
+              className={`px-2 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all capitalize ${
                 filterPeriod === p ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'
               }`}>{p === 'all' ? 'All' : p.charAt(0).toUpperCase() + p.slice(1)}</button>
           ))}
         </div>
-
-        {/* Year picker */}
         {(filterPeriod === 'yearly' || filterPeriod === 'monthly') && (
           <select value={filterYear} onChange={e => setFilterYear(Number(e.target.value))}
-            className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-            {Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i).map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
+            className="px-2 py-1.5 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            {Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i).map(y => <option key={y} value={y}>{y}</option>)}
           </select>
         )}
-
-        {/* Month picker */}
         {filterPeriod === 'monthly' && (
           <select value={filterMonth} onChange={e => setFilterMonth(Number(e.target.value))}
-            className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-            {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m, i) => (
-              <option key={i} value={i}>{m}</option>
-            ))}
+            className="px-2 py-1.5 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m, i) => <option key={i} value={i}>{m}</option>)}
           </select>
         )}
-
-        <div className="ml-auto flex items-center gap-2">
-          {/* Import */}
-          <input ref={importRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={importExcel} />
-          <button onClick={() => importRef.current.click()}
-            className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors">
-            <Upload className="w-4 h-4" /> Import
-          </button>
-
-          {/* Export */}
-          <button onClick={exportExcel}
-            className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors">
-            <Download className="w-4 h-4" /> Export
-          </button>
-
-          <button onClick={handleMigrateFormNo} disabled={migrating}
-            className="flex items-center gap-2 px-3 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-60">
-            {migrating ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Hash className="w-4 h-4" />}
-            Assign Form No
-          </button>
-          <button onClick={openModal} className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors">
-            <Plus className="w-4 h-4" /> Add Student
-          </button>
+      </div>
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <div className="relative flex-1 min-w-[160px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search students..."
+            className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
+        <input ref={importRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={importExcel} />
+        <button onClick={() => importRef.current.click()} className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-green-700 transition-colors">
+          <Upload className="w-4 h-4" /> <span className="hidden sm:inline">Import</span>
+        </button>
+        <button onClick={exportExcel} className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-emerald-700 transition-colors">
+          <Download className="w-4 h-4" /> <span className="hidden sm:inline">Export</span>
+        </button>
+        <button onClick={handleMigrateFormNo} disabled={migrating} className="flex items-center gap-1.5 px-3 py-2 bg-purple-600 text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-60">
+          {migrating ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Hash className="w-4 h-4" />}
+          <span className="hidden sm:inline">Form No</span>
+        </button>
+        <button onClick={openModal} className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-blue-700 transition-colors">
+          <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add Student</span>
+        </button>
       </div>
 
       {loading ? <Loader /> : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+        <>
+          {/* Mobile cards */}
+          <div className="sm:hidden space-y-3">
+            {filtered.length === 0 && <div className="p-8 text-center text-gray-500 bg-white rounded-2xl border border-gray-100">No students found</div>}
+            {filtered.map(s => (
+              <div key={s._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  {s.photo ? (
+                    <img src={getPhotoUrl(s.photo)} alt={s.name} className="w-10 h-10 rounded-full object-cover border-2 border-blue-100 shrink-0" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                      <span className="text-sm font-bold text-blue-600">{s.name[0].toUpperCase()}</span>
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-gray-900 truncate">{s.name}</div>
+                    <div className="text-xs text-gray-400 truncate">{s.email}</div>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded-lg text-xs font-semibold shrink-0 ${s.isApproved ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>{s.isApproved ? '✓' : 'Pending'}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-1 text-xs text-gray-600 mb-3">
+                  <span className="truncate"><b>Enroll:</b> {s.enrollmentNumber || '—'}</span>
+                  <span><b>Phone:</b> {s.phone || '—'}</span>
+                  <span className="col-span-2 truncate"><b>Course:</b> {s.courseName || s.course?.title || '—'}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {!s.isApproved && <button onClick={() => handleApprove(s)} className="px-2 py-1 bg-green-600 text-white rounded-lg text-xs font-bold">Approve</button>}
+                  <button onClick={() => { setViewStudent(s); setViewModal(true); }} className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg"><Eye className="w-4 h-4" /></button>
+                  <button onClick={() => openEdit(s)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg"><Pencil className="w-4 h-4" /></button>
+                  <button onClick={() => handleDelete(s._id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Desktop table */}
+          <div className="hidden sm:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr>{['Name', 'Enrollment No.', 'Phone', 'Course', 'Batch', 'Status', 'Actions'].map(h => (
@@ -337,7 +352,8 @@ export default function AdminStudents() {
               {filtered.length === 0 && <tr><td colSpan={7} className="p-8 text-center text-gray-500">No students found</td></tr>}
             </tbody>
           </table>
-        </div>
+          </div>
+        </>
       )}
 
       {/* VIEW MODAL */}

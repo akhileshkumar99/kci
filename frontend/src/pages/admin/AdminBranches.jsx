@@ -240,13 +240,13 @@ export default function AdminBranches() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Branch Management</h1>
-          <p className="text-sm text-gray-500">{stats.total} total · {stats.approved} approved · {stats.pending} pending</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Branch Management</h1>
+          <p className="text-xs sm:text-sm text-gray-500">{stats.total} total · {stats.approved} approved · {stats.pending} pending</p>
         </div>
         <button onClick={() => setModal('add')}
-          className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors shadow-md">
+          className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors shadow-md">
           <Plus className="w-4 h-4" /> Add Branch
         </button>
       </div>

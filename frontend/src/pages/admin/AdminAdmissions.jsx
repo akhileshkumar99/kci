@@ -30,15 +30,40 @@ export default function AdminAdmissions() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Admissions ({admissions.length})</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Admissions ({admissions.length})</h1>
       {loading ? <Loader /> : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50"><tr>{['Name', 'Email', 'Phone', 'Course', 'Father', 'DOB', 'Status', 'Date', 'Actions'].map(h => <th key={h} className="text-left p-4 font-semibold text-gray-600">{h}</th>)}</tr></thead>
-            <tbody>
-              {admissions.map((a) => {
-                const Icon = statusIcons[a.status];
-                return (
+        <>
+          {/* Mobile cards */}
+          <div className="sm:hidden space-y-3">
+            {admissions.length === 0 && <div className="p-8 text-center text-gray-500 bg-white rounded-2xl border border-gray-100">No admissions yet</div>}
+            {admissions.map((a) => (
+              <div key={a._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="font-semibold text-gray-900">{a.name}</div>
+                    {a.enrollmentId && <div className="text-xs font-mono text-blue-600 font-bold">{a.enrollmentId}</div>}
+                    <div className="text-xs text-gray-500">{a.email}</div>
+                  </div>
+                  <button onClick={() => handleDelete(a._id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                </div>
+                <div className="grid grid-cols-2 gap-1 text-xs text-gray-600">
+                  <span><b>Phone:</b> {a.phone}</span>
+                  <span><b>Course:</b> {a.course?.title || '—'}</span>
+                  <span><b>Father:</b> {a.fatherName || '—'}</span>
+                  <span><b>Date:</b> {new Date(a.createdAt).toLocaleDateString('en-IN')}</span>
+                </div>
+                <select value={a.status} onChange={(e) => updateStatus(a._id, e.target.value)} className={`w-full px-2 py-1.5 rounded-lg text-xs font-medium border-0 cursor-pointer ${statusColors[a.status]}`}>
+                  {['Pending', 'Approved', 'Rejected'].map(s => <option key={s}>{s}</option>)}
+                </select>
+              </div>
+            ))}
+          </div>
+          {/* Desktop table */}
+          <div className="hidden sm:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50"><tr>{['Name', 'Email', 'Phone', 'Course', 'Father', 'DOB', 'Status', 'Date', 'Actions'].map(h => <th key={h} className="text-left p-4 font-semibold text-gray-600 whitespace-nowrap">{h}</th>)}</tr></thead>
+              <tbody>
+                {admissions.map((a) => (
                   <tr key={a._id} className="border-t border-gray-100 hover:bg-gray-50">
                     <td className="p-4">
                       <div className="font-medium text-gray-900">{a.name}</div>
@@ -59,12 +84,12 @@ export default function AdminAdmissions() {
                       <button onClick={() => handleDelete(a._id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
                     </td>
                   </tr>
-                );
-              })}
-              {admissions.length === 0 && <tr><td colSpan={7} className="p-8 text-center text-gray-500">No admissions yet</td></tr>}
-            </tbody>
-          </table>
-        </div>
+                ))}
+                {admissions.length === 0 && <tr><td colSpan={9} className="p-8 text-center text-gray-500">No admissions yet</td></tr>}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );

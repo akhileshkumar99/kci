@@ -80,19 +80,19 @@ export default function AdminCertificates() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Certificates</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{certs.length} certificate{certs.length !== 1 ? 's' : ''} issued</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Certificates</h1>
+          <p className="text-gray-500 text-xs sm:text-sm mt-0.5">{certs.length} certificate{certs.length !== 1 ? 's' : ''} issued</p>
         </div>
-        <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm">
-          <Plus className="w-4 h-4" /> Issue Certificate
+        <button onClick={openAdd} className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600 text-white rounded-xl text-xs sm:text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm">
+          <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Issue Certificate</span><span className="sm:hidden">Issue</span>
         </button>
       </div>
 
       {loading ? <Loader /> : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+          <table className="w-full text-sm min-w-[550px]">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
                 {['Certificate No.', 'Student', 'Roll No.', 'Course', 'Grade', 'Issue Date', 'Actions'].map(h => (

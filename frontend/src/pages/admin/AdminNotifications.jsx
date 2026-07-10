@@ -61,10 +61,10 @@ export default function AdminNotifications() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div><h1 className="text-2xl font-bold text-gray-900">Notifications</h1><p className="text-sm text-gray-500">Send announcements to students</p></div>
-        <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors">
-          {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />} {showForm ? 'Cancel' : 'Send Notification'}
+      <div className="flex items-center justify-between gap-2">
+        <div><h1 className="text-xl sm:text-2xl font-bold text-gray-900">Notifications</h1><p className="text-xs sm:text-sm text-gray-500">Send announcements to students</p></div>
+        <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors text-sm">
+          {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />} <span className="hidden sm:inline">{showForm ? 'Cancel' : 'Send Notification'}</span><span className="sm:hidden">{showForm ? 'Cancel' : 'Send'}</span>
         </button>
       </div>
 

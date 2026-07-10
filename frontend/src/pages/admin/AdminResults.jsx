@@ -155,59 +155,52 @@ export default function AdminResults() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-2 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Results</h1>
-
-        {/* Search */}
-        <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 w-56 focus-within:border-blue-500 transition-all">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Results</h1>
+        <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 flex-1 min-w-[160px] max-w-xs focus-within:border-blue-500 transition-all">
           <Search className="w-4 h-4 text-gray-400 shrink-0" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search results..."
             className="bg-transparent text-sm outline-none flex-1 text-gray-700 placeholder:text-gray-400" />
           {search && <button onClick={() => setSearch('')}><X className="w-3.5 h-3.5 text-gray-400" /></button>}
         </div>
-
-        {/* Period Filter */}
         <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
           {['all','weekly','monthly','yearly'].map(p => (
             <button key={p} onClick={() => setFilterPeriod(p)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${
+              className={`px-2 sm:px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${
                 filterPeriod === p ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'
               }`}>{p === 'all' ? 'All' : p.charAt(0).toUpperCase()+p.slice(1)}</button>
           ))}
         </div>
-
         {(filterPeriod === 'yearly' || filterPeriod === 'monthly') && (
           <select value={filterYear} onChange={e => setFilterYear(Number(e.target.value))}
-            className="px-3 py-2 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            className="px-2 py-1.5 border border-gray-200 rounded-xl text-xs bg-white focus:outline-none">
             {Array.from({length:6},(_,i)=>new Date().getFullYear()-i).map(y=><option key={y} value={y}>{y}</option>)}
           </select>
         )}
         {filterPeriod === 'monthly' && (
           <select value={filterMonth} onChange={e => setFilterMonth(Number(e.target.value))}
-            className="px-3 py-2 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            className="px-2 py-1.5 border border-gray-200 rounded-xl text-xs bg-white focus:outline-none">
             {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m,i)=><option key={i} value={i}>{m}</option>)}
           </select>
         )}
-
-        <div className="ml-auto flex items-center gap-2">
-          <button onClick={exportExcel}
-            className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors">
-            <Download className="w-4 h-4" /> Export
+        <div className="flex items-center gap-2 ml-auto">
+          <button onClick={exportExcel} className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-emerald-700 transition-colors">
+            <Download className="w-4 h-4" /> <span className="hidden sm:inline">Export</span>
           </button>
           <button onClick={() => {
             const nums = results.map(r => parseInt(r.rollNumber?.replace(/\D/g, '')) || 0);
             const next = (nums.length ? Math.max(...nums) : 0) + 1;
             setForm({ ...emptyForm, rollNumber: `KCI${new Date().getFullYear()}${String(next).padStart(4,'0')}` });
             setModal(true);
-          }} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors">
-            <Plus className="w-4 h-4" /> Add Result
+          }} className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-blue-700 transition-colors">
+            <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add Result</span><span className="sm:hidden">Add</span>
           </button>
         </div>
       </div>
 
       {loading ? <Loader /> : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+          <table className="w-full text-sm min-w-[600px]">
             <thead className="bg-gray-50"><tr>{['Roll No.', 'Student', 'Course', 'Branch', 'Percentage', 'Grade', 'Status', 'Actions'].map(h => <th key={h} className="text-left p-4 font-semibold text-gray-600">{h}</th>)}</tr></thead>
             <tbody>
               {filtered.map((r) => (

@@ -77,10 +77,10 @@ export default function AdminStudyMaterial() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div><h1 className="text-2xl font-bold text-gray-900">Study Material</h1><p className="text-sm text-gray-500">Manage notes, assignments & videos</p></div>
-        <button onClick={showForm ? closeForm : openAdd} className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-xl font-semibold hover:bg-violet-700 transition-colors">
-          {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />} {showForm ? 'Cancel' : 'Add Material'}
+      <div className="flex items-center justify-between gap-2">
+        <div><h1 className="text-xl sm:text-2xl font-bold text-gray-900">Study Material</h1><p className="text-xs sm:text-sm text-gray-500">Manage notes, assignments & videos</p></div>
+        <button onClick={showForm ? closeForm : openAdd} className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-violet-600 text-white rounded-xl font-semibold hover:bg-violet-700 transition-colors text-sm">
+          {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />} <span className="hidden sm:inline">{showForm ? 'Cancel' : 'Add Material'}</span><span className="sm:hidden">{showForm ? 'Cancel' : 'Add'}</span>
         </button>
       </div>
 
