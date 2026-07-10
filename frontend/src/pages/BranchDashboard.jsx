@@ -129,9 +129,9 @@ function StudentForm({ initial, onSave, onClose, saving }) {
           </label>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {textFields.map(({ name, label, placeholder, type = 'text', span2 }) => (
-          <div key={name} className={`space-y-1 ${span2 ? 'col-span-2' : ''}`}>
+          <div key={name} className={`space-y-1 ${span2 ? 'sm:col-span-2' : ''}`}>
             <label className="text-xs font-semibold text-gray-600">{label}</label>
             <input name={name} type={type} value={form[name] || ''} onChange={set} placeholder={placeholder}
               className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all" />
@@ -397,7 +397,7 @@ function ResultForm({ initial, students, onSave, onClose, saving }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Roll Number selector */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1">
           <label className="text-xs font-semibold text-gray-600">Enrollment Number *</label>
           <select value={form.rollNumber} onChange={e => handleRollChange(e.target.value)} className={inp}>
@@ -411,7 +411,7 @@ function ResultForm({ initial, students, onSave, onClose, saving }) {
           <label className="text-xs font-semibold text-gray-600">Student Name *</label>
           <input value={form.studentName} onChange={e => setForm(p => ({ ...p, studentName: e.target.value }))} placeholder="Auto-filled" className={inp} />
         </div>
-        <div className="space-y-1 col-span-2">
+        <div className="space-y-1 sm:col-span-2">
           <label className="text-xs font-semibold text-gray-600">Course *</label>
           <select value={form.courseName} onChange={e => handleCourseChange(e.target.value)} className={inp}>
             <option value="">-- Select Course --</option>
@@ -457,7 +457,7 @@ function ResultForm({ initial, students, onSave, onClose, saving }) {
       </div>
 
       {/* Auto-calculated summary */}
-      <div className="grid grid-cols-4 gap-3 bg-gray-50 rounded-2xl p-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-gray-50 rounded-2xl p-4">
         {[['Total Marks', form.totalMarks], ['Obtained', form.obtainedMarks], ['Percentage', form.percentage ? form.percentage + '%' : ''], ['Grade', form.grade]].map(([l, v]) => (
           <div key={l} className="text-center">
             <div className="text-xs text-gray-400 font-medium">{l}</div>
@@ -532,7 +532,7 @@ function CertForm({ initial, students, onSave, onClose, saving }) {
 
   return (
     <form onSubmit={e => { e.preventDefault(); onSave(form); }} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1">
           <label className="text-xs font-semibold text-gray-600">Enrollment Number *</label>
           <select value={form.rollNumber} onChange={e => handleRollChange(e.target.value)} className={inp}>
@@ -544,14 +544,14 @@ function CertForm({ initial, students, onSave, onClose, saving }) {
           <label className="text-xs font-semibold text-gray-600">Student Name *</label>
           <input value={form.studentName} onChange={e => setForm(p => ({ ...p, studentName: e.target.value }))} placeholder="Auto-filled" className={inp} />
         </div>
-        <div className="space-y-1 col-span-2">
+        <div className="space-y-1 sm:col-span-2">
           <label className="text-xs font-semibold text-gray-600">Course *</label>
           <select value={form.courseName} onChange={e => handleCourseChange(e.target.value)} className={inp}>
             <option value="">-- Select Course --</option>
             {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
-        <div className="space-y-1 col-span-2">
+        <div className="space-y-1 sm:col-span-2">
           <label className="text-xs font-semibold text-gray-600">Certificate Number *</label>
           <div className="relative">
             <input
@@ -614,8 +614,8 @@ function TestFormModal({ initial, onSave, onClose, saving }) {
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-gray-100"><X className="w-4 h-4" /></button>
         </div>
         <form onSubmit={e => { e.preventDefault(); onSave(form); }} className="p-6 space-y-5">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2 space-y-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2 space-y-1">
               <label className="text-xs font-semibold text-gray-600">Test Title *</label>
               <input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="e.g. June Monthly Test" required className={inp} />
             </div>
@@ -627,11 +627,11 @@ function TestFormModal({ initial, onSave, onClose, saving }) {
               <label className="text-xs font-semibold text-gray-600">Duration (minutes)</label>
               <input type="number" value={form.duration} onChange={e => setForm(p => ({ ...p, duration: Number(e.target.value) }))} min={1} className={inp} />
             </div>
-            <div className="col-span-2 space-y-1">
+            <div className="sm:col-span-2 space-y-1">
               <label className="text-xs font-semibold text-gray-600">Description</label>
               <textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows={2} placeholder="Optional description" className={`${inp} resize-none`} />
             </div>
-            <div className="col-span-2 flex items-center gap-3">
+            <div className="sm:col-span-2 flex items-center gap-3">
               <label className="text-xs font-semibold text-gray-600">Status</label>
               <button type="button" onClick={() => setForm(p => ({ ...p, isActive: !p.isActive }))}
                 className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${form.isActive ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
@@ -661,7 +661,7 @@ function TestFormModal({ initial, onSave, onClose, saving }) {
                 </div>
                 <input value={q.question} onChange={e => setQ(i, 'question', e.target.value)} placeholder="Enter question" required
                   className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 bg-white" />
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {q.options.map((opt, oi) => (
                     <div key={oi} className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all cursor-pointer ${
                       q.correctAnswer === oi ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white'
@@ -1052,7 +1052,7 @@ export default function BranchDashboard() {
           </div>
         </aside>
 
-      <div className="flex-1 min-w-0 max-w-full px-3 sm:px-4 py-4 sm:py-5 space-y-4 sm:space-y-5">
+      <div className="flex-1 min-w-0 overflow-x-hidden px-3 sm:px-4 py-4 sm:py-5 space-y-4 sm:space-y-5">
 
         {/* ── OVERVIEW ── */}
         {activeTab === 'overview' && (
@@ -1266,26 +1266,26 @@ export default function BranchDashboard() {
         {/* Students */}
         {activeTab === 'students' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <h2 className="text-xl font-black text-gray-900">Students <span className="text-blue-600">({students.length})</span></h2>
-              <div className="flex items-center gap-3">
-                <div className="relative">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="relative flex-1 min-w-[140px]">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..."
-                    className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-white w-48 font-medium" />
+                    className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-white w-full font-medium" />
                 </div>
                 <input ref={importRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={importExcel} />
                 <button onClick={() => importRef.current.click()}
                   className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700 transition-colors shadow-md">
-                  <Upload className="w-4 h-4" /> Import
+                  <Upload className="w-4 h-4" /> <span className="hidden sm:inline">Import</span>
                 </button>
                 <button onClick={exportExcel}
                   className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-colors shadow-md">
-                  <Download className="w-4 h-4" /> Export
+                  <Download className="w-4 h-4" /> <span className="hidden sm:inline">Export</span>
                 </button>
                 <button onClick={() => { setSelected(null); setModal('add'); }}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold transition-all shadow-md hover:-translate-y-0.5">
-                  <Plus className="w-4 h-4" /> Add Student
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold transition-all shadow-md">
+                  <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add Student</span><span className="sm:hidden">Add</span>
                 </button>
               </div>
             </div>
@@ -1362,9 +1362,9 @@ export default function BranchDashboard() {
         {/* Admissions */}
         {activeTab === 'admissions' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <h2 className="text-xl font-black text-gray-900">Admissions <span className="text-orange-500">({admissions.length})</span></h2>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2">
                 <select value={admissionFilter} onChange={e => setAdmissionFilter(e.target.value)}
                   className="px-3 py-2 border border-gray-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 bg-white text-gray-700">
                   <option value="all">All</option>
@@ -1372,10 +1372,10 @@ export default function BranchDashboard() {
                   <option value="Approved">✓ Approved</option>
                   <option value="Rejected">✗ Rejected</option>
                 </select>
-                <div className="relative">
+                <div className="relative flex-1 min-w-[140px]">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..."
-                    className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-blue-500 bg-white w-48" />
+                    className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-blue-500 bg-white w-full" />
                 </div>
               </div>
             </div>
@@ -1443,23 +1443,23 @@ export default function BranchDashboard() {
         {/* Results */}
         {activeTab === 'results' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <h2 className="text-xl font-black text-gray-900">Results <span className="text-yellow-600">({results.length})</span></h2>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2">
                 <select value={resultFilter} onChange={e => setResultFilter(e.target.value)}
                   className="px-3 py-2 border border-gray-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 bg-white text-gray-700">
                   <option value="all">All</option>
                   <option value="pending">⏳ Pending</option>
                   <option value="approved">✓ Approved</option>
                 </select>
-                <div className="relative">
+                <div className="relative flex-1 min-w-[140px]">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..."
-                    className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-blue-500 bg-white w-48" />
+                    className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-blue-500 bg-white w-full" />
                 </div>
                 <button onClick={() => { setSelected(null); setModal('add-result'); }}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white rounded-xl text-sm font-bold transition-all shadow-md hover:-translate-y-0.5">
-                  <Plus className="w-4 h-4" /> Add Result
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white rounded-xl text-sm font-bold transition-all shadow-md">
+                  <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add Result</span><span className="sm:hidden">Add</span>
                 </button>
               </div>
             </div>
@@ -1679,23 +1679,23 @@ export default function BranchDashboard() {
         {/* Certificates */}
         {activeTab === 'certificates' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <h2 className="text-xl font-black text-gray-900">Certificates <span className="text-teal-600">({certificates.length})</span></h2>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2">
                 <select value={certFilter} onChange={e => setCertFilter(e.target.value)}
                   className="px-3 py-2 border border-gray-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 bg-white text-gray-700">
                   <option value="all">All</option>
                   <option value="pending">⏳ Pending</option>
                   <option value="approved">✓ Approved</option>
                 </select>
-                <div className="relative">
+                <div className="relative flex-1 min-w-[140px]">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..."
-                    className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-blue-500 bg-white w-48" />
+                    className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-blue-500 bg-white w-full" />
                 </div>
                 <button onClick={() => { setSelected(null); setModal('add-cert'); }}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl text-sm font-bold transition-all shadow-md hover:-translate-y-0.5">
-                  <Plus className="w-4 h-4" /> Add Certificate
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl text-sm font-bold transition-all shadow-md">
+                  <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add Certificate</span><span className="sm:hidden">Add</span>
                 </button>
               </div>
             </div>
