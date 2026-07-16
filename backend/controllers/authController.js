@@ -77,6 +77,8 @@ exports.login = async (req, res) => {
         branchCode: user.branchCode || user.franchiseCode,
         branchId: user.branchId,
         branchAddress: user.branchAddress || user.address,
+        renewalDate: user.renewalDate || null,
+        approvedAt: user.approvedAt || null,
       }
     });
   } catch (err) {
@@ -87,6 +89,17 @@ exports.login = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate('course', 'title duration');
+
+    // Auto-fix existing branches with no renewalDate
+    if (user.role === 'branch' && !user.renewalDate) {
+      const base = user.approvedAt || user.createdAt || new Date();
+      const renewal = new Date(base);
+      renewal.setFullYear(renewal.getFullYear() + 1);
+      user.renewalDate = renewal;
+      if (!user.approvedAt) user.approvedAt = base;
+      await user.save({ validateBeforeSave: false });
+    }
+
     res.json({ success: true, user });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

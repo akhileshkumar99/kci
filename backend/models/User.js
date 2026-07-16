@@ -42,6 +42,7 @@ const userSchema = new mongoose.Schema({
   totalRevenue: { type: Number, default: 0 },
   notes: { type: String },
   renewalDate: { type: Date },
+  approvedAt: { type: Date },
   // OTP
   otp: { type: String },
   otpExpiry: { type: Date },

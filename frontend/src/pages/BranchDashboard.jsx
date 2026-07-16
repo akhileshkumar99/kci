@@ -5,7 +5,8 @@ import { toast } from 'react-hot-toast';
 import {
   Building2, Users, ClipboardList, Award, FileText, LogOut,
   TrendingUp, BookOpen, CheckCircle, Clock, Search, Eye, X,
-  Plus, Pencil, Trash2, Check, UserCheck, ClipboardCheck, Sun, Moon, Download, Upload, BookMarked
+  Plus, Pencil, Trash2, Check, UserCheck, ClipboardCheck, Sun, Moon, Download, Upload, BookMarked,
+  RefreshCw, AlertTriangle, CalendarClock
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
@@ -30,6 +31,75 @@ const tabs = [
 const EMPTY_STUDENT = { name: '', email: '', phone: '', fatherName: '', dob: '', address: '', courseName: '', batch: '' };
 const EMPTY_RESULT = { rollNumber: '', studentName: '', courseName: '', batch: '', totalMarks: '', obtainedMarks: '', percentage: '', grade: '', status: 'Pass', examDate: '' };
 const EMPTY_CERT = { rollNumber: '', studentName: '', courseName: '', certificateNumber: '', grade: '', issueDate: '' };
+
+function RenewalCountdown({ renewalDate, approvedAt }) {
+  const [daysLeft, setDaysLeft] = useState(null);
+
+  // If no renewalDate but approvedAt exists, compute 1 year from approvedAt
+  const effectiveRenewal = renewalDate || (approvedAt
+    ? new Date(new Date(approvedAt).setFullYear(new Date(approvedAt).getFullYear() + 1)).toISOString()
+    : null);
+
+  useEffect(() => {
+    if (!effectiveRenewal) return;
+    const calc = () => {
+      const now = new Date();
+      const due = new Date(effectiveRenewal);
+      const diff = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
+      setDaysLeft(diff);
+    };
+    calc();
+    const timer = setInterval(calc, 60000);
+    return () => clearInterval(timer);
+  }, [effectiveRenewal]);
+
+  if (!effectiveRenewal) {
+    return (
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+        className="bg-gray-100 border border-gray-200 rounded-2xl px-5 py-4 flex items-center gap-4">
+        <div className="w-12 h-12 rounded-2xl bg-gray-200 flex items-center justify-center shrink-0">
+          <CalendarClock className="w-6 h-6 text-gray-400" />
+        </div>
+        <div>
+          <div className="text-xs font-bold text-gray-400 uppercase tracking-wide">Renewal Due</div>
+          <div className="text-sm font-black text-gray-500">No renewal date set</div>
+          <div className="text-xs text-gray-400">Contact admin to set renewal date</div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  if (daysLeft === null) return null;
+
+  const isExpired = daysLeft !== null && daysLeft < 0;
+  const isUrgent = daysLeft !== null && daysLeft <= 7 && daysLeft >= 0;
+  const isWarning = daysLeft !== null && daysLeft <= 30 && daysLeft > 7;
+
+  const bgClass = isExpired ? 'bg-red-600' : isUrgent ? 'bg-orange-500' : isWarning ? 'bg-yellow-500' : 'bg-emerald-500';
+
+  const label = isExpired
+    ? `Expired ${Math.abs(daysLeft)} day${Math.abs(daysLeft) !== 1 ? 's' : ''} ago`
+    : daysLeft === 0 ? 'Expires Today!'
+    : `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left`;
+
+  return (
+    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+      className={`${bgClass} rounded-2xl px-5 py-4 flex items-center gap-4 shadow-lg text-white`}>
+      <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+        {isExpired || isUrgent ? <AlertTriangle className="w-6 h-6 text-white" /> : <CalendarClock className="w-6 h-6 text-white" />}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-xs font-bold text-white/80 uppercase tracking-wide">🔄 Franchise Renewal</div>
+        <div className="text-2xl font-black leading-tight">{label}</div>
+        <div className="text-xs text-white/70 mt-0.5 flex flex-wrap gap-3">
+          {approvedAt && <span>Active from: {new Date(approvedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>}
+          <span>Due: {new Date(effectiveRenewal).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+        </div>
+      </div>
+      {(isExpired || isUrgent) && <div className="shrink-0"><div className="w-2.5 h-2.5 bg-white rounded-full animate-ping" /></div>}
+    </motion.div>
+  );
+}
 
 function StatCard({ icon: Icon, label, value, color, delay, onClick }) {
   return (
@@ -693,7 +763,7 @@ function TestFormModal({ initial, onSave, onClose, saving }) {
 }
 
 export default function BranchDashboard() {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const { dark, toggle } = useTheme();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
@@ -776,8 +846,9 @@ export default function BranchDashboard() {
 
   useEffect(() => {
     if (!user || user.role !== 'branch') { navigate('/login'); return; }
+    refreshUser();
     loadData();
-  }, [user]);
+  }, []);
 
   const handleLogout = () => { logout(); navigate('/'); };
 
@@ -1117,6 +1188,9 @@ export default function BranchDashboard() {
                 </motion.div>
               ))}
             </div>
+
+            {/* Renewal Countdown */}
+            <RenewalCountdown renewalDate={user?.renewalDate} approvedAt={user?.approvedAt} />
 
             {/* Analytics Charts */}
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}

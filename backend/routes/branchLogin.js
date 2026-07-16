@@ -143,10 +143,13 @@ router.post('/', protect, admin, async (req, res) => {
     if (exists) return res.status(400).json({ success: false, message: 'Email already registered' });
     const branchCode = 'KCI-B-' + Date.now().toString().slice(-6);
     const plainPass = password || 'kci123456';
+    const approvedAt = (isApproved ?? true) ? new Date() : undefined;
+    const renewalDate = approvedAt ? new Date(new Date(approvedAt).setFullYear(new Date(approvedAt).getFullYear() + 1)) : undefined;
     const branch = await User.create({
       name, email, password: plainPass, phone,
       branchName, branchCity, branchAddress, branchCode, notes,
       role: 'branch', isApproved: isApproved ?? true,
+      ...(approvedAt && { approvedAt, renewalDate }),
     });
     if (branch.isApproved) {
       await sendApprovalEmail(email, name, branchName, branchCode, plainPass);
@@ -190,8 +193,13 @@ router.put('/:id/approve', protect, admin, async (req, res) => {
     const branch = await User.findById(req.params.id);
     if (!branch) return res.status(404).json({ success: false, message: 'Not found' });
     const newPassword = 'KCI@' + Math.random().toString(36).slice(-6).toUpperCase();
+    const approvedAt = new Date();
+    const renewalDate = new Date(approvedAt);
+    renewalDate.setFullYear(renewalDate.getFullYear() + 1);
     branch.isApproved = true;
     branch.password = newPassword;
+    branch.approvedAt = approvedAt;
+    if (!branch.renewalDate) branch.renewalDate = renewalDate;
     await branch.save();
     // Respond immediately — don't wait for email
     res.json({ success: true, message: 'Branch approved! Credentials email sending in background.', password: newPassword });
@@ -236,6 +244,18 @@ router.get('/dashboard-stats', protect, branchAuth, async (req, res) => {
     const Certificate = require('../models/Certificate');
     const Admission = require('../models/Admission');
     const Course = require('../models/Course');
+
+    // Auto-fix: if branch has no renewalDate, set it from createdAt + 1 year
+    if (req.user.role === 'branch' && !req.user.renewalDate) {
+      const base = req.user.approvedAt || req.user.createdAt || new Date();
+      const renewal = new Date(base);
+      renewal.setFullYear(renewal.getFullYear() + 1);
+      await User.findByIdAndUpdate(req.user._id, {
+        renewalDate: renewal,
+        approvedAt: req.user.approvedAt || base,
+      });
+    }
+
     const students = await User.countDocuments({ role: 'student', branchId: req.user._id });
     const active = await User.countDocuments({ role: 'student', branchId: req.user._id, isActive: true });
     const admissions = await Admission.countDocuments({ branchId: req.user._id });
