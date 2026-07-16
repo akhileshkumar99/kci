@@ -72,7 +72,7 @@ function CardContent({ student, admitCard, branch, qrUrl, scale = 1 }) {
           overflow: 'hidden', flexShrink: 0,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <img src="/logo.png" alt="KCI" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '3px' }} />
+          <img src="/logo.png" alt="KCI" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
         </div>
 
         {/* Center text */}
@@ -139,7 +139,7 @@ function CardContent({ student, admitCard, branch, qrUrl, scale = 1 }) {
           width: p(110), height: p(110),
           opacity: 0.05, pointerEvents: 'none', zIndex: 0,
         }}>
-          <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', borderRadius: '50%' }} />
         </div>
 
         {/* LEFT 70% */}
@@ -282,7 +282,7 @@ function CardContent({ student, admitCard, branch, qrUrl, scale = 1 }) {
           }}>
             <img src="/logo.png" alt="seal" style={{
               width: p(11), height: p(11), borderRadius: '50%',
-              objectFit: 'contain', padding: '2px', marginBottom: p(1),
+              objectFit: 'cover', display: 'block', marginBottom: p(1),
               border: `${s(1)}px solid #d4af37`,
             }} />
             <div style={{ borderTop: `${s(1)}px solid #888`, width: '90%' }} />
@@ -311,7 +311,7 @@ function CardContent({ student, admitCard, branch, qrUrl, scale = 1 }) {
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: s(2) }}>
           <img src="/logo.png" alt="seal" style={{
             width: p(9), height: p(9), borderRadius: '50%',
-            objectFit: 'contain', border: `${s(1)}px solid #d4af37`,
+            objectFit: 'cover', display: 'block', border: `${s(1)}px solid #d4af37`,
           }} />
           <div style={{ color: '#d4af37', fontSize: s(8), fontWeight: 700 }}>www.kci.org.in</div>
           <div style={{ color: '#6080c0', fontSize: s(7.5) }}>Computer Generated Document</div>

@@ -265,14 +265,21 @@ export default function Navbar() {
         <div className="h-0.5 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-800" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-20">
+          <div className="flex items-center justify-between h-24">
 
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
-              <motion.div whileHover={{ scale: 1.05, rotate: 2 }} transition={{ type: 'spring', stiffness: 300 }} className="relative">
-                <img src={logo} alt="KCI Logo" className="w-14 h-14 rounded-full object-contain shadow-lg ring-2 ring-blue-500/30 bg-white p-1" />
-
-              </motion.div>
+              <div className="relative">
+                <img
+                  src={logo}
+                  alt="KCI Logo"
+                  className="h-20 sm:h-24 w-auto"
+                  style={{
+                    transform: 'translateZ(0)',
+                    backfaceVisibility: 'hidden',
+                  }}
+                />
+              </div>
               <div className="hidden sm:block">
                 <div className="text-xl font-black bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent leading-tight tracking-wide">KEERTI</div>
                 <div className="text-[10px] font-bold leading-tight tracking-[0.2em] uppercase text-blue-500">Computer Institute</div>

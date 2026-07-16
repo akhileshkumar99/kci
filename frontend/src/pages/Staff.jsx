@@ -149,7 +149,7 @@ export default function Staff() {
                         </div>
                       )}
                       <div className="flex flex-col items-center">
-                        <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${avatarColors[i % avatarColors.length]} flex items-center justify-center shadow-lg mb-3 ring-2 ring-white/30`}>
+                        <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${avatarColors[i % avatarColors.length]} flex items-center justify-center shadow-lg mb-3`}>
                           {member.photo
                             ? <img src={member.photo} alt={member.name} className="w-full h-full object-cover rounded-2xl" />
                             : <span className="text-white font-black text-2xl">{member.name.charAt(0)}</span>
