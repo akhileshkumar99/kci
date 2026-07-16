@@ -95,7 +95,7 @@ function ChatBox() {
           >
             <div className="flex items-center gap-3 px-4 py-3" style={{ background: '#075E54' }}>
               <div className="relative">
-                <img src="/logo.png" alt="KCI" className="w-10 h-10 object-contain bg-white p-0.5" />
+                <img src="/logo.png" alt="KCI" className="w-10 h-10 rounded-full object-cover object-center overflow-hidden" />
                 <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-white" />
               </div>
               <div className="flex-1">
@@ -207,7 +207,7 @@ function RouteLoader() {
             />
           ))}
         </svg>
-        <img src="/logo.png" alt="KCI" className="w-12 h-12 object-contain bg-white p-1 z-10" />
+        <img src="/logo.png" alt="KCI" className="w-12 h-12 rounded-full object-cover object-center overflow-hidden z-10" />
       </motion.div>
       <motion.p
         animate={{ opacity: [0.4, 1, 0.4] }}

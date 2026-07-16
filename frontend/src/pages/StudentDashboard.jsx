@@ -2597,7 +2597,7 @@ export default function StudentDashboard() {
                       <div className="p-5">
                         {/* Institute + logo row */}
                         <div className="flex items-center gap-3 mb-4 pb-3 border-b border-amber-100">
-                          <img src="/logo.png" alt="KCI" className="w-10 h-10 rounded-full object-contain bg-white p-0.5 border-2 border-amber-200 shadow" />
+                          <img src="/logo.png" alt="KCI" className="w-10 h-10 rounded-full object-cover object-center" />
                           <div>
                             <div className="text-xs font-black text-gray-500 uppercase tracking-widest">Keerti Computer Institute</div>
                             <div className="text-[10px] text-gray-400">Govt. Recognised | Est. 2005</div>

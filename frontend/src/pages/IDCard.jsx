@@ -256,7 +256,7 @@ export default function IDCardPage() {
           >
             <div style={{ background: '#fff', borderBottom: '2px solid #d4af37', display: 'flex', alignItems: 'center', padding: '4px 8px', gap: 6, flexShrink: 0 }}>
               <div style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid #d4af37', overflow: 'hidden', flexShrink: 0, background: '#fff' }}>
-                <img src="/logo.png" alt="KCI" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                <img src="/logo.png" alt="KCI" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
               </div>
               <div style={{ flex: 1, textAlign: 'center' }}>
                 <div style={{ color: '#0b1f5b', fontWeight: 900, fontSize: 11, letterSpacing: 0.4 }}>KEERTI COMPUTER INSTITUTE</div>

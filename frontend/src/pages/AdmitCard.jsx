@@ -419,7 +419,7 @@ export default function AdmitCard() {
 
               {/* Header */}
               <div className="bg-gradient-to-r from-blue-800 to-indigo-700 px-6 py-4 flex items-center gap-4">
-                <img src="/logo.png" alt="KCI" className="w-14 h-14 rounded-full border-2 border-white/30 object-cover" />
+                <img src="/logo.png" alt="KCI" className="w-14 h-14 rounded-full object-cover object-center" />
                 <div>
                   <h2 className="text-white font-black text-lg tracking-wide">KEERTI COMPUTER INSTITUTE</h2>
                   <p className="text-blue-200 text-xs">Government Recognized | ISO Certified | NIELIT Affiliated</p>

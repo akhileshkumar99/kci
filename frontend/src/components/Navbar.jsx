@@ -273,11 +273,7 @@ export default function Navbar() {
                 <img
                   src={logo}
                   alt="KCI Logo"
-                  className="h-20 sm:h-24 w-auto"
-                  style={{
-                    transform: 'translateZ(0)',
-                    backfaceVisibility: 'hidden',
-                  }}
+                  className="h-20 sm:h-24 w-20 sm:w-24 rounded-full object-cover object-center overflow-hidden"
                 />
               </div>
               <div className="hidden sm:block">
