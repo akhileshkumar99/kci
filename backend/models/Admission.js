@@ -21,7 +21,7 @@ const admissionSchema = new mongoose.Schema(
     session: { type: String },
     status: {
       type: String,
-      enum: ['Draft', 'Pending Approval', 'Approved', 'Rejected'],
+      enum: ['Draft', 'Pending Approval', 'Verified', 'Approved', 'Rejected'],
       default: 'Pending Approval',
     },
     verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

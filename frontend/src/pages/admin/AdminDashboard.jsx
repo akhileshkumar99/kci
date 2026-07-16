@@ -8,6 +8,7 @@ import {
 } from 'recharts';
 import api from '../../utils/api';
 import DevCredit from '../../components/DevCredit';
+import { AdminLoader } from '../../components/PageLoader';
 
 const PIE_COLORS = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4'];
 
@@ -39,12 +40,14 @@ export default function AdminDashboard() {
   const g = analytics?.global || {};
 
   const cards = [
-    { label: 'Total Students', value: stats?.students, icon: Users, path: '/admin/students', bg: 'from-blue-500 to-blue-600' },
-    { label: 'Pending Admissions', value: stats?.pendingAdmissions ?? stats?.admissions, icon: ClipboardList, path: '/admin/admissions', bg: 'from-yellow-500 to-orange-500' },
-    { label: 'Approved Admissions', value: stats?.approvedAdmissions, icon: ClipboardList, path: '/admin/admissions', bg: 'from-emerald-500 to-emerald-600' },
-    { label: 'Results Uploaded', value: stats?.results, icon: Award, path: '/admin/results', bg: 'from-orange-500 to-orange-600' },
-    { label: 'Certificates', value: stats?.certificates, icon: FileText, path: '/admin/certificates', bg: 'from-teal-500 to-teal-600' },
-    { label: 'Analytics', value: null, icon: BarChart2, path: '/admin/analytics', bg: 'from-pink-500 to-rose-500', isAnalytics: true },
+    { label: 'Total Students',        value: stats?.students ?? 0,          icon: Users,       path: '/admin/students',    bg: 'from-blue-500 to-blue-600' },
+    { label: 'Pending Admissions',    value: stats?.pendingAdmissions ?? 0, icon: ClipboardList,path: '/admin/admissions',  bg: 'from-yellow-500 to-orange-500' },
+    { label: 'Approved Admissions',   value: stats?.approvedAdmissions ?? 0,icon: ClipboardList,path: '/admin/admissions',  bg: 'from-emerald-500 to-emerald-600' },
+    { label: 'Certificates Generated',value: stats?.certificates ?? 0,      icon: FileText,    path: '/admin/certificates',bg: 'from-teal-500 to-teal-600' },
+    { label: 'Results Uploaded',      value: stats?.results ?? 0,           icon: Award,       path: '/admin/results',     bg: 'from-orange-500 to-orange-600' },
+    { label: 'Active Branches',       value: stats?.activeBranches ?? 0,    icon: Users,       path: '/admin/branches',    bg: 'from-indigo-500 to-indigo-600' },
+    { label: 'Franchise Renewals Due',value: stats?.franchiseRenewals ?? 0, icon: BarChart2,   path: '/admin/branches',    bg: 'from-rose-500 to-rose-600' },
+    { label: 'Analytics',             value: null,                          icon: BarChart2,   path: '/admin/analytics',   bg: 'from-pink-500 to-rose-500', isAnalytics: true },
   ];
 
   const quickActions = [
@@ -56,11 +59,7 @@ export default function AdminDashboard() {
     { label: 'View Messages', path: '/admin/contacts', color: 'bg-rose-600 hover:bg-rose-700' },
   ];
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+  if (loading) return <AdminLoader />;
 
   return (
     <div className="space-y-6">
@@ -79,7 +78,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {cards.map(({ label, value, icon: Icon, bg, path, isAnalytics }, i) => (
           <motion.div key={label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
             <Link to={path} className="block bg-white rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
@@ -213,8 +212,8 @@ export default function AdminDashboard() {
         className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { label: 'Pass Rate', value: stats?.results > 0 ? '82%' : 'N/A', sub: 'Based on published results', color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'Branches Active', value: '30', sub: 'Across Uttar Pradesh', color: 'text-blue-600', bg: 'bg-blue-50' },
-          { label: 'Staff Members', value: '13', sub: 'Head office faculty', color: 'text-violet-600', bg: 'bg-violet-50' },
+          { label: 'Branches Active', value: stats?.activeBranches ?? 0, sub: 'Across Uttar Pradesh', color: 'text-blue-600', bg: 'bg-blue-50' },
+          { label: 'Unread Messages', value: stats?.unreadContacts ?? 0, sub: 'Pending contact replies', color: 'text-violet-600', bg: 'bg-violet-50' },
         ].map(({ label, value, sub, color, bg }) => (
           <div key={label} className={`${bg} rounded-2xl p-5 border border-gray-100`}>
             <p className={`text-3xl font-bold ${color}`}>{value}</p>

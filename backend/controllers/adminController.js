@@ -141,7 +141,10 @@ exports.getDashboardStats = async (req, res) => {
     res.json({
       success: true,
       stats: { students, courses, admissions, pendingAdmissions, approvedAdmissions, results, certificates, unreadContacts,
-        todayStudents, weekStudents, monthStudents, yearStudents },
+        todayStudents, weekStudents, monthStudents, yearStudents,
+        activeBranches: branchList.length,
+        franchiseRenewals: await User.countDocuments({ role: 'branch', isApproved: true, renewalDate: { $lte: new Date(Date.now() + 30*24*60*60*1000), $gte: new Date() } }),
+      },
       charts: {
         admissions: toChartData(admissionMonthly),
         results: toChartData(resultMonthly),
@@ -163,6 +166,23 @@ exports.createStudent = async (req, res) => {
     const { rollNumber, enrollmentNumber, registrationNumber, formNo } = await generateStudentNumbers();
     const photo = req.file ? req.file.path : undefined;
     const student = await User.create({ name, email, password, phone, batch, courseName, fatherName, dob, address, rollNumber, enrollmentNumber, registrationNumber, formNo, role: 'student', ...(req.body.branchId && { branchId: req.body.branchId }), ...(photo && { photo }) });
+
+    // Audit log
+    try {
+      const AuditLog = require('../models/AuditLog');
+      const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+      await AuditLog.create({
+        action: 'STUDENT_CREATED',
+        performedBy: req.user._id,
+        performedByName: req.user.name,
+        performedByRole: req.user.role,
+        targetId: student._id,
+        targetModel: 'User',
+        details: { studentName: student.name, email: student.email, rollNumber },
+        ip,
+      });
+    } catch {}
+
     res.status(201).json({ success: true, student });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -202,6 +222,22 @@ exports.updateStudent = async (req, res) => {
     if (beingApproved && student?.email) {
       await sendApprovalEmail(student);
     }
+
+    // Audit log
+    try {
+      const AuditLog = require('../models/AuditLog');
+      const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+      await AuditLog.create({
+        action: 'STUDENT_UPDATED',
+        performedBy: req.user._id,
+        performedByName: req.user.name,
+        performedByRole: req.user.role,
+        targetId: student._id,
+        targetModel: 'User',
+        details: { studentName: student.name, email: student.email },
+        ip,
+      });
+    } catch {}
 
     res.json({ success: true, student });
   } catch (err) {
@@ -373,7 +409,23 @@ exports.getBranchUsers = async (req, res) => {
 
 exports.deleteStudent = async (req, res) => {
   try {
-    await User.findByIdAndDelete(req.params.id);
+    const student = await User.findByIdAndDelete(req.params.id);
+    if (student) {
+      try {
+        const AuditLog = require('../models/AuditLog');
+        const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+        await AuditLog.create({
+          action: 'STUDENT_DELETED',
+          performedBy: req.user._id,
+          performedByName: req.user.name,
+          performedByRole: req.user.role,
+          targetId: student._id,
+          targetModel: 'User',
+          details: { studentName: student.name, email: student.email },
+          ip,
+        });
+      } catch {}
+    }
     res.json({ success: true, message: 'Student deleted' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -415,8 +467,17 @@ exports.universalStudentSearch = async (req, res) => {
       .populate('branchId', 'branchName branchCode branchCity')
       .select('-password')
       .sort({ createdAt: -1 })
-      .limit(50)
+      .limit(200)
       .lean();
+
+    // Filter by admission workflow status (Pending Approval, Verified, Approved, Rejected, Draft)
+    const workflowStatuses = ['Draft', 'Pending Approval', 'Verified', 'Approved', 'Rejected'];
+    if (admissionStatus && workflowStatuses.includes(admissionStatus)) {
+      const emails = students.map(s => s.email).filter(Boolean);
+      const admissions = await Admission.find({ email: { $in: emails }, status: admissionStatus }).select('email status');
+      const matchedEmails = new Set(admissions.map(a => a.email));
+      students = students.filter(s => matchedEmails.has(s.email));
+    }
 
     // Optionally filter by result/cert status
     if (resultStatus || certGenerated) {
@@ -454,8 +515,17 @@ exports.universalStudentSearch = async (req, res) => {
 exports.getAuditLogs = async (req, res) => {
   try {
     const AuditLog = require('../models/AuditLog');
-    const { action, limit = 100 } = req.query;
-    const filter = action ? { action } : {};
+    const { action, module: mod, limit = 500, page = 1 } = req.query;
+    const MODULE_ACTIONS = {
+      Admissions: ['ADMISSION_APPROVED','ADMISSION_REJECTED','ADMISSION_VERIFIED','ADMISSION_CREATED'],
+      Results: ['RESULT_UPLOADED','RESULT_UPDATED','RESULT_DELETED'],
+      Students: ['STUDENT_UPDATED','STUDENT_CREATED','STUDENT_DELETED'],
+      Certificates: ['CERTIFICATE_GENERATED'],
+      Auth: ['LOGIN'],
+    };
+    const filter = {};
+    if (action) filter.action = action;
+    else if (mod && MODULE_ACTIONS[mod]) filter.action = { $in: MODULE_ACTIONS[mod] };
     const logs = await AuditLog.find(filter)
       .populate('performedBy', 'name email role')
       .sort({ createdAt: -1 })

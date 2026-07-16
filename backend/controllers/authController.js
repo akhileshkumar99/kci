@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const generateStudentNumbers = require('../utils/generateStudentNumbers');
+const AuditLog = require('../models/AuditLog');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -45,6 +46,21 @@ exports.login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Account not approved yet. Please wait for admin approval.' });
 
     const token = signToken(user._id);
+
+    // Log login event
+    try {
+      await AuditLog.create({
+        action: 'LOGIN',
+        performedBy: user._id,
+        performedByName: user.name,
+        performedByRole: user.role,
+        targetId: user._id,
+        targetModel: 'User',
+        details: { email: user.email },
+        ip: req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown',
+      });
+    } catch {}
+
     res.json({
       success: true, token,
       user: {

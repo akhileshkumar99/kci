@@ -39,3 +39,10 @@ exports.staffOrAbove = (req, res, next) => {
   if (req.user && allowed.includes(req.user.role)) return next();
   res.status(403).json({ success: false, message: 'Staff access required' });
 };
+
+// Counsellor = teacher role alias
+exports.counsellor = (req, res, next) => {
+  const allowed = ['admin', 'branch', 'franchise', 'teacher'];
+  if (req.user && allowed.includes(req.user.role)) return next();
+  res.status(403).json({ success: false, message: 'Counsellor access required' });
+};

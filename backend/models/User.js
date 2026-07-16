@@ -41,6 +41,7 @@ const userSchema = new mongoose.Schema({
   totalStudents: { type: Number, default: 0 },
   totalRevenue: { type: Number, default: 0 },
   notes: { type: String },
+  renewalDate: { type: Date },
   // OTP
   otp: { type: String },
   otpExpiry: { type: Date },

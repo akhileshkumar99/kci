@@ -268,7 +268,10 @@ router.put('/admissions/:id/status', protect, branchAuth, async (req, res) => {
   try {
     const Admission = require('../models/Admission');
     const { status } = req.body;
-    if (!['Pending', 'Approved', 'Rejected'].includes(status))
+    // Branch cannot do final Approved — only Admin can
+    if (status === 'Approved' && req.user.role !== 'admin')
+      return res.status(403).json({ success: false, message: 'Only Admin can give final approval' });
+    if (!['Pending', 'Verified', 'Approved', 'Rejected'].includes(status))
       return res.status(400).json({ success: false, message: 'Invalid status' });
 
     const admission = await Admission.findById(req.params.id).populate('course', 'title');

@@ -5,6 +5,7 @@ import { motion, AnimatePresence as AnimatePresenceWA } from 'framer-motion';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Loader from './components/Loader';
+import { SuspenseLoader } from './components/PageLoader';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
@@ -46,11 +47,7 @@ const AdminAdmitCard = lazy(() => import('./pages/admin/AdminAdmitCard'));
 const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
 const AdminAuditLogs = lazy(() => import('./pages/admin/AdminAuditLogs'));
 
-const PageLoader = () => (
-  <div className="min-h-[60vh] flex items-center justify-center">
-    <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-  </div>
-);
+const PageLoader = () => <SuspenseLoader />;
 
 
 const WHATSAPP_NUMBER = '919936384736';
@@ -183,37 +180,30 @@ function ScrollToTop() {
 
 function RouteLoader() {
   const location = useLocation();
-  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [visible, setVisible] = useState(false);
+
   useEffect(() => {
-    setLoading(true);
-    const t = setTimeout(() => setLoading(false), 400);
-    return () => clearTimeout(t);
+    setProgress(0);
+    setVisible(true);
+    const t1 = setTimeout(() => setProgress(70), 50);
+    const t2 = setTimeout(() => setProgress(100), 350);
+    const t3 = setTimeout(() => setVisible(false), 600);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [location.pathname]);
-  if (!loading) return null;
+
+  if (!visible) return null;
   return (
-    <div className="fixed inset-0 z-[9998] flex flex-col items-center justify-center" style={{ background: '#0f172a' }}>
+    <div className="fixed top-0 left-0 right-0 z-[9999] h-[3px]" style={{ background: 'transparent' }}>
       <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-        className="relative flex items-center justify-center"
-        style={{ width: 80, height: 80 }}
-      >
-        <svg width="80" height="80" viewBox="0 0 80 80" className="absolute inset-0">
-          {[...Array(10)].map((_, i) => (
-            <ellipse key={i} cx="40" cy="10" rx="5" ry="10"
-              fill={`hsl(${i * 36}, 90%, 65%)`}
-              opacity={0.25 + (i / 10) * 0.75}
-              transform={`rotate(${i * 36} 40 40)`}
-            />
-          ))}
-        </svg>
-        <img src="/logo.png" alt="KCI" className="w-12 h-12 rounded-full object-cover object-center overflow-hidden z-10" />
-      </motion.div>
-      <motion.p
-        animate={{ opacity: [0.4, 1, 0.4] }}
-        transition={{ duration: 0.8, repeat: Infinity }}
-        className="text-white/60 text-xs tracking-widest uppercase mt-4"
-      >Loading...</motion.p>
+        className="h-full rounded-full"
+        style={{
+          width: `${progress}%`,
+          background: 'linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6)',
+          transition: progress === 70 ? 'width 0.3s ease' : progress === 100 ? 'width 0.2s ease' : 'none',
+          boxShadow: '0 0 8px #a78bfa',
+        }}
+      />
     </div>
   );
 }

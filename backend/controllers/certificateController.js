@@ -108,6 +108,23 @@ exports.createCertificate = async (req, res) => {
       '🏅 Certificate Uploaded',
       `Your certificate for ${cert.courseName} has been uploaded. You can now view and download it from your Student Dashboard.`
     );
+    // Audit log
+    if (req.user) {
+      try {
+        const AuditLog = require('../models/AuditLog');
+        const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+        await AuditLog.create({
+          action: 'CERTIFICATE_GENERATED',
+          performedBy: req.user._id,
+          performedByName: req.user.name,
+          performedByRole: req.user.role,
+          targetId: cert._id,
+          targetModel: 'Certificate',
+          details: { studentName: cert.studentName, enrollmentNumber: cert.enrollmentNumber, formNo: cert.formNo, courseName: cert.courseName },
+          ip,
+        });
+      } catch {}
+    }
     res.status(201).json({ success: true, certificate: cert });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

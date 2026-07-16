@@ -7,7 +7,7 @@ import {
 import { toast } from 'react-hot-toast';
 import api from '../../utils/api';
 
-const EMPTY = { name: '', email: '', password: '', phone: '', branchName: '', branchCity: '', branchAddress: '', notes: '', isApproved: true };
+const EMPTY = { name: '', email: '', password: '', phone: '', branchName: '', branchCity: '', branchAddress: '', notes: '', isApproved: true, renewalDate: '' };
 
 function Modal({ title, onClose, children }) {
   return (
@@ -61,6 +61,11 @@ function BranchForm({ initial, onSave, onClose, loading }) {
         <textarea name="notes" value={form.notes || ''} onChange={set} rows={2} placeholder="Internal notes"
           className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all resize-none" />
       </div>
+      <div className="space-y-1">
+        <label className="text-xs font-semibold text-gray-600">Franchise Renewal Date</label>
+        <input name="renewalDate" type="date" value={form.renewalDate ? new Date(form.renewalDate).toISOString().split('T')[0] : ''} onChange={set}
+          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all" />
+      </div>
       <div className="flex items-center gap-2">
         <input type="checkbox" id="isApproved" checked={!!form.isApproved} onChange={e => setForm(p => ({ ...p, isApproved: e.target.checked }))}
           className="w-4 h-4 accent-blue-600" />
@@ -90,6 +95,7 @@ function ViewModal({ branch, onClose, onEdit, onApprove, approving, approvedPass
     ['Address', branch.branchAddress || 'N/A'],
     ['Branch Code', branch.branchCode],
     ['Status', branch.isApproved ? '✅ Approved' : '⏳ Pending'],
+    ['Renewal Date', branch.renewalDate ? new Date(branch.renewalDate).toLocaleDateString('en-IN') : '—'],
     ['Notes', branch.notes || '—'],
     ['Joined', new Date(branch.createdAt).toLocaleDateString('en-IN')],
   ];

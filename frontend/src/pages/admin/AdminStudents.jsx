@@ -57,6 +57,15 @@ export default function AdminStudents() {
   const [filterPeriod, setFilterPeriod] = useState('all'); // all | yearly | monthly | weekly
   const [filterYear, setFilterYear] = useState(new Date().getFullYear());
   const [filterMonth, setFilterMonth] = useState(new Date().getMonth()); // 0-11
+  const [filterCourse, setFilterCourse] = useState('');
+  const [filterSession, setFilterSession] = useState('');
+  const [filterBranch, setFilterBranch] = useState('');
+  const [filterAdmissionStatus, setFilterAdmissionStatus] = useState('all'); // all | approved | pending
+  const [filterResultStatus, setFilterResultStatus] = useState('all'); // all | uploaded | not_uploaded
+  const [filterCertGenerated, setFilterCertGenerated] = useState('all'); // all | yes | no
+  const [universalResults, setUniversalResults] = useState(null); // null = use local filter
+  const [universalLoading, setUniversalLoading] = useState(false);
+
   const importRef = useRef();
 
   const [branches, setBranches] = useState([]);
@@ -238,7 +247,32 @@ export default function AdminStudents() {
   };
 
   const now = new Date();
-  const filtered = students.filter(s => {
+
+  // Universal search via API
+  const handleUniversalSearch = async (q) => {
+    if (!q || q.length < 2) { setUniversalResults(null); return; }
+    setUniversalLoading(true);
+    try {
+      const params = { q };
+      if (filterCourse) params.course = filterCourse;
+      if (filterSession) params.session = filterSession;
+      if (filterBranch) params.branch = filterBranch;
+      if (filterAdmissionStatus !== 'all') params.admissionStatus = filterAdmissionStatus;
+      if (filterResultStatus !== 'all') params.resultStatus = filterResultStatus;
+      if (filterCertGenerated !== 'all') params.certGenerated = filterCertGenerated;
+      const { data } = await api.get('/admin/students/search', { params });
+      setUniversalResults(data.students || []);
+    } catch { setUniversalResults(null); }
+    setUniversalLoading(false);
+  };
+
+  // Debounce search
+  useEffect(() => {
+    const t = setTimeout(() => handleUniversalSearch(search), 400);
+    return () => clearTimeout(t);
+  }, [search, filterCourse, filterSession, filterBranch, filterAdmissionStatus, filterResultStatus, filterCertGenerated]);
+
+  const displayStudents = universalResults !== null ? universalResults : students.filter(s => {
     const q = search.toLowerCase();
     const match = !q || [
       s.name, s.email, s.phone,
@@ -247,15 +281,19 @@ export default function AdminStudents() {
       s.branchId?.branchName, s.branchId?.branchCode,
     ].some(v => v && v.toLowerCase().includes(q));
     if (!match) return false;
+    if (filterCourse && !(s.courseName || '').toLowerCase().includes(filterCourse.toLowerCase())) return false;
+    if (filterSession && !(s.batch || '').toLowerCase().includes(filterSession.toLowerCase())) return false;
+    if (filterBranch && !((s.branchId?.branchName || s.branchName || '')).toLowerCase().includes(filterBranch.toLowerCase())) return false;
+    if (filterAdmissionStatus === 'approved' && !s.isApproved) return false;
+    if (filterAdmissionStatus === 'pending' && s.isApproved) return false;
     const d = new Date(s.createdAt);
     if (filterPeriod === 'yearly') return d.getFullYear() === Number(filterYear);
     if (filterPeriod === 'monthly') return d.getFullYear() === Number(filterYear) && d.getMonth() === Number(filterMonth);
-    if (filterPeriod === 'weekly') {
-      const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
-      return d >= weekAgo;
-    }
+    if (filterPeriod === 'weekly') { const w = new Date(now); w.setDate(now.getDate() - 7); return d >= w; }
     return true;
   });
+
+  const filtered = displayStudents;
 
   const exportExcel = () => {
     const rows = filtered.map(s => ({
@@ -373,7 +411,7 @@ export default function AdminStudents() {
         )}
       </div>
       <div className="flex flex-wrap items-center gap-2 mb-4">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Students ({filtered.length}/{students.length})</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Students ({filtered.length}/{students.length}) {universalLoading && <span className="text-sm text-blue-500 font-normal">searching...</span>}</h1>
         <div className="flex items-center gap-1.5 bg-gray-100 rounded-xl p-1">
           {['all','weekly','monthly','yearly'].map(p => (
             <button key={p} onClick={() => setFilterPeriod(p)}
@@ -400,6 +438,8 @@ export default function AdminStudents() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, phone, roll no, form no, enrollment, father's name..."
             className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          {universalLoading && <div className="absolute right-3 top-2.5 w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />}
+          {search && !universalLoading && <button onClick={() => { setSearch(''); setUniversalResults(null); }} className="absolute right-3 top-2.5"><X className="w-4 h-4 text-gray-400" /></button>}
         </div>
         <input ref={importRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={importExcel} />
         <button onClick={() => importRef.current.click()} className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-green-700 transition-colors">
@@ -415,6 +455,51 @@ export default function AdminStudents() {
         <button onClick={openModal} className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-blue-700 transition-colors">
           <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add Student</span>
         </button>
+      </div>
+
+      {/* Advanced Filters */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Filter className="w-4 h-4 text-gray-500" />
+          <span className="text-xs font-bold text-gray-600 uppercase tracking-wide">Advanced Filters</span>
+          {(filterCourse || filterSession || filterBranch || filterAdmissionStatus !== 'all' || filterResultStatus !== 'all' || filterCertGenerated !== 'all') && (
+            <button onClick={() => { setFilterCourse(''); setFilterSession(''); setFilterBranch(''); setFilterAdmissionStatus('all'); setFilterResultStatus('all'); setFilterCertGenerated('all'); }}
+              className="ml-auto text-xs text-red-500 hover:text-red-700 font-semibold">Clear All</button>
+          )}
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+          <input value={filterCourse} onChange={e => setFilterCourse(e.target.value)} placeholder="Course"
+            className="px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input value={filterSession} onChange={e => setFilterSession(e.target.value)} placeholder="Session / Batch"
+            className="px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input value={filterBranch} onChange={e => setFilterBranch(e.target.value)} placeholder="Branch"
+            className="px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <select value={filterAdmissionStatus} onChange={e => setFilterAdmissionStatus(e.target.value)}
+            className="px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            <option value="all">All Status</option>
+            <option value="approved">Approved ✓</option>
+            <option value="pending">Pending</option>
+            <option value="Pending Approval">Pending Approval</option>
+            <option value="Verified">Verified</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Draft">Draft</option>
+          </select>
+          <select value={filterResultStatus} onChange={e => setFilterResultStatus(e.target.value)}
+            className="px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            <option value="all">Result: All</option>
+            <option value="uploaded">Result Uploaded</option>
+            <option value="not_uploaded">No Result</option>
+          </select>
+          <select value={filterCertGenerated} onChange={e => setFilterCertGenerated(e.target.value)}
+            className="px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            <option value="all">Cert: All</option>
+            <option value="yes">Cert Generated</option>
+            <option value="no">No Certificate</option>
+          </select>
+        </div>
+        {universalResults !== null && (
+          <p className="text-xs text-blue-600 font-semibold mt-2">🔍 Universal Search: {universalResults.length} result{universalResults.length !== 1 ? 's' : ''} found</p>
+        )}
       </div>
 
       {loading ? <Loader /> : (

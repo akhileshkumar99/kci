@@ -2,7 +2,7 @@ const Result = require('../models/Result');
 const User = require('../models/User');
 const AuditLog = require('../models/AuditLog');
 
-async function logAudit(action, user, targetId, details) {
+async function logAudit(action, user, targetId, details, ip) {
   try {
     await AuditLog.create({
       action,
@@ -12,6 +12,7 @@ async function logAudit(action, user, targetId, details) {
       targetId,
       targetModel: 'Result',
       details,
+      ip: ip || 'unknown',
     });
   } catch (e) {}
 }
@@ -86,7 +87,22 @@ exports.getMyResult = async (req, res) => {
 
 exports.getAllResults = async (req, res) => {
   try {
-    const results = await Result.find().populate('course', 'title').sort({ createdAt: -1 });
+    let resultFilter = {};
+    // Branch managers only see results for their own students
+    if (req.user.role === 'branch') {
+      const branchStudents = await User.find({ role: 'student', branchId: req.user._id }).select('rollNumber enrollmentNumber formNo');
+      const rollNos = branchStudents.map(s => s.rollNumber).filter(Boolean);
+      const enrollNos = branchStudents.map(s => s.enrollmentNumber).filter(Boolean);
+      const formNos = branchStudents.map(s => s.formNo).filter(Boolean);
+      const orClauses = [
+        ...(rollNos.length ? [{ rollNumber: { $in: rollNos } }] : []),
+        ...(enrollNos.length ? [{ enrollmentNumber: { $in: enrollNos } }] : []),
+        ...(formNos.length ? [{ formNo: { $in: formNos } }] : []),
+      ];
+      if (!orClauses.length) return res.json({ success: true, results: [] });
+      resultFilter = { $or: orClauses };
+    }
+    const results = await Result.find(resultFilter).populate('course', 'title').sort({ createdAt: -1 });
     const rollNumbers = results.map(r => r.rollNumber).filter(Boolean);
     const students = await User.find({ rollNumber: { $in: rollNumbers } }).select('rollNumber branchName branchId').populate('branchId', 'branchName');
     const branchMap = {};
@@ -101,6 +117,15 @@ exports.getAllResults = async (req, res) => {
 exports.createResult = async (req, res) => {
   try {
     const data = { ...req.body };
+
+    // Duplicate check — prevent duplicate result for same formNo or enrollmentNumber
+    if (data.formNo || data.enrollmentNumber) {
+      const dupQuery = [];
+      if (data.formNo) dupQuery.push({ formNo: data.formNo });
+      if (data.enrollmentNumber) dupQuery.push({ enrollmentNumber: data.enrollmentNumber });
+      const existing = await Result.findOne({ $or: dupQuery });
+      if (existing) return res.status(400).json({ success: false, message: `Result already exists for this student (${existing.studentName}). Use Edit to update.` });
+    }
 
     // Auto-calculate marks if subjects provided
     if (data.subjects && Array.isArray(data.subjects)) {
@@ -137,7 +162,8 @@ exports.createResult = async (req, res) => {
     const result = await Result.create(data);
 
     if (req.user) {
-      await logAudit('RESULT_UPLOADED', req.user, result._id, { studentName: result.studentName, formNo: result.formNo });
+      const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+      await logAudit('RESULT_UPLOADED', req.user, result._id, { studentName: result.studentName, formNo: result.formNo }, ip);
     }
 
     res.status(201).json({ success: true, result });
@@ -148,10 +174,25 @@ exports.createResult = async (req, res) => {
 
 exports.updateResult = async (req, res) => {
   try {
-    const update = { studentName: req.body.studentName };
-    if (req.file) update.resultFile = req.file.filename;
-    const result = await Result.findByIdAndUpdate(req.params.id, update, { new: true });
-    if (req.user) await logAudit('RESULT_UPDATED', req.user, result._id, { studentName: result.studentName });
+    const data = { ...req.body };
+    if (req.file) data.resultFile = req.file.filename;
+
+    // Recalculate marks if subjects provided
+    if (data.subjects && Array.isArray(data.subjects)) {
+      const obtained = data.subjects.reduce((s, sub) => s + Number(sub.obtainedMarks || 0), 0);
+      const total = data.subjects.reduce((s, sub) => s + Number(sub.maxMarks || 0), 0);
+      data.obtainedMarks = obtained;
+      data.totalMarks = total;
+      data.percentage = total > 0 ? parseFloat(((obtained / total) * 100).toFixed(2)) : 0;
+      data.grade = data.percentage >= 90 ? 'A+' : data.percentage >= 75 ? 'A' : data.percentage >= 60 ? 'B' : data.percentage >= 45 ? 'C' : 'D';
+      data.status = data.percentage >= 40 ? 'Pass' : 'Fail';
+    }
+    if (data.uploadDate) data.uploadDate = new Date(data.uploadDate);
+    if (data.examDate) data.examDate = new Date(data.examDate);
+
+    const result = await Result.findByIdAndUpdate(req.params.id, data, { new: true });
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+    if (req.user && result) await logAudit('RESULT_UPDATED', req.user, result._id, { studentName: result.studentName, formNo: result.formNo }, ip);
     res.json({ success: true, result });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -161,7 +202,8 @@ exports.updateResult = async (req, res) => {
 exports.deleteResult = async (req, res) => {
   try {
     const result = await Result.findByIdAndDelete(req.params.id);
-    if (req.user && result) await logAudit('RESULT_DELETED', req.user, result._id, { studentName: result.studentName });
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+    if (req.user && result) await logAudit('RESULT_DELETED', req.user, result._id, { studentName: result.studentName }, ip);
     res.json({ success: true, message: 'Result deleted' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

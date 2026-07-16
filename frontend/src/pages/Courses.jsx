@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Search, BookOpen, Award, Info } from 'lucide-react';
 import api from '../utils/api';
 import CourseCard from '../components/CourseCard';
-import Loader from '../components/Loader';
+import { CardSkeletonLoader } from '../components/PageLoader';
 import SectionTitle from '../components/SectionTitle';
 
 const categories = ['All', 'Basic', 'Certificate', 'Diploma', 'Advanced', 'Professional'];
@@ -107,7 +107,7 @@ export default function Courses() {
           </div>
 
           {loading ? (
-            <Loader />
+            <CardSkeletonLoader count={8} />
           ) : filtered.length === 0 ? (
             <div className="text-center py-20 text-gray-500">
               <BookOpen className="w-12 h-12 mx-auto mb-3 text-gray-300" />

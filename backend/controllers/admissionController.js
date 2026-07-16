@@ -27,7 +27,7 @@ async function sendStudentApprovalEmail(email, name, enrollmentId, password, cou
           </div>
           <div style="padding:32px">
             <p style="font-size:16px;color:#111">Dear <strong>${name}</strong>,</p>
-            <p style="color:#374151;line-height:1.6">Welcome to <strong>Keerti Computer Institute</strong>! 🎓<br/>Your admission has been <strong style="color:#16a34a">finally approved</strong> by the Super Admin.</p>
+            <p style="color:#374151;line-height:1.6">Welcome to <strong>Keerti Computer Institute</strong>! 🎓<br/>Your admission has been <strong style="color:#16a34a">approved</strong> by the Admin.</p>
             <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:24px;margin:24px 0">
               <h3 style="margin:0 0 16px;color:#1d4ed8;font-size:16px">🔐 Your Login Credentials</h3>
               <table style="width:100%;border-collapse:collapse">
@@ -60,7 +60,7 @@ async function generateEnrollmentId() {
   return `KCI-ENR-${String(count + 1).padStart(4, '0')}`;
 }
 
-async function logAudit(action, user, targetId, targetModel, details) {
+async function logAudit(action, user, targetId, targetModel, details, ip) {
   try {
     await AuditLog.create({
       action,
@@ -70,20 +70,41 @@ async function logAudit(action, user, targetId, targetModel, details) {
       targetId,
       targetModel,
       details,
+      ip: ip || 'unknown',
     });
   } catch (e) {
     console.error('Audit log failed:', e.message);
   }
 }
 
+exports.editAdmission = async (req, res) => {
+  try {
+    const allowed = ['name', 'email', 'phone', 'address', 'fatherName', 'batch', 'course', 'qualification', 'dob', 'gender', 'message', 'formNo', 'session', 'branchId'];
+    const updates = {};
+    allowed.forEach(f => { if (req.body[f] !== undefined) updates[f] = req.body[f]; });
+    const admission = await Admission.findByIdAndUpdate(req.params.id, updates, { new: true })
+      .populate('course', 'title')
+      .populate('verifiedBy', 'name role')
+      .populate('approvedBy', 'name role');
+    if (!admission) return res.status(404).json({ success: false, message: 'Admission not found' });
+    res.json({ success: true, admission });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 exports.submitAdmission = async (req, res) => {
   try {
     const data = { ...req.body };
     if (!data.branchId) delete data.branchId;
     if (!data.franchise) delete data.franchise;
-    // Counsellors/public submit as Pending Approval
     data.status = 'Pending Approval';
     const admission = await Admission.create(data);
+    // Log ADMISSION_CREATED if authenticated user
+    if (req.user) {
+      const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+      await logAudit('ADMISSION_CREATED', req.user, admission._id, 'Admission', { studentName: admission.name, email: admission.email }, ip);
+    }
     res.status(201).json({ success: true, message: 'Admission form submitted successfully!', admission });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -116,8 +137,8 @@ exports.getFranchiseAdmissions = async (req, res) => {
   }
 };
 
-// Branch Manager: can verify (move to Approved from Pending Approval)
-// Super Admin: can do final approval (creates student account) or reject
+// Branch Manager: can verify (Pending Approval → Verified)
+// Admin: can do final approval (Verified/Pending → Approved, creates student) or reject
 exports.updateAdmissionStatus = async (req, res) => {
   try {
     const { status, rejectionReason } = req.body;
@@ -128,16 +149,27 @@ exports.updateAdmissionStatus = async (req, res) => {
       .populate('franchise', 'franchiseCenter franchiseCity');
     if (!admission) return res.status(404).json({ success: false, message: 'Admission not found' });
 
-    const isSuperAdmin = user.role === 'admin' && (user.isSuperAdmin || user.email === process.env.SUPER_ADMIN_EMAIL);
+    const isAdmin = user.role === 'admin';
     const isBranchOrAdmin = user.role === 'admin' || user.role === 'branch';
 
-    // Only Super Admin can do final Approved (creates student)
-    if (status === 'Approved' && !isSuperAdmin) {
-      return res.status(403).json({ success: false, message: 'Only Super Admin can give final approval' });
+    // Branch Manager can verify (Pending Approval → Verified)
+    if (status === 'Verified') {
+      if (!isBranchOrAdmin) return res.status(403).json({ success: false, message: 'Branch Manager or Admin required to verify' });
+      admission.status = 'Verified';
+      admission.verifiedBy = user._id;
+      admission.verifiedAt = new Date();
+      await admission.save();
+      const ipV = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+      await logAudit('ADMISSION_VERIFIED', user, admission._id, 'Admission', { studentName: admission.name }, ipV);
+      return res.json({ success: true, admission });
     }
 
-    // Branch/Admin can verify (set to Approved without creating student — we use a "Verified" intermediate)
-    // For simplicity: branch can move Pending Approval → Approved (but only superAdmin triggers student creation)
+    // Only Admin can do final Approved (creates student account)
+    if (status === 'Approved' && !isAdmin) {
+      return res.status(403).json({ success: false, message: 'Only Admin can give final approval' });
+    }
+
+    // Branch or Admin can reject
     if (status === 'Rejected' && !isBranchOrAdmin) {
       return res.status(403).json({ success: false, message: 'Not authorized to reject' });
     }
@@ -192,7 +224,8 @@ exports.updateAdmissionStatus = async (req, res) => {
             courseName, center, student.enrollmentNumber, student.rollNumber
           );
 
-          await logAudit('ADMISSION_APPROVED', user, admission._id, 'Admission', { studentName: admission.name, enrollmentId });
+          const ipA = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+          await logAudit('ADMISSION_APPROVED', user, admission._id, 'Admission', { studentName: admission.name, enrollmentId }, ipA);
           return res.json({ success: true, admission });
         } else {
           admission.studentUserId = existingUser._id;
@@ -203,14 +236,16 @@ exports.updateAdmissionStatus = async (req, res) => {
             admission.franchise?.franchiseCenter || 'KCI',
             existingUser.enrollmentNumber, existingUser.rollNumber
           );
-          await logAudit('ADMISSION_APPROVED', user, admission._id, 'Admission', { studentName: admission.name });
+          const ipA2 = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+          await logAudit('ADMISSION_APPROVED', user, admission._id, 'Admission', { studentName: admission.name }, ipA2);
           return res.json({ success: true, admission });
         }
       }
     }
 
     if (status === 'Rejected') {
-      await logAudit('ADMISSION_REJECTED', user, admission._id, 'Admission', { studentName: admission.name, reason: rejectionReason });
+      const ipR = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+      await logAudit('ADMISSION_REJECTED', user, admission._id, 'Admission', { studentName: admission.name, reason: rejectionReason }, ipR);
     }
 
     await admission.save();
