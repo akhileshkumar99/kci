@@ -58,8 +58,8 @@ function CardInner({ W, H, student, branch, fields, qrDataUrl }) {
     }}>
       {/* HEADER */}
       <div style={{ background: '#081d5b', display: 'flex', alignItems: 'center', padding: s(14) + 'px ' + s(20) + 'px', gap: s(14), flexShrink: 0, borderBottom: s(3) + 'px solid #d4af37' }}>
-        <div style={{ width: s(72), height: s(72), borderRadius: '50%', background: '#fff', border: s(2) + 'px solid #d4af37', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img src="/logo.png" alt="KCI" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px', background: '#fff' }} />
+        <div style={{ width: s(72), height: s(72), borderRadius: '50%', background: 'transparent', border: s(2) + 'px solid #d4af37', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img src="/logo.png" alt="KCI" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
         </div>
         <div style={{ flex: 1, minWidth: 0, textAlign: 'center' }}>
           <div style={{ color: '#ffffff', fontWeight: 900, fontSize: s(24), letterSpacing: 1, lineHeight: 1.2 }}>KEERTI COMPUTER INSTITUTE</div>
@@ -81,7 +81,7 @@ function CardInner({ W, H, student, branch, fields, qrDataUrl }) {
       <div style={{ background: '#f8f9fc', display: 'flex', flexShrink: 0, position: 'relative' }}>
         {/* Watermark */}
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: s(220), height: s(220), opacity: 0.05, pointerEvents: 'none', zIndex: 0 }}>
-          <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
         </div>
 
         {/* LEFT — fields, strict 3-column: label | colon | value */}
@@ -139,7 +139,7 @@ function CardInner({ W, H, student, branch, fields, qrDataUrl }) {
         </div>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid rgba(255,255,255,0.2)', height: '100%' }}>
           <div style={{ width: s(48), height: s(48), borderRadius: '50%', background: '#d4af37', border: '2px solid #fff', overflow: 'hidden', marginBottom: s(4) }}>
-            <img src="/logo.png" alt="seal" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} />
+            <img src="/logo.png" alt="seal" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
           </div>
           <span style={{ color: '#d4af37', fontSize: s(12), fontWeight: 700 }}>KCI Official Seal</span>
         </div>
@@ -2597,7 +2597,7 @@ export default function StudentDashboard() {
                       <div className="p-5">
                         {/* Institute + logo row */}
                         <div className="flex items-center gap-3 mb-4 pb-3 border-b border-amber-100">
-                          <img src="/logo.png" alt="KCI" className="w-10 h-10 rounded-full object-cover object-center" />
+                          <div className="kci-logo-wrap w-10 h-10"><img src="/logo.png" alt="KCI" /></div>
                           <div>
                             <div className="text-xs font-black text-gray-500 uppercase tracking-widest">Keerti Computer Institute</div>
                             <div className="text-[10px] text-gray-400">Govt. Recognised | Est. 2005</div>

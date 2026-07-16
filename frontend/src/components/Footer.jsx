@@ -11,7 +11,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <img src="/logo.png" alt="KCI Logo" className="w-20 h-20 rounded-full object-cover object-center overflow-hidden shrink-0" />
+              <div className="kci-logo-wrap w-20 h-20"><img src="/logo.png" alt="KCI Logo" /></div>
               <div>
                 <div className="text-white font-bold text-lg leading-tight">KEERTI</div>
                 <div className="text-blue-400 text-xs tracking-wider">COMPUTER INSTITUTE</div>

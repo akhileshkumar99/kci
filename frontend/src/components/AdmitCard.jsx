@@ -68,7 +68,7 @@ function CardContent({ student, admitCard, branch, qrUrl, scale = 1 }) {
         {/* Logo */}
         <div style={{
           width: p(22), height: p(22), borderRadius: '50%',
-          background: '#fff', border: `${s(2)}px solid #d4af37`,
+          background: 'transparent', border: `${s(2)}px solid #d4af37`,
           overflow: 'hidden', flexShrink: 0,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>

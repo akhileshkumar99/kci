@@ -15,9 +15,9 @@ export default function Loader() {
       setDisplayed(TEXT.slice(0, i + 1));
       i++;
       if (i >= TEXT.length) { clearInterval(type); setDone(true); }
-    }, 80);
+    }, 30);
     const blink = setInterval(() => setCursor(c => !c), 500);
-    const hide = setTimeout(() => setVisible(false), TEXT.length * 80 + 1400);
+    const hide = setTimeout(() => setVisible(false), TEXT.length * 30 + 300);
     return () => { clearInterval(type); clearInterval(blink); clearTimeout(hide); };
   }, []);
 
@@ -35,15 +35,30 @@ export default function Loader() {
           <div className="absolute w-96 h-96 rounded-full blur-3xl opacity-20"
             style={{ background: 'radial-gradient(circle, #facc15 0%, #f97316 60%, transparent 100%)' }} />
 
-          {/* Logo */}
-          <motion.img
-            src="/logo.png"
-            alt="KCI"
-            className="w-20 h-20 rounded-full object-cover object-center mb-8 relative z-10"
-            initial={{ opacity: 0, scale: 0.7 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, type: 'spring', stiffness: 200 }}
-          />
+          {/* Logo with spinning ring */}
+          <div className="relative mb-8 z-10 flex items-center justify-center">
+            {/* Spinning gradient ring */}
+            <motion.div
+              className="absolute rounded-full"
+              style={{
+                width: 140, height: 140,
+                background: 'conic-gradient(from 0deg, #60a5fa, #a78bfa, #f472b6, #facc15, #60a5fa)',
+                padding: 3,
+                borderRadius: '50%',
+              }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+            />
+            <div className="absolute rounded-full bg-[#0f172a]" style={{ width: 134, height: 134 }} />
+            <motion.img
+              src="/logo.png"
+              alt="KCI"
+              className="w-32 h-32 rounded-full object-cover object-center relative z-10 overflow-hidden"
+              initial={{ opacity: 0, scale: 0.7 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, type: 'spring', stiffness: 200 }}
+            />
+          </div>
 
           {/* Typewriter text */}
           <div className="relative z-10 text-center px-6">
@@ -51,8 +66,6 @@ export default function Loader() {
               {displayed}
               <span style={{ opacity: cursor ? 1 : 0, color: '#facc15' }}>|</span>
             </div>
-
-            {/* Underline reveal */}
             <motion.div
               className="mt-3 h-0.5 rounded-full"
               style={{ background: 'linear-gradient(90deg, transparent, #facc15, transparent)' }}
@@ -62,7 +75,7 @@ export default function Loader() {
             />
           </div>
 
-          {/* Wave bars — always visible */}
+          {/* Wave bars */}
           <div className="flex items-end gap-1.5 mt-8 z-10" style={{ height: 48 }}>
             {[...Array(16)].map((_, i) => {
               const colors = ['#60a5fa','#818cf8','#a78bfa','#c084fc','#e879f9','#f472b6','#fb7185','#f97316'];
@@ -78,7 +91,6 @@ export default function Loader() {
             })}
           </div>
 
-          {/* Subtitle fade in after done */}
           <AnimatePresence>
             {done && (
               <motion.div

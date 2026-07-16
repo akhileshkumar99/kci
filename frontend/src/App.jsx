@@ -5,7 +5,6 @@ import { motion, AnimatePresence as AnimatePresenceWA } from 'framer-motion';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Loader from './components/Loader';
-import { SuspenseLoader } from './components/PageLoader';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
@@ -21,6 +20,8 @@ const Gallery = lazy(() => import('./pages/Gallery'));
 const Branches = lazy(() => import('./pages/Branches'));
 const Staff = lazy(() => import('./pages/Staff'));
 const Contact = lazy(() => import('./pages/Contact'));
+const Register = lazy(() => import('./pages/Register'));
+const CertificateVerify = lazy(() => import('./pages/CertificateVerify'));
 const StudyMaterial = lazy(() => import('./pages/StudyMaterial'));
 const IDCard = lazy(() => import('./pages/IDCard'));
 const Notifications = lazy(() => import('./pages/Notifications'));
@@ -46,8 +47,10 @@ const AdminExamForms = lazy(() => import('./pages/admin/AdminExamForms'));
 const AdminAdmitCard = lazy(() => import('./pages/admin/AdminAdmitCard'));
 const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
 const AdminAuditLogs = lazy(() => import('./pages/admin/AdminAuditLogs'));
+const AdminQuiz = lazy(() => import('./pages/admin/AdminQuiz'));
+const AdminFranchise = lazy(() => import('./pages/admin/AdminFranchise'));
 
-const PageLoader = () => <SuspenseLoader />;
+const PageLoader = () => null;
 
 
 const WHATSAPP_NUMBER = '919936384736';
@@ -186,9 +189,9 @@ function RouteLoader() {
   useEffect(() => {
     setProgress(0);
     setVisible(true);
-    const t1 = setTimeout(() => setProgress(70), 50);
-    const t2 = setTimeout(() => setProgress(100), 350);
-    const t3 = setTimeout(() => setVisible(false), 600);
+    const t1 = setTimeout(() => setProgress(70), 30);
+    const t2 = setTimeout(() => setProgress(100), 200);
+    const t3 = setTimeout(() => setVisible(false), 400);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [location.pathname]);
 
@@ -208,9 +211,9 @@ function RouteLoader() {
   );
 }
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, roles = ['admin'] }) => {
   const { user } = useAuth();
-  if (!user || user.role !== 'admin') return <Navigate to="/login" replace />;
+  if (!user || !roles.includes(user.role)) return <Navigate to="/login" replace />;
   return children;
 };
 
@@ -226,10 +229,9 @@ export default function App() {
   return (
     <ThemeProvider>
     <AuthProvider>
-      <Loader />
-      <ChatBox />
-      <WhatsAppButton />
       <BrowserRouter>
+        <Loader />
+        <ChatBox />
         <RouteLoader />
         <ScrollToTop />
         <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
@@ -241,6 +243,8 @@ export default function App() {
           <Route path="/courses/:id" element={<PublicLayout><CourseDetail /></PublicLayout>} />
           <Route path="/admission" element={<PublicLayout><Admission /></PublicLayout>} />
           <Route path="/login" element={<PublicLayout><Login /></PublicLayout>} />
+          <Route path="/register" element={<PublicLayout><Register /></PublicLayout>} />
+          <Route path="/verify-certificate" element={<PublicLayout><CertificateVerify /></PublicLayout>} />
           <Route path="/result" element={<PublicLayout><ResultPage /></PublicLayout>} />
           <Route path="/gallery" element={<PublicLayout><Gallery /></PublicLayout>} />
           <Route path="/branches" element={<PublicLayout><Branches /></PublicLayout>} />
@@ -270,6 +274,8 @@ export default function App() {
             <Route path="admit-card" element={<AdminAdmitCard />} />
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="audit-logs" element={<AdminAuditLogs />} />
+            <Route path="quiz" element={<AdminQuiz />} />
+            <Route path="franchise" element={<AdminFranchise />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

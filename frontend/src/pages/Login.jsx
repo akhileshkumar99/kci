@@ -83,8 +83,8 @@ export default function Login() {
 
         <div className="relative z-10 text-center max-w-sm">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-            <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden shadow-2xl">
-              <img src="/logo.png" alt="KCI" className="w-full h-full object-cover object-center" />
+            <div className="kci-logo-wrap w-32 h-32 mx-auto mb-4 shadow-2xl">
+              <img src="/logo.png" alt="KCI" />
             </div>
             <h1 className="text-4xl font-black text-white mb-1 tracking-tight">KEERTI</h1>
             <p className="text-blue-300 text-sm font-bold tracking-widest mb-2">COMPUTER INSTITUTE</p>
@@ -120,7 +120,7 @@ export default function Login() {
 
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-6">
-            <img src="/logo.png" alt="KCI" className="w-16 h-16 mx-auto mb-2 rounded-full object-cover object-center shadow-lg" />
+            <div className="kci-logo-wrap w-16 h-16 mx-auto mb-2 shadow-lg"><img src="/logo.png" alt="KCI" /></div>
             <h2 className="text-lg font-black text-gray-900">Keerti Computer Institute</h2>
           </div>
 

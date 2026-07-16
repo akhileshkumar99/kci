@@ -4,6 +4,7 @@ import { Trash2, Search, Plus, X, User, Mail, Phone, BookOpen, Hash, Calendar, P
 import * as XLSX from 'xlsx';
 import api from '../../utils/api';
 import Loader from '../../components/Loader';
+import { useAuth } from '../../context/AuthContext';
 
 const COURSES = [
   'Certificate In Fundamental (CIF)',
@@ -38,6 +39,8 @@ const getPhotoUrl = (photo) => {
 const emptyForm = { name: '', email: '', phone: '', batch: '', admissionDate: '', courseName: '', fatherName: '', dob: '', address: '', branchId: '', photo: null };
 
 export default function AdminStudents() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -538,7 +541,7 @@ export default function AdminStudents() {
                   )}
                   <button onClick={() => { setViewStudent(s); setViewModal(true); }} className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg"><Eye className="w-4 h-4" /></button>
                   <button onClick={() => openEdit(s)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg"><Pencil className="w-4 h-4" /></button>
-                  <button onClick={() => handleDelete(s._id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                  {isAdmin && <button onClick={() => handleDelete(s._id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>}
                 </div>
               </div>
             ))}
@@ -588,7 +591,7 @@ export default function AdminStudents() {
                       )}
                       <button onClick={() => { setViewStudent(s); setViewModal(true); }} className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="View"><Eye className="w-4 h-4" /></button>
                       <button onClick={() => openEdit(s)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><Pencil className="w-4 h-4" /></button>
-                      <button onClick={() => handleDelete(s._id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                      {isAdmin && <button onClick={() => handleDelete(s._id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>}
                     </div>
                   </td>
                 </tr>

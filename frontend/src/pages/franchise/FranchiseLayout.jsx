@@ -81,8 +81,10 @@ export default function FranchiseLayout() {
       >
         {/* Logo */}
         <div className={`h-16 flex items-center px-4 border-b ${dark ? 'border-gray-800' : 'border-gray-100'} shrink-0`}>
-          <motion.div whileHover={{ scale: 1.05 }} className="relative shrink-0 rounded-full overflow-hidden">
-            <img src="/logo.png" alt="KCI" className="w-9 h-9 rounded-full object-cover object-center" />
+          <motion.div whileHover={{ scale: 1.05 }} className="relative shrink-0">
+            <div className="kci-logo-wrap w-9 h-9">
+              <img src="/logo.png" alt="KCI" />
+            </div>
             <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
           </motion.div>
           <AnimatePresence>
@@ -218,8 +220,8 @@ export default function FranchiseLayout() {
             <div className="relative" ref={profileRef}>
               <button onClick={() => { setProfileOpen(!profileOpen); setNotifOpen(false); }}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-colors ${dark ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}>
-                <div className="w-8 h-8 rounded-full overflow-hidden">
-                  <img src="/logo.png" alt="KCI" className="w-full h-full object-cover object-center" />
+                <div className="kci-logo-wrap w-8 h-8">
+                  <img src="/logo.png" alt="KCI" />
                 </div>
                 <div className="hidden sm:block text-left">
                   <div className={`text-xs font-bold ${text}`}>{user?.name || 'Franchise'}</div>

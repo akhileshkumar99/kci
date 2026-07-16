@@ -269,12 +269,8 @@ export default function Navbar() {
 
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="relative">
-                <img
-                  src={logo}
-                  alt="KCI Logo"
-                  className="h-20 sm:h-24 w-20 sm:w-24 rounded-full object-cover object-center overflow-hidden"
-                />
+              <div className="kci-logo-wrap w-16 h-16 sm:w-20 sm:h-20">
+                <img src={logo} alt="KCI Logo" />
               </div>
               <div className="hidden sm:block">
                 <div className="text-xl font-black bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent leading-tight tracking-wide">KEERTI</div>
