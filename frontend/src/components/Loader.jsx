@@ -112,7 +112,7 @@ export default function Loader() {
               <motion.img
                 src="/logo.png"
                 alt="KCI"
-                className="relative w-20 h-20 rounded-full object-cover shadow-2xl ring-4 ring-yellow-400/30 z-10"
+                className="relative w-20 h-20 object-contain z-10"
                 animate={{ scale: hovered ? 1.12 : 1 }}
                 transition={{ duration: 0.3 }}
               />
