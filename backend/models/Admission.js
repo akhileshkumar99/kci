@@ -29,6 +29,7 @@ const admissionSchema = new mongoose.Schema(
     approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     approvedAt: { type: Date },
     rejectionReason: { type: String },
+    photo: { type: String },
   },
   { timestamps: true }
 );

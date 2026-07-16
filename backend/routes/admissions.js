@@ -1,8 +1,9 @@
 const router = require('express').Router();
 const { submitAdmission, getAdmissions, getFranchiseAdmissions, updateAdmissionStatus, deleteAdmission, editAdmission } = require('../controllers/admissionController');
 const { protect, admin, branchOrAdmin, staffOrAbove } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 
-router.post('/', submitAdmission);
+router.post('/', upload.single('photo'), submitAdmission);
 router.get('/', protect, admin, getAdmissions);
 router.get('/my', protect, branchOrAdmin, getFranchiseAdmissions);
 // PATCH = edit fields (branch or admin), PUT = status update (branch or admin)

@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import { Send, User, Mail, Phone, MapPin, BookOpen, GraduationCap, CheckCircle, Calendar, Building2, Sparkles } from 'lucide-react';
+import { Send, User, Mail, Phone, MapPin, BookOpen, GraduationCap, CheckCircle, Calendar, Building2, Sparkles, Camera } from 'lucide-react';
 import api from '../utils/api';
 
 const inputClass = "w-full pl-10 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:bg-blue-50/30 bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400";
@@ -14,6 +14,9 @@ export default function Admission() {
   const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [photo, setPhoto] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const photoRef = useRef(null);
   const [form, setForm] = useState({
     name: '', email: '', phone: '', address: '',
     course: searchParams.get('course') || '',
@@ -28,13 +31,24 @@ export default function Admission() {
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) return toast.error('Photo must be under 2MB');
+    setPhoto(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.phone || !form.course || !form.qualification)
       return toast.error('Please fill all required fields');
     setLoading(true);
     try {
-      await api.post('/admissions', form);
+      const fd = new FormData();
+      Object.entries(form).forEach(([k, v]) => v && fd.append(k, v));
+      if (photo) fd.append('photo', photo);
+      await api.post('/admissions', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       setSubmitted(true);
       toast.success('Application submitted successfully!', { duration: 4000, icon: '🎉' });
     } catch (err) {
@@ -45,6 +59,8 @@ export default function Admission() {
 
   const resetForm = () => {
     setSubmitted(false);
+    setPhoto(null);
+    setPhotoPreview(null);
     setForm({ name: '', email: '', phone: '', address: '', course: '', qualification: '', dob: '', gender: '', message: '', branchId: '', fatherName: '', batch: '' });
   };
 
@@ -201,6 +217,33 @@ export default function Admission() {
                             <input name="batch" value={form.batch} onChange={handleChange} placeholder="e.g. 2025-26"
                               className="w-full pl-10 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all text-gray-800 placeholder-gray-400 hover:border-gray-200" />
                           </div>
+                        </div>
+
+                        {/* Photo Upload */}
+                        <div className="space-y-1.5 sm:col-span-2">
+                          <label className="text-sm font-semibold text-gray-700">Student Photo <span className="text-gray-400 font-normal text-xs">(Optional — used on Admit Card & Profile)</span></label>
+                          <div className="flex items-center gap-4">
+                            <div
+                              onClick={() => photoRef.current?.click()}
+                              className="w-24 h-28 border-2 border-dashed border-blue-300 rounded-xl bg-blue-50 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-100 transition-all overflow-hidden shrink-0"
+                            >
+                              {photoPreview
+                                ? <img src={photoPreview} alt="preview" className="w-full h-full object-cover" />
+                                : <><Camera className="w-6 h-6 text-blue-400 mb-1" /><span className="text-xs text-blue-400 font-semibold text-center px-1">Click to Upload</span></>
+                              }
+                            </div>
+                            <div className="text-xs text-gray-500 space-y-1">
+                              <p className="font-semibold text-gray-600">Upload passport-size photo</p>
+                              <p>• JPG, PNG format</p>
+                              <p>• Max size: 2MB</p>
+                              <p>• Clear face visible</p>
+                              {photoPreview && (
+                                <button type="button" onClick={() => { setPhoto(null); setPhotoPreview(null); photoRef.current.value = ''; }}
+                                  className="text-red-500 font-semibold hover:underline mt-1">Remove</button>
+                              )}
+                            </div>
+                          </div>
+                          <input ref={photoRef} type="file" accept="image/jpeg,image/png" onChange={handlePhotoChange} className="hidden" />
                         </div>
                       </div>
                     </div>

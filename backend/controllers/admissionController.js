@@ -99,6 +99,7 @@ exports.submitAdmission = async (req, res) => {
     if (!data.branchId) delete data.branchId;
     if (!data.franchise) delete data.franchise;
     data.status = 'Pending Approval';
+    if (req.file) data.photo = `/uploads/${req.file.filename}`;
     const admission = await Admission.create(data);
     // Log ADMISSION_CREATED if authenticated user
     if (req.user) {
@@ -210,6 +211,7 @@ exports.updateAdmissionStatus = async (req, res) => {
             franchiseId: admission.franchise?._id || admission.franchise,
             franchiseCenter: center,
             franchiseCity: admission.franchise?.franchiseCity,
+            photo: admission.photo || '',
             role: 'student',
             isApproved: true,
             isActive: true,
