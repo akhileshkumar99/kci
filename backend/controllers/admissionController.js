@@ -1,9 +1,9 @@
 const Admission = require('../models/Admission');
 const User = require('../models/User');
+const AuditLog = require('../models/AuditLog');
 const nodemailer = require('nodemailer');
 const generateStudentNumbers = require('../utils/generateStudentNumbers');
 
-// Lazy transporter — reads env at call time (fixes cold start / Vercel issue)
 const getTransporter = () => nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 587,
@@ -14,7 +14,7 @@ const getTransporter = () => nodemailer.createTransport({
 async function sendStudentApprovalEmail(email, name, enrollmentId, password, courseName, center, enrollmentNumber, rollNumber) {
   const portalUrl = process.env.FRONTEND_URL || 'https://kci-seven.vercel.app';
   try {
-    const info = await getTransporter().sendMail({
+    await getTransporter().sendMail({
       from: `"Keerti Computer Institute" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: '🎉 Admission Approved — Your KCI Student Login Credentials',
@@ -27,7 +27,7 @@ async function sendStudentApprovalEmail(email, name, enrollmentId, password, cou
           </div>
           <div style="padding:32px">
             <p style="font-size:16px;color:#111">Dear <strong>${name}</strong>,</p>
-            <p style="color:#374151;line-height:1.6">Welcome to <strong>Keerti Computer Institute</strong>! 🎓<br/>Your admission at <strong>${center || 'KCI'}</strong> has been <strong style="color:#16a34a">approved</strong>. Your student account is now active.</p>
+            <p style="color:#374151;line-height:1.6">Welcome to <strong>Keerti Computer Institute</strong>! 🎓<br/>Your admission has been <strong style="color:#16a34a">finally approved</strong> by the Super Admin.</p>
             <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:24px;margin:24px 0">
               <h3 style="margin:0 0 16px;color:#1d4ed8;font-size:16px">🔐 Your Login Credentials</h3>
               <table style="width:100%;border-collapse:collapse">
@@ -35,16 +35,12 @@ async function sendStudentApprovalEmail(email, name, enrollmentId, password, cou
                 <tr><td style="padding:6px 0;color:#6b7280;font-size:13px">Temporary Password</td><td style="padding:6px 0"><code style="background:#dbeafe;padding:3px 10px;border-radius:4px;font-size:15px;font-weight:bold;color:#1e40af">${password}</code></td></tr>
                 ${enrollmentNumber ? `<tr><td style="padding:6px 0;color:#6b7280;font-size:13px">Enrollment Number</td><td style="padding:6px 0"><code style="background:#dcfce7;padding:3px 10px;border-radius:4px;font-size:14px;font-weight:bold;color:#15803d">${enrollmentNumber}</code></td></tr>` : ''}
                 ${rollNumber ? `<tr><td style="padding:6px 0;color:#6b7280;font-size:13px">Roll Number</td><td style="padding:6px 0"><code style="background:#dcfce7;padding:3px 10px;border-radius:4px;font-size:14px;color:#15803d">${rollNumber}</code></td></tr>` : ''}
-                ${enrollmentId ? `<tr><td style="padding:6px 0;color:#6b7280;font-size:13px">Enrollment ID</td><td style="padding:6px 0"><code style="background:#dcfce7;padding:3px 10px;border-radius:4px;font-size:14px;color:#15803d">${enrollmentId}</code></td></tr>` : ''}
                 <tr><td style="padding:6px 0;color:#6b7280;font-size:13px">Course</td><td style="padding:6px 0;color:#374151;font-size:13px;font-weight:600">${courseName}</td></tr>
                 <tr><td style="padding:6px 0;color:#6b7280;font-size:13px">Center</td><td style="padding:6px 0;color:#374151;font-size:13px">${center || 'KCI'}</td></tr>
               </table>
             </div>
             <div style="text-align:center;margin:28px 0">
               <a href="${portalUrl}/login" style="background:linear-gradient(135deg,#1d4ed8,#4f46e5);color:#fff;padding:14px 36px;border-radius:10px;text-decoration:none;font-weight:bold;font-size:15px;display:inline-block">Login to Student Portal →</a>
-            </div>
-            <div style="background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:16px;margin-top:8px">
-              <p style="margin:0;color:#92400e;font-size:13px">⚠️ <strong>Important:</strong> Please change your password after your first login. Go to Dashboard → Profile → Change Password.</p>
             </div>
             <p style="color:#6b7280;font-size:13px;margin-top:20px">For help: <strong>9936384736 / 9919660880</strong></p>
           </div>
@@ -54,9 +50,8 @@ async function sendStudentApprovalEmail(email, name, enrollmentId, password, cou
         </div>
       `,
     });
-    console.log('✅ Approval email sent to:', email, '| MessageId:', info.messageId);
   } catch (err) {
-    console.error('❌ Approval email FAILED to:', email, '| Error:', err.message);
+    console.error('❌ Approval email FAILED:', err.message);
   }
 }
 
@@ -65,11 +60,29 @@ async function generateEnrollmentId() {
   return `KCI-ENR-${String(count + 1).padStart(4, '0')}`;
 }
 
+async function logAudit(action, user, targetId, targetModel, details) {
+  try {
+    await AuditLog.create({
+      action,
+      performedBy: user._id,
+      performedByName: user.name,
+      performedByRole: user.role,
+      targetId,
+      targetModel,
+      details,
+    });
+  } catch (e) {
+    console.error('Audit log failed:', e.message);
+  }
+}
+
 exports.submitAdmission = async (req, res) => {
   try {
     const data = { ...req.body };
     if (!data.branchId) delete data.branchId;
     if (!data.franchise) delete data.franchise;
+    // Counsellors/public submit as Pending Approval
+    data.status = 'Pending Approval';
     const admission = await Admission.create(data);
     res.status(201).json({ success: true, message: 'Admission form submitted successfully!', admission });
   } catch (err) {
@@ -82,6 +95,8 @@ exports.getAdmissions = async (req, res) => {
     const admissions = await Admission.find()
       .populate('course', 'title')
       .populate('franchise', 'name franchiseCenter franchiseCity')
+      .populate('verifiedBy', 'name role')
+      .populate('approvedBy', 'name role')
       .sort({ createdAt: -1 });
     res.json({ success: true, admissions });
   } catch (err) {
@@ -101,72 +116,101 @@ exports.getFranchiseAdmissions = async (req, res) => {
   }
 };
 
+// Branch Manager: can verify (move to Approved from Pending Approval)
+// Super Admin: can do final approval (creates student account) or reject
 exports.updateAdmissionStatus = async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, rejectionReason } = req.body;
+    const user = req.user;
+
     const admission = await Admission.findById(req.params.id)
       .populate('course', 'title')
       .populate('franchise', 'franchiseCenter franchiseCity');
     if (!admission) return res.status(404).json({ success: false, message: 'Admission not found' });
 
+    const isSuperAdmin = user.role === 'admin' && (user.isSuperAdmin || user.email === process.env.SUPER_ADMIN_EMAIL);
+    const isBranchOrAdmin = user.role === 'admin' || user.role === 'branch';
+
+    // Only Super Admin can do final Approved (creates student)
+    if (status === 'Approved' && !isSuperAdmin) {
+      return res.status(403).json({ success: false, message: 'Only Super Admin can give final approval' });
+    }
+
+    // Branch/Admin can verify (set to Approved without creating student — we use a "Verified" intermediate)
+    // For simplicity: branch can move Pending Approval → Approved (but only superAdmin triggers student creation)
+    if (status === 'Rejected' && !isBranchOrAdmin) {
+      return res.status(403).json({ success: false, message: 'Not authorized to reject' });
+    }
+
     admission.status = status;
+    if (rejectionReason) admission.rejectionReason = rejectionReason;
 
-    if (status === 'Approved' && !admission.enrollmentId) {
-      const enrollmentId = await generateEnrollmentId();
-      admission.enrollmentId = enrollmentId;
+    if (status === 'Approved') {
+      admission.approvedBy = user._id;
+      admission.approvedAt = new Date();
 
-      const existingUser = await User.findOne({ email: admission.email });
-      if (!existingUser) {
-        const { rollNumber, enrollmentNumber, registrationNumber } = await generateStudentNumbers();
-        const password = 'KCI@' + Math.random().toString(36).slice(-6).toUpperCase();
-        const courseName = admission.course?.title || '';
-        const center = admission.franchise?.franchiseCenter || 'KCI';
+      if (!admission.enrollmentId) {
+        const enrollmentId = await generateEnrollmentId();
+        admission.enrollmentId = enrollmentId;
 
-        const student = await User.create({
-          name: admission.name,
-          email: admission.email,
-          password,
-          phone: admission.phone,
-          address: admission.address,
-          dob: admission.dob,
-          gender: admission.gender,
-          fatherName: admission.fatherName || '',
-          rollNumber,
-          enrollmentNumber,
-          registrationNumber,
-          courseName,
-          course: admission.course?._id || admission.course,
-          franchiseId: admission.franchise?._id || admission.franchise,
-          franchiseCenter: center,
-          franchiseCity: admission.franchise?.franchiseCity,
-          role: 'student',
-          isApproved: true,
-          isActive: true,
-          admissionDate: new Date(),
-        });
+        const existingUser = await User.findOne({ email: admission.email });
+        if (!existingUser) {
+          const { rollNumber, enrollmentNumber, registrationNumber } = await generateStudentNumbers();
+          const password = 'KCI@' + Math.random().toString(36).slice(-6).toUpperCase();
+          const courseName = admission.course?.title || '';
+          const center = admission.franchise?.franchiseCenter || 'KCI';
 
-        admission.studentUserId = student._id;
-        await admission.save();
+          const student = await User.create({
+            name: admission.name,
+            email: admission.email,
+            password,
+            phone: admission.phone,
+            address: admission.address,
+            dob: admission.dob,
+            gender: admission.gender,
+            fatherName: admission.fatherName || '',
+            rollNumber,
+            enrollmentNumber,
+            registrationNumber,
+            formNo: admission.formNo,
+            courseName,
+            course: admission.course?._id || admission.course,
+            franchiseId: admission.franchise?._id || admission.franchise,
+            franchiseCenter: center,
+            franchiseCity: admission.franchise?.franchiseCity,
+            role: 'student',
+            isApproved: true,
+            isActive: true,
+            admissionDate: new Date(),
+          });
 
-        await sendStudentApprovalEmail(
-          admission.email, admission.name, enrollmentId, password,
-          courseName, center, student.enrollmentNumber, student.rollNumber
-        );
-        return res.json({ success: true, admission });
+          admission.studentUserId = student._id;
+          await admission.save();
 
-      } else {
-        admission.studentUserId = existingUser._id;
-        await admission.save();
+          await sendStudentApprovalEmail(
+            admission.email, admission.name, enrollmentId, password,
+            courseName, center, student.enrollmentNumber, student.rollNumber
+          );
 
-        await sendStudentApprovalEmail(
-          admission.email, admission.name, enrollmentId,
-          '(use your existing password)',
-          existingUser.courseName || admission.course?.title || '',
-          admission.franchise?.franchiseCenter || 'KCI',
-          existingUser.enrollmentNumber, existingUser.rollNumber
-        );
-        return res.json({ success: true, admission });
+          await logAudit('ADMISSION_APPROVED', user, admission._id, 'Admission', { studentName: admission.name, enrollmentId });
+          return res.json({ success: true, admission });
+        } else {
+          admission.studentUserId = existingUser._id;
+          await admission.save();
+          await sendStudentApprovalEmail(
+            admission.email, admission.name, enrollmentId, '(use your existing password)',
+            existingUser.courseName || admission.course?.title || '',
+            admission.franchise?.franchiseCenter || 'KCI',
+            existingUser.enrollmentNumber, existingUser.rollNumber
+          );
+          await logAudit('ADMISSION_APPROVED', user, admission._id, 'Admission', { studentName: admission.name });
+          return res.json({ success: true, admission });
+        }
       }
+    }
+
+    if (status === 'Rejected') {
+      await logAudit('ADMISSION_REJECTED', user, admission._id, 'Admission', { studentName: admission.name, reason: rejectionReason });
     }
 
     await admission.save();

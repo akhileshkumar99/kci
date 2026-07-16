@@ -1,4 +1,18 @@
 const ExamForm = require('../models/ExamForm');
+const Notification = require('../models/Notification');
+const User = require('../models/User');
+
+async function sendStudentNotification(userId, title, message, type = 'exam') {
+  try {
+    const student = await User.findById(userId).select('branchId franchiseId');
+    await Notification.create({
+      title, message, type,
+      targetRole: 'student',
+      branchId: student?.branchId || student?.franchiseId || null,
+      isActive: true,
+    });
+  } catch (_) {}
+}
 
 exports.submitExamForm = async (req, res) => {
   try {
@@ -45,7 +59,22 @@ exports.getExamForms = async (req, res) => {
 
 exports.updateExamFormStatus = async (req, res) => {
   try {
-    const form = await ExamForm.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
+    const { status } = req.body;
+    const form = await ExamForm.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    // Auto-notify student
+    if (form?.userId) {
+      if (status === 'Approved') {
+        await sendStudentNotification(form.userId,
+          '✅ Exam Form Approved',
+          'Your examination form has been approved. You can now download your Admit Card once the exam schedule is published.',
+          'exam');
+      } else if (status === 'Rejected') {
+        await sendStudentNotification(form.userId,
+          '❌ Exam Form Rejected',
+          'Your examination form has been rejected. Please contact the institute administration for further assistance.',
+          'exam');
+      }
+    }
     res.json({ success: true, form });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

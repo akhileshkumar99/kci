@@ -66,7 +66,7 @@ exports.getDashboardStats = async (req, res) => {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const yearStart = new Date(now.getFullYear(), 0, 1);
 
-    const [students, courses, admissions, results, certificates, unreadContacts,
+    const [students, courses, admissions, pendingAdmissions, approvedAdmissions, results, certificates, unreadContacts,
       admissionMonthly, resultMonthly, courseCategories,
       todayStudents, weekStudents, monthStudents, yearStudents,
       branchList
@@ -74,6 +74,8 @@ exports.getDashboardStats = async (req, res) => {
       User.countDocuments({ role: 'student' }),
       Course.countDocuments({ isActive: true }),
       Admission.countDocuments(),
+      Admission.countDocuments({ status: { $in: ['Pending', 'Pending Approval'] } }),
+      Admission.countDocuments({ status: 'Approved' }),
       Result.countDocuments(),
       Certificate.countDocuments(),
       Contact.countDocuments({ isRead: false }),
@@ -138,7 +140,7 @@ exports.getDashboardStats = async (req, res) => {
 
     res.json({
       success: true,
-      stats: { students, courses, admissions, results, certificates, unreadContacts,
+      stats: { students, courses, admissions, pendingAdmissions, approvedAdmissions, results, certificates, unreadContacts,
         todayStudents, weekStudents, monthStudents, yearStudents },
       charts: {
         admissions: toChartData(admissionMonthly),
@@ -373,6 +375,92 @@ exports.deleteStudent = async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'Student deleted' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Universal Student Search — search by any identifier
+exports.universalStudentSearch = async (req, res) => {
+  try {
+    const { q, session, course, branch, admissionStatus, resultStatus, certGenerated } = req.query;
+    if (!q && !session && !course && !branch) return res.status(400).json({ success: false, message: 'Provide search query' });
+
+    const conditions = [];
+    if (q) {
+      const regex = new RegExp(q, 'i');
+      conditions.push(
+        { name: regex },
+        { email: regex },
+        { phone: regex },
+        { rollNumber: regex },
+        { enrollmentNumber: regex },
+        { formNo: regex },
+        { fatherName: regex },
+        { branchName: regex },
+        { courseName: regex },
+        { batch: regex },
+      );
+    }
+
+    const filter = { role: 'student' };
+    if (conditions.length) filter.$or = conditions;
+    if (session) filter.batch = new RegExp(session, 'i');
+    if (course) filter.courseName = new RegExp(course, 'i');
+    if (branch) filter.branchName = new RegExp(branch, 'i');
+    if (admissionStatus === 'approved') filter.isApproved = true;
+    if (admissionStatus === 'pending') filter.isApproved = false;
+
+    let students = await User.find(filter)
+      .populate('branchId', 'branchName branchCode branchCity')
+      .select('-password')
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .lean();
+
+    // Optionally filter by result/cert status
+    if (resultStatus || certGenerated) {
+      const Result = require('../models/Result');
+      const Certificate = require('../models/Certificate');
+      const rollNumbers = students.map(s => s.rollNumber).filter(Boolean);
+
+      if (resultStatus === 'uploaded') {
+        const results = await Result.find({ rollNumber: { $in: rollNumbers } }).select('rollNumber');
+        const withResult = new Set(results.map(r => r.rollNumber));
+        students = students.filter(s => withResult.has(s.rollNumber));
+      } else if (resultStatus === 'not_uploaded') {
+        const results = await Result.find({ rollNumber: { $in: rollNumbers } }).select('rollNumber');
+        const withResult = new Set(results.map(r => r.rollNumber));
+        students = students.filter(s => !withResult.has(s.rollNumber));
+      }
+
+      if (certGenerated === 'yes') {
+        const certs = await Certificate.find({ rollNumber: { $in: rollNumbers } }).select('rollNumber');
+        const withCert = new Set(certs.map(c => c.rollNumber));
+        students = students.filter(s => withCert.has(s.rollNumber));
+      } else if (certGenerated === 'no') {
+        const certs = await Certificate.find({ rollNumber: { $in: rollNumbers } }).select('rollNumber');
+        const withCert = new Set(certs.map(c => c.rollNumber));
+        students = students.filter(s => !withCert.has(s.rollNumber));
+      }
+    }
+
+    res.json({ success: true, students, count: students.length });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.getAuditLogs = async (req, res) => {
+  try {
+    const AuditLog = require('../models/AuditLog');
+    const { action, limit = 100 } = req.query;
+    const filter = action ? { action } : {};
+    const logs = await AuditLog.find(filter)
+      .populate('performedBy', 'name email role')
+      .sort({ createdAt: -1 })
+      .limit(Number(limit));
+    res.json({ success: true, logs });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

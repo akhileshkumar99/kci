@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-hot-toast';
-import { Trash2, Search, Plus, X, User, Mail, Phone, BookOpen, Hash, Calendar, Pencil, Eye, ImagePlus, Download, Upload, Filter } from 'lucide-react';
+import { Trash2, Search, Plus, X, User, Mail, Phone, BookOpen, Hash, Calendar, Pencil, Eye, ImagePlus, Download, Upload, Filter, CreditCard, ImageIcon } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import api from '../../utils/api';
 import Loader from '../../components/Loader';
@@ -61,6 +61,21 @@ export default function AdminStudents() {
 
   const [branches, setBranches] = useState([]);
 
+  // ID Card Template
+  const [idCardTemplate, setIdCardTemplate] = useState(null);
+  const [idCardTplFile, setIdCardTplFile] = useState(null);
+  const [uploadingTpl, setUploadingTpl] = useState(false);
+  const [showTplEditor, setShowTplEditor] = useState(false);
+  const [idCardFields, setIdCardFields] = useState([
+    { key: 'name',             label: 'Student Name', x: 50, y: 44, fontSize: 18, bold: true,  color: '#ffffff' },
+    { key: 'fatherName',       label: 'Father Name',  x: 50, y: 53, fontSize: 13, bold: false, color: '#dce4f8' },
+    { key: 'courseName',       label: 'Course',       x: 50, y: 61, fontSize: 13, bold: false, color: '#dce4f8' },
+    { key: 'enrollmentNumber', label: 'Enroll No.',   x: 50, y: 69, fontSize: 12, bold: false, color: '#d4af37' },
+    { key: 'dob',              label: 'DOB',          x: 50, y: 77, fontSize: 11, bold: false, color: '#aac0f0' },
+  ]);
+  const [previewStudent, setPreviewStudent] = useState(null);
+  const API_URL = import.meta.env.VITE_API_URL || '';
+
   const handleMigrateFormNo = async () => {
     if (!confirm('Assign Form No to all students who don\'t have one?')) return;
     setMigrating(true);
@@ -87,7 +102,67 @@ export default function AdminStudents() {
   useEffect(() => {
     fetchStudents();
     api.get('/admin/branch-users').then(r => setBranches(r.data.branches || [])).catch(() => {});
+    api.get('/certificates/idcard-template').then(r => { if (r.data.templateUrl) setIdCardTemplate(`${import.meta.env.VITE_API_URL || ''}${r.data.templateUrl}`); }).catch(() => {});
   }, []);
+
+  const handleIdCardTplUpload = async () => {
+    if (!idCardTplFile) return toast.error('Please select a template image');
+    setUploadingTpl(true);
+    try {
+      const fd = new FormData();
+      fd.append('template', idCardTplFile);
+      const { data } = await api.post('/certificates/idcard-template', fd);
+      setIdCardTemplate(`${import.meta.env.VITE_API_URL || ''}${data.templateUrl}`);
+      setIdCardTplFile(null);
+      toast.success('ID Card template uploaded!');
+    } catch (err) { toast.error(err.response?.data?.message || 'Upload failed'); }
+    setUploadingTpl(false);
+  };
+
+  const handleIdCardDownload = (student) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = idCardTemplate;
+    img.onload = () => {
+      canvas.width = img.width; canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      // Draw student photo if available
+      const drawFields = () => {
+        idCardFields.forEach(f => {
+          let val = f.key === 'dob'
+            ? (student[f.key] ? new Date(student[f.key]).toLocaleDateString('en-IN') : '')
+            : (student[f.key] || '');
+          if (!val) return;
+          ctx.font = `${f.bold ? 'bold ' : ''}${(f.fontSize / 100) * img.width * 0.08}px sans-serif`;
+          ctx.fillStyle = f.color; ctx.textAlign = 'center';
+          ctx.fillText(val, (f.x / 100) * img.width, (f.y / 100) * img.height);
+        });
+        const a = document.createElement('a');
+        a.download = `IDCard_${student.enrollmentNumber || student.name}.png`;
+        a.href = canvas.toDataURL('image/png'); a.click();
+      };
+      if (student.photo) {
+        const photoImg = new Image();
+        photoImg.crossOrigin = 'anonymous';
+        photoImg.src = getPhotoUrl(student.photo);
+        photoImg.onload = () => {
+          // Draw photo at right side ~72% x, 30% y, size ~18% of width
+          const pw = img.width * 0.18, ph = img.width * 0.22;
+          const px = img.width * 0.72, py = img.height * 0.22;
+          ctx.save();
+          ctx.beginPath();
+          ctx.roundRect(px, py, pw, ph, 8);
+          ctx.clip();
+          ctx.drawImage(photoImg, px, py, pw, ph);
+          ctx.restore();
+          drawFields();
+        };
+        photoImg.onerror = drawFields;
+      } else { drawFields(); }
+    };
+  };
 
   const openModal = () => { setForm(emptyForm); setModal(true); };
 
@@ -164,9 +239,13 @@ export default function AdminStudents() {
 
   const now = new Date();
   const filtered = students.filter(s => {
-    const match = s.name.toLowerCase().includes(search.toLowerCase()) ||
-      s.email.toLowerCase().includes(search.toLowerCase()) ||
-      (s.rollNumber || '').toLowerCase().includes(search.toLowerCase());
+    const q = search.toLowerCase();
+    const match = !q || [
+      s.name, s.email, s.phone,
+      s.rollNumber, s.enrollmentNumber, s.formNo,
+      s.fatherName, s.branchName, s.courseName, s.batch,
+      s.branchId?.branchName, s.branchId?.branchCode,
+    ].some(v => v && v.toLowerCase().includes(q));
     if (!match) return false;
     const d = new Date(s.createdAt);
     if (filterPeriod === 'yearly') return d.getFullYear() === Number(filterYear);
@@ -225,6 +304,74 @@ export default function AdminStudents() {
 
   return (
     <div>
+      {/* ── ID Card Template Section ── */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-5">
+        <div className="flex items-center gap-2 mb-4">
+          <CreditCard className="w-5 h-5 text-indigo-600" />
+          <h2 className="font-bold text-gray-800">ID Card Template</h2>
+          {idCardTemplate && (
+            <button onClick={() => setShowTplEditor(v => !v)} className="ml-auto text-xs px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-200 hover:bg-indigo-100 transition-colors">
+              {showTplEditor ? 'Hide' : 'Edit Field Positions'}
+            </button>
+          )}
+        </div>
+        <div className="flex flex-col sm:flex-row gap-4 items-start">
+          <div className="flex-1">
+            <label className="flex items-center gap-3 w-full px-4 py-3 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-all group">
+              <div className="w-9 h-9 bg-indigo-100 group-hover:bg-indigo-200 rounded-lg flex items-center justify-center shrink-0 transition-colors">
+                <Upload className="w-4 h-4 text-indigo-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-700 truncate">{idCardTplFile ? idCardTplFile.name : 'Upload ID Card Template (Image)'}</p>
+                <p className="text-xs text-gray-400">PNG or JPG • Your design with logo, border, colors</p>
+              </div>
+              <input type="file" accept="image/*" className="hidden" onChange={e => setIdCardTplFile(e.target.files[0])} />
+            </label>
+            {idCardTplFile && (
+              <button onClick={handleIdCardTplUpload} disabled={uploadingTpl}
+                className="mt-2 w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-60">
+                {uploadingTpl ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Uploading...</> : <><Upload className="w-4 h-4" /> Save Template</>}
+              </button>
+            )}
+            {idCardTemplate && !idCardTplFile && <p className="mt-2 text-xs text-green-600 font-medium">✓ Template active — ID cards will use this design</p>}
+          </div>
+          {idCardTemplate && <img src={idCardTemplate} alt="ID Card Template" className="w-full sm:w-48 shrink-0 rounded-xl border border-gray-200 shadow-sm" />}
+        </div>
+        {/* Field Layout Editor */}
+        {showTplEditor && idCardTemplate && (
+          <div className="mt-5 border-t border-gray-100 pt-4">
+            <p className="text-xs text-gray-500 mb-3">Adjust X/Y position (0–100%) and font size for each field:</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {idCardFields.map((f, i) => (
+                <div key={f.key} className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                  <p className="text-xs font-semibold text-gray-700 mb-2">{f.label}</p>
+                  <div className="flex gap-2 flex-wrap">
+                    {['x', 'y', 'fontSize'].map(prop => (
+                      <label key={prop} className="flex flex-col text-xs text-gray-500 gap-0.5">
+                        {prop === 'fontSize' ? 'Size' : prop.toUpperCase() + ' %'}
+                        <input type="number" value={f[prop]} min={prop === 'fontSize' ? 8 : 0} max={prop === 'fontSize' ? 80 : 100}
+                          onChange={e => setIdCardFields(prev => prev.map((item, idx) => idx === i ? { ...item, [prop]: Number(e.target.value) } : item))}
+                          className="w-16 px-2 py-1 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400" />
+                      </label>
+                    ))}
+                    <label className="flex flex-col text-xs text-gray-500 gap-0.5">
+                      Color
+                      <input type="color" value={f.color}
+                        onChange={e => setIdCardFields(prev => prev.map((item, idx) => idx === i ? { ...item, color: e.target.value } : item))}
+                        className="w-10 h-7 border border-gray-200 rounded-lg cursor-pointer" />
+                    </label>
+                    <label className="flex items-center gap-1 text-xs text-gray-500 mt-3">
+                      <input type="checkbox" checked={f.bold}
+                        onChange={e => setIdCardFields(prev => prev.map((item, idx) => idx === i ? { ...item, bold: e.target.checked } : item))} />
+                      Bold
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Students ({filtered.length}/{students.length})</h1>
         <div className="flex items-center gap-1.5 bg-gray-100 rounded-xl p-1">
@@ -251,7 +398,7 @@ export default function AdminStudents() {
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <div className="relative flex-1 min-w-[160px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search students..."
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, phone, roll no, form no, enrollment, father's name..."
             className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
         <input ref={importRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={importExcel} />
@@ -298,6 +445,12 @@ export default function AdminStudents() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   {!s.isApproved && <button onClick={() => handleApprove(s)} className="px-2 py-1 bg-green-600 text-white rounded-lg text-xs font-bold">Approve</button>}
+                  {idCardTemplate && (
+                    <>
+                      <button onClick={() => setPreviewStudent(s)} className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-lg" title="Preview ID Card"><CreditCard className="w-4 h-4" /></button>
+                      <button onClick={() => handleIdCardDownload(s)} className="p-1.5 text-green-500 hover:bg-green-50 rounded-lg" title="Download ID Card"><Download className="w-4 h-4" /></button>
+                    </>
+                  )}
                   <button onClick={() => { setViewStudent(s); setViewModal(true); }} className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg"><Eye className="w-4 h-4" /></button>
                   <button onClick={() => openEdit(s)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg"><Pencil className="w-4 h-4" /></button>
                   <button onClick={() => handleDelete(s._id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>
@@ -341,6 +494,12 @@ export default function AdminStudents() {
                     <div className="flex items-center gap-1">
                       {!s.isApproved && (
                         <button onClick={() => handleApprove(s)} className="px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold transition-colors" title="Approve">Approve</button>
+                      )}
+                      {idCardTemplate && (
+                        <>
+                          <button onClick={() => setPreviewStudent(s)} className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors" title="Preview ID Card"><CreditCard className="w-4 h-4" /></button>
+                          <button onClick={() => handleIdCardDownload(s)} className="p-1.5 text-green-500 hover:bg-green-50 rounded-lg transition-colors" title="Download ID Card"><Download className="w-4 h-4" /></button>
+                        </>
                       )}
                       <button onClick={() => { setViewStudent(s); setViewModal(true); }} className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="View"><Eye className="w-4 h-4" /></button>
                       <button onClick={() => openEdit(s)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><Pencil className="w-4 h-4" /></button>
@@ -585,6 +744,47 @@ export default function AdminStudents() {
           <button onClick={() => setImgPreview(null)} className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 rounded-full p-2 transition-colors">
             <X className="w-6 h-6 text-white" />
           </button>
+        </div>
+      )}
+
+      {/* ID Card Preview Modal */}
+      {previewStudent && idCardTemplate && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex items-center justify-center p-4" onClick={() => setPreviewStudent(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+              <h2 className="font-bold text-gray-800">ID Card Preview — {previewStudent.name}</h2>
+              <div className="flex items-center gap-2">
+                <button onClick={() => handleIdCardDownload(previewStudent)} className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-semibold hover:bg-green-700 transition-colors">
+                  <Download className="w-3.5 h-3.5" /> Download PNG
+                </button>
+                <button onClick={() => setPreviewStudent(null)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+              </div>
+            </div>
+            <div className="p-4 relative">
+              <img src={idCardTemplate} alt="ID Card" className="w-full rounded-xl border border-gray-200 shadow" />
+              {/* Overlay fields as HTML for live preview */}
+              <div className="absolute inset-4 pointer-events-none">
+                {idCardFields.map(f => {
+                  const val = f.key === 'dob'
+                    ? (previewStudent[f.key] ? new Date(previewStudent[f.key]).toLocaleDateString('en-IN') : '')
+                    : (previewStudent[f.key] || '');
+                  if (!val) return null;
+                  return (
+                    <span key={f.key} style={{
+                      position: 'absolute',
+                      left: `${f.x}%`, top: `${f.y}%`,
+                      transform: 'translate(-50%, -50%)',
+                      fontSize: `${f.fontSize * 0.55}px`,
+                      fontWeight: f.bold ? 700 : 400,
+                      color: f.color,
+                      whiteSpace: 'nowrap',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.4)',
+                    }}>{val}</span>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

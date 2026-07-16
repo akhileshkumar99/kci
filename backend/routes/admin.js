@@ -1,7 +1,7 @@
 const router = require('express').Router();
-const { getDashboardStats, getAnalytics, getMonthlyStudentsDetail, createStudent, getStudents, updateStudent, deleteStudent, getBranchUsers } = require('../controllers/adminController');
+const { getDashboardStats, getAnalytics, getMonthlyStudentsDetail, createStudent, getStudents, updateStudent, deleteStudent, getBranchUsers, universalStudentSearch, getAuditLogs } = require('../controllers/adminController');
 const generateStudentNumbers = require('../utils/generateStudentNumbers');
-const { protect, admin } = require('../middleware/auth');
+const { protect, admin, superAdmin } = require('../middleware/auth');
 const { uploadStudent } = require('../middleware/cloudinary');
 const multer = require('multer');
 const path = require('path');
@@ -15,10 +15,12 @@ router.get('/stats', protect, admin, getDashboardStats);
 router.get('/analytics', protect, admin, getAnalytics);
 router.get('/monthly-students-detail', protect, admin, getMonthlyStudentsDetail);
 router.get('/students', protect, admin, getStudents);
+router.get('/students/search', protect, admin, universalStudentSearch);
 router.get('/branch-users', protect, admin, getBranchUsers);
+router.get('/audit-logs', protect, admin, getAuditLogs);
 router.post('/students', protect, admin, uploadStudent.single('photo'), createStudent);
 router.put('/students/:id', protect, admin, uploadStudent.single('photo'), updateStudent);
-router.delete('/students/:id', protect, admin, deleteStudent);
+router.delete('/students/:id', protect, superAdmin, deleteStudent);
 
 // One-time migration: assign formNo to students who don't have one
 router.post('/migrate-form-no', protect, admin, async (req, res) => {

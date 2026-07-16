@@ -17,11 +17,18 @@ const admissionSchema = new mongoose.Schema(
     message: { type: String },
     enrollmentId: { type: String, unique: true, sparse: true },
     studentUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    formNo: { type: String },
+    session: { type: String },
     status: {
       type: String,
-      enum: ['Pending', 'Approved', 'Rejected'],
-      default: 'Pending',
+      enum: ['Draft', 'Pending Approval', 'Approved', 'Rejected'],
+      default: 'Pending Approval',
     },
+    verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    verifiedAt: { type: Date },
+    approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    approvedAt: { type: Date },
+    rejectionReason: { type: String },
   },
   { timestamps: true }
 );

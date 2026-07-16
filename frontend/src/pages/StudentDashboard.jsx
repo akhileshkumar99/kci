@@ -9,7 +9,7 @@ import { generateStudyMaterialPDF } from '../utils/generateStudyMaterialPDF';
 import {
   GraduationCap, Award, FileText, LogOut, User, Lock, BookMarked,
   Building2, Calendar, BookOpen, CheckCircle, CreditCard, Download, TrendingUp, ClipboardCheck, Clock, ChevronRight, Eye, KeyRound, QrCode,
-  Mail, Phone, Users, MapPin, BadgeCheck, Hash, Layers, ShieldCheck, CalendarDays, MapPinned, Bell
+  Mail, Phone, Users, MapPin, BadgeCheck, Hash, Layers, ShieldCheck, CalendarDays, MapPinned, Bell, XCircle, Printer
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
@@ -19,7 +19,7 @@ import AdmitCardComponent from '../components/AdmitCard';
 const ALL_TABS = [
   { id: 'profile', label: 'My Profile', icon: User },
   { id: 'idcard', label: 'ID Card', icon: CreditCard },
-  { id: 'admitcard', label: 'Admit Card', icon: FileText, adminControlled: true },
+  { id: 'admitcard', label: 'Admit Card', icon: FileText },
   { id: 'results', label: 'My Results', icon: Award },
   { id: 'certificates', label: 'Certificates', icon: Award },
   { id: 'studymaterial', label: 'Study Material', icon: BookMarked },
@@ -42,7 +42,7 @@ function InfoRow({ label, value }) {
 function CardInner({ W, H, student, branch, fields, qrDataUrl }) {
   const scale = W / 856;
   const s = (n) => Math.round(n * scale);
-  const HDR  = s(106);
+  const HDR  = s(130);
   const FOOT = s(72);
   return (
     <div style={{
@@ -57,14 +57,18 @@ function CardInner({ W, H, student, branch, fields, qrDataUrl }) {
       boxSizing: 'border-box',
     }}>
       {/* HEADER */}
-      <div style={{ height: HDR, background: '#081d5b', display: 'flex', alignItems: 'center', padding: '0 ' + s(20) + 'px', gap: s(14), flexShrink: 0, borderBottom: s(3) + 'px solid #d4af37' }}>
-        <div style={{ width: s(63), height: s(63), borderRadius: '50%', background: '#fff', border: s(2) + 'px solid #d4af37', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img src="/logo.png" alt="KCI" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      <div style={{ background: '#081d5b', display: 'flex', alignItems: 'center', padding: s(14) + 'px ' + s(20) + 'px', gap: s(14), flexShrink: 0, borderBottom: s(3) + 'px solid #d4af37' }}>
+        <div style={{ width: s(72), height: s(72), borderRadius: '50%', background: '#fff', border: s(2) + 'px solid #d4af37', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img src="/logo.png" alt="KCI" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px', background: '#fff' }} />
         </div>
         <div style={{ flex: 1, minWidth: 0, textAlign: 'center' }}>
-          <div style={{ color: '#ffffff', fontWeight: 900, fontSize: s(26), letterSpacing: 1, lineHeight: 1.15 }}>KEERTI COMPUTER INSTITUTE</div>
-          <div style={{ color: '#b4c8f0', fontSize: s(13), marginTop: s(5), lineHeight: 1.5 }}>
-            Ayodhya, Uttar Pradesh &nbsp;|&nbsp; www.kci.org.in &nbsp;|&nbsp; 9936384736
+          <div style={{ color: '#ffffff', fontWeight: 900, fontSize: s(24), letterSpacing: 1, lineHeight: 1.2 }}>KEERTI COMPUTER INSTITUTE</div>
+          <div style={{ color: '#d4af37', fontSize: s(12), fontWeight: 700, marginTop: s(2) }}>The College of IT</div>
+          <div style={{ color: '#b4c8f0', fontSize: s(10), marginTop: s(4), lineHeight: 1.6 }}>
+            ISO Reg. No.: UAS/2017/155491 &nbsp;|&nbsp; MHRD Regd. &nbsp;|&nbsp; Society Reg. No.: 1373/2005
+          </div>
+          <div style={{ color: '#93b4e8', fontSize: s(10), lineHeight: 1.6 }}>
+            info@kci.org.in &nbsp;|&nbsp; Mob: 9936384736 / 9919660880 &nbsp;|&nbsp; www.kci.org.in
           </div>
         </div>
         <div style={{ background: '#d4af37', borderRadius: s(10), padding: s(8) + 'px ' + s(13) + 'px', flexShrink: 0, textAlign: 'center', border: '1.5px solid #f0d060' }}>
@@ -135,7 +139,7 @@ function CardInner({ W, H, student, branch, fields, qrDataUrl }) {
         </div>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid rgba(255,255,255,0.2)', height: '100%' }}>
           <div style={{ width: s(48), height: s(48), borderRadius: '50%', background: '#d4af37', border: '2px solid #fff', overflow: 'hidden', marginBottom: s(4) }}>
-            <img src="/logo.png" alt="seal" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src="/logo.png" alt="seal" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} />
           </div>
           <span style={{ color: '#d4af37', fontSize: s(12), fontWeight: 700 }}>KCI Official Seal</span>
         </div>
@@ -204,24 +208,41 @@ function IDCard({ student, branch }) {
       .catch(() => {});
   }, [student, branch, uniqueId]);
 
+  const admDate = student?.admissionDate ? new Date(student.admissionDate).toLocaleDateString('en-IN') : '-';
   const fields = [
-    ['Form No',     uniqueId],
-    ['Name',        student?.name],
-    ['Father Name', student?.fatherName],
-    ['Course',      student?.courseName],
-    ['DOB',         dob],
-    ['Branch Code', branch?.branchCode || branch?.code || 'N/A'],
-    ['Branch Name', branch?.branchName || 'N/A'],
-    ['Address',     student?.address],
+    ['Form No',        uniqueId],
+    ['Name',           student?.name],
+    ['Father Name',    student?.fatherName],
+    ['Course',         student?.courseName],
+    ['Branch',         branch?.branchName || student?.branchName || 'N/A'],
+    ['Session',        student?.batch || '-'],
+    ['Date of Admission', admDate],
+    ['Date of Birth',  dob],
+    ['Address',        student?.address],
   ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
 
-      <button onClick={handleDownloadPDF} disabled={exporting}
-        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 26px', background: 'linear-gradient(135deg,#081d5b,#1a3a8f)', color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 900, cursor: exporting ? 'not-allowed' : 'pointer', opacity: exporting ? 0.6 : 1, boxShadow: '0 4px 14px rgba(8,29,91,0.4)' }}>
-        <Download size={16} /> {exporting ? 'Generating PDF...' : 'Download ID Card PDF'}
-      </button>
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <button onClick={handleDownloadPDF} disabled={exporting}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 22px', background: 'linear-gradient(135deg,#081d5b,#1a3a8f)', color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 900, cursor: exporting ? 'not-allowed' : 'pointer', opacity: exporting ? 0.6 : 1, boxShadow: '0 4px 14px rgba(8,29,91,0.4)' }}>
+          <Download size={16} /> {exporting ? 'Generating PDF...' : 'Download PDF'}
+        </button>
+        <button onClick={async () => {
+          if (!pdfRef.current) return;
+          const el = pdfRef.current;
+          el.style.display = 'block';
+          await new Promise(r => setTimeout(r, 80));
+          const win = window.open('', '_blank', 'width=1000,height=700');
+          win.document.write(`<html><head><title>ID Card — KCI</title><style>body{margin:0;padding:0;background:#fff;}@media print{body{margin:0;}@page{size:landscape;margin:0;}}</style></head><body>${el.innerHTML}</body></html>`);
+          win.document.close(); win.focus();
+          setTimeout(() => { win.print(); win.close(); }, 400);
+          el.style.display = 'none';
+        }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 22px', background: 'linear-gradient(135deg,#065f46,#047857)', color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 900, cursor: 'pointer', boxShadow: '0 4px 14px rgba(6,95,70,0.4)' }}>
+          <Printer size={16} /> Print
+        </button>
+      </div>
 
       {/* Hidden PDF container — fixed 856px wide, never responsive, off-screen */}
       <div
@@ -1373,14 +1394,20 @@ export default function StudentDashboard() {
         api.get('/admit-card/my').then(r2 => setAdmitCard(r2.data.admitCard || null)).catch(() => {});
       }
     }).catch(() => {});
+    // Fetch all certificates by enrollmentNumber/formNo
+    api.get('/certificates/my-all').then(r => {
+      if (r.data.certificates?.length) {
+        setData(prev => ({ ...prev, certificates: r.data.certificates }));
+      }
+    }).catch(() => {});
     api.get('/notifications/my').then(r => { setNotifications(r.data.notifications || []); setUnreadCount(r.data.unreadCount || 0); }).catch(() => {});
   }, [user?.id]);
 
   const handleLogout = () => { logout(); navigate('/'); };
   const { student, results, certificates, branch } = data;
 
-  // Show Admit Card tab only when admin enabled it AND student submitted exam form
-  const tabs = ALL_TABS.filter(t => !t.adminControlled || (admitCardEnabled && myExamForm));
+  // All tabs always visible
+  const tabs = ALL_TABS;
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
@@ -1869,6 +1896,75 @@ export default function StudentDashboard() {
               )}
             </div>
 
+            {/* Dashboard Status Cards */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
+              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+              <h3 className="font-black text-gray-900 mb-4 text-sm uppercase tracking-wide">My Status Overview</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                {[
+                  {
+                    label: 'Admission',
+                    value: student?.isApproved ? 'Approved' : 'Pending',
+                    icon: CheckCircle,
+                    color: student?.isApproved ? 'bg-green-50 border-green-200 text-green-700' : 'bg-yellow-50 border-yellow-200 text-yellow-700',
+                    dot: student?.isApproved ? 'bg-green-500' : 'bg-yellow-500',
+                    tab: null,
+                  },
+                  {
+                    label: 'Exam Form',
+                    value: myExamForm ? myExamForm.status : 'Not Submitted',
+                    icon: FileText,
+                    color: myExamForm?.status === 'Approved' ? 'bg-green-50 border-green-200 text-green-700' : myExamForm?.status === 'Rejected' ? 'bg-red-50 border-red-200 text-red-700' : myExamForm ? 'bg-yellow-50 border-yellow-200 text-yellow-700' : 'bg-gray-50 border-gray-200 text-gray-500',
+                    dot: myExamForm?.status === 'Approved' ? 'bg-green-500' : myExamForm?.status === 'Rejected' ? 'bg-red-500' : myExamForm ? 'bg-yellow-500' : 'bg-gray-400',
+                    tab: 'examform',
+                  },
+                  {
+                    label: 'Admit Card',
+                    value: admitCard ? 'Available' : myExamForm?.status === 'Approved' ? 'Not Released' : 'Pending',
+                    icon: CreditCard,
+                    color: admitCard ? 'bg-green-50 border-green-200 text-green-700' : myExamForm?.status === 'Approved' ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-gray-50 border-gray-200 text-gray-500',
+                    dot: admitCard ? 'bg-green-500' : myExamForm?.status === 'Approved' ? 'bg-blue-500' : 'bg-gray-400',
+                    tab: 'admitcard',
+                  },
+                  {
+                    label: 'Results',
+                    value: results.length > 0 ? `${results.length} Published` : 'Not Published',
+                    icon: Award,
+                    color: results.length > 0 ? 'bg-green-50 border-green-200 text-green-700' : 'bg-gray-50 border-gray-200 text-gray-500',
+                    dot: results.length > 0 ? 'bg-green-500' : 'bg-gray-400',
+                    tab: 'results',
+                  },
+                  {
+                    label: 'Certificate',
+                    value: certificates.length > 0 ? `${certificates.length} Issued` : 'Not Issued',
+                    icon: Award,
+                    color: certificates.length > 0 ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-gray-50 border-gray-200 text-gray-500',
+                    dot: certificates.length > 0 ? 'bg-amber-500' : 'bg-gray-400',
+                    tab: 'certificates',
+                  },
+                  {
+                    label: 'ID Card',
+                    value: student ? 'Download' : 'Pending',
+                    icon: CreditCard,
+                    color: student ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-gray-50 border-gray-200 text-gray-500',
+                    dot: student ? 'bg-blue-500' : 'bg-gray-400',
+                    tab: 'idcard',
+                  },
+                ].map(({ label, value, icon: Icon, color, dot, tab }) => (
+                  <div key={label}
+                    onClick={() => tab && setActiveTab(tab)}
+                    className={`flex flex-col gap-2 p-3 rounded-xl border ${color} ${tab ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}>
+                    <div className="flex items-center justify-between">
+                      <Icon className="w-4 h-4" />
+                      <span className={`w-2 h-2 rounded-full ${dot}`} />
+                    </div>
+                    <div className="text-[10px] font-bold uppercase tracking-wide opacity-70">{label}</div>
+                    <div className="text-xs font-black leading-tight">{value}</div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
             {/* Quick Actions */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
               className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
@@ -1877,13 +1973,13 @@ export default function StudentDashboard() {
                 {[
                   { label: 'Exam Form', icon: FileText, color: 'from-blue-500 to-blue-600', tab: 'examform' },
                   { label: 'View ID Card', icon: CreditCard, color: 'from-cyan-500 to-blue-600', tab: 'idcard' },
-                  { label: 'Admit Card', icon: FileText, color: 'from-indigo-500 to-indigo-600', tab: 'admitcard', adminControlled: true },
+                  { label: 'Admit Card', icon: FileText, color: 'from-indigo-500 to-indigo-600', tab: 'admitcard' },
                   { label: 'My Results', icon: Award, color: 'from-yellow-500 to-orange-500', tab: 'results' },
                   { label: 'Certificates', icon: Award, color: 'from-teal-500 to-emerald-600', tab: 'certificates' },
                   { label: 'Study Material', icon: BookMarked, color: 'from-green-500 to-green-600', tab: 'studymaterial' },
                   { label: 'Take Test', icon: ClipboardCheck, color: 'from-violet-500 to-purple-600', tab: 'tests' },
                   { label: 'Change Password', icon: Lock, color: 'from-rose-500 to-red-600', tab: 'changepassword' },
-                ].filter(a => !a.adminControlled || (admitCardEnabled && myExamForm)).map(({ label, icon: Icon, color, tab }) => (
+                ].map(({ label, icon: Icon, color, tab }) => (
                   <button key={label} onClick={() => setActiveTab(tab)}
                     className={`flex flex-col items-center gap-2 p-4 bg-gradient-to-br ${color} rounded-2xl text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all`}>
                     <Icon className="w-6 h-6" />
@@ -2067,7 +2163,45 @@ export default function StudentDashboard() {
               </div>
               <h2 className="text-xl font-black text-gray-900">My Admit Card</h2>
             </div>
-            <AdmitCardComponent student={student} admitCard={admitCard} branch={branch} />
+            {/* Workflow status messages */}
+            {!myExamForm && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-5 flex items-start gap-3">
+                <div className="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center shrink-0"><FileText className="w-5 h-5 text-yellow-600" /></div>
+                <div>
+                  <p className="font-black text-yellow-800">Exam Form Not Submitted</p>
+                  <p className="text-sm text-yellow-700 mt-1">Please submit your examination form first to get your Admit Card.</p>
+                  <button onClick={() => setActiveTab('examform')} className="mt-3 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl text-xs font-bold transition-colors">Submit Exam Form →</button>
+                </div>
+              </div>
+            )}
+            {myExamForm && myExamForm.status === 'Pending' && (
+              <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 flex items-start gap-3">
+                <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center shrink-0"><Clock className="w-5 h-5 text-orange-600" /></div>
+                <div>
+                  <p className="font-black text-orange-800">Examination Form Pending Approval</p>
+                  <p className="text-sm text-orange-700 mt-1">Your examination form is under review. Admit Card will be available once approved by admin.</p>
+                </div>
+              </div>
+            )}
+            {myExamForm && myExamForm.status === 'Rejected' && (
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-5 flex items-start gap-3">
+                <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center shrink-0"><XCircle className="w-5 h-5 text-red-600" /></div>
+                <div>
+                  <p className="font-black text-red-800">Examination Form Rejected</p>
+                  <p className="text-sm text-red-700 mt-1">Your examination form was rejected. Please contact the institute administration.</p>
+                </div>
+              </div>
+            )}
+            {myExamForm && myExamForm.status === 'Approved' && !admitCard && (
+              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 flex items-start gap-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center shrink-0"><Clock className="w-5 h-5 text-blue-600" /></div>
+                <div>
+                  <p className="font-black text-blue-800">Admit Card Not Released Yet</p>
+                  <p className="text-sm text-blue-700 mt-1">Your exam form is approved. Admit Card will be available once the admin publishes the exam schedule and releases admit cards.</p>
+                </div>
+              </div>
+            )}
+            {admitCard && <AdmitCardComponent student={student} admitCard={admitCard} branch={branch} />}
           </motion.div>
         )}
 
@@ -2431,13 +2565,16 @@ export default function StudentDashboard() {
           <div className="space-y-5">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-black text-gray-900">My Certificates <span className="text-blue-600">({certificates.length})</span></h2>
-              <span className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">Click Download to save PDF</span>
+              <span className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">Admin-issued certificates only</span>
             </div>
             {certificates.length === 0 ? (
               <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
                 <FileText className="w-12 h-12 mx-auto mb-3 text-gray-200" />
-                <p className="text-gray-500 font-semibold">No certificates issued yet</p>
-                <p className="text-xs text-gray-400 mt-1">Complete your course to receive a certificate</p>
+                <p className="text-gray-500 font-semibold">Your certificate has not been uploaded yet.</p>
+                <p className="text-xs text-gray-400 mt-1">Please contact the institute administration for your certificate.</p>
+                <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-700 font-semibold">
+                  📞 9936384736 / 9919660880
+                </div>
               </div>
             ) : (
               <div className="grid sm:grid-cols-2 gap-5">
@@ -2460,7 +2597,7 @@ export default function StudentDashboard() {
                       <div className="p-5">
                         {/* Institute + logo row */}
                         <div className="flex items-center gap-3 mb-4 pb-3 border-b border-amber-100">
-                          <img src="/logo.png" alt="KCI" className="w-10 h-10 rounded-full object-cover border-2 border-amber-200 shadow" />
+                          <img src="/logo.png" alt="KCI" className="w-10 h-10 rounded-full object-contain bg-white p-0.5 border-2 border-amber-200 shadow" />
                           <div>
                             <div className="text-xs font-black text-gray-500 uppercase tracking-widest">Keerti Computer Institute</div>
                             <div className="text-[10px] text-gray-400">Govt. Recognised | Est. 2005</div>

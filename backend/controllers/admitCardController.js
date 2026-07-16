@@ -3,6 +3,7 @@ const ExamForm  = require('../models/ExamForm');
 const User      = require('../models/User');
 const Branch    = require('../models/Branch');
 const Course    = require('../models/Course');
+const Notification = require('../models/Notification');
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
@@ -27,6 +28,17 @@ exports.toggleAdmitCard = async (req, res) => {
       { key: 'admitCardEnabled', value: enabled },
       { upsert: true, new: true }
     );
+    // Auto-notify all students when released
+    if (enabled) {
+      await Notification.create({
+        title: '📋 Admit Card Released',
+        message: 'Your Admit Card is now available. Please login to your Student Dashboard → Admit Card tab to view and download it.',
+        type: 'exam',
+        targetRole: 'student',
+        branchId: null,
+        isActive: true,
+      });
+    }
     res.json({ success: true, enabled });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 };
@@ -184,22 +196,31 @@ function buildEmailHTML(student, { examDateFmt, examCenter, reportingTime, examT
 // ── Student: get own admit card ──
 exports.getMyAdmitCard = async (req, res) => {
   try {
-    // Check admin toggle
+    // 1. Check admin toggle
     const setting = await Setting.findOne({ key: 'admitCardEnabled' });
-    if (!setting?.value) return res.status(403).json({ success: false, message: 'Admit card not enabled by admin.' });
+    if (!setting?.value) return res.status(403).json({ success: false, message: 'Admit Card has not been released by admin yet.', code: 'NOT_RELEASED' });
 
-    // Check student submitted exam form
+    // 2. Check exam form submitted
     const examForm = await ExamForm.findOne({ userId: req.user.id });
-    if (!examForm) return res.status(403).json({ success: false, message: 'You have not submitted an examination form yet.' });
+    if (!examForm) return res.status(403).json({ success: false, message: 'You have not submitted an examination form yet.', code: 'NO_FORM' });
+
+    // 3. Check exam form approved
+    if (examForm.status === 'Pending') return res.status(403).json({ success: false, message: 'Your examination form is pending approval. Please wait for admin verification.', code: 'FORM_PENDING' });
+    if (examForm.status === 'Rejected') return res.status(403).json({ success: false, message: 'Your examination form was rejected. Please contact the institute.', code: 'FORM_REJECTED' });
+
+    // 4. Check exam schedule published
+    const scheduleSetting = await Setting.findOne({ key: 'examSchedule' });
+    const sch = scheduleSetting?.value || {};
+    if (!sch.examCenter && (!sch.courseSchedules || sch.courseSchedules.length === 0)) {
+      return res.status(403).json({ success: false, message: 'Exam schedule has not been published yet.', code: 'NO_SCHEDULE' });
+    }
 
     const student = await User.findById(req.user.id).select('-password');
     if (!student) return res.status(404).json({ success: false, message: 'Student not found' });
 
-    const scheduleSetting = await Setting.findOne({ key: 'examSchedule' });
-    const sch = scheduleSetting?.value || {};
     const row = getCourseSchedule(sch, student.courseName || examForm.course);
-
     const count = await User.countDocuments({ role: 'student', createdAt: { $lte: student.createdAt } });
+
     res.json({
       success: true,
       admitCard: {
@@ -210,6 +231,7 @@ exports.getMyAdmitCard = async (req, res) => {
         gender:           student.gender    || examForm.gender || '-',
         category:         student.category  || examForm.category || 'General',
         enrollmentNumber: student.enrollmentNumber || student.rollNumber || examForm.enrollmentNumber,
+        formNo:           student.formNo || '-',
         courseName:       student.courseName || examForm.course || '-',
         batch:            student.batch      || examForm.batch || '-',
         session:          student.batch      || examForm.session || '-',

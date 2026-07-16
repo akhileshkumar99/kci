@@ -3,11 +3,17 @@ const mongoose = require('mongoose');
 const resultSchema = new mongoose.Schema(
   {
     student: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    rollNumber: { type: String, required: true },
+    rollNumber: { type: String },
+    formNo: { type: String },
+    enrollmentNumber: { type: String },
     studentName: { type: String, required: true },
+    fatherName: { type: String },
     course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
     courseName: { type: String },
+    branch: { type: String },
+    session: { type: String },
     batch: { type: String },
+    uploadDate: { type: Date },
     subjects: [
       {
         name: { type: String },

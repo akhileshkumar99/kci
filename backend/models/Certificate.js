@@ -3,7 +3,9 @@ const mongoose = require('mongoose');
 const certificateSchema = new mongoose.Schema(
   {
     student: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    rollNumber: { type: String, required: true },
+    rollNumber: { type: String },
+    enrollmentNumber: { type: String },
+    formNo: { type: String },
     studentName: { type: String, required: true },
     course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
     courseName: { type: String, required: true },
@@ -12,7 +14,8 @@ const certificateSchema = new mongoose.Schema(
     grade: { type: String },
     certificateFile: { type: String },
     isValid: { type: Boolean, default: true },
-    isApproved: { type: Boolean, default: false },
+    isApproved: { type: Boolean, default: true },
+    uploadedByAdmin: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

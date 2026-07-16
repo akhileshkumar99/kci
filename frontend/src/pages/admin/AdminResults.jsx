@@ -1,32 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
-import { Plus, Trash2, X, Save, Pencil, User, Upload, Search, Download } from 'lucide-react';
+import { Plus, Trash2, X, Save, Pencil, User, Upload, Search, Download, Hash, RefreshCw } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import api from '../../utils/api';
 import Loader from '../../components/Loader';
 
 const COURSES = [
-  'Certificate In Fundamental (CIF)',
-  'Certificate in Computer Application (CCA)',
-  'Certificate In Office Package & Tally A/C (COPT)',
-  'Tally Specialist Course With GST',
-  'Advance Diploma in Computer Application (ADCA)',
-  'Desktop Publishing (DTP)',
-  'Computer Teacher Training Course',
-  'I.G.D. Bombay',
-  'Certificate In Computer Hardware (CICH)',
-  'JAVA, VB.net, ASP.net, PHP',
-  'Computer Typing (Hindi + English)',
-  'C, C++ Programming',
-  'Internet Course',
-  'Diploma in Computer Application (DCA)',
-  'Certificate In Tally A/c With GST (CIT)',
-  'Personality Development',
-  'Diploma in Yoga Education (DYEd./DYT)',
-  'PG Diploma In Yoga Education (PGDYEd.)',
-  'Multimedia Animation Course (N-Mass)',
-  'BCA / BBA / MCA / MBA / PGDCA & More',
-  'Course On Computer Concept (CCC from NIELIT)',
+  'Certificate In Fundamental (CIF)', 'Certificate in Computer Application (CCA)',
+  'Certificate In Office Package & Tally A/C (COPT)', 'Tally Specialist Course With GST',
+  'Advance Diploma in Computer Application (ADCA)', 'Desktop Publishing (DTP)',
+  'Computer Teacher Training Course', 'I.G.D. Bombay', 'Certificate In Computer Hardware (CICH)',
+  'JAVA, VB.net, ASP.net, PHP', 'Computer Typing (Hindi + English)', 'C, C++ Programming',
+  'Internet Course', 'Diploma in Computer Application (DCA)', 'Certificate In Tally A/c With GST (CIT)',
+  'Personality Development', 'Diploma in Yoga Education (DYEd./DYT)',
+  'PG Diploma In Yoga Education (PGDYEd.)', 'Multimedia Animation Course (N-Mass)',
+  'BCA / BBA / MCA / MBA / PGDCA & More', 'Course On Computer Concept (CCC from NIELIT)',
 ];
 
 const SUBJECTS = [
@@ -49,12 +37,16 @@ const SUBJECTS = [
   'Meditation', 'Anatomy', 'Teaching Methodology', 'Practical Training', '2D Animation',
   '3D Animation', 'Video Editing', 'VFX Basics', 'Multimedia Production', 'Operating System',
   'Elements of Word Processing', 'Spread Sheet', 'Introduction to Internet & Web Browser',
-  'Communication & Collaboration', 'Applications of Presentation', 'Applications of Digital Financial Service',
-  'Computer Fundamentals', 'MS Office', 'MS Office Suite',
+  'Communication & Collaboration', 'Applications of Presentation',
+  'Applications of Digital Financial Service', 'Computer Fundamentals', 'MS Office', 'MS Office Suite',
 ];
 
 const emptySubject = { name: '', maxMarks: '', obtainedMarks: '' };
-const emptyForm = { rollNumber: '', studentName: '', courseName: '', batch: '', examDate: '', subjects: [{ ...emptySubject }] };
+const emptyForm = {
+  formNo: '', enrollmentNumber: '', rollNumber: '',
+  studentName: '', fatherName: '', courseName: '', branch: '', session: '',
+  batch: '', examDate: '', uploadDate: '', subjects: [{ ...emptySubject }],
+};
 
 export default function AdminResults() {
   const [results, setResults] = useState([]);
@@ -62,12 +54,11 @@ export default function AdminResults() {
   const [modal, setModal] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [lookingUp, setLookingUp] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [editName, setEditName] = useState('');
   const [editFile, setEditFile] = useState(null);
-  const [nameSearch, setNameSearch] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [search, setSearch] = useState('');
   const [filterPeriod, setFilterPeriod] = useState('all');
   const [filterYear, setFilterYear] = useState(new Date().getFullYear());
@@ -75,22 +66,24 @@ export default function AdminResults() {
 
   const now = new Date();
   const filtered = results.filter(r => {
-    const matchSearch = [r.rollNumber, r.studentName, r.courseName].join(' ').toLowerCase().includes(search.toLowerCase());
+    const matchSearch = [r.rollNumber, r.formNo, r.enrollmentNumber, r.studentName, r.courseName, r.branch].join(' ').toLowerCase().includes(search.toLowerCase());
     if (!matchSearch) return false;
     const d = new Date(r.createdAt);
     if (filterPeriod === 'yearly') return d.getFullYear() === Number(filterYear);
     if (filterPeriod === 'monthly') return d.getFullYear() === Number(filterYear) && d.getMonth() === Number(filterMonth);
-    if (filterPeriod === 'weekly') { const w = new Date(now); w.setDate(now.getDate()-7); return d >= w; }
+    if (filterPeriod === 'weekly') { const w = new Date(now); w.setDate(now.getDate() - 7); return d >= w; }
     return true;
   });
 
   const exportExcel = () => {
     const rows = filtered.map(r => ({
-      'Roll No': r.rollNumber, 'Student': r.studentName, 'Course': r.courseName || '',
-      'Branch': r.branchName || '—', 'Batch': r.batch || '',
+      'Form No': r.formNo || '', 'Enrollment No': r.enrollmentNumber || '', 'Roll No': r.rollNumber || '',
+      'Student': r.studentName, 'Father': r.fatherName || '', 'Course': r.courseName || '',
+      'Branch': r.branch || r.branchName || '—', 'Session': r.session || r.batch || '',
       'Obtained': r.obtainedMarks, 'Total': r.totalMarks,
       'Percentage': r.percentage + '%', 'Grade': r.grade, 'Status': r.status,
       'Exam Date': r.examDate ? new Date(r.examDate).toLocaleDateString('en-IN') : '',
+      'Upload Date': r.uploadDate ? new Date(r.uploadDate).toLocaleDateString('en-IN') : '',
     }));
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
@@ -99,27 +92,51 @@ export default function AdminResults() {
     toast.success('Exported!');
   };
 
-  const studentNames = [...new Set(results.map(r => r.studentName).filter(Boolean))];
-
   useEffect(() => { fetchResults(); }, []);
   const fetchResults = async () => {
     try {
       const { data } = await api.get('/results');
       setResults(data.results);
-      const nums = data.results.map(r => parseInt(r.rollNumber?.replace(/\D/g, '')) || 0);
-      const next = (nums.length ? Math.max(...nums) : 0) + 1;
-      setForm(f => ({ ...f, rollNumber: `KCI${new Date().getFullYear()}${String(next).padStart(4, '0')}` }));
     } catch {}
     setLoading(false);
   };
 
+  // Auto-lookup student by formNo or enrollmentNumber
+  const lookupStudent = useCallback(async (field, value) => {
+    if (!value || value.length < 4) return;
+    setLookingUp(true);
+    try {
+      const params = field === 'formNo' ? { formNo: value } : { enrollmentNumber: value };
+      const { data } = await api.get('/results/lookup-student', { params });
+      if (data.success && data.student) {
+        setForm(f => ({
+          ...f,
+          studentName: data.student.name || f.studentName,
+          fatherName: data.student.fatherName || f.fatherName,
+          courseName: data.student.courseName || f.courseName,
+          batch: data.student.batch || f.batch,
+          branch: data.student.branch || f.branch,
+          rollNumber: data.student.rollNumber || f.rollNumber,
+          enrollmentNumber: data.student.enrollmentNumber || f.enrollmentNumber,
+          formNo: data.student.formNo || f.formNo,
+        }));
+        toast.success(`✅ Student found: ${data.student.name}`);
+      }
+    } catch {
+      // Student not found — don't show error, let user fill manually
+    }
+    setLookingUp(false);
+  }, []);
+
   const addSubject = () => setForm(f => ({ ...f, subjects: [...f.subjects, { ...emptySubject }] }));
   const removeSubject = (i) => setForm(f => ({ ...f, subjects: f.subjects.filter((_, idx) => idx !== i) }));
   const updateSubject = (i, field, val) => setForm(f => ({ ...f, subjects: f.subjects.map((s, idx) => idx === i ? { ...s, [field]: val } : s) }));
+  const setF = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!form.rollNumber || !form.studentName) return toast.error('Fill required fields');
+    if (!form.studentName) return toast.error('Student name is required');
+    if (!form.formNo && !form.enrollmentNumber && !form.rollNumber) return toast.error('Provide Form No, Enrollment No, or Roll No');
     setSaving(true);
     try {
       await api.post('/results', form);
@@ -153,46 +170,43 @@ export default function AdminResults() {
     try { await api.delete(`/results/${id}`); toast.success('Deleted'); fetchResults(); } catch { toast.error('Error'); }
   };
 
+  const openModal = () => { setForm(emptyForm); setModal(true); };
+
   return (
     <div>
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Results</h1>
         <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 flex-1 min-w-[160px] max-w-xs focus-within:border-blue-500 transition-all">
           <Search className="w-4 h-4 text-gray-400 shrink-0" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search results..."
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by form no, name, roll..."
             className="bg-transparent text-sm outline-none flex-1 text-gray-700 placeholder:text-gray-400" />
           {search && <button onClick={() => setSearch('')}><X className="w-3.5 h-3.5 text-gray-400" /></button>}
         </div>
         <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
-          {['all','weekly','monthly','yearly'].map(p => (
+          {['all', 'weekly', 'monthly', 'yearly'].map(p => (
             <button key={p} onClick={() => setFilterPeriod(p)}
-              className={`px-2 sm:px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${
-                filterPeriod === p ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'
-              }`}>{p === 'all' ? 'All' : p.charAt(0).toUpperCase()+p.slice(1)}</button>
+              className={`px-2 sm:px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${filterPeriod === p ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}>
+              {p === 'all' ? 'All' : p.charAt(0).toUpperCase() + p.slice(1)}
+            </button>
           ))}
         </div>
         {(filterPeriod === 'yearly' || filterPeriod === 'monthly') && (
           <select value={filterYear} onChange={e => setFilterYear(Number(e.target.value))}
             className="px-2 py-1.5 border border-gray-200 rounded-xl text-xs bg-white focus:outline-none">
-            {Array.from({length:6},(_,i)=>new Date().getFullYear()-i).map(y=><option key={y} value={y}>{y}</option>)}
+            {Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i).map(y => <option key={y} value={y}>{y}</option>)}
           </select>
         )}
         {filterPeriod === 'monthly' && (
           <select value={filterMonth} onChange={e => setFilterMonth(Number(e.target.value))}
             className="px-2 py-1.5 border border-gray-200 rounded-xl text-xs bg-white focus:outline-none">
-            {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m,i)=><option key={i} value={i}>{m}</option>)}
+            {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((m, i) => <option key={i} value={i}>{m}</option>)}
           </select>
         )}
         <div className="flex items-center gap-2 ml-auto">
           <button onClick={exportExcel} className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-emerald-700 transition-colors">
             <Download className="w-4 h-4" /> <span className="hidden sm:inline">Export</span>
           </button>
-          <button onClick={() => {
-            const nums = results.map(r => parseInt(r.rollNumber?.replace(/\D/g, '')) || 0);
-            const next = (nums.length ? Math.max(...nums) : 0) + 1;
-            setForm({ ...emptyForm, rollNumber: `KCI${new Date().getFullYear()}${String(next).padStart(4,'0')}` });
-            setModal(true);
-          }} className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-blue-700 transition-colors">
+          <button onClick={openModal} className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-blue-700 transition-colors">
             <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add Result</span><span className="sm:hidden">Add</span>
           </button>
         </div>
@@ -200,15 +214,26 @@ export default function AdminResults() {
 
       {loading ? <Loader /> : (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
-          <table className="w-full text-sm min-w-[600px]">
-            <thead className="bg-gray-50"><tr>{['Roll No.', 'Student', 'Course', 'Branch', 'Percentage', 'Grade', 'Status', 'Actions'].map(h => <th key={h} className="text-left p-4 font-semibold text-gray-600">{h}</th>)}</tr></thead>
+          <table className="w-full text-sm min-w-[700px]">
+            <thead className="bg-gray-50">
+              <tr>{['Form No / Enroll', 'Student', 'Course', 'Branch', 'Percentage', 'Grade', 'Status', 'Actions'].map(h => (
+                <th key={h} className="text-left p-4 font-semibold text-gray-600">{h}</th>
+              ))}</tr>
+            </thead>
             <tbody>
               {filtered.map((r) => (
                 <tr key={r._id} className="border-t border-gray-100 hover:bg-gray-50">
-                  <td className="p-4 font-mono text-xs text-blue-700">{r.rollNumber}</td>
-                  <td className="p-4 font-medium text-gray-900">{r.studentName}</td>
-                  <td className="p-4 text-gray-600">{r.courseName || r.course?.title}</td>
-                  <td className="p-4 text-gray-600 text-xs">{r.branchName || '—'}</td>
+                  <td className="p-4">
+                    {r.formNo && <div className="font-mono text-xs text-purple-700 font-semibold">{r.formNo}</div>}
+                    {r.enrollmentNumber && <div className="font-mono text-xs text-blue-700">{r.enrollmentNumber}</div>}
+                    {r.rollNumber && <div className="font-mono text-xs text-gray-500">{r.rollNumber}</div>}
+                  </td>
+                  <td className="p-4">
+                    <div className="font-medium text-gray-900">{r.studentName}</div>
+                    {r.fatherName && <div className="text-xs text-gray-400">{r.fatherName}</div>}
+                  </td>
+                  <td className="p-4 text-gray-600 text-xs">{r.courseName || r.course?.title}</td>
+                  <td className="p-4 text-gray-600 text-xs">{r.branch || r.branchName || '—'}</td>
                   <td className="p-4 font-semibold text-blue-700">{r.percentage}%</td>
                   <td className="p-4"><span className="px-2 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-bold">{r.grade}</span></td>
                   <td className="p-4"><span className={`px-2 py-1 rounded-lg text-xs font-medium ${r.status === 'Pass' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>{r.status}</span></td>
@@ -218,12 +243,13 @@ export default function AdminResults() {
                   </td>
                 </tr>
               ))}
-              {filtered.length === 0 && <tr><td colSpan={7} className="p-8 text-center text-gray-500">No results found</td></tr>}
+              {filtered.length === 0 && <tr><td colSpan={8} className="p-8 text-center text-gray-500">No results found</td></tr>}
             </tbody>
           </table>
         </div>
       )}
 
+      {/* Edit Modal */}
       {editModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl">
@@ -232,28 +258,10 @@ export default function AdminResults() {
               <button onClick={() => setEditModal(false)}><X className="w-5 h-5 text-white/80 hover:text-white" /></button>
             </div>
             <form onSubmit={handleEdit} className="p-6 space-y-4">
-              <div className="relative">
+              <div>
                 <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><User className="w-3.5 h-3.5" /> Student Name *</label>
-                <input
-                  value={editName}
-                  onChange={e => { setEditName(e.target.value); setNameSearch(e.target.value); setShowSuggestions(true); }}
-                  onFocus={() => setShowSuggestions(true)}
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Search or type student name"
-                  autoComplete="off"
-                />
-                {showSuggestions && (() => {
-                  const filtered = studentNames.filter(n => n.toLowerCase().includes(editName.toLowerCase()) && n !== editName);
-                  return filtered.length > 0 ? (
-                    <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto">
-                      {filtered.map(n => (
-                        <li key={n} onMouseDown={() => { setEditName(n); setShowSuggestions(false); }}
-                          className="px-3 py-2 text-sm hover:bg-blue-50 cursor-pointer">{n}</li>
-                      ))}
-                    </ul>
-                  ) : null;
-                })()}
+                <input value={editName} onChange={e => setEditName(e.target.value)}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
                 <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5"><Upload className="w-3.5 h-3.5" /> Result File (optional)</label>
@@ -271,51 +279,105 @@ export default function AdminResults() {
         </div>
       )}
 
+      {/* Add Result Modal */}
       {modal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-lg font-bold">Add Result</h2>
-              <button onClick={() => setModal(false)}><X className="w-5 h-5 text-gray-500" /></button>
+            <div className="flex items-center justify-between p-5 border-b bg-gradient-to-r from-blue-600 to-indigo-600">
+              <div>
+                <h2 className="text-lg font-bold text-white">Add Result</h2>
+                <p className="text-blue-100 text-xs mt-0.5">Enter Form No or Enrollment No to auto-fill student details</p>
+              </div>
+              <button onClick={() => setModal(false)}><X className="w-5 h-5 text-white/80 hover:text-white" /></button>
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="col-span-2">
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Roll Number *</label>
-                  <input value={form.rollNumber} readOnly className="w-full px-3 py-2 border border-blue-200 bg-blue-50 rounded-xl text-sm font-mono text-blue-700 font-semibold cursor-not-allowed" />
-                </div>
-                {[['studentName', 'Student Name *'], ['batch', 'Batch']].map(([name, label]) => (
-                  <div key={name}>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">{label}</label>
-                    <input value={form[name]} onChange={(e) => setForm({ ...form, [name]: e.target.value })} className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+              {/* Primary Identifiers */}
+              <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-3">
+                <p className="text-xs font-bold text-blue-700 flex items-center gap-1.5"><Hash className="w-3.5 h-3.5" /> Student Identifiers (enter any one to auto-fetch)</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Form Number</label>
+                    <div className="relative">
+                      <input value={form.formNo} onChange={e => setF('formNo', e.target.value)}
+                        onBlur={e => lookupStudent('formNo', e.target.value)}
+                        placeholder="e.g. FORM-2026-0152"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 pr-8" />
+                      {lookingUp && <RefreshCw className="absolute right-2 top-2.5 w-4 h-4 text-blue-400 animate-spin" />}
+                    </div>
                   </div>
-                ))}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Enrollment Number</label>
+                    <div className="relative">
+                      <input value={form.enrollmentNumber} onChange={e => setF('enrollmentNumber', e.target.value)}
+                        onBlur={e => lookupStudent('enrollmentNumber', e.target.value)}
+                        placeholder="e.g. KC2500145"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 pr-8" />
+                      {lookingUp && <RefreshCw className="absolute right-2 top-2.5 w-4 h-4 text-blue-400 animate-spin" />}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Auto-filled Student Details */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Student Name *</label>
+                  <input value={form.studentName} onChange={e => setF('studentName', e.target.value)} required
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Father's Name</label>
+                  <input value={form.fatherName} onChange={e => setF('fatherName', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Course Name</label>
-                  <select value={form.courseName} onChange={(e) => setForm({ ...form, courseName: e.target.value })} className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  <select value={form.courseName} onChange={e => setF('courseName', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                     <option value="">-- Select Course --</option>
                     {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Branch</label>
+                  <input value={form.branch} onChange={e => setF('branch', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Session / Batch</label>
+                  <input value={form.batch} onChange={e => setF('batch', e.target.value)} placeholder="e.g. 2024-25"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Exam Date</label>
-                  <input type="date" value={form.examDate} onChange={(e) => setForm({ ...form, examDate: e.target.value })} className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <input type="date" value={form.examDate} onChange={e => setF('examDate', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Upload Date</label>
+                  <input type="date" value={form.uploadDate} onChange={e => setF('uploadDate', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
               </div>
 
+              {/* Subjects */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-medium text-gray-700">Subjects</label>
+                  <label className="text-sm font-medium text-gray-700">Subject Marks</label>
                   <button type="button" onClick={addSubject} className="text-xs text-blue-600 hover:underline">+ Add Subject</button>
                 </div>
                 {form.subjects.map((s, i) => (
                   <div key={i} className="flex gap-2 mb-2">
-                    <select value={s.name} onChange={(e) => updateSubject(i, 'name', e.target.value)} className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    <select value={s.name} onChange={e => updateSubject(i, 'name', e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                       <option value="">-- Subject --</option>
                       {SUBJECTS.map(sub => <option key={sub} value={sub}>{sub}</option>)}
                     </select>
-                    <input placeholder="Max" type="number" value={s.maxMarks} onChange={(e) => updateSubject(i, 'maxMarks', e.target.value)} className="w-16 px-2 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                    <input placeholder="Got" type="number" value={s.obtainedMarks} onChange={(e) => updateSubject(i, 'obtainedMarks', e.target.value)} className="w-16 px-2 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <input placeholder="Max" type="number" value={s.maxMarks} onChange={e => updateSubject(i, 'maxMarks', e.target.value)}
+                      className="w-16 px-2 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <input placeholder="Got" type="number" value={s.obtainedMarks} onChange={e => updateSubject(i, 'obtainedMarks', e.target.value)}
+                      className="w-16 px-2 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                     {form.subjects.length > 1 && <button type="button" onClick={() => removeSubject(i)} className="text-red-400 hover:text-red-600"><X className="w-4 h-4" /></button>}
                   </div>
                 ))}

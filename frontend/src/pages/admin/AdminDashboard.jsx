@@ -40,9 +40,9 @@ export default function AdminDashboard() {
 
   const cards = [
     { label: 'Total Students', value: stats?.students, icon: Users, path: '/admin/students', bg: 'from-blue-500 to-blue-600' },
-    { label: 'Active Courses', value: stats?.courses, icon: BookOpen, path: '/admin/courses', bg: 'from-emerald-500 to-emerald-600' },
-    { label: 'Admissions', value: stats?.admissions, icon: ClipboardList, path: '/admin/admissions', bg: 'from-violet-500 to-violet-600' },
-    { label: 'Results', value: stats?.results, icon: Award, path: '/admin/results', bg: 'from-orange-500 to-orange-600' },
+    { label: 'Pending Admissions', value: stats?.pendingAdmissions ?? stats?.admissions, icon: ClipboardList, path: '/admin/admissions', bg: 'from-yellow-500 to-orange-500' },
+    { label: 'Approved Admissions', value: stats?.approvedAdmissions, icon: ClipboardList, path: '/admin/admissions', bg: 'from-emerald-500 to-emerald-600' },
+    { label: 'Results Uploaded', value: stats?.results, icon: Award, path: '/admin/results', bg: 'from-orange-500 to-orange-600' },
     { label: 'Certificates', value: stats?.certificates, icon: FileText, path: '/admin/certificates', bg: 'from-teal-500 to-teal-600' },
     { label: 'Analytics', value: null, icon: BarChart2, path: '/admin/analytics', bg: 'from-pink-500 to-rose-500', isAnalytics: true },
   ];

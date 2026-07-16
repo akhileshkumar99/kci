@@ -44,6 +44,7 @@ const AdminBranches = lazy(() => import('./pages/admin/AdminBranches'));
 const AdminExamForms = lazy(() => import('./pages/admin/AdminExamForms'));
 const AdminAdmitCard = lazy(() => import('./pages/admin/AdminAdmitCard'));
 const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
+const AdminAuditLogs = lazy(() => import('./pages/admin/AdminAuditLogs'));
 
 const PageLoader = () => (
   <div className="min-h-[60vh] flex items-center justify-center">
@@ -94,7 +95,7 @@ function ChatBox() {
           >
             <div className="flex items-center gap-3 px-4 py-3" style={{ background: '#075E54' }}>
               <div className="relative">
-                <img src="/logo.png" alt="KCI" className="w-10 h-10 rounded-full object-cover" />
+                <img src="/logo.png" alt="KCI" className="w-10 h-10 rounded-full object-contain bg-white p-0.5" />
                 <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-white" />
               </div>
               <div className="flex-1">
@@ -206,7 +207,7 @@ function RouteLoader() {
             />
           ))}
         </svg>
-        <img src="/logo.png" alt="KCI" className="w-12 h-12 rounded-full object-cover z-10" />
+        <img src="/logo.png" alt="KCI" className="w-12 h-12 rounded-full object-contain bg-white p-1 z-10" />
       </motion.div>
       <motion.p
         animate={{ opacity: [0.4, 1, 0.4] }}
@@ -278,6 +279,7 @@ export default function App() {
             <Route path="exam-forms" element={<AdminExamForms />} />
             <Route path="admit-card" element={<AdminAdmitCard />} />
             <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="audit-logs" element={<AdminAuditLogs />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

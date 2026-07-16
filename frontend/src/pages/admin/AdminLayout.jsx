@@ -5,7 +5,7 @@ import {
   LayoutDashboard, BookOpen, Users, FileText, Award, Image,
   ClipboardList, UserCheck, MessageSquare, LogOut, Menu,
   ChevronRight, Bell, Sun, Moon, Search, ChevronDown,
-  AlertCircle, CheckCircle, Info, Building2, Download, BarChart2
+  AlertCircle, CheckCircle, Info, Building2, Download, BarChart2, Shield
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import DevCredit from '../../components/DevCredit';
@@ -26,6 +26,7 @@ const navItems = [
   { path: '/admin/exam-forms', label: 'Exam Forms', icon: FileText, color: 'text-blue-400' },
   { path: '/admin/admit-card', label: 'Admit Card', icon: Download, color: 'text-yellow-400' },
   { path: '/admin/analytics', label: 'Analytics', icon: BarChart2, color: 'text-pink-400' },
+  { path: '/admin/audit-logs', label: 'Audit Logs', icon: Shield, color: 'text-red-400' },
 ];
 
 const mockNotifications = [
@@ -118,7 +119,7 @@ export default function AdminLayout() {
             {/* Logo */}
             <div className={`h-16 flex items-center px-4 border-b ${dark ? 'border-gray-800' : 'border-gray-100'} shrink-0`}>
               <motion.div whileHover={{ scale: 1.05 }} className="relative shrink-0">
-                <img src="/logo.png" alt="KCI" className="w-9 h-9 rounded-xl object-cover shadow-md ring-2 ring-blue-500/30" />
+                <img src="/logo.png" alt="KCI Logo" className="w-10 h-10 rounded-xl object-contain shadow-md ring-2 ring-blue-500/30 bg-white p-0.5" />
                 <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
               </motion.div>
               <div className="ml-3 overflow-hidden">
@@ -247,8 +248,8 @@ export default function AdminLayout() {
             <div className="relative" ref={profileRef}>
               <button onClick={() => { setProfileOpen(!profileOpen); setNotifOpen(false); }}
                 className={`flex items-center gap-2 px-2 sm:px-3 py-1.5 rounded-xl transition-colors ${dark ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}>
-                <div className="w-8 h-8 rounded-xl overflow-hidden shadow-sm ring-2 ring-blue-500/30 shrink-0">
-                  <img src="/logo.png" alt="KCI" className="w-full h-full object-cover" />
+                <div className="w-8 h-8 rounded-xl overflow-hidden shadow-sm ring-2 ring-blue-500/30 shrink-0 bg-white">
+                  <img src="/logo.png" alt="KCI" className="w-full h-full object-contain p-0.5" />
                 </div>
                 <div className="hidden sm:block text-left">
                   <div className={`text-xs font-bold ${text}`}>Admin</div>
