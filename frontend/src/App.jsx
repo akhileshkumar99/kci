@@ -137,7 +137,7 @@ function ChatBox() {
         onClick={() => setOpen(!open)}
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        transition={{ delay: 2.5, type: 'spring', stiffness: 200 }}
+        transition={{ delay: 1.5, type: 'spring', stiffness: 200 }}
         whileHover={{ scale: 1.12 }}
         whileTap={{ scale: 0.9 }}
         className="w-12 h-12 rounded-full shadow-xl flex items-center justify-center relative"
@@ -156,7 +156,7 @@ function ChatBox() {
         rel="noreferrer"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        transition={{ delay: 2.5, type: 'spring', stiffness: 200 }}
+        transition={{ delay: 1.5, type: 'spring', stiffness: 200 }}
         whileHover={{ scale: 1.12 }}
         whileTap={{ scale: 0.9 }}
         className="w-14 h-14 rounded-full shadow-2xl flex items-center justify-center relative"

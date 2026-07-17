@@ -1,7 +1,6 @@
 require('dotenv').config();
 const dns = require('dns');
 const dnsPromises = require('dns').promises;
-// Force Google DNS for MongoDB Atlas SRV resolution
 dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
 dnsPromises.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
 dns.setDefaultResultOrder('ipv4first');
@@ -9,12 +8,22 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
+const compression = require('compression');
 
 const app = express();
 
+// Gzip compression — reduces response size by ~70%
+app.use(compression());
+
 app.use(cors());
-app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.json({ limit: '10mb' }));
+
+// Cache static uploads for 7 days
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  maxAge: '7d',
+  etag: true,
+  lastModified: true,
+}));
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -38,6 +47,12 @@ app.use('/api/admit-card', require('./routes/admitCard'));
 app.use('/api/test', require('./routes/test'));
 app.get('/', (req, res) => res.json({ message: 'KCI API Running' }));
 app.get('/api/auth/ping', (req, res) => res.json({ status: 'ok' }));
+
+// Keep-alive for MongoDB connection
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected, reconnecting...');
+  mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 10000, socketTimeoutMS: 45000, family: 4 });
+});
 
 mongoose.connect(process.env.MONGO_URI, {
   serverSelectionTimeoutMS: 10000,
