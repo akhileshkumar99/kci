@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Building2, CheckCircle, Clock, Phone, MapPin, Trash2, Check,
-  Plus, Pencil, Eye, X, Mail, User, Lock, Search, FileText, AlertTriangle, CalendarClock
+  Plus, Pencil, Eye, X, Mail, User, Lock, Search, FileText, AlertTriangle, CalendarClock, Camera
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../../utils/api';
@@ -96,10 +96,29 @@ function BranchForm({ initial, onSave, onClose, loading }) {
   );
 }
 
-function ViewModal({ branch, onClose, onEdit, onApprove, approving, approvedPassword }) {
+function ViewModal({ branch, onClose, onEdit, onApprove, approving, approvedPassword, onPhotoUpload }) {
   const [copied, setCopied] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const photoRef = useRef();
   const copyText = text => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); };
   const renewal = getRenewal(branch.renewalDate);
+
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('photo', file);
+      const { data } = await api.put(`/branch/${branch._id}/upload-photo`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      onPhotoUpload(data.branch);
+      toast.success('Photo uploaded!');
+    } catch { toast.error('Upload failed'); }
+    setUploading(false);
+  };
+
+  const photoUrl = branch.photo
+    ? (branch.photo.startsWith('http') ? branch.photo : `${import.meta.env.VITE_API_URL || ''}${branch.photo}`)
+    : null;
 
   const rows = [
     ['Branch Name', branch.branchName],
@@ -117,8 +136,19 @@ function ViewModal({ branch, onClose, onEdit, onApprove, approving, approvedPass
   return (
     <Modal title="Branch Details" onClose={onClose}>
       <div className="flex items-center gap-4 mb-6 p-4 bg-blue-50 rounded-2xl">
-        <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center shrink-0">
-          <Building2 className="w-7 h-7 text-blue-600" />
+        <div className="relative shrink-0">
+          {photoUrl ? (
+            <img src={photoUrl} alt={branch.name} className="w-14 h-14 rounded-full object-cover border-2 border-blue-200" />
+          ) : (
+            <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center border-2 border-blue-200">
+              <span className="text-xl font-black text-blue-600">{(branch.name || 'B')[0].toUpperCase()}</span>
+            </div>
+          )}
+          <button onClick={() => photoRef.current.click()} disabled={uploading}
+            className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center shadow-md transition-colors disabled:opacity-60">
+            {uploading ? <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Camera className="w-3 h-3 text-white" />}
+          </button>
+          <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
         </div>
         <div>
           <h3 className="font-black text-gray-900 text-lg">{branch.name}</h3>
@@ -409,7 +439,8 @@ export default function AdminBranches() {
         )}
         {modal === 'view' && selected && (
           <ViewModal branch={selected} onClose={() => { setModal(null); setApprovedPassword(''); }} onEdit={() => setModal('edit')}
-            onApprove={handleApprove} approving={approving} approvedPassword={approvedPassword} />
+            onApprove={handleApprove} approving={approving} approvedPassword={approvedPassword}
+            onPhotoUpload={updated => { setBranches(p => p.map(b => b._id === updated._id ? updated : b)); setSelected(updated); }} />
         )}
       </AnimatePresence>
     </div>

@@ -795,6 +795,8 @@ export default function BranchDashboard() {
   const [selectedTest, setSelectedTest] = useState(null);
   const [testAttempts, setTestAttempts] = useState([]);
   const [savingTest, setSavingTest] = useState(false);
+  const [logoPreview, setLogoPreview] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState(false);
   const importRef = useRef();
 
   const exportExcel = () => {
@@ -1054,111 +1056,199 @@ export default function BranchDashboard() {
   const certFields = [['Student', 'studentName'], ['Roll No', 'rollNumber'], ['Course', 'courseName'], ['Cert No', 'certificateNumber'], ['Grade', 'grade'], ['Issue Date', 'issueDate']];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-sky-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex">
 
-      {/* ── HEADER ── */}
-      <header className="bg-white border-b border-blue-100 shadow-md sticky top-0 z-40">
-        <div className="max-w-full px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <button onClick={() => setSidebarOpen(o => !o)}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-700 transition-all shrink-0">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 bg-black/40 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
+      )}
+
+      <style>{`
+        @keyframes sidebarPulse {
+          0% { opacity: 0.6; }
+          100% { opacity: 1; }
+        }
+        @keyframes floatOrb {
+          0% { transform: translateY(0px) scale(1); }
+          100% { transform: translateY(-20px) scale(1.1); }
+        }
+      `}</style>
+
+      {/* ── SIDEBAR ── */}
+      <aside className={`relative fixed lg:static inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-300 shrink-0 overflow-hidden ${sidebarOpen ? 'w-60' : 'w-0 lg:w-16'}`}
+        style={{ background: 'linear-gradient(160deg, #0f0c29, #302b63, #24243e)' }}>
+        {/* Animated gradient overlay */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div style={{
+            position: 'absolute', top: '-40px', left: '-40px',
+            width: '180px', height: '180px',
+            background: 'radial-gradient(circle, rgba(139,92,246,0.35) 0%, transparent 70%)',
+            animation: 'floatOrb 5s ease-in-out infinite alternate',
+            borderRadius: '50%'
+          }} />
+          <div style={{
+            position: 'absolute', bottom: '60px', right: '-30px',
+            width: '140px', height: '140px',
+            background: 'radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%)',
+            animation: 'floatOrb 7s ease-in-out infinite alternate-reverse',
+            borderRadius: '50%'
+          }} />
+          <div style={{
+            position: 'absolute', top: '45%', left: '10px',
+            width: '100px', height: '100px',
+            background: 'radial-gradient(circle, rgba(168,85,247,0.2) 0%, transparent 70%)',
+            animation: 'floatOrb 6s ease-in-out infinite alternate',
+            borderRadius: '50%'
+          }} />
+        </div>
+        {/* Sidebar top */}
+        <div className="relative flex items-center gap-3 px-4 py-4 border-b border-white/10 shrink-0 min-h-[60px]">
+          <button onClick={() => setLogoPreview(true)}
+            className="w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-white flex items-center justify-center hover:ring-2 hover:ring-white/50 transition-all">
+            <img src="/logo.png" alt="KCI"
+              className="w-full h-full object-contain"
+              style={{ imageRendering: 'crisp-edges' }}
+              onError={e => { e.target.style.display='none'; }}
+            />
+          </button>
+          {sidebarOpen && (
+            <div className="min-w-0">
+              <div className="font-black text-white text-sm leading-tight truncate">Branch Portal</div>
+              <div className="text-[10px] text-blue-300 font-bold font-mono truncate">{user?.branchCode}</div>
+            </div>
+          )}
+        </div>
+        {/* Branch info */}
+        {sidebarOpen && (
+          <div className="relative px-4 py-3 border-b border-white/10 shrink-0">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => user?.photo && setPhotoPreview(true)}
+                className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-white/40 bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center hover:border-white/80 hover:scale-105 transition-all">
+                {user?.photo ? (
+                  <img
+                    src={user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_URL || ''}${user.photo}`}
+                    alt={user.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-white font-black text-base">{(user?.branchName || 'B')[0].toUpperCase()}</span>
+                )}
+              </button>
+              <div className="min-w-0">
+                <div className="text-sm font-black text-white truncate">{user?.branchName}</div>
+                <div className="text-[10px] text-blue-300 truncate">{user?.branchCity}</div>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Nav */}
+        <nav className="relative flex-1 overflow-y-auto py-3 space-y-0.5 px-2">
+          {tabs.map(({ id, label, icon: Icon }) => (
+            <button key={id}
+              onClick={() => { setActiveTab(id); setSearch(''); if (window.innerWidth < 1024) setSidebarOpen(false); }}
+              title={!sidebarOpen ? label : undefined}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
+                activeTab === id
+                  ? 'text-white shadow-lg'
+                  : 'text-purple-200 hover:bg-white/10 hover:text-white'
+              }`}
+              style={activeTab === id ? {
+                background: 'linear-gradient(90deg, rgba(139,92,246,0.7), rgba(99,102,241,0.5))',
+                boxShadow: '0 4px 15px rgba(139,92,246,0.4)'
+              } : {}}>
+              <Icon className="w-4 h-4 shrink-0" />
+              {sidebarOpen && <span className="flex-1 text-left truncate">{label}</span>}
+              {sidebarOpen && activeTab === id && <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />}
+            </button>
+          ))}
+        </nav>
+        {/* Sidebar footer */}
+        <div className="relative p-3 border-t border-white/10 shrink-0 space-y-1">
+          <button onClick={handleLogout} title={!sidebarOpen ? 'Logout' : undefined}
+            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-all">
+            <LogOut className="w-4 h-4 shrink-0" />
+            {sidebarOpen && 'Logout'}
+          </button>
+        </div>
+      </aside>
+
+      {/* ── MAIN AREA ── */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+        {/* Header */}
+        <header className="bg-white/80 backdrop-blur-xl border-b border-white/50 shadow-sm sticky top-0 z-20 shrink-0">
+          <div className="px-3 sm:px-5 h-14 flex items-center justify-between">
+            <button onClick={() => setSidebarOpen(p => !p)}
+              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors text-gray-600">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md shrink-0">
-              <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-            </div>
-            <div className="min-w-0">
-              <div className="font-black text-gray-900 text-xs sm:text-sm leading-tight truncate max-w-[130px] sm:max-w-[200px] md:max-w-xs">{user?.branchName || 'Branch Dashboard'}</div>
-              <div className="text-[9px] sm:text-[10px] font-bold text-blue-600 font-mono">{user?.branchCode}</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-green-50 rounded-xl border border-green-200">
-              <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-[11px] font-bold text-green-700">{user?.branchCity}</span>
-            </div>
-            <button onClick={toggle}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all">
-              {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
-            <button onClick={handleLogout}
-              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold text-white bg-red-500 hover:bg-red-600 border border-red-400 transition-all">
-              <LogOut className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Logout</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <div className="flex flex-1 relative">
-        {/* ── SIDEBAR OVERLAY ── */}
-        {sidebarOpen && (
-          <div className="fixed inset-0 bg-black/30 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
-        )}
-
-        {/* ── SIDEBAR ── */}
-        <aside className={`fixed top-14 sm:top-16 left-0 h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] w-56 sm:w-60 bg-white border-r border-blue-100 shadow-xl z-30 flex flex-col transition-transform duration-300 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 lg:static lg:h-auto lg:shadow-none`}>
-          <div className="flex-1 py-3 overflow-y-auto">
-            <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest px-4 mb-2">Navigation</p>
-            {tabs.map(({ id, label, icon: Icon }) => (
-              <button key={id}
-                onClick={() => { setActiveTab(id); setSearch(''); setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold transition-all ${
-                  activeTab === id
-                    ? 'bg-blue-600 text-white rounded-xl mx-2 w-[calc(100%-1rem)]'
-                    : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
-                }`}>
-                <Icon className="w-4 h-4 shrink-0" /> {label}
+            <div className="font-black text-gray-900 text-sm">{tabs.find(t => t.id === activeTab)?.label || 'Dashboard'}</div>
+            <div className="flex items-center gap-2">
+              <button onClick={toggle} className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all">
+                {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
-            ))}
+            </div>
           </div>
-          <div className="p-3 border-t border-blue-100">
-            <div className="text-[10px] text-gray-500 font-semibold truncate">{user?.email}</div>
-            <div className="text-[9px] text-blue-400 mt-0.5">{user?.branchCity}</div>
-          </div>
-        </aside>
+        </header>
 
-      <div className="flex-1 min-w-0 overflow-x-hidden px-3 sm:px-4 py-4 sm:py-5 space-y-4 sm:space-y-5">
+      <div className="flex-1 p-3 sm:p-5 space-y-4 sm:space-y-6 overflow-y-auto">
 
         {/* ── OVERVIEW ── */}
         {activeTab === 'overview' && (
           <div className="space-y-5">
 
-            {/* Hero card */}
-            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-              className="relative bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 rounded-3xl overflow-hidden shadow-xl">
-              <div className="absolute -top-8 -right-8 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
-              <div className="absolute -bottom-6 -left-6 w-36 h-36 bg-violet-400/20 rounded-full blur-2xl" />
-              <div className="relative px-6 py-6 flex flex-col sm:flex-row items-center sm:items-start gap-5">
-                {/* Avatar */}
-                <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center shadow-xl shrink-0">
-                  <Building2 className="w-8 h-8 text-white" />
-                </div>
-                {/* Info */}
-                <div className="flex-1 text-center sm:text-left">
-                  <p className="text-blue-200 text-xs font-semibold mb-0.5">Branch Dashboard</p>
-                  <h2 className="text-xl sm:text-2xl font-black text-white leading-tight mb-2">{user?.branchName}</h2>
-                  <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-                    {[
-                      { text: user?.branchCode, mono: true },
-                      { text: user?.branchCity },
-                      { text: user?.email },
-                    ].filter(i => i.text).map((item, i) => (
-                      <span key={i} className={`bg-white/15 backdrop-blur-sm text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-white/20 ${item.mono ? 'font-mono' : ''}`}>
-                        {item.text}
-                      </span>
-                    ))}
+            {/* Hero card - Student Dashboard style */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              className="relative bg-gradient-to-br from-blue-700 via-indigo-700 to-violet-700 rounded-3xl overflow-hidden shadow-2xl">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full translate-x-1/3 -translate-y-1/3" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -translate-x-1/3 translate-y-1/3" />
+              <div className="relative p-6 sm:p-8">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+                  <div className="w-20 h-20 rounded-full bg-white border-2 border-white/30 flex items-center justify-center shadow-xl shrink-0 overflow-hidden">
+                    {user?.photo ? (
+                      <img
+                        src={user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_URL || ''}${user.photo}`}
+                        alt={user.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <>
+                        <img src="/logo.png" alt="KCI Logo" className="w-full h-full object-cover" onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
+                        <div style={{display:'none'}} className="w-full h-full items-center justify-center">
+                          <Building2 className="w-10 h-10 text-blue-600" />
+                        </div>
+                      </>
+                    )}
                   </div>
-                </div>
-                {/* Status */}
-                <div className="shrink-0 flex flex-col items-center gap-2">
-                  <div className="px-4 py-2 bg-green-400/20 border border-green-400/40 rounded-2xl">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                      <span className="text-green-300 text-xs font-black">Active Branch</span>
+                  <div className="flex-1 text-center sm:text-left">
+                    <div className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-1">Branch Dashboard</div>
+                    <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-2">{user?.branchName}</h2>
+                    <div className="flex flex-wrap justify-center sm:justify-start gap-2 mb-4">
+                      {[user?.branchCode, user?.branchCity, user?.email].filter(Boolean).map((t, i) => (
+                        <span key={i} className="flex items-center gap-1.5 bg-white/15 text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20">{t}</span>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap justify-center sm:justify-start gap-4">
+                      {[
+                        { label: 'Students', value: stats?.students ?? 0, color: 'text-yellow-300' },
+                        { label: 'Results', value: stats?.results ?? 0, color: 'text-emerald-300' },
+                        { label: 'Certificates', value: stats?.certificates ?? 0, color: 'text-violet-300' },
+                      ].map(({ label, value, color }) => (
+                        <div key={label} className="text-center">
+                          <div className={`text-2xl font-black ${color}`}>{value}</div>
+                          <div className="text-white/50 text-[10px] font-semibold uppercase tracking-wide">{label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="shrink-0">
+                    <div className="px-4 py-2 bg-green-400/20 border border-green-400/50 rounded-2xl">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                        <span className="text-green-300 text-xs font-black">Active</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1166,25 +1256,25 @@ export default function BranchDashboard() {
             </motion.div>
 
             {/* Stat cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               {[
-                { icon: Users, label: 'Students', value: stats?.students, gradient: 'from-blue-500 to-blue-600', delay: 0, tab: 'students' },
-                { icon: CheckCircle, label: 'Active', value: stats?.active, gradient: 'from-green-500 to-emerald-600', delay: 0.05, tab: 'students' },
-                { icon: ClipboardList, label: 'Admissions', value: stats?.admissions, gradient: 'from-orange-500 to-amber-500', delay: 0.1, tab: 'admissions' },
-                { icon: BookOpen, label: 'Courses', value: stats?.courses, gradient: 'from-violet-500 to-purple-600', delay: 0.15 },
-                { icon: Award, label: 'Results', value: stats?.results, gradient: 'from-yellow-500 to-orange-500', delay: 0.2, tab: 'results' },
-                { icon: FileText, label: 'Certificates', value: stats?.certificates, gradient: 'from-teal-500 to-cyan-600', delay: 0.25, tab: 'certificates' },
-              ].map(({ icon: Icon, label, value, gradient, delay, tab }) => (
-                <motion.div key={label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}
+                { icon: Users, label: 'Students', value: stats?.students, color: 'bg-blue-500', delay: 0, tab: 'students' },
+                { icon: CheckCircle, label: 'Active', value: stats?.active, color: 'bg-emerald-500', delay: 0.05, tab: 'students' },
+                { icon: ClipboardList, label: 'Admissions', value: stats?.admissions, color: 'bg-orange-500', delay: 0.1, tab: 'admissions' },
+                { icon: BookOpen, label: 'Courses', value: stats?.courses, color: 'bg-violet-500', delay: 0.15 },
+                { icon: Award, label: 'Results', value: stats?.results, color: 'bg-yellow-500', delay: 0.2, tab: 'results' },
+                { icon: FileText, label: 'Certificates', value: stats?.certificates, color: 'bg-teal-500', delay: 0.25, tab: 'certificates' },
+              ].map(({ icon: Icon, label, value, color, delay, tab }) => (
+                <motion.div key={label} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}
                   onClick={tab ? () => { setActiveTab(tab); setSearch(''); } : undefined}
-                  className={`bg-white rounded-2xl p-3 sm:p-4 border border-blue-100 overflow-hidden relative group shadow-sm ${
-                    tab ? 'cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all duration-300' : ''
+                  className={`bg-white rounded-xl p-4 border border-gray-200 shadow-sm ${
+                    tab ? 'cursor-pointer hover:shadow-md hover:border-blue-300 hover:-translate-y-0.5 transition-all' : ''
                   }`}>
-                  <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-2 sm:mb-3 shadow-md`}>
-                    <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  <div className={`w-9 h-9 rounded-lg ${color} flex items-center justify-center mb-3`}>
+                    <Icon className="w-4.5 h-4.5 text-white" />
                   </div>
-                  <div className="text-xl sm:text-2xl font-black text-gray-900">{value ?? 0}</div>
-                  <div className="text-[10px] sm:text-[11px] text-gray-500 font-semibold mt-0.5">{label}</div>
+                  <div className="text-2xl font-black text-gray-900">{value ?? 0}</div>
+                  <div className="text-xs text-gray-500 font-medium mt-0.5">{label}</div>
                 </motion.div>
               ))}
             </div>
@@ -1306,14 +1396,14 @@ export default function BranchDashboard() {
 
             {/* Branch info card */}
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-              className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
-              <div className="px-5 py-3 flex items-center gap-2 border-b border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50">
-                <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <Building2 className="w-4 h-4 text-white" />
+              className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="px-5 py-3 flex items-center gap-2 border-b border-gray-100">
+                <div className="w-6 h-6 bg-blue-600 rounded-md flex items-center justify-center">
+                  <Building2 className="w-3.5 h-3.5 text-white" />
                 </div>
                 <span className="text-gray-800 font-black text-sm">Branch Information</span>
               </div>
-              <div className="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {[
                   { icon: '🏢', label: 'Branch Name', value: user?.branchName },
                   { icon: '🎫', label: 'Branch Code', value: user?.branchCode, mono: true },
@@ -1322,10 +1412,10 @@ export default function BranchDashboard() {
                   { icon: '📧', label: 'Email', value: user?.email },
                   { icon: '📮', label: 'Address', value: user?.branchAddress || user?.address || '—' },
                 ].map(({ icon, label, value, mono }) => (
-                  <div key={label} className="flex items-start gap-3 p-3 bg-blue-50/60 rounded-xl border border-blue-100">
-                    <span className="text-lg shrink-0">{icon}</span>
+                  <div key={label} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <span className="text-base shrink-0">{icon}</span>
                     <div className="min-w-0">
-                      <div className="text-[10px] font-bold text-blue-400 uppercase tracking-wide">{label}</div>
+                      <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label}</div>
                       <div className={`text-sm font-bold text-gray-800 truncate ${mono ? 'font-mono text-blue-600' : ''}`}>{value || '—'}</div>
                     </div>
                   </div>
@@ -2026,6 +2116,41 @@ export default function BranchDashboard() {
         </div>
       )}
       </div>
+
+      {/* Logo Preview Modal */}
+      {logoPreview && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setLogoPreview(false)}>
+          <div className="relative" onClick={e => e.stopPropagation()}>
+            <img src="/logo.png" alt="KCI Logo" className="max-w-xs w-64 h-64 object-contain rounded-2xl shadow-2xl bg-white p-4" />
+            <button onClick={() => setLogoPreview(false)}
+              className="absolute -top-3 -right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors">
+              <X className="w-4 h-4 text-gray-700" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Owner Photo Preview Modal */}
+      {photoPreview && user?.photo && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setPhotoPreview(false)}>
+          <div className="relative" onClick={e => e.stopPropagation()}>
+            <img
+              src={user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_URL || ''}${user.photo}`}
+              alt={user.name}
+              className="w-64 h-64 object-cover rounded-2xl shadow-2xl border-4 border-white"
+            />
+            <div className="mt-3 text-center">
+              <div className="text-white font-black text-sm">{user.name}</div>
+              <div className="text-white/60 text-xs">{user.branchName}</div>
+            </div>
+            <button onClick={() => setPhotoPreview(false)}
+              className="absolute -top-3 -right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors">
+              <X className="w-4 h-4 text-gray-700" />
+            </button>
+          </div>
+        </div>
+      )}
+
       </div>
     </div>
   );

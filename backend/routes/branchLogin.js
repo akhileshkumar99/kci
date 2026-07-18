@@ -162,6 +162,27 @@ router.post('/', protect, admin, async (req, res) => {
   }
 });
 
+// Admin: Upload branch owner photo
+const multer = require('multer');
+const path = require('path');
+const photoStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
+});
+const photoUpload = multer({ storage: photoStorage });
+
+router.put('/:id/upload-photo', protect, admin, photoUpload.single('photo'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
+    const photo = `/uploads/${req.file.filename}`;
+    const branch = await User.findByIdAndUpdate(req.params.id, { photo }, { new: true }).select('-password');
+    if (!branch) return res.status(404).json({ success: false, message: 'Not found' });
+    res.json({ success: true, branch });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Admin: Update branch
 router.put('/:id', protect, admin, async (req, res) => {
   try {
