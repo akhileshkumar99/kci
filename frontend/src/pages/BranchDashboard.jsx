@@ -6,7 +6,7 @@ import {
   Building2, Users, ClipboardList, Award, FileText, LogOut,
   TrendingUp, BookOpen, CheckCircle, Clock, Search, Eye, X,
   Plus, Pencil, Trash2, Check, UserCheck, ClipboardCheck, Sun, Moon, Download, Upload, BookMarked,
-  RefreshCw, AlertTriangle, CalendarClock
+  RefreshCw, AlertTriangle, CalendarClock, HelpCircle, MessageCircle, Bug, BookOpenCheck, Send, ChevronDown, ChevronUp
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
@@ -33,9 +33,8 @@ const EMPTY_RESULT = { rollNumber: '', studentName: '', courseName: '', batch: '
 const EMPTY_CERT = { rollNumber: '', studentName: '', courseName: '', certificateNumber: '', grade: '', issueDate: '' };
 
 function RenewalCountdown({ renewalDate, approvedAt }) {
-  const [daysLeft, setDaysLeft] = useState(null);
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, mins: 0, secs: 0, total: 0 });
 
-  // If no renewalDate but approvedAt exists, compute 1 year from approvedAt
   const effectiveRenewal = renewalDate || (approvedAt
     ? new Date(new Date(approvedAt).setFullYear(new Date(approvedAt).getFullYear() + 1)).toISOString()
     : null);
@@ -43,61 +42,73 @@ function RenewalCountdown({ renewalDate, approvedAt }) {
   useEffect(() => {
     if (!effectiveRenewal) return;
     const calc = () => {
-      const now = new Date();
-      const due = new Date(effectiveRenewal);
-      const diff = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
-      setDaysLeft(diff);
+      const diff = new Date(effectiveRenewal) - new Date();
+      if (diff <= 0) { setTimeLeft({ days: 0, hours: 0, mins: 0, secs: 0, total: diff }); return; }
+      setTimeLeft({
+        total: diff,
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff % 86400000) / 3600000),
+        mins: Math.floor((diff % 3600000) / 60000),
+        secs: Math.floor((diff % 60000) / 1000),
+      });
     };
     calc();
-    const timer = setInterval(calc, 60000);
-    return () => clearInterval(timer);
+    const t = setInterval(calc, 1000);
+    return () => clearInterval(t);
   }, [effectiveRenewal]);
 
-  if (!effectiveRenewal) {
-    return (
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="bg-gray-100 border border-gray-200 rounded-2xl px-5 py-4 flex items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-gray-200 flex items-center justify-center shrink-0">
-          <CalendarClock className="w-6 h-6 text-gray-400" />
-        </div>
-        <div>
-          <div className="text-xs font-bold text-gray-400 uppercase tracking-wide">Renewal Due</div>
-          <div className="text-sm font-black text-gray-500">No renewal date set</div>
-          <div className="text-xs text-gray-400">Contact admin to set renewal date</div>
-        </div>
-      </motion.div>
-    );
-  }
+  if (!effectiveRenewal) return (
+    <div className="mt-3 px-3 py-2.5 rounded-xl flex items-center gap-2" style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.15)' }}>
+      <CalendarClock className="w-4 h-4 text-white/50 shrink-0" />
+      <span className="text-xs text-white/60 font-semibold">No renewal date set</span>
+    </div>
+  );
 
-  if (daysLeft === null) return null;
-
-  const isExpired = daysLeft !== null && daysLeft < 0;
-  const isUrgent = daysLeft !== null && daysLeft <= 7 && daysLeft >= 0;
-  const isWarning = daysLeft !== null && daysLeft <= 30 && daysLeft > 7;
-
-  const bgClass = isExpired ? 'bg-red-600' : isUrgent ? 'bg-orange-500' : isWarning ? 'bg-yellow-500' : 'bg-emerald-500';
-
-  const label = isExpired
-    ? `Expired ${Math.abs(daysLeft)} day${Math.abs(daysLeft) !== 1 ? 's' : ''} ago`
-    : daysLeft === 0 ? 'Expires Today!'
-    : `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left`;
+  const isExpired = timeLeft.total <= 0;
+  const isUrgent = timeLeft.days <= 7 && !isExpired;
+  const isWarning = timeLeft.days <= 30 && timeLeft.days > 7;
+  const barColor = '#FFFFFF';
+  const label = isExpired ? 'EXPIRED' : isUrgent ? 'URGENT' : isWarning ? 'WARNING' : 'ACTIVE';
+  const tileBg = 'rgba(255,255,255,0.10)';
+  const borderCol = 'rgba(255,255,255,0.35)';
 
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-      className={`${bgClass} rounded-2xl px-5 py-4 flex items-center gap-4 shadow-lg text-white`}>
-      <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
-        {isExpired || isUrgent ? <AlertTriangle className="w-6 h-6 text-white" /> : <CalendarClock className="w-6 h-6 text-white" />}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-xs font-bold text-white/80 uppercase tracking-wide">🔄 Franchise Renewal</div>
-        <div className="text-2xl font-black leading-tight">{label}</div>
-        <div className="text-xs text-white/70 mt-0.5 flex flex-wrap gap-3">
-          {approvedAt && <span>Active from: {new Date(approvedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>}
-          <span>Due: {new Date(effectiveRenewal).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+    <div className="mt-3 rounded-2xl overflow-hidden" style={{ background: `linear-gradient(135deg, ${tileBg}, rgba(255,255,255,0.06))`, border: `1.5px solid ${borderCol}55`, boxShadow: `0 0 16px ${borderCol}22` }}>
+      {/* Header */}
+      <div className="flex items-center justify-between px-3 pt-3 pb-2">
+        <div className="flex items-center gap-1.5">
+          {isExpired || isUrgent
+            ? <AlertTriangle className="w-3.5 h-3.5 animate-pulse" style={{ color: barColor }} />
+            : <CalendarClock className="w-3.5 h-3.5" style={{ color: barColor }} />}
+          <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: barColor }}>🔄 Franchise Renewal</span>
         </div>
+        <span className="text-[9px] font-black px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.20)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>{label}</span>
       </div>
-      {(isExpired || isUrgent) && <div className="shrink-0"><div className="w-2.5 h-2.5 bg-white rounded-full animate-ping" /></div>}
-    </motion.div>
+
+      {/* Countdown tiles */}
+      <div className="grid grid-cols-4 gap-1.5 px-3 pb-2">
+        {[['Days', timeLeft.days], ['Hrs', timeLeft.hours], ['Min', timeLeft.mins], ['Sec', timeLeft.secs]].map(([l, v]) => (
+          <div key={l} className="text-center py-2 rounded-xl" style={{ background: 'rgba(0,0,0,0.25)', border: `1px solid ${borderCol}44` }}>
+            <div className="text-xl font-black leading-none" style={{ color: barColor, textShadow: `0 0 12px ${barColor}88` }}>
+              {String(v).padStart(2, '0')}
+            </div>
+            <div className="text-[9px] font-bold mt-0.5" style={{ color: barColor + 'BB' }}>{l}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Dates */}
+      <div className="flex justify-between px-3 pb-2.5">
+        {approvedAt && (
+          <span className="text-[10px] font-semibold" style={{ color: barColor + 'CC' }}>
+            From: {new Date(approvedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+          </span>
+        )}
+        <span className="text-[10px] font-semibold" style={{ color: barColor + 'CC' }}>
+          Due: {new Date(effectiveRenewal).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -762,6 +773,177 @@ function TestFormModal({ initial, onSave, onClose, saving }) {
   );
 }
 
+function PasswordResetModal({ onClose, userEmail }) {
+  const [step, setStep] = useState(1); // 1=form, 2=success
+  const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [saving, setSaving] = useState(false);
+  const [show, setShow] = useState({ cur: false, new: false, con: false });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.currentPassword) return toast.error('Enter current password');
+    if (form.newPassword.length < 6) return toast.error('New password must be at least 6 characters');
+    if (form.newPassword !== form.confirmPassword) return toast.error('Passwords do not match');
+    setSaving(true);
+    try {
+      await api.put('/auth/change-password', { currentPassword: form.currentPassword, newPassword: form.newPassword });
+      setStep(2);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Current password is incorrect');
+    }
+    setSaving(false);
+  };
+
+  const inp = 'w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-amber-500 bg-gray-50 focus:bg-white transition-all pr-10';
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-sm"
+        onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ background: '#FFFBEB' }}>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center">
+              <RefreshCw className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-base font-black text-gray-900">🔑 Password Reset</h2>
+              <p className="text-xs text-gray-500">{userEmail}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-amber-100"><X className="w-4 h-4 text-gray-500" /></button>
+        </div>
+        <div className="p-5">
+          {step === 2 ? (
+            <div className="text-center py-6 space-y-3">
+              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
+                <Check className="w-8 h-8 text-green-600" />
+              </div>
+              <div className="text-lg font-black text-gray-900">Password Changed!</div>
+              <p className="text-sm text-gray-500">Your password has been updated successfully.</p>
+              <button onClick={onClose} className="w-full py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition-colors">Done</button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {[
+                { key: 'currentPassword', label: 'Current Password', showKey: 'cur' },
+                { key: 'newPassword', label: 'New Password', showKey: 'new' },
+                { key: 'confirmPassword', label: 'Confirm New Password', showKey: 'con' },
+              ].map(({ key, label, showKey }) => (
+                <div key={key} className="space-y-1">
+                  <label className="text-xs font-semibold text-gray-600">{label}</label>
+                  <div className="relative">
+                    <input
+                      type={show[showKey] ? 'text' : 'password'}
+                      value={form[key]}
+                      onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
+                      placeholder={label}
+                      className={inp}
+                    />
+                    <button type="button" onClick={() => setShow(p => ({ ...p, [showKey]: !p[showKey] }))}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                      <Eye className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {form.newPassword && form.confirmPassword && (
+                <div className={`text-xs font-bold px-3 py-2 rounded-lg ${
+                  form.newPassword === form.confirmPassword ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'
+                }`}>
+                  {form.newPassword === form.confirmPassword ? '✓ Passwords match' : '✗ Passwords do not match'}
+                </div>
+              )}
+              <button type="submit" disabled={saving}
+                className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold disabled:opacity-60 flex items-center justify-center gap-2 transition-colors">
+                {saving && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+                Update Password
+              </button>
+            </form>
+          )}
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function ReportIssueModal({ onClose }) {
+  const [selectedType, setSelectedType] = useState('');
+  const [detail, setDetail] = useState('');
+
+  const types = [
+    ['Bug / Error', '🐛'],
+    ['Feature Request', '✨'],
+    ['Performance Issue', '⚡'],
+    ['UI / Display Problem', '🎨'],
+    ['Data Not Saving', '💾'],
+    ['Login / Access Issue', '🔐'],
+    ['Other', '📌'],
+  ];
+
+  const handleSubmit = () => {
+    if (!selectedType && !detail.trim()) return toast.error('Please select an issue type or describe the problem');
+    const type = selectedType || 'General Issue';
+    toast.success(`Report submitted: "${type}". Our team will look into it shortly.`);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-y-auto"
+        onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ background: '#FEF2F2' }}>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-red-600 flex items-center justify-center">
+              <Bug className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-base font-black text-gray-900">🐞 Report Issue</h2>
+              <p className="text-xs text-gray-500">Help us fix bugs &amp; problems</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-red-100"><X className="w-4 h-4 text-gray-500" /></button>
+        </div>
+        <div className="p-5 space-y-3">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Select Issue Type</p>
+          {types.map(([type, icon]) => (
+            <button key={type}
+              onClick={() => setSelectedType(prev => prev === type ? '' : type)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left ${
+                selectedType === type
+                  ? 'border-red-500 bg-red-50'
+                  : 'border-gray-100 hover:border-red-200 hover:bg-red-50'
+              }`}>
+              <span className="text-xl">{icon}</span>
+              <span className={`text-sm font-bold flex-1 ${ selectedType === type ? 'text-red-700' : 'text-gray-700' }`}>{type}</span>
+              {selectedType === type
+                ? <span className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></span>
+                : <span className="text-xs text-gray-300">→</span>
+              }
+            </button>
+          ))}
+          <div className="pt-1 space-y-2">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Describe in Detail (optional)</p>
+            <textarea
+              value={detail}
+              onChange={e => setDetail(e.target.value)}
+              placeholder="Describe the issue in detail..."
+              rows={3}
+              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-red-400 bg-gray-50 resize-none"
+            />
+            <button
+              onClick={handleSubmit}
+              className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+              <Send className="w-4 h-4" /> Submit Report
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 export default function BranchDashboard() {
   const { user, logout, refreshUser } = useAuth();
   const { dark, toggle } = useTheme();
@@ -800,12 +982,10 @@ export default function BranchDashboard() {
   const [profileDropdown, setProfileDropdown] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
-  const [notifications, setNotifications] = useState([
-    { id: 1, text: 'New admission request received', time: '2m ago', read: false, icon: '📋' },
-    { id: 2, text: 'Student result approved by admin', time: '1h ago', read: false, icon: '🏆' },
-    { id: 3, text: 'Certificate verified successfully', time: '3h ago', read: true, icon: '📜' },
-    { id: 4, text: 'Franchise renewal due in 30 days', time: '1d ago', read: true, icon: '🔄' },
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const [supportModal, setSupportModal] = useState(null);
+  const [supportForm, setSupportForm] = useState({ name: user?.branchName || '', email: user?.email || '', message: '' });
   const importRef = useRef();
   const profileRef = useRef();
   const notifRef = useRef();
@@ -856,6 +1036,42 @@ export default function BranchDashboard() {
     e.target.value = '';
   };
 
+  const loadNotifications = async () => {
+    setNotifLoading(true);
+    try {
+      const { data } = await api.get('/notifications/my');
+      setNotifications(data.notifications || []);
+    } catch {}
+    setNotifLoading(false);
+  };
+
+  const handleMarkOneRead = async (id) => {
+    try {
+      await api.put(`/notifications/${id}/read`);
+      setNotifications(p => p.map(n => n._id === id ? { ...n, isRead: true } : n));
+    } catch {}
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await api.put('/notifications/mark-all-read');
+      setNotifications(p => p.map(n => ({ ...n, isRead: true })));
+    } catch {}
+  };
+
+  const typeIcon = (type) => {
+    const map = { admission: '📋', result: '🏆', certificate: '📜', exam: '📝', fee: '💰', holiday: '🎉', urgent: '🚨', general: '🔔', course: '📚' };
+    return map[type] || '🔔';
+  };
+
+  const timeAgo = (date) => {
+    const diff = Math.floor((Date.now() - new Date(date)) / 1000);
+    if (diff < 60) return `${diff}s ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return `${Math.floor(diff / 86400)}d ago`;
+  };
+
   const loadData = () => {
     api.get('/branch/dashboard-stats').then(r => setStats(r.data.stats)).catch(() => {});
     api.get('/branch/students').then(r => setStudents(r.data.students || [])).catch(() => {});
@@ -870,6 +1086,7 @@ export default function BranchDashboard() {
     if (!user || user.role !== 'branch') { navigate('/login'); return; }
     refreshUser();
     loadData();
+    loadNotifications();
   }, []);
 
   const handleLogout = () => { logout(); navigate('/'); };
@@ -1084,7 +1301,7 @@ export default function BranchDashboard() {
       )}
 
       {/* ── SIDEBAR ── */}
-      <aside className={`fixed lg:static inset-y-0 left-0 z-40 flex flex-col transition-all duration-300 shrink-0 overflow-hidden ${sidebarOpen ? 'w-64' : 'w-0 lg:w-[70px]'}`}
+      <aside className={`fixed lg:sticky lg:top-0 lg:h-screen inset-y-0 left-0 z-40 flex flex-col transition-all duration-300 shrink-0 overflow-hidden ${sidebarOpen ? 'w-64' : 'w-0 lg:w-[70px]'}`}
         style={{ background: '#FFFFFF', borderRight: '1px solid #E2E8F0', boxShadow: '2px 0 20px rgba(0,0,0,0.06)' }}>
 
         {/* Logo */}
@@ -1138,6 +1355,34 @@ export default function BranchDashboard() {
           ))}
         </nav>
 
+        {/* Support Section */}
+        <div className="px-2 pb-1 border-t" style={{ borderColor: '#E2E8F0' }}>
+          {sidebarOpen && (
+            <div className="pt-2 pb-1">
+              <p className="text-[10px] font-black uppercase tracking-widest px-2 mb-1" style={{ color: '#94A3B8' }}>Support</p>
+            </div>
+          )}
+          {[
+            { icon: HelpCircle, label: 'Help Center', key: 'help', color: '#2563EB', bg: '#EFF6FF' },
+            { icon: MessageCircle, label: 'Contact Support', key: 'contact-support', color: '#7C3AED', bg: '#F5F3FF' },
+            { icon: Bug, label: 'Report Issue', key: 'report', color: '#DC2626', bg: '#FEF2F2' },
+            { icon: BookOpenCheck, label: 'User Guide', key: 'guide', color: '#059669', bg: '#ECFDF5' },
+            { icon: RefreshCw, label: 'Password Reset', key: 'password-reset', color: '#D97706', bg: '#FFFBEB' },
+          ].map(({ icon: Icon, label, key, color, bg }) => (
+            <motion.button key={key}
+              whileHover={{ x: 2 }}
+              onClick={() => setSupportModal(key)}
+              title={!sidebarOpen ? label : undefined}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 mb-0.5"
+              style={{ color: '#64748B', borderLeft: '3px solid transparent' }}>
+              <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style={{ background: bg }}>
+                <Icon className="w-3.5 h-3.5" style={{ color }} />
+              </div>
+              {sidebarOpen && <span className="flex-1 text-left truncate">{label}</span>}
+            </motion.button>
+          ))}
+        </div>
+
         {/* Logout */}
         <div className="p-3 border-t" style={{ borderColor: '#E2E8F0' }}>
           <button onClick={handleLogout} title={!sidebarOpen ? 'Logout' : undefined}
@@ -1150,7 +1395,7 @@ export default function BranchDashboard() {
       </aside>
 
       {/* ── MAIN AREA ── */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
 
         {/* Header */}
         <header className="sticky top-0 z-20 shrink-0" style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
@@ -1200,9 +1445,9 @@ export default function BranchDashboard() {
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                   </svg>
-                  {notifications.filter(n => !n.read).length > 0 && (
+                  {notifications.filter(n => !n.isRead).length > 0 && (
                     <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center">
-                      {notifications.filter(n => !n.read).length}
+                      {notifications.filter(n => !n.isRead).length}
                     </span>
                   )}
                 </button>
@@ -1210,28 +1455,39 @@ export default function BranchDashboard() {
                   <div className="absolute right-0 top-11 w-80 rounded-2xl shadow-2xl z-50 overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
                     <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: '#E2E8F0', background: '#F8FAFC' }}>
                       <span className="text-sm font-black" style={{ color: '#1E293B' }}>Notifications</span>
-                      <button onClick={() => setNotifications(p => p.map(n => ({ ...n, read: true })))}
+                      <button onClick={handleMarkAllRead}
                         className="text-xs font-bold" style={{ color: '#2563EB' }}>Mark all read</button>
                     </div>
                     <div className="max-h-72 overflow-y-auto">
-                      {notifications.length === 0 ? (
-                        <div className="py-8 text-center text-xs text-gray-400">No notifications</div>
+                      {notifLoading ? (
+                        <div className="py-8 flex items-center justify-center">
+                          <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                        </div>
+                      ) : notifications.length === 0 ? (
+                        <div className="py-8 text-center">
+                          <div className="text-2xl mb-2">🔔</div>
+                          <p className="text-xs text-gray-400 font-semibold">No notifications yet</p>
+                        </div>
                       ) : notifications.map(n => (
-                        <div key={n.id}
-                          onClick={() => setNotifications(p => p.map(x => x.id === n.id ? { ...x, read: true } : x))}
+                        <div key={n._id}
+                          onClick={() => handleMarkOneRead(n._id)}
                           className="flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-blue-50/50 border-b last:border-0"
-                          style={{ borderColor: '#F1F5F9', background: n.read ? 'transparent' : '#EFF6FF' }}>
-                          <span className="text-lg shrink-0 mt-0.5">{n.icon}</span>
+                          style={{ borderColor: '#F1F5F9', background: n.isRead ? 'transparent' : '#EFF6FF' }}>
+                          <span className="text-lg shrink-0 mt-0.5">{typeIcon(n.type)}</span>
                           <div className="flex-1 min-w-0">
-                            <p className={`text-xs leading-snug ${n.read ? 'text-gray-600' : 'text-gray-900 font-bold'}`}>{n.text}</p>
-                            <p className="text-[10px] text-gray-400 mt-0.5">{n.time}</p>
+                            <p className={`text-xs leading-snug font-bold ${n.isRead ? 'text-gray-500' : 'text-gray-900'}`}>{n.title}</p>
+                            {n.message && <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-2">{n.message}</p>}
+                            <p className="text-[10px] text-gray-400 mt-0.5">{timeAgo(n.createdAt)}</p>
                           </div>
-                          {!n.read && <div className="w-2 h-2 bg-blue-500 rounded-full shrink-0 mt-1" />}
+                          {!n.isRead && <div className="w-2 h-2 bg-blue-500 rounded-full shrink-0 mt-1" />}
                         </div>
                       ))}
                     </div>
-                    <div className="px-4 py-2.5 border-t" style={{ borderColor: '#E2E8F0', background: '#F8FAFC' }}>
-                      <button onClick={() => setNotifications([])} className="text-xs font-bold w-full text-center" style={{ color: '#EF4444' }}>Clear all</button>
+                    <div className="px-4 py-2.5 border-t flex items-center justify-between" style={{ borderColor: '#E2E8F0', background: '#F8FAFC' }}>
+                      <button onClick={loadNotifications} className="text-xs font-bold flex items-center gap-1" style={{ color: '#2563EB' }}>
+                        <RefreshCw className="w-3 h-3" /> Refresh
+                      </button>
+                      <span className="text-[10px] text-gray-400">{notifications.filter(n => !n.isRead).length} unread</span>
                     </div>
                   </div>
                 )}
@@ -1340,6 +1596,8 @@ export default function BranchDashboard() {
                       </div>
                     ))}
                   </div>
+                  {/* Renewal Countdown inside profile card */}
+                  <RenewalCountdown renewalDate={user?.renewalDate} approvedAt={user?.approvedAt} />
                 </div>
               </motion.div>
 
@@ -1372,9 +1630,6 @@ export default function BranchDashboard() {
                 ))}
               </div>
             </div>
-
-            {/* Renewal Countdown */}
-            <RenewalCountdown renewalDate={user?.renewalDate} approvedAt={user?.approvedAt} />
 
             {/* ── CHARTS ── */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -2288,6 +2543,164 @@ export default function BranchDashboard() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* ── SUPPORT MODALS ── */}
+      {supportModal === 'help' && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setSupportModal(null)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ background: '#EFF6FF' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center">
+                  <HelpCircle className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-base font-black text-gray-900">❓ Help Center</h2>
+                  <p className="text-xs text-gray-500">Frequently asked questions</p>
+                </div>
+              </div>
+              <button onClick={() => setSupportModal(null)} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-blue-100"><X className="w-4 h-4 text-gray-500" /></button>
+            </div>
+            <div className="p-5 space-y-3">
+              {[
+                { q: 'How to add a new student?', a: 'Go to Students tab → Click "Add Student" → Fill the form → Submit. After adding, click ✓ Approve to send login credentials to student via email.' },
+                { q: 'How to approve a student?', a: 'In Students tab, find the student with ⏳ Pending status → Click the green ✓ button → Student will receive login credentials on their email.' },
+                { q: 'How to add results?', a: 'Go to Results tab → Click "Add Result" → Select student from dropdown (auto-fills details) → Enter subject marks → Save.' },
+                { q: 'How to issue a certificate?', a: 'Go to Certificates tab → Click "Add Certificate" → Select student → Certificate number auto-generates → Fill grade & date → Save.' },
+                { q: 'How to create a monthly test?', a: 'Go to Monthly Tests tab → Click "Create Test" → Add title, questions with options → Mark correct answers (green) → Set Active → Create.' },
+                { q: 'How to check franchise renewal?', a: 'On Overview tab, the Renewal Countdown card shows days remaining. Contact admin at admin@kci.org.in for renewal.' },
+                { q: 'How to export student data?', a: 'In Students tab, click the green "Export" button to download an Excel file with all student data.' },
+              ].map(({ q, a }, i) => (
+                <details key={i} className="group border border-gray-100 rounded-xl overflow-hidden">
+                  <summary className="flex items-center justify-between px-4 py-3 cursor-pointer bg-gray-50 hover:bg-blue-50 transition-colors list-none">
+                    <span className="text-sm font-bold text-gray-800">{q}</span>
+                    <ChevronDown className="w-4 h-4 text-gray-400 group-open:rotate-180 transition-transform shrink-0" />
+                  </summary>
+                  <div className="px-4 py-3 text-sm text-gray-600 leading-relaxed border-t border-gray-100">{a}</div>
+                </details>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {supportModal === 'contact-support' && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setSupportModal(null)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md"
+            onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ background: '#F5F3FF' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-violet-600 flex items-center justify-center">
+                  <MessageCircle className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-base font-black text-gray-900">💬 Contact Support</h2>
+                  <p className="text-xs text-gray-500">We'll respond within 24 hours</p>
+                </div>
+              </div>
+              <button onClick={() => setSupportModal(null)} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-violet-100"><X className="w-4 h-4 text-gray-500" /></button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                {[['📧 Email', 'admin@kci.org.in'], ['📞 Phone', '+91 98765 43210'], ['⏰ Hours', 'Mon–Sat 9AM–6PM'], ['📍 HQ', 'KCI Head Office']].map(([l, v]) => (
+                  <div key={l} className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                    <div className="text-xs text-gray-400 font-semibold">{l}</div>
+                    <div className="text-sm font-black text-gray-800 mt-0.5">{v}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t border-gray-100 pt-4 space-y-3">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">Send a Message</p>
+                <input
+                  value={supportForm.name}
+                  onChange={e => setSupportForm(p => ({ ...p, name: e.target.value }))}
+                  placeholder="Your name"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 bg-gray-50"
+                />
+                <input
+                  value={supportForm.email}
+                  onChange={e => setSupportForm(p => ({ ...p, email: e.target.value }))}
+                  placeholder="Your email"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 bg-gray-50"
+                />
+                <textarea
+                  value={supportForm.message}
+                  onChange={e => setSupportForm(p => ({ ...p, message: e.target.value }))}
+                  placeholder="Describe your issue or question..."
+                  rows={3}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 bg-gray-50 resize-none"
+                />
+                <button
+                  onClick={() => {
+                    if (!supportForm.message.trim()) return toast.error('Please enter a message');
+                    toast.success('Message sent! We will contact you within 24 hours.');
+                    setSupportForm(p => ({ ...p, message: '' }));
+                    setSupportModal(null);
+                  }}
+                  className="w-full py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                  <Send className="w-4 h-4" /> Send Message
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {supportModal === 'report' && (
+        <ReportIssueModal onClose={() => setSupportModal(null)} />
+      )}
+
+      {supportModal === 'guide' && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setSupportModal(null)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ background: '#ECFDF5' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center">
+                  <BookOpenCheck className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-base font-black text-gray-900">📖 User Guide</h2>
+                  <p className="text-xs text-gray-500">Step-by-step instructions</p>
+                </div>
+              </div>
+              <button onClick={() => setSupportModal(null)} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-emerald-100"><X className="w-4 h-4 text-gray-500" /></button>
+            </div>
+            <div className="p-5 space-y-4">
+              {[
+                { title: '🏠 Overview Tab', steps: ['View branch stats (students, admissions, results, certificates)', 'Check franchise renewal countdown', 'Analyze charts for course-wise data', 'View branch information'] },
+                { title: '👥 Students Tab', steps: ['Click "Add Student" to register a new student', 'Fill name, email, course details → Submit', 'Click ✓ to approve → Login credentials sent via email', 'Use Import/Export buttons for bulk Excel operations', 'Click Eye icon to view full student details'] },
+                { title: '📋 Admissions Tab', steps: ['View all admission requests from your branch', 'Click "✓ Approve" to accept and auto-create student account', 'Click "✗ Reject" to decline the admission', 'Filter by Pending / Approved / Rejected status'] },
+                { title: '🏆 Results Tab', steps: ['Click "Add Result" → Select student from dropdown', 'Subject marks auto-load based on course', 'Enter obtained marks → Total/Grade auto-calculates', 'Click Approval toggle to make result visible to student'] },
+                { title: '📜 Certificates Tab', steps: ['Click "Add Certificate" → Select student', 'Certificate number auto-generates (editable)', 'Fill grade and issue date → Save', 'Toggle approval to make certificate visible to student'] },
+                { title: '📝 Monthly Tests Tab', steps: ['Click "Create Test" → Add title and questions', 'Click option border to mark correct answer (turns green)', 'Set test as Active to allow students to attempt', 'Click "Attempts" to view student scores'] },
+                { title: '📚 Study Material Tab', steps: ['Click "Add Material" → Enter title and category', 'Upload thumbnail image or add YouTube video URL', 'Material becomes visible to all students immediately', 'Click trash icon to delete any material'] },
+              ].map(({ title, steps }) => (
+                <div key={title} className="border border-gray-100 rounded-xl overflow-hidden">
+                  <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+                    <p className="text-sm font-black text-gray-800">{title}</p>
+                  </div>
+                  <div className="px-4 py-3 space-y-1.5">
+                    {steps.map((s, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
+                        <span className="text-xs text-gray-600 leading-relaxed">{s}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {supportModal === 'password-reset' && (
+        <PasswordResetModal onClose={() => setSupportModal(null)} userEmail={user?.email} />
       )}
 
       </div>
