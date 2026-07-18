@@ -54,14 +54,17 @@ mongoose.connection.on('disconnected', () => {
   mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 10000, socketTimeoutMS: 45000, family: 4 });
 });
 
-mongoose.connect(process.env.MONGO_URI, {
-  serverSelectionTimeoutMS: 10000,
-  socketTimeoutMS: 45000,
-  family: 4,  // Force IPv4
-})
-  .then(() => {
-    console.log('MongoDB connected');
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+if (!process.env.MONGO_URI) {
+  console.error('ERROR: MONGO_URI environment variable is not set!');
+} else {
+  mongoose.connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+    family: 4,
   })
-  .catch(err => console.error('DB Error:', err));
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.error('DB Error:', err));
+}
