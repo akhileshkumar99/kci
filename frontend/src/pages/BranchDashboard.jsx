@@ -1096,8 +1096,8 @@ export default function BranchDashboard() {
           </button>
           {sidebarOpen && (
             <div className="min-w-0">
-              <div className="font-black text-sm leading-tight truncate" style={{ color: '#1E293B' }}>KCI Portal</div>
-              <div className="text-[10px] font-bold font-mono truncate" style={{ color: '#2563EB' }}>{user?.branchCode}</div>
+              <div className="font-black text-base leading-tight truncate" style={{ color: '#1E293B' }}>KCI Portal</div>
+              <div className="text-xs font-black font-mono truncate" style={{ color: '#2563EB' }}>{user?.branchCode}</div>
             </div>
           )}
         </div>
@@ -1114,8 +1114,8 @@ export default function BranchDashboard() {
                   : <span className="text-white font-black text-sm">{(user?.branchName || 'B')[0].toUpperCase()}</span>}
               </button>
               <div className="min-w-0">
-                <div className="text-xs font-black truncate" style={{ color: '#1E293B' }}>{user?.branchName}</div>
-                <div className="text-[10px] font-semibold truncate" style={{ color: '#64748B' }}>{user?.branchCity}</div>
+                <div className="text-sm font-black truncate" style={{ color: '#1E293B' }}>{user?.branchName}</div>
+                <div className="text-xs font-bold truncate" style={{ color: '#64748B' }}>{user?.branchCity}</div>
               </div>
             </div>
           </div>
@@ -1128,12 +1128,12 @@ export default function BranchDashboard() {
               whileHover={{ x: 2 }}
               onClick={() => { setActiveTab(id); setSearch(''); if (window.innerWidth < 1024) setSidebarOpen(false); }}
               title={!sidebarOpen ? label : undefined}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-black transition-all duration-200"
               style={activeTab === id
                 ? { background: '#EFF6FF', color: '#2563EB', borderLeft: '3px solid #2563EB' }
                 : { color: '#64748B', borderLeft: '3px solid transparent' }}>
               <Icon className="w-4 h-4 shrink-0" />
-              {sidebarOpen && <span className="flex-1 text-left truncate text-xs">{label}</span>}
+              {sidebarOpen && <span className="flex-1 text-left truncate text-sm font-black">{label}</span>}
             </motion.button>
           ))}
         </nav>
@@ -1144,7 +1144,7 @@ export default function BranchDashboard() {
             className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all hover:bg-red-50"
             style={{ color: '#EF4444' }}>
             <LogOut className="w-4 h-4 shrink-0" />
-            {sidebarOpen && <span className="text-xs">Logout</span>}
+            {sidebarOpen && <span className="text-sm font-black">Logout</span>}
           </button>
         </div>
       </aside>
@@ -1166,8 +1166,8 @@ export default function BranchDashboard() {
                 </svg>
               </button>
               <div>
-                <div className="text-xs font-semibold" style={{ color: '#64748B' }}>Branch Dashboard</div>
-                <div className="text-sm font-black" style={{ color: '#1E293B' }}>{tabs.find(t => t.id === activeTab)?.label || 'Overview'}</div>
+                <div className="text-sm font-bold" style={{ color: '#64748B' }}>Branch Dashboard</div>
+                <div className="text-base font-black" style={{ color: '#1E293B' }}>{tabs.find(t => t.id === activeTab)?.label || 'Overview'}</div>
               </div>
             </div>
 
@@ -1323,12 +1323,12 @@ export default function BranchDashboard() {
                       <div className="flex items-center gap-2 mb-1.5">
                         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)' }}>
                           <div className="w-2 h-2 bg-green-300 rounded-full animate-pulse" />
-                          <span className="text-[11px] font-black tracking-widest text-white">ACTIVE</span>
+                          <span className="text-xs font-black tracking-widest text-white">ACTIVE</span>
                         </div>
                       </div>
-                      <div className="text-[11px] font-black uppercase tracking-widest mb-0.5" style={{ color: 'rgba(255,255,255,0.7)' }}>🏢 Branch Dashboard</div>
-                      <div className="text-lg font-black leading-tight truncate text-white">{user?.branchName}</div>
-                      <div className="text-sm font-bold truncate" style={{ color: 'rgba(255,255,255,0.8)' }}>{user?.name}</div>
+                      <div className="text-xs font-black uppercase tracking-widest mb-0.5" style={{ color: 'rgba(255,255,255,0.7)' }}>🏢 Branch Dashboard</div>
+                      <div className="text-xl font-black leading-tight truncate text-white">{user?.branchName}</div>
+                      <div className="text-base font-black truncate" style={{ color: 'rgba(255,255,255,0.9)' }}>{user?.name}</div>
                     </div>
                   </div>
                   {/* Info rows */}
@@ -1336,7 +1336,7 @@ export default function BranchDashboard() {
                     {[{ icon: '🎫', val: user?.branchCode }, { icon: '📍', val: user?.branchCity }, { icon: '📧', val: user?.email }].filter(x => x.val).map((x, i) => (
                       <div key={i} className="flex items-center gap-2.5 px-3 py-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)' }}>
                         <span className="text-base shrink-0">{x.icon}</span>
-                        <span className="text-sm font-bold text-white truncate">{x.val}</span>
+                        <span className="text-sm font-black text-white truncate">{x.val}</span>
                       </div>
                     ))}
                   </div>
@@ -1364,7 +1364,7 @@ export default function BranchDashboard() {
                       <Icon className="w-5 h-5" style={{ color: iconBg }} />
                     </div>
                     <div className="text-2xl font-black" style={{ color: '#1E293B' }}>{value ?? 0}</div>
-                    <div className="text-xs font-semibold mt-0.5" style={{ color: '#64748B' }}>{label}</div>
+                    <div className="text-sm font-bold mt-0.5" style={{ color: '#64748B' }}>{label}</div>
                     <div className="mt-2 h-1 rounded-full" style={{ background: bg }}>
                       <div className="h-full rounded-full w-3/4" style={{ background: iconBg }} />
                     </div>
@@ -1474,7 +1474,7 @@ export default function BranchDashboard() {
                 <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: '#EFF6FF' }}>
                   <Building2 className="w-4 h-4" style={{ color: '#2563EB' }} />
                 </div>
-                <span className="font-black text-sm" style={{ color: '#1E293B' }}>Branch Information</span>
+                <span className="font-black text-base" style={{ color: '#1E293B' }}>Branch Information</span>
               </div>
               <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {[
@@ -1493,8 +1493,8 @@ export default function BranchDashboard() {
                     style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
                     <span className="text-base shrink-0">{icon}</span>
                     <div className="min-w-0">
-                      <div className="text-[10px] font-bold uppercase tracking-wide" style={{ color: '#94A3B8' }}>{label}</div>
-                      <div className={`text-sm font-bold truncate ${mono ? 'font-mono' : ''}`} style={{ color: mono ? '#2563EB' : '#1E293B' }}>{value || '—'}</div>
+                      <div className="text-xs font-bold uppercase tracking-wide" style={{ color: '#94A3B8' }}>{label}</div>
+                      <div className={`text-base font-black truncate ${mono ? 'font-mono' : ''}`} style={{ color: mono ? '#2563EB' : '#1E293B' }}>{value || '—'}</div>
                     </div>
                   </motion.div>
                 ))}
@@ -2219,8 +2219,8 @@ export default function BranchDashboard() {
                     : <div className="w-full h-full flex items-center justify-center"><span className="text-3xl font-black text-white">{(user?.branchName || 'B')[0]}</span></div>}
                 </div>
                 <div className="mt-3 text-center">
-                  <div className="text-lg font-black text-white">{user?.branchName}</div>
-                  <div className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.8)' }}>{user?.name}</div>
+                  <div className="text-xl font-black text-white">{user?.branchName}</div>
+                  <div className="text-base font-black" style={{ color: 'rgba(255,255,255,0.85)' }}>{user?.name}</div>
                   <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)' }}>
                     <div className="w-1.5 h-1.5 bg-green-300 rounded-full animate-pulse" />
                     <span className="text-[10px] font-black tracking-widest text-white">ACTIVE FRANCHISE</span>
@@ -2241,8 +2241,8 @@ export default function BranchDashboard() {
                 <div key={label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
                   <span className="text-base shrink-0">{icon}</span>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[10px] font-bold uppercase tracking-wide" style={{ color: '#94A3B8' }}>{label}</div>
-                    <div className="text-sm font-bold truncate" style={{ color: '#1E293B' }}>{value}</div>
+                    <div className="text-xs font-bold uppercase tracking-wide" style={{ color: '#94A3B8' }}>{label}</div>
+                    <div className="text-base font-black truncate" style={{ color: '#1E293B' }}>{value}</div>
                   </div>
                 </div>
               ))}
