@@ -797,7 +797,27 @@ export default function BranchDashboard() {
   const [savingTest, setSavingTest] = useState(false);
   const [logoPreview, setLogoPreview] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(false);
+  const [profileDropdown, setProfileDropdown] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [notifications, setNotifications] = useState([
+    { id: 1, text: 'New admission request received', time: '2m ago', read: false, icon: '📋' },
+    { id: 2, text: 'Student result approved by admin', time: '1h ago', read: false, icon: '🏆' },
+    { id: 3, text: 'Certificate verified successfully', time: '3h ago', read: true, icon: '📜' },
+    { id: 4, text: 'Franchise renewal due in 30 days', time: '1d ago', read: true, icon: '🔄' },
+  ]);
   const importRef = useRef();
+  const profileRef = useRef();
+  const notifRef = useRef();
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) setProfileDropdown(false);
+      if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const exportExcel = () => {
     const rows = students.map(s => ({
@@ -1056,352 +1076,405 @@ export default function BranchDashboard() {
   const certFields = [['Student', 'studentName'], ['Roll No', 'rollNumber'], ['Course', 'courseName'], ['Cert No', 'certificateNumber'], ['Grade', 'grade'], ['Issue Date', 'issueDate']];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex">
+    <div className="min-h-screen flex" style={{ background: '#F8FAFC' }}>
 
       {/* Mobile overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/40 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/30 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <style>{`
-        @keyframes sidebarPulse {
-          0% { opacity: 0.6; }
-          100% { opacity: 1; }
-        }
-        @keyframes floatOrb {
-          0% { transform: translateY(0px) scale(1); }
-          100% { transform: translateY(-20px) scale(1.1); }
-        }
-      `}</style>
-
       {/* ── SIDEBAR ── */}
-      <aside className={`relative fixed lg:static inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-300 shrink-0 overflow-hidden ${sidebarOpen ? 'w-60' : 'w-0 lg:w-16'}`}
-        style={{ background: 'linear-gradient(160deg, #0f0c29, #302b63, #24243e)' }}>
-        {/* Animated gradient overlay */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div style={{
-            position: 'absolute', top: '-40px', left: '-40px',
-            width: '180px', height: '180px',
-            background: 'radial-gradient(circle, rgba(139,92,246,0.35) 0%, transparent 70%)',
-            animation: 'floatOrb 5s ease-in-out infinite alternate',
-            borderRadius: '50%'
-          }} />
-          <div style={{
-            position: 'absolute', bottom: '60px', right: '-30px',
-            width: '140px', height: '140px',
-            background: 'radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%)',
-            animation: 'floatOrb 7s ease-in-out infinite alternate-reverse',
-            borderRadius: '50%'
-          }} />
-          <div style={{
-            position: 'absolute', top: '45%', left: '10px',
-            width: '100px', height: '100px',
-            background: 'radial-gradient(circle, rgba(168,85,247,0.2) 0%, transparent 70%)',
-            animation: 'floatOrb 6s ease-in-out infinite alternate',
-            borderRadius: '50%'
-          }} />
-        </div>
-        {/* Sidebar top */}
-        <div className="relative flex items-center gap-3 px-4 py-4 border-b border-white/10 shrink-0 min-h-[60px]">
+      <aside className={`fixed lg:static inset-y-0 left-0 z-40 flex flex-col transition-all duration-300 shrink-0 overflow-hidden ${sidebarOpen ? 'w-64' : 'w-0 lg:w-[70px]'}`}
+        style={{ background: '#FFFFFF', borderRight: '1px solid #E2E8F0', boxShadow: '2px 0 20px rgba(0,0,0,0.06)' }}>
+
+        {/* Logo */}
+        <div className="flex items-center gap-3 px-4 py-5 border-b shrink-0" style={{ borderColor: '#E2E8F0', minHeight: 70 }}>
           <button onClick={() => setLogoPreview(true)}
-            className="w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-white flex items-center justify-center hover:ring-2 hover:ring-white/50 transition-all">
-            <img src="/logo.png" alt="KCI"
-              className="w-full h-full object-contain"
-              style={{ imageRendering: 'crisp-edges' }}
-              onError={e => { e.target.style.display='none'; }}
-            />
+            className="w-10 h-10 rounded-xl overflow-hidden shrink-0 flex items-center justify-center hover:scale-105 transition-all"
+            style={{ background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+            <img src="/logo.png" alt="KCI" className="w-full h-full object-contain" onError={e => { e.target.style.display='none'; }} />
           </button>
           {sidebarOpen && (
             <div className="min-w-0">
-              <div className="font-black text-white text-sm leading-tight truncate">Branch Portal</div>
-              <div className="text-[10px] text-blue-300 font-bold font-mono truncate">{user?.branchCode}</div>
+              <div className="font-black text-sm leading-tight truncate" style={{ color: '#1E293B' }}>KCI Portal</div>
+              <div className="text-[10px] font-bold font-mono truncate" style={{ color: '#2563EB' }}>{user?.branchCode}</div>
             </div>
           )}
         </div>
-        {/* Branch info */}
+
+        {/* Branch profile mini */}
         {sidebarOpen && (
-          <div className="relative px-4 py-3 border-b border-white/10 shrink-0">
+          <div className="px-4 py-4 border-b" style={{ borderColor: '#E2E8F0', background: '#F8FAFC' }}>
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => user?.photo && setPhotoPreview(true)}
-                className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-white/40 bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center hover:border-white/80 hover:scale-105 transition-all">
-                {user?.photo ? (
-                  <img
-                    src={user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_URL || ''}${user.photo}`}
-                    alt={user.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-white font-black text-base">{(user?.branchName || 'B')[0].toUpperCase()}</span>
-                )}
+              <button onClick={() => user?.photo && setPhotoPreview(true)}
+                className="w-11 h-11 rounded-full overflow-hidden shrink-0 flex items-center justify-center hover:scale-105 transition-all"
+                style={{ background: 'linear-gradient(135deg,#2563EB,#60a5fa)', border: '2px solid #BFDBFE' }}>
+                {user?.photo
+                  ? <img src={user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_URL || ''}${user.photo}`} alt={user.name} className="w-full h-full object-cover" />
+                  : <span className="text-white font-black text-sm">{(user?.branchName || 'B')[0].toUpperCase()}</span>}
               </button>
               <div className="min-w-0">
-                <div className="text-sm font-black text-white truncate">{user?.branchName}</div>
-                <div className="text-[10px] text-blue-300 truncate">{user?.branchCity}</div>
+                <div className="text-xs font-black truncate" style={{ color: '#1E293B' }}>{user?.branchName}</div>
+                <div className="text-[10px] font-semibold truncate" style={{ color: '#64748B' }}>{user?.branchCity}</div>
               </div>
             </div>
           </div>
         )}
+
         {/* Nav */}
-        <nav className="relative flex-1 overflow-y-auto py-3 space-y-0.5 px-2">
+        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
           {tabs.map(({ id, label, icon: Icon }) => (
-            <button key={id}
+            <motion.button key={id}
+              whileHover={{ x: 2 }}
               onClick={() => { setActiveTab(id); setSearch(''); if (window.innerWidth < 1024) setSidebarOpen(false); }}
               title={!sidebarOpen ? label : undefined}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
-                activeTab === id
-                  ? 'text-white shadow-lg'
-                  : 'text-purple-200 hover:bg-white/10 hover:text-white'
-              }`}
-              style={activeTab === id ? {
-                background: 'linear-gradient(90deg, rgba(139,92,246,0.7), rgba(99,102,241,0.5))',
-                boxShadow: '0 4px 15px rgba(139,92,246,0.4)'
-              } : {}}>
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200"
+              style={activeTab === id
+                ? { background: '#EFF6FF', color: '#2563EB', borderLeft: '3px solid #2563EB' }
+                : { color: '#64748B', borderLeft: '3px solid transparent' }}>
               <Icon className="w-4 h-4 shrink-0" />
-              {sidebarOpen && <span className="flex-1 text-left truncate">{label}</span>}
-              {sidebarOpen && activeTab === id && <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />}
-            </button>
+              {sidebarOpen && <span className="flex-1 text-left truncate text-xs">{label}</span>}
+            </motion.button>
           ))}
         </nav>
-        {/* Sidebar footer */}
-        <div className="relative p-3 border-t border-white/10 shrink-0 space-y-1">
+
+        {/* Logout */}
+        <div className="p-3 border-t" style={{ borderColor: '#E2E8F0' }}>
           <button onClick={handleLogout} title={!sidebarOpen ? 'Logout' : undefined}
-            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-all">
+            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all hover:bg-red-50"
+            style={{ color: '#EF4444' }}>
             <LogOut className="w-4 h-4 shrink-0" />
-            {sidebarOpen && 'Logout'}
+            {sidebarOpen && <span className="text-xs">Logout</span>}
           </button>
         </div>
       </aside>
 
       {/* ── MAIN AREA ── */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-hidden">
+
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-xl border-b border-white/50 shadow-sm sticky top-0 z-20 shrink-0">
-          <div className="px-3 sm:px-5 h-14 flex items-center justify-between">
-            <button onClick={() => setSidebarOpen(p => !p)}
-              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors text-gray-600">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            <div className="font-black text-gray-900 text-sm">{tabs.find(t => t.id === activeTab)?.label || 'Dashboard'}</div>
+        <header className="sticky top-0 z-20 shrink-0" style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
+          <div className="px-4 sm:px-6 h-[70px] flex items-center justify-between gap-4">
+
+            {/* Left: hamburger + title */}
+            <div className="flex items-center gap-3">
+              <button onClick={() => setSidebarOpen(p => !p)}
+                className="w-9 h-9 flex items-center justify-center rounded-xl transition-colors"
+                style={{ background: '#F1F5F9', color: '#64748B' }}>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <div>
+                <div className="text-xs font-semibold" style={{ color: '#64748B' }}>Branch Dashboard</div>
+                <div className="text-sm font-black" style={{ color: '#1E293B' }}>{tabs.find(t => t.id === activeTab)?.label || 'Overview'}</div>
+              </div>
+            </div>
+
+            {/* Right: search + actions */}
             <div className="flex items-center gap-2">
-              <button onClick={toggle} className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all">
+              {/* Search */}
+              <div className="relative hidden sm:block">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: '#94A3B8' }} />
+                <input
+                  value={search} onChange={e => setSearch(e.target.value)}
+                  placeholder="Search..."
+                  className="pl-9 pr-4 py-2 text-xs rounded-xl outline-none w-44 transition-all"
+                  style={{ background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#1E293B' }}
+                />
+              </div>
+
+              {/* Theme toggle */}
+              <button onClick={toggle}
+                className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
+                style={{ background: dark ? '#1E293B' : '#F1F5F9', color: dark ? '#FBBF24' : '#64748B', border: dark ? '1px solid #334155' : '1px solid #E2E8F0' }}
+                title={dark ? 'Switch to Light' : 'Switch to Dark'}>
                 {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
+
+              {/* Notifications */}
+              <div className="relative" ref={notifRef}>
+                <button onClick={() => { setNotifOpen(p => !p); setProfileDropdown(false); }}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center transition-all relative"
+                  style={{ background: '#F1F5F9', color: '#64748B', border: '1px solid #E2E8F0' }}>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  {notifications.filter(n => !n.read).length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center">
+                      {notifications.filter(n => !n.read).length}
+                    </span>
+                  )}
+                </button>
+                {notifOpen && (
+                  <div className="absolute right-0 top-11 w-80 rounded-2xl shadow-2xl z-50 overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+                    <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: '#E2E8F0', background: '#F8FAFC' }}>
+                      <span className="text-sm font-black" style={{ color: '#1E293B' }}>Notifications</span>
+                      <button onClick={() => setNotifications(p => p.map(n => ({ ...n, read: true })))}
+                        className="text-xs font-bold" style={{ color: '#2563EB' }}>Mark all read</button>
+                    </div>
+                    <div className="max-h-72 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="py-8 text-center text-xs text-gray-400">No notifications</div>
+                      ) : notifications.map(n => (
+                        <div key={n.id}
+                          onClick={() => setNotifications(p => p.map(x => x.id === n.id ? { ...x, read: true } : x))}
+                          className="flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-blue-50/50 border-b last:border-0"
+                          style={{ borderColor: '#F1F5F9', background: n.read ? 'transparent' : '#EFF6FF' }}>
+                          <span className="text-lg shrink-0 mt-0.5">{n.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-xs leading-snug ${n.read ? 'text-gray-600' : 'text-gray-900 font-bold'}`}>{n.text}</p>
+                            <p className="text-[10px] text-gray-400 mt-0.5">{n.time}</p>
+                          </div>
+                          {!n.read && <div className="w-2 h-2 bg-blue-500 rounded-full shrink-0 mt-1" />}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="px-4 py-2.5 border-t" style={{ borderColor: '#E2E8F0', background: '#F8FAFC' }}>
+                      <button onClick={() => setNotifications([])} className="text-xs font-bold w-full text-center" style={{ color: '#EF4444' }}>Clear all</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Profile dropdown */}
+              <div className="relative" ref={profileRef}>
+                <button onClick={() => { setProfileDropdown(p => !p); setNotifOpen(false); }}
+                  className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center shrink-0 transition-all"
+                  style={{ background: 'linear-gradient(135deg,#2563EB,#60a5fa)', border: profileDropdown ? '2px solid #2563EB' : '2px solid #BFDBFE', boxShadow: profileDropdown ? '0 0 0 3px rgba(37,99,235,0.2)' : 'none' }}>
+                  {user?.photo
+                    ? <img src={user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_URL || ''}${user.photo}`} alt={user.name} className="w-full h-full object-cover" />
+                    : <span className="text-white font-black text-xs">{(user?.branchName || 'B')[0].toUpperCase()}</span>}
+                </button>
+                {profileDropdown && (
+                  <div className="absolute right-0 top-11 w-56 rounded-2xl shadow-2xl z-50 overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+                    {/* User info */}
+                    <div className="px-4 py-3 border-b" style={{ borderColor: '#E2E8F0', background: 'linear-gradient(135deg,#EFF6FF,#F8FAFC)' }}>
+                      <div className="text-sm font-black truncate" style={{ color: '#1E293B' }}>{user?.branchName}</div>
+                      <div className="text-xs font-medium truncate" style={{ color: '#64748B' }}>{user?.email}</div>
+                      <div className="text-[10px] font-bold font-mono mt-0.5" style={{ color: '#2563EB' }}>{user?.branchCode}</div>
+                    </div>
+                    {/* Options */}
+                    <div className="py-1">
+                      <button
+                        onClick={() => { window.open('/', '_blank'); setProfileDropdown(false); }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-blue-50"
+                        style={{ color: '#1E293B' }}>
+                        <svg className="w-4 h-4" style={{ color: '#2563EB' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        View Website
+                      </button>
+                      <button
+                        onClick={() => { setProfileModalOpen(true); setProfileDropdown(false); }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-blue-50"
+                        style={{ color: '#1E293B' }}>
+                        <svg className="w-4 h-4" style={{ color: '#8B5CF6' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        View Profile
+                      </button>
+                    </div>
+                    <div className="border-t py-1" style={{ borderColor: '#E2E8F0' }}>
+                      <button
+                        onClick={() => { handleLogout(); setProfileDropdown(false); }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-red-50"
+                        style={{ color: '#EF4444' }}>
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </header>
 
-      <div className="flex-1 p-3 sm:p-5 space-y-4 sm:space-y-6 overflow-y-auto">
+      <div className="flex-1 p-4 sm:p-6 space-y-5 overflow-y-auto">
 
         {/* ── OVERVIEW ── */}
         {activeTab === 'overview' && (
           <div className="space-y-5">
 
-            {/* Hero card - Student Dashboard style */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              className="relative bg-gradient-to-br from-blue-700 via-indigo-700 to-violet-700 rounded-3xl overflow-hidden shadow-2xl">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full translate-x-1/3 -translate-y-1/3" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -translate-x-1/3 translate-y-1/3" />
-              <div className="relative p-6 sm:p-8">
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
-                  <div className="w-20 h-20 rounded-full bg-white border-2 border-white/30 flex items-center justify-center shadow-xl shrink-0 overflow-hidden">
-                    {user?.photo ? (
-                      <img
-                        src={user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_URL || ''}${user.photo}`}
-                        alt={user.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <>
-                        <img src="/logo.png" alt="KCI Logo" className="w-full h-full object-cover" onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
-                        <div style={{display:'none'}} className="w-full h-full items-center justify-center">
-                          <Building2 className="w-10 h-10 text-blue-600" />
-                        </div>
-                      </>
-                    )}
-                  </div>
-                  <div className="flex-1 text-center sm:text-left">
-                    <div className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-1">Branch Dashboard</div>
-                    <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-2">{user?.branchName}</h2>
-                    <div className="flex flex-wrap justify-center sm:justify-start gap-2 mb-4">
-                      {[user?.branchCode, user?.branchCity, user?.email].filter(Boolean).map((t, i) => (
-                        <span key={i} className="flex items-center gap-1.5 bg-white/15 text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20">{t}</span>
-                      ))}
+            {/* ── PROFILE + STATS ROW ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+              {/* Branch Profile Card */}
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+                className="lg:col-span-1 rounded-2xl"
+                style={{ background: 'linear-gradient(135deg, #1E3A8A 0%, #2563EB 60%, #3B82F6 100%)', border: '1px solid #1D4ED8', boxShadow: '0 8px 32px rgba(37,99,235,0.35)' }}>
+                <div className="p-5">
+                  {/* Top row: avatar + badge */}
+                  <div className="flex items-center gap-4 mb-5">
+                    <div
+                      onClick={() => user?.photo && setPhotoPreview(true)}
+                      className={`rounded-2xl shrink-0 ${user?.photo ? 'cursor-pointer' : ''}`}
+                      style={{ width: 80, height: 80, overflow: 'hidden', background: 'rgba(255,255,255,0.15)', border: '3px solid rgba(255,255,255,0.5)', boxShadow: '0 4px 20px rgba(0,0,0,0.25)' }}>
+                      {user?.photo
+                        ? <img
+                            src={user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_URL || ''}${user.photo}`}
+                            alt={user.name}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+                          />
+                        : <div className="w-full h-full flex items-center justify-center"><span className="text-3xl font-black text-white">{(user?.branchName || 'B')[0]}</span></div>}
                     </div>
-                    <div className="flex flex-wrap justify-center sm:justify-start gap-4">
-                      {[
-                        { label: 'Students', value: stats?.students ?? 0, color: 'text-yellow-300' },
-                        { label: 'Results', value: stats?.results ?? 0, color: 'text-emerald-300' },
-                        { label: 'Certificates', value: stats?.certificates ?? 0, color: 'text-violet-300' },
-                      ].map(({ label, value, color }) => (
-                        <div key={label} className="text-center">
-                          <div className={`text-2xl font-black ${color}`}>{value}</div>
-                          <div className="text-white/50 text-[10px] font-semibold uppercase tracking-wide">{label}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)' }}>
+                          <div className="w-2 h-2 bg-green-300 rounded-full animate-pulse" />
+                          <span className="text-[11px] font-black tracking-widest text-white">ACTIVE</span>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="shrink-0">
-                    <div className="px-4 py-2 bg-green-400/20 border border-green-400/50 rounded-2xl">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                        <span className="text-green-300 text-xs font-black">Active</span>
                       </div>
+                      <div className="text-[11px] font-black uppercase tracking-widest mb-0.5" style={{ color: 'rgba(255,255,255,0.7)' }}>🏢 Branch Dashboard</div>
+                      <div className="text-lg font-black leading-tight truncate text-white">{user?.branchName}</div>
+                      <div className="text-sm font-bold truncate" style={{ color: 'rgba(255,255,255,0.8)' }}>{user?.name}</div>
                     </div>
+                  </div>
+                  {/* Info rows */}
+                  <div className="space-y-2.5">
+                    {[{ icon: '🎫', val: user?.branchCode }, { icon: '📍', val: user?.branchCity }, { icon: '📧', val: user?.email }].filter(x => x.val).map((x, i) => (
+                      <div key={i} className="flex items-center gap-2.5 px-3 py-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)' }}>
+                        <span className="text-base shrink-0">{x.icon}</span>
+                        <span className="text-sm font-bold text-white truncate">{x.val}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
 
-            {/* Stat cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {[
-                { icon: Users, label: 'Students', value: stats?.students, color: 'bg-blue-500', delay: 0, tab: 'students' },
-                { icon: CheckCircle, label: 'Active', value: stats?.active, color: 'bg-emerald-500', delay: 0.05, tab: 'students' },
-                { icon: ClipboardList, label: 'Admissions', value: stats?.admissions, color: 'bg-orange-500', delay: 0.1, tab: 'admissions' },
-                { icon: BookOpen, label: 'Courses', value: stats?.courses, color: 'bg-violet-500', delay: 0.15 },
-                { icon: Award, label: 'Results', value: stats?.results, color: 'bg-yellow-500', delay: 0.2, tab: 'results' },
-                { icon: FileText, label: 'Certificates', value: stats?.certificates, color: 'bg-teal-500', delay: 0.25, tab: 'certificates' },
-              ].map(({ icon: Icon, label, value, color, delay, tab }) => (
-                <motion.div key={label} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}
-                  onClick={tab ? () => { setActiveTab(tab); setSearch(''); } : undefined}
-                  className={`bg-white rounded-xl p-4 border border-gray-200 shadow-sm ${
-                    tab ? 'cursor-pointer hover:shadow-md hover:border-blue-300 hover:-translate-y-0.5 transition-all' : ''
-                  }`}>
-                  <div className={`w-9 h-9 rounded-lg ${color} flex items-center justify-center mb-3`}>
-                    <Icon className="w-4.5 h-4.5 text-white" />
-                  </div>
-                  <div className="text-2xl font-black text-gray-900">{value ?? 0}</div>
-                  <div className="text-xs text-gray-500 font-medium mt-0.5">{label}</div>
-                </motion.div>
-              ))}
+              {/* Stats Grid */}
+              <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {[
+                  { icon: Users, label: 'Students', value: stats?.students, bg: '#EFF6FF', iconBg: '#2563EB', tab: 'students' },
+                  { icon: CheckCircle, label: 'Active', value: stats?.active, bg: '#F0FDF4', iconBg: '#22C55E', tab: 'students' },
+                  { icon: ClipboardList, label: 'Admissions', value: stats?.admissions, bg: '#FFFBEB', iconBg: '#F59E0B', tab: 'admissions' },
+                  { icon: BookOpen, label: 'Courses', value: stats?.courses, bg: '#F5F3FF', iconBg: '#8B5CF6' },
+                  { icon: Award, label: 'Results', value: stats?.results, bg: '#FFF7ED', iconBg: '#F97316', tab: 'results' },
+                  { icon: FileText, label: 'Certificates', value: stats?.certificates, bg: '#F0FDFA', iconBg: '#14B8A6', tab: 'certificates' },
+                ].map(({ icon: Icon, label, value, bg, iconBg, tab }, i) => (
+                  <motion.div key={label}
+                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.06, type: 'spring', stiffness: 200 }}
+                    whileHover={{ y: -4, boxShadow: '0 12px 30px rgba(0,0,0,0.1)' }}
+                    onClick={tab ? () => { setActiveTab(tab); setSearch(''); } : undefined}
+                    className={`rounded-2xl p-4 ${tab ? 'cursor-pointer' : ''}`}
+                    style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: bg }}>
+                      <Icon className="w-5 h-5" style={{ color: iconBg }} />
+                    </div>
+                    <div className="text-2xl font-black" style={{ color: '#1E293B' }}>{value ?? 0}</div>
+                    <div className="text-xs font-semibold mt-0.5" style={{ color: '#64748B' }}>{label}</div>
+                    <div className="mt-2 h-1 rounded-full" style={{ background: bg }}>
+                      <div className="h-full rounded-full w-3/4" style={{ background: iconBg }} />
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
 
             {/* Renewal Countdown */}
             <RenewalCountdown renewalDate={user?.renewalDate} approvedAt={user?.approvedAt} />
 
-            {/* Analytics Charts */}
-            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
-              {/* Students by Course */}
-              <div className="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-5">
-                <h3 className="text-sm font-black text-gray-800 mb-4">📊 Students by Course</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={(() => {
-                    const map = {};
-                    students.forEach(s => {
-                      const name = (s.courseName || 'Unknown').split('(')[0].trim().slice(0, 12);
-                      map[name] = (map[name] || 0) + 1;
-                    });
-                    return Object.entries(map).map(([name, count]) => ({ name, count }));
-                  })()} margin={{ top: 0, right: 10, left: -20, bottom: 40 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                    <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 600, fill: '#64748b' }} angle={-35} textAnchor="end" interval={0} />
-                    <YAxis tick={{ fontSize: 10, fill: '#64748b' }} allowDecimals={false} />
-                    <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b' }} />
-                    <Bar dataKey="count" fill="#6366f1" radius={[6, 6, 0, 0]} name="Students" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Admission Status */}
-              <div className="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-5">
-                <h3 className="text-sm font-black text-gray-800 mb-4">📋 Admission Status</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <PieChart>
-                    <Pie
-                      data={(() => {
-                        const approved = admissions.filter(a => a.status === 'Approved').length;
-                        const pending = admissions.filter(a => !a.status || a.status === 'Pending').length;
-                        const rejected = admissions.filter(a => a.status === 'Rejected').length;
-                        return [
-                          { name: 'Approved', value: approved },
-                          { name: 'Pending', value: pending },
-                          { name: 'Rejected', value: rejected },
-                        ].filter(d => d.value > 0);
-                      })()}
-                      cx="50%" cy="50%" outerRadius={75} dataKey="value" label={({ name, value }) => `${name}: ${value}`}
-                      labelLine={false}
-                    >
-                      {['#10b981', '#f59e0b', '#ef4444'].map((color, i) => <Cell key={i} fill={color} />)}
-                    </Pie>
-                    <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11, color: '#475569' }} />
-                    <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b' }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Results Overview */}
-              <div className="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-5">
-                <h3 className="text-sm font-black text-gray-800 mb-4">🏆 Results Overview</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={(() => {
-                    const map = {};
-                    results.forEach(r => {
-                      const name = (r.courseName || 'Unknown').split('(')[0].trim().slice(0, 12);
-                      if (!map[name]) map[name] = { name, Pass: 0, Fail: 0 };
-                      map[name][r.status === 'Pass' ? 'Pass' : 'Fail']++;
-                    });
-                    return Object.values(map);
-                  })()} margin={{ top: 0, right: 10, left: -20, bottom: 40 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                    <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 600, fill: '#64748b' }} angle={-35} textAnchor="end" interval={0} />
-                    <YAxis tick={{ fontSize: 10, fill: '#64748b' }} allowDecimals={false} />
-                    <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b' }} />
-                    <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11, color: '#475569' }} />
-                    <Bar dataKey="Pass" fill="#10b981" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="Fail" fill="#ef4444" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Student Approval Status */}
-              <div className="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-5">
-                <h3 className="text-sm font-black text-gray-800 mb-4">👥 Student Approval Status</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <PieChart>
-                    <Pie
-                      data={[
-                        { name: 'Approved', value: students.filter(s => s.isApproved).length },
-                        { name: 'Pending', value: students.filter(s => !s.isApproved).length },
-                      ].filter(d => d.value > 0)}
-                      cx="50%" cy="50%" innerRadius={50} outerRadius={75} dataKey="value"
-                    >
-                      <Cell fill="#3b82f6" />
-                      <Cell fill="#f59e0b" />
-                    </Pie>
-                    <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11, color: '#475569' }} />
-                    <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b' }}
-                      formatter={(value, name) => [value, name]} />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="flex justify-center gap-6 mt-2">
-                  <div className="text-center">
-                    <div className="text-xl font-black text-blue-600">{students.filter(s => s.isApproved).length}</div>
-                    <div className="text-xs text-gray-500 font-medium">Approved</div>
+            {/* ── CHARTS ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              {[
+                {
+                  title: 'Students by Course', icon: '📊',
+                  chart: (
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart data={(() => { const map = {}; students.forEach(s => { const name = (s.courseName || 'Unknown').split('(')[0].trim().slice(0, 12); map[name] = (map[name] || 0) + 1; }); return Object.entries(map).map(([name, count]) => ({ name, count })); })()} margin={{ top: 0, right: 10, left: -20, bottom: 40 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                        <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 600, fill: '#94A3B8' }} angle={-35} textAnchor="end" interval={0} />
+                        <YAxis tick={{ fontSize: 10, fill: '#94A3B8' }} allowDecimals={false} />
+                        <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #E2E8F0', color: '#1E293B' }} />
+                        <Bar dataKey="count" fill="#2563EB" radius={[6, 6, 0, 0]} name="Students" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )
+                },
+                {
+                  title: 'Admission Status', icon: '📋',
+                  chart: (
+                    <ResponsiveContainer width="100%" height={200}>
+                      <PieChart>
+                        <Pie data={[{ name: 'Approved', value: admissions.filter(a => a.status === 'Approved').length }, { name: 'Pending', value: admissions.filter(a => !a.status || a.status === 'Pending').length }, { name: 'Rejected', value: admissions.filter(a => a.status === 'Rejected').length }].filter(d => d.value > 0)}
+                          cx="50%" cy="50%" outerRadius={75} dataKey="value" label={({ name, value }) => `${name}: ${value}`} labelLine={false}>
+                          {['#22C55E', '#F59E0B', '#EF4444'].map((c, i) => <Cell key={i} fill={c} />)}
+                        </Pie>
+                        <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11, color: '#64748B' }} />
+                        <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #E2E8F0', color: '#1E293B' }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  )
+                },
+                {
+                  title: 'Results Overview', icon: '🏆',
+                  chart: (
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart data={(() => { const map = {}; results.forEach(r => { const name = (r.courseName || 'Unknown').split('(')[0].trim().slice(0, 12); if (!map[name]) map[name] = { name, Pass: 0, Fail: 0 }; map[name][r.status === 'Pass' ? 'Pass' : 'Fail']++; }); return Object.values(map); })()} margin={{ top: 0, right: 10, left: -20, bottom: 40 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                        <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 600, fill: '#94A3B8' }} angle={-35} textAnchor="end" interval={0} />
+                        <YAxis tick={{ fontSize: 10, fill: '#94A3B8' }} allowDecimals={false} />
+                        <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #E2E8F0', color: '#1E293B' }} />
+                        <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11, color: '#64748B' }} />
+                        <Bar dataKey="Pass" fill="#22C55E" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="Fail" fill="#EF4444" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )
+                },
+                {
+                  title: 'Student Approval Status', icon: '👥',
+                  chart: (
+                    <>
+                      <ResponsiveContainer width="100%" height={160}>
+                        <PieChart>
+                          <Pie data={[{ name: 'Approved', value: students.filter(s => s.isApproved).length }, { name: 'Pending', value: students.filter(s => !s.isApproved).length }].filter(d => d.value > 0)}
+                            cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value">
+                            <Cell fill="#2563EB" /><Cell fill="#F59E0B" />
+                          </Pie>
+                          <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11, color: '#64748B' }} />
+                          <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #E2E8F0', color: '#1E293B' }} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="flex justify-center gap-6 mt-1">
+                        {[['Approved', students.filter(s => s.isApproved).length, '#2563EB'], ['Pending', students.filter(s => !s.isApproved).length, '#F59E0B'], ['Certs', certificates.length, '#14B8A6']].map(([l, v, c]) => (
+                          <div key={l} className="text-center">
+                            <div className="text-lg font-black" style={{ color: c }}>{v}</div>
+                            <div className="text-[10px] font-semibold" style={{ color: '#94A3B8' }}>{l}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )
+                },
+              ].map(({ title, icon, chart }) => (
+                <motion.div key={title}
+                  initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -2 }} transition={{ type: 'spring', stiffness: 300 }}
+                  className="rounded-2xl p-5"
+                  style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: '#EFF6FF' }}>
+                      <span className="text-xs">{icon}</span>
+                    </div>
+                    <h3 className="text-sm font-black" style={{ color: '#1E293B' }}>{title}</h3>
                   </div>
-                  <div className="text-center">
-                    <div className="text-xl font-black text-amber-500">{students.filter(s => !s.isApproved).length}</div>
-                    <div className="text-xs text-gray-500 font-medium">Pending</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-xl font-black text-teal-600">{certificates.length}</div>
-                    <div className="text-xs text-gray-500 font-medium">Certificates</div>
-                  </div>
+                  {chart}
+                </motion.div>
+              ))}
+            </div>
+
+            {/* ── BRANCH INFO CARD ── */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+              className="rounded-2xl overflow-hidden"
+              style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
+              <div className="px-5 py-4 flex items-center gap-3 border-b" style={{ borderColor: '#E2E8F0', background: '#F8FAFC' }}>
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: '#EFF6FF' }}>
+                  <Building2 className="w-4 h-4" style={{ color: '#2563EB' }} />
                 </div>
-              </div>
-            </motion.div>
-
-            {/* Branch info card */}
-            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-              className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="px-5 py-3 flex items-center gap-2 border-b border-gray-100">
-                <div className="w-6 h-6 bg-blue-600 rounded-md flex items-center justify-center">
-                  <Building2 className="w-3.5 h-3.5 text-white" />
-                </div>
-                <span className="text-gray-800 font-black text-sm">Branch Information</span>
+                <span className="font-black text-sm" style={{ color: '#1E293B' }}>Branch Information</span>
               </div>
               <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {[
@@ -1411,14 +1484,19 @@ export default function BranchDashboard() {
                   { icon: '📞', label: 'Phone', value: user?.phone || '—' },
                   { icon: '📧', label: 'Email', value: user?.email },
                   { icon: '📮', label: 'Address', value: user?.branchAddress || user?.address || '—' },
-                ].map(({ icon, label, value, mono }) => (
-                  <div key={label} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                ].map(({ icon, label, value, mono }, idx) => (
+                  <motion.div key={label}
+                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.05 * idx }}
+                    whileHover={{ scale: 1.02 }}
+                    className="flex items-start gap-3 p-3 rounded-xl"
+                    style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
                     <span className="text-base shrink-0">{icon}</span>
                     <div className="min-w-0">
-                      <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label}</div>
-                      <div className={`text-sm font-bold text-gray-800 truncate ${mono ? 'font-mono text-blue-600' : ''}`}>{value || '—'}</div>
+                      <div className="text-[10px] font-bold uppercase tracking-wide" style={{ color: '#94A3B8' }}>{label}</div>
+                      <div className={`text-sm font-bold truncate ${mono ? 'font-mono' : ''}`} style={{ color: mono ? '#2563EB' : '#1E293B' }}>{value || '—'}</div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </motion.div>
@@ -2116,6 +2194,67 @@ export default function BranchDashboard() {
         </div>
       )}
       </div>
+
+      {/* Profile Details Modal */}
+      {profileModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setProfileModalOpen(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl"
+            style={{ background: '#FFFFFF' }}
+            onClick={e => e.stopPropagation()}>
+            {/* Banner + Avatar combined - no overlap */}
+            <div className="relative" style={{ background: 'linear-gradient(135deg, #1E3A8A 0%, #2563EB 60%, #3B82F6 100%)' }}>
+              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+              <button onClick={() => setProfileModalOpen(false)}
+                className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center z-10" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                <X className="w-4 h-4 text-white" />
+              </button>
+              <div className="flex flex-col items-center pt-6 pb-5 px-5">
+                <div
+                  onClick={() => { if (user?.photo) { setPhotoPreview(true); setProfileModalOpen(false); } }}
+                  className={user?.photo ? 'cursor-pointer' : ''}
+                  style={{ width: 88, height: 88, borderRadius: 20, overflow: 'hidden', border: '4px solid rgba(255,255,255,0.9)', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', background: 'linear-gradient(135deg,#60a5fa,#2563EB)', flexShrink: 0 }}>
+                  {user?.photo
+                    ? <img src={user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_URL || ''}${user.photo}`} alt={user.name} style={{ width: 88, height: 88, objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
+                    : <div className="w-full h-full flex items-center justify-center"><span className="text-3xl font-black text-white">{(user?.branchName || 'B')[0]}</span></div>}
+                </div>
+                <div className="mt-3 text-center">
+                  <div className="text-lg font-black text-white">{user?.branchName}</div>
+                  <div className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.8)' }}>{user?.name}</div>
+                  <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)' }}>
+                    <div className="w-1.5 h-1.5 bg-green-300 rounded-full animate-pulse" />
+                    <span className="text-[10px] font-black tracking-widest text-white">ACTIVE FRANCHISE</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Details */}
+            <div className="px-5 pb-5 space-y-2">
+              {[
+                { icon: '🎫', label: 'Branch Code', value: user?.branchCode },
+                { icon: '📍', label: 'City', value: user?.branchCity },
+                { icon: '📧', label: 'Email', value: user?.email },
+                { icon: '📞', label: 'Phone', value: user?.phone || '—' },
+                { icon: '📮', label: 'Address', value: user?.branchAddress || user?.address || '—' },
+                { icon: '🗓️', label: 'Member Since', value: user?.approvedAt ? new Date(user.approvedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—' },
+              ].map(({ icon, label, value }) => (
+                <div key={label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                  <span className="text-base shrink-0">{icon}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[10px] font-bold uppercase tracking-wide" style={{ color: '#94A3B8' }}>{label}</div>
+                    <div className="text-sm font-bold truncate" style={{ color: '#1E293B' }}>{value}</div>
+                  </div>
+                </div>
+              ))}
+              <button onClick={() => { handleLogout(); setProfileModalOpen(false); }}
+                className="w-full mt-2 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors hover:bg-red-100"
+                style={{ background: '#FEF2F2', color: '#EF4444', border: '1px solid #FECACA' }}>
+                <LogOut className="w-4 h-4" /> Logout
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Logo Preview Modal */}
       {logoPreview && (
