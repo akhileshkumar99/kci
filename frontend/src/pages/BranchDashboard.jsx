@@ -581,6 +581,7 @@ function CertForm({ initial, students, onSave, onClose, saving }) {
     grade: initial.grade || '',
     issueDate: initial.issueDate ? initial.issueDate.slice(0, 10) : '',
   });
+  const [certFile, setCertFile] = useState(null);
   const [loadingCertNo, setLoadingCertNo] = useState(false);
 
   const fetchNextCertNumber = async (courseName) => {
@@ -611,7 +612,7 @@ function CertForm({ initial, students, onSave, onClose, saving }) {
   const inp = 'w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 bg-gray-50 focus:bg-white transition-all';
 
   return (
-    <form onSubmit={e => { e.preventDefault(); onSave(form); }} className="space-y-4">
+    <form onSubmit={e => { e.preventDefault(); onSave(form, certFile); }} className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1">
           <label className="text-xs font-semibold text-gray-600">Enrollment Number *</label>
@@ -655,6 +656,25 @@ function CertForm({ initial, students, onSave, onClose, saving }) {
           <input type="date" value={form.issueDate} onChange={e => setForm(p => ({ ...p, issueDate: e.target.value }))} className={inp} />
         </div>
       </div>
+
+      {/* Certificate File Upload */}
+      <div className="space-y-1">
+        <label className="text-xs font-semibold text-gray-600">Certificate File <span className="text-gray-400 font-normal">(PDF or Image — optional)</span></label>
+        <label className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-teal-400 hover:bg-teal-50 transition-colors">
+          <input type="file" accept="image/*,.pdf" className="hidden" onChange={e => setCertFile(e.target.files[0])} />
+          <Upload className="w-4 h-4 text-gray-400 shrink-0" />
+          <span className="text-sm text-gray-500 truncate">
+            {certFile ? certFile.name : initial.certificateFile ? '✓ File uploaded — click to replace' : 'Click to upload certificate file'}
+          </span>
+        </label>
+        {initial.certificateFile && !certFile && (
+          <a href={initial.certificateFile} target="_blank" rel="noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-teal-600 font-semibold hover:underline mt-1">
+            👁 View existing file
+          </a>
+        )}
+      </div>
+
       <div className="flex gap-3 pt-1">
         <button type="button" onClick={onClose} className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50">Cancel</button>
         <button type="submit" disabled={saving}
@@ -1191,11 +1211,14 @@ export default function BranchDashboard() {
   };
 
   // Certificates CRUD
-  const handleAddCert = async form => {
+  const handleAddCert = async (form, certFile) => {
     if (!form.rollNumber || !form.studentName || !form.certificateNumber) return toast.error('Roll no, student name and cert no required');
     setSaving(true);
     try {
-      const r = await api.post('/branch/certificates', form);
+      const fd = new FormData();
+      Object.entries(form).forEach(([k, v]) => v && fd.append(k, v));
+      if (certFile) fd.append('certificateFile', certFile);
+      const r = await api.post('/branch/certificates', fd);
       setCertificates(p => [r.data.certificate, ...p]);
       setModal(null);
       toast.success('Certificate added!');
@@ -1203,10 +1226,13 @@ export default function BranchDashboard() {
     setSaving(false);
   };
 
-  const handleEditCert = async form => {
+  const handleEditCert = async (form, certFile) => {
     setSaving(true);
     try {
-      const r = await api.put(`/branch/certificates/${selected._id}`, form);
+      const fd = new FormData();
+      Object.entries(form).forEach(([k, v]) => v !== undefined && v !== null && fd.append(k, v));
+      if (certFile) fd.append('certificateFile', certFile);
+      const r = await api.put(`/branch/certificates/${selected._id}`, fd);
       setCertificates(p => p.map(x => x._id === selected._id ? r.data.certificate : x));
       setModal(null);
       toast.success('Certificate updated!');
@@ -2342,6 +2368,11 @@ export default function BranchDashboard() {
                         <td className="px-4 py-3"><div className="flex items-center gap-1.5">
                           <button onClick={() => { setViewItem(c); setViewType('certificate'); }} className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg"><Eye className="w-3.5 h-3.5" /></button>
                           <button onClick={() => { setSelected(c); setModal('edit-cert'); }} className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg"><Pencil className="w-3.5 h-3.5" /></button>
+                          {c.certificateFile && (
+                            <a href={c.certificateFile} target="_blank" rel="noreferrer" className="p-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 rounded-lg" title="View Certificate File">
+                              <FileText className="w-3.5 h-3.5" />
+                            </a>
+                          )}
                           {c.isApproved !== true && <button onClick={() => handleApproveCert(c._id)} className="p-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg"><Check className="w-3.5 h-3.5" /></button>}
                           <button onClick={() => handleDeleteCert(c._id)} className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
                         </div></td>

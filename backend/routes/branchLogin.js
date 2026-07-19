@@ -558,22 +558,27 @@ router.get('/certificates/next-number', protect, branchAuth, async (req, res) =>
   }
 });
 
-// Branch: Add certificate
-router.post('/certificates', protect, branchAuth, async (req, res) => {
+// Branch: Add certificate (with optional file upload)
+const { uploadDocument } = require('../middleware/cloudinary');
+router.post('/certificates', protect, branchAuth, uploadDocument.single('certificateFile'), async (req, res) => {
   try {
     const Certificate = require('../models/Certificate');
-    const certificate = await Certificate.create(req.body);
+    const data = { ...req.body };
+    if (req.file) data.certificateFile = req.file.path;
+    const certificate = await Certificate.create(data);
     res.status(201).json({ success: true, certificate });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// Branch: Update certificate
-router.put('/certificates/:id', protect, branchAuth, async (req, res) => {
+// Branch: Update certificate (with optional file upload)
+router.put('/certificates/:id', protect, branchAuth, uploadDocument.single('certificateFile'), async (req, res) => {
   try {
     const Certificate = require('../models/Certificate');
-    const certificate = await Certificate.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const data = { ...req.body };
+    if (req.file) data.certificateFile = req.file.path;
+    const certificate = await Certificate.findByIdAndUpdate(req.params.id, data, { new: true });
     if (!certificate) return res.status(404).json({ success: false, message: 'Not found' });
     res.json({ success: true, certificate });
   } catch (err) {
