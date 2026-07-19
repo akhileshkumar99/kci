@@ -146,27 +146,27 @@ function Modal({ title, onClose, children }) {
 }
 
 const COURSES = [
-  'Certificate In Fundamental (CIF)',
-  'Certificate in Computer Application (CCA)',
-  'Certificate In Office Package & Tally A/C (COPT)',
-  'Tally Specialist Course With GST',
-  'Advance Diploma in Computer Application (ADCA)',
-  'Desktop Publishing (DTP)',
-  'Computer Teacher Training Course',
-  'I.G.D. Bombay',
-  'Certificate In Computer Hardware (CICH)',
-  'JAVA, VB.net, ASP.net, PHP',
-  'Computer Typing (Hindi + English)',
-  'C, C++ Programming',
-  'Internet Course',
-  'Diploma in Computer Application (DCA)',
-  'Certificate In Tally A/c With GST (CIT)',
-  'Personality Development',
-  'Diploma in Yoga Education (DYEd./DYT)',
-  'PG Diploma In Yoga Education (PGDYEd.)',
-  'Multimedia Animation Course (N-Mass)',
-  'BCA / BBA / MCA / MBA / PGDCA & More',
-  'Course On Computer Concept (CCC from NIELIT)',
+  { name: 'Certificate In Fundamental (CIF)', duration: '3 Months', fee: '₹2,500', subjects: ['Computer Basics', 'MS Paint', 'Notepad', 'Typing Basics'], eligibility: '8th Pass', certificate: 'CIF Certificate', description: 'Computer ki basic knowledge ke liye best course. Beginners ke liye ideal.', jobs: ['Data Entry', 'Office Assistant', 'Typing Operator'] },
+  { name: 'Certificate in Computer Application (CCA)', duration: '6 Months', fee: '₹4,000', subjects: ['Computer Fundamentals', 'MS Office', 'Internet', 'Practical'], eligibility: '10th Pass', certificate: 'CCA Certificate', description: 'Computer applications ka comprehensive course jo office work ke liye prepare karta hai.', jobs: ['Office Executive', 'Data Entry Operator', 'Computer Operator'] },
+  { name: 'Certificate In Office Package & Tally A/C (COPT)', duration: '6 Months', fee: '₹4,500', subjects: ['MS Word', 'MS Excel', 'MS PowerPoint', 'Tally', 'Practical'], eligibility: '10th Pass', certificate: 'COPT Certificate', description: 'Office package aur Tally accounting ka combined course. Job market me high demand.', jobs: ['Accountant', 'Office Executive', 'Tally Operator'] },
+  { name: 'Tally Specialist Course With GST', duration: '3 Months', fee: '₹3,500', subjects: ['Tally Prime', 'GST Filing', 'Accounts', 'Practical'], eligibility: '10th Pass', certificate: 'Tally Certificate', description: 'Tally Prime aur GST filing ka specialized course. Accountants ke liye must-do.', jobs: ['Accountant', 'GST Consultant', 'Finance Executive'] },
+  { name: 'Advance Diploma in Computer Application (ADCA)', duration: '1 Year', fee: '₹8,000', subjects: ['Computer Fundamentals', 'MS Office Advanced', 'Tally with GST', 'DTP & Photoshop', 'Programming Basics', 'Practical'], eligibility: '12th Pass', certificate: 'ADCA Diploma', description: 'Computer ka sabse popular advanced diploma. Multiple skills ek saath seekho aur career boost karo.', jobs: ['Computer Operator', 'DTP Operator', 'Office Manager', 'Accountant'] },
+  { name: 'Desktop Publishing (DTP)', duration: '3 Months', fee: '₹3,000', subjects: ['PageMaker', 'CorelDraw', 'Photoshop', 'Practical'], eligibility: '10th Pass', certificate: 'DTP Certificate', description: 'Graphic design aur publishing ka course. Printing press aur media industry ke liye.', jobs: ['DTP Operator', 'Graphic Designer', 'Print Media'] },
+  { name: 'Computer Teacher Training Course', duration: '6 Months', fee: '₹5,000', subjects: ['Teaching Methods', 'MS Office', 'Computer Basics', 'Practical Teaching'], eligibility: 'Graduate', certificate: 'Teacher Training Certificate', description: 'Computer teacher banne ka complete training program. Schools aur institutes me job pao.', jobs: ['Computer Teacher', 'Trainer', 'Institute Faculty'] },
+  { name: 'I.G.D. Bombay', duration: '1 Year', fee: '₹10,000', subjects: ['Drawing Basics', 'Color Theory', 'Design Principles', 'Portfolio'], eligibility: '10th Pass', certificate: 'IGD Certificate', description: 'Bombay Board ka recognized art & design diploma. Creative field me career banao.', jobs: ['Graphic Artist', 'Designer', 'Art Teacher'] },
+  { name: 'Certificate In Computer Hardware (CICH)', duration: '6 Months', fee: '₹5,500', subjects: ['Hardware Basics', 'Motherboard', 'Networking', 'Troubleshooting'], eligibility: '10th Pass', certificate: 'CICH Certificate', description: 'Computer hardware repair aur networking ka practical course. Technical field me career.', jobs: ['Hardware Engineer', 'Network Technician', 'IT Support'] },
+  { name: 'JAVA, VB.net, ASP.net, PHP', duration: '6 Months', fee: '₹7,000', subjects: ['Java Basics', 'VB.net', 'ASP.net', 'PHP & MySQL'], eligibility: '12th Pass', certificate: 'Programming Certificate', description: 'Multiple programming languages ek saath seekho. Software development me career banao.', jobs: ['Software Developer', 'Web Developer', 'Programmer'] },
+  { name: 'Computer Typing (Hindi + English)', duration: '3 Months', fee: '₹2,000', subjects: ['Hindi Typing', 'English Typing', 'Speed Test'], eligibility: '8th Pass', certificate: 'Typing Certificate', description: 'Hindi aur English dono typing ek saath. Government jobs ke liye typing test pass karo.', jobs: ['Typist', 'Data Entry', 'Govt. Job Typing Test'] },
+  { name: 'C, C++ Programming', duration: '3 Months', fee: '₹3,500', subjects: ['C Basics', 'C++ OOP', 'Data Structures', 'Practical'], eligibility: '12th Pass', certificate: 'C/C++ Certificate', description: 'Programming ki foundation languages. Software engineering ke liye base course.', jobs: ['Programmer', 'Software Developer', 'System Developer'] },
+  { name: 'Internet Course', duration: '1 Month', fee: '₹1,500', subjects: ['Internet Basics', 'Email', 'Social Media', 'Online Safety'], eligibility: '8th Pass', certificate: 'Internet Certificate', description: 'Internet use karna seekho safely. Online services, email aur social media ka proper use.', jobs: ['Online Worker', 'Digital Assistant', 'E-commerce Helper'] },
+  { name: 'Diploma in Computer Application (DCA)', duration: '1 Year', fee: '₹7,000', subjects: ['Computer Fundamentals', 'MS Office', 'Internet & Email', 'Tally ERP', 'Practical'], eligibility: '12th Pass', certificate: 'DCA Diploma', description: 'Computer application ka 1 year diploma. Government aur private dono sectors me accepted.', jobs: ['Computer Operator', 'Office Executive', 'Data Entry', 'Accountant'] },
+  { name: 'Certificate In Tally A/c With GST (CIT)', duration: '3 Months', fee: '₹3,000', subjects: ['Tally Basics', 'GST', 'Practical'], eligibility: '10th Pass', certificate: 'CIT Certificate', description: 'Tally aur GST ka short-term certificate course. Quick job placement ke liye.', jobs: ['Tally Operator', 'Accounts Assistant', 'GST Helper'] },
+  { name: 'Personality Development', duration: '1 Month', fee: '₹2,000', subjects: ['Communication Skills', 'Body Language', 'Interview Prep', 'Soft Skills'], eligibility: 'Any', certificate: 'PD Certificate', description: 'Personality aur communication skills improve karo. Interview aur professional life ke liye.', jobs: ['Any Professional Role', 'Sales Executive', 'HR Executive'] },
+  { name: 'Diploma in Yoga Education (DYEd./DYT)', duration: '1 Year', fee: '₹6,000', subjects: ['Yoga Asanas', 'Pranayama', 'Meditation', 'Anatomy'], eligibility: '12th Pass', certificate: 'Yoga Diploma', description: 'Yoga teacher banne ka complete diploma. Health aur wellness industry me growing demand.', jobs: ['Yoga Teacher', 'Wellness Coach', 'Fitness Trainer'] },
+  { name: 'PG Diploma In Yoga Education (PGDYEd.)', duration: '2 Years', fee: '₹12,000', subjects: ['Advanced Yoga', 'Yoga Philosophy', 'Teaching Methods', 'Research'], eligibility: 'Graduate', certificate: 'PG Yoga Diploma', description: 'Yoga education ka post-graduate diploma. Senior yoga teacher aur researcher bano.', jobs: ['Senior Yoga Teacher', 'Yoga Researcher', 'Wellness Director'] },
+  { name: 'Multimedia Animation Course (N-Mass)', duration: '1 Year', fee: '₹12,000', subjects: ['2D Animation', '3D Modeling', 'Video Editing', 'VFX Basics'], eligibility: '12th Pass', certificate: 'Animation Certificate', description: 'Animation aur multimedia ka complete course. Film, gaming aur media industry ke liye.', jobs: ['Animator', 'Video Editor', 'VFX Artist', 'Game Designer'] },
+  { name: 'BCA / BBA / MCA / MBA / PGDCA & More', duration: '2-3 Years', fee: 'As per University', subjects: ['University Curriculum', 'Practical Labs', 'Project Work', 'Internship'], eligibility: '12th Pass / Graduate', certificate: 'University Degree', description: 'University degree programs. Higher education aur professional career ke liye.', jobs: ['IT Manager', 'Business Analyst', 'Software Engineer', 'MBA Graduate'] },
+  { name: 'Course On Computer Concept (CCC from NIELIT)', duration: '3 Months', fee: '₹3,000', subjects: ['Theory', 'Practical', 'NIELIT Exam Prep'], eligibility: '8th Pass', certificate: 'NIELIT CCC Certificate', description: 'NIELIT ka government recognized CCC certificate. Govt. jobs ke liye mandatory certificate.', jobs: ['Govt. Job Applicant', 'Computer Operator', 'Office Staff'] },
 ];
 
 const getPhotoUrl = (photo) => {
@@ -223,7 +223,7 @@ function StudentForm({ initial, onSave, onClose, saving }) {
         <select name="courseName" value={form.courseName || ''} onChange={set}
           className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all">
           <option value="">-- Select Course --</option>
-          {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
+          {COURSES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
         </select>
       </div>
       <div className="space-y-1">
@@ -495,7 +495,7 @@ function ResultForm({ initial, students, onSave, onClose, saving }) {
           <label className="text-xs font-semibold text-gray-600">Course *</label>
           <select value={form.courseName} onChange={e => handleCourseChange(e.target.value)} className={inp}>
             <option value="">-- Select Course --</option>
-            {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
+            {COURSES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
           </select>
         </div>
         <div className="space-y-1">
@@ -628,7 +628,7 @@ function CertForm({ initial, students, onSave, onClose, saving }) {
           <label className="text-xs font-semibold text-gray-600">Course *</label>
           <select value={form.courseName} onChange={e => handleCourseChange(e.target.value)} className={inp}>
             <option value="">-- Select Course --</option>
-            {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
+            {COURSES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
           </select>
         </div>
         <div className="space-y-1 sm:col-span-2">
@@ -1604,27 +1604,32 @@ export default function BranchDashboard() {
               {/* Stats Grid */}
               <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {[
-                  { icon: Users, label: 'Students', value: stats?.students, bg: '#EFF6FF', iconBg: '#2563EB', tab: 'students' },
-                  { icon: CheckCircle, label: 'Active', value: stats?.active, bg: '#F0FDF4', iconBg: '#22C55E', tab: 'students' },
-                  { icon: ClipboardList, label: 'Admissions', value: stats?.admissions, bg: '#FFFBEB', iconBg: '#F59E0B', tab: 'admissions' },
-                  { icon: BookOpen, label: 'Courses', value: stats?.courses, bg: '#F5F3FF', iconBg: '#8B5CF6' },
-                  { icon: Award, label: 'Results', value: stats?.results, bg: '#FFF7ED', iconBg: '#F97316', tab: 'results' },
-                  { icon: FileText, label: 'Certificates', value: stats?.certificates, bg: '#F0FDFA', iconBg: '#14B8A6', tab: 'certificates' },
-                ].map(({ icon: Icon, label, value, bg, iconBg, tab }, i) => (
+                  { icon: Users, label: 'Students', value: stats?.students, gradient: 'linear-gradient(135deg,#2563EB,#3B82F6)', bg: '#EFF6FF', tab: 'students', emoji: '👨‍🎓' },
+                  { icon: CheckCircle, label: 'Active', value: stats?.active, gradient: 'linear-gradient(135deg,#16A34A,#22C55E)', bg: '#F0FDF4', tab: 'students', emoji: '✅' },
+                  { icon: ClipboardList, label: 'Admissions', value: stats?.admissions, gradient: 'linear-gradient(135deg,#D97706,#F59E0B)', bg: '#FFFBEB', tab: 'admissions', emoji: '📋' },
+                  { icon: BookOpen, label: 'Courses', value: stats?.courses, gradient: 'linear-gradient(135deg,#7C3AED,#8B5CF6)', bg: '#F5F3FF', action: 'courses', emoji: '📚' },
+                  { icon: Award, label: 'Results', value: stats?.results, gradient: 'linear-gradient(135deg,#EA580C,#F97316)', bg: '#FFF7ED', tab: 'results', emoji: '🏆' },
+                  { icon: FileText, label: 'Certificates', value: stats?.certificates, gradient: 'linear-gradient(135deg,#0D9488,#14B8A6)', bg: '#F0FDFA', tab: 'certificates', emoji: '📜' },
+                ].map(({ icon: Icon, label, value, gradient, bg, tab, action, emoji }, i) => (
                   <motion.div key={label}
                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.06, type: 'spring', stiffness: 200 }}
-                    whileHover={{ y: -4, boxShadow: '0 12px 30px rgba(0,0,0,0.1)' }}
-                    onClick={tab ? () => { setActiveTab(tab); setSearch(''); } : undefined}
-                    className={`rounded-2xl p-4 ${tab ? 'cursor-pointer' : ''}`}
+                    whileHover={{ y: -5, boxShadow: '0 16px 40px rgba(0,0,0,0.12)' }}
+                    onClick={() => { if (tab) { setActiveTab(tab); setSearch(''); } else if (action === 'courses') setModal('courses'); }}
+                    className="rounded-2xl p-4 cursor-pointer relative overflow-hidden"
                     style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: bg }}>
-                      <Icon className="w-5 h-5" style={{ color: iconBg }} />
+                    {/* top color bar */}
+                    <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl" style={{ background: gradient }} />
+                    <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-3 mt-1" style={{ background: gradient, boxShadow: `0 4px 12px rgba(0,0,0,0.15)` }}>
+                      <Icon className="w-5 h-5 text-white" />
                     </div>
-                    <div className="text-2xl font-black" style={{ color: '#1E293B' }}>{value ?? 0}</div>
-                    <div className="text-sm font-bold mt-0.5" style={{ color: '#64748B' }}>{label}</div>
-                    <div className="mt-2 h-1 rounded-full" style={{ background: bg }}>
-                      <div className="h-full rounded-full w-3/4" style={{ background: iconBg }} />
+                    <div className="text-3xl font-black" style={{ color: '#1E293B' }}>{value ?? 0}</div>
+                    <div className="text-sm font-bold mt-0.5 flex items-center gap-1" style={{ color: '#64748B' }}>
+                      <span>{emoji}</span><span>{label}</span>
+                    </div>
+                    <div className="mt-2.5 h-1.5 rounded-full" style={{ background: bg }}>
+                      <motion.div className="h-full rounded-full" style={{ background: gradient }}
+                        initial={{ width: 0 }} animate={{ width: '75%' }} transition={{ delay: i * 0.1 + 0.3, duration: 0.8 }} />
                     </div>
                   </motion.div>
                 ))}
@@ -2351,6 +2356,97 @@ export default function BranchDashboard() {
         )}
 
       {/* Modals */}
+      {/* Courses Modal */}
+      {modal === 'courses' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ background: 'linear-gradient(135deg,#7C3AED,#8B5CF6)' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+                  <BookOpen className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-base font-black text-white">All Courses ({COURSES.length})</h2>
+                  <p className="text-xs text-white/70">Click any course to view full details</p>
+                </div>
+              </div>
+              <button onClick={() => { setModal(null); setSelected(null); }} className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/20 hover:bg-white/30 transition-colors">
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 p-4">
+              {selected ? (
+                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+                  <button onClick={() => setSelected(null)} className="flex items-center gap-2 text-sm font-bold text-violet-600 hover:text-violet-700">
+                    ← Back to all courses
+                  </button>
+                  <div className="rounded-2xl overflow-hidden border border-violet-100">
+                    <div className="p-5" style={{ background: 'linear-gradient(135deg,#7C3AED,#8B5CF6)' }}>
+                      <h3 className="text-lg font-black text-white">{selected.name}</h3>
+                      <p className="text-sm text-white/80 mt-1">{selected.description}</p>
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {[['⏱', 'Duration', selected.duration], ['💰', 'Fee', selected.fee], ['🎓', 'Eligibility', selected.eligibility]].map(([icon, l, v]) => (
+                          <div key={l} className="px-3 py-1.5 rounded-xl text-xs font-bold text-white" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                            {icon} {l}: <span className="font-black">{v}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="p-5 space-y-4">
+                      <div>
+                        <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-2">📚 Subjects Covered</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {selected.subjects.map((s, i) => (
+                            <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: '#F5F3FF' }}>
+                              <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white shrink-0" style={{ background: '#7C3AED' }}>{i+1}</div>
+                              <span className="text-sm font-semibold text-gray-800">{s}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-2">💼 Career / Job Roles</p>
+                        <div className="flex flex-wrap gap-2">
+                          {selected.jobs.map((j, i) => (
+                            <span key={i} className="px-3 py-1.5 rounded-full text-xs font-bold" style={{ background: '#ECFDF5', color: '#065F46', border: '1px solid #A7F3D0' }}>{j}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: '#FFF7ED', border: '1px solid #FED7AA' }}>
+                        <span className="text-xl">🏅</span>
+                        <div>
+                          <p className="text-xs text-gray-500 font-semibold">Certificate Awarded</p>
+                          <p className="text-sm font-black text-orange-800">{selected.certificate}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : (
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {COURSES.map((course, i) => (
+                    <motion.div key={i}
+                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}
+                      onClick={() => setSelected(course)}
+                      className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-100 hover:border-violet-300 hover:bg-violet-50 transition-all cursor-pointer group"
+                      style={{ background: '#F8FAFC' }}>
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm font-black text-white"
+                        style={{ background: `hsl(${(i * 37) % 360}, 65%, 55%)` }}>{i + 1}</div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold text-gray-900 leading-snug group-hover:text-violet-700 transition-colors">{course.name}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{course.duration} • {course.fee}</p>
+                      </div>
+                      <span className="text-gray-300 group-hover:text-violet-400 transition-colors text-lg">›</span>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {modal === 'add' && (
         <Modal title="Add New Student" onClose={() => setModal(null)}>
           <StudentForm initial={EMPTY_STUDENT} onSave={handleAddStudent} onClose={() => setModal(null)} saving={saving} />
@@ -2707,3 +2803,4 @@ export default function BranchDashboard() {
     </div>
   );
 }
+
