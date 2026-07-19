@@ -8,6 +8,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Cloudinary storage (req.file.path = secure_url) — used by staff, auth, etc.
 const makeUpload = (folder, resourceType = 'image') => {
   const storage = new CloudinaryStorage({
     cloudinary,
@@ -22,14 +23,26 @@ const makeUpload = (folder, resourceType = 'image') => {
   return multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 };
 
-// Named uploaders per use-case
 const uploadStudent  = makeUpload('students');
-const uploadGallery  = makeUpload('gallery');
 const uploadStaff    = makeUpload('staff');
 const uploadDocument = makeUpload('documents', 'raw');
 const uploadGeneral  = makeUpload('general');
 
-// Helper to delete from Cloudinary by URL
+// Memory storage for gallery — enables parallel upload via upload_stream
+const uploadGallery = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
+
+// Upload a buffer to Cloudinary — returns secure_url
+const uploadToCloudinary = (buffer, folder, resourceType = 'image') =>
+  new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      { folder: `kci/${folder}`, resource_type: resourceType, quality: 'auto:low', fetch_format: 'auto', overwrite: false },
+      (err, result) => err ? reject(err) : resolve(result.secure_url)
+    ).end(buffer);
+  });
+
 const deleteFromCloudinary = async (url) => {
   if (!url || !url.includes('cloudinary')) return;
   try {
@@ -41,4 +54,4 @@ const deleteFromCloudinary = async (url) => {
   } catch (_) {}
 };
 
-module.exports = { uploadStudent, uploadGallery, uploadStaff, uploadDocument, uploadGeneral, deleteFromCloudinary, cloudinary };
+module.exports = { uploadStudent, uploadGallery, uploadStaff, uploadDocument, uploadGeneral, deleteFromCloudinary, uploadToCloudinary, cloudinary };

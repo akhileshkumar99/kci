@@ -1,10 +1,9 @@
 const Gallery = require('../models/Gallery');
-const { uploadGallery, deleteFromCloudinary } = require('../middleware/cloudinary');
+const { uploadToCloudinary, deleteFromCloudinary } = require('../middleware/cloudinary');
 
 exports.getGallery = async (req, res) => {
   try {
-    const { category } = req.query;
-    const query = category ? { category } : {};
+    const query = req.query.category ? { category: req.query.category } : {};
     const items = await Gallery.find(query).sort({ createdAt: -1 });
     res.json({ success: true, items });
   } catch (err) {
@@ -14,10 +13,14 @@ exports.getGallery = async (req, res) => {
 
 exports.addGalleryItem = async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ success: false, message: 'Image required' });
-    const item = await Gallery.create({ ...req.body, image: req.file.path });
-    res.status(201).json({ success: true, item });
+    const files = req.files?.length ? req.files : req.file ? [req.file] : [];
+    if (!files.length) return res.status(400).json({ success: false, message: 'Image required' });
+    // All images upload to Cloudinary in parallel
+    const urls = await Promise.all(files.map(f => uploadToCloudinary(f.buffer, 'gallery')));
+    const items = await Gallery.insertMany(urls.map(url => ({ ...req.body, image: url })));
+    res.status(201).json({ success: true, items });
   } catch (err) {
+    console.error('Gallery upload error:', err.message);
     res.status(500).json({ success: false, message: err.message });
   }
 };
@@ -27,10 +30,8 @@ exports.deleteGalleryItem = async (req, res) => {
     const item = await Gallery.findById(req.params.id);
     if (item?.image) await deleteFromCloudinary(item.image);
     await Gallery.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: 'Item deleted' });
+    res.json({ success: true, message: 'Deleted' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
-exports.uploadGallery = uploadGallery;
