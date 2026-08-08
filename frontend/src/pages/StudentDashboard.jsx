@@ -832,6 +832,14 @@ async function downloadCertificatePDF(c, student, branch) {
   toast.success('Certificate downloaded!');
 }
 
+// ─── File URL helper ─────────────────────────────────────────────────────────
+const API_BASE = import.meta.env.VITE_API_URL || '';
+function fileUrl(path) {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  return `${API_BASE}${path}`;
+}
+
 // ─── Exam Form Section ───────────────────────────────────────────────────────
 const COURSES = [
   'Certificate In Fundamental (CIF)',
@@ -2643,11 +2651,11 @@ export default function StudentDashboard() {
                             {c.isValid !== false ? 'Valid Certificate' : 'Expired'}
                           </div>
                           <div className="flex items-center gap-2">
-                            <a href={`${import.meta.env.VITE_API_URL || ''}${c.certificateFile}`} target="_blank" rel="noreferrer"
+                            <a href={fileUrl(c.certificateFile)} target="_blank" rel="noreferrer"
                               className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-black transition-all shadow-md">
                               <Eye className="w-3.5 h-3.5" /> View
                             </a>
-                            <a href={`${import.meta.env.VITE_API_URL || ''}${c.certificateFile}`} download
+                            <a href={fileUrl(c.certificateFile)} download
                               className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 active:scale-95 text-white rounded-xl text-xs font-black transition-all shadow-md">
                               <Download className="w-3.5 h-3.5" /> Download
                             </a>

@@ -5,6 +5,11 @@ import api from '../../utils/api';
 import Loader from '../../components/Loader';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
+function fileUrl(path) {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  return `${API_URL}${path}`;
+}
 const today = () => new Date().toISOString().split('T')[0];
 const emptyForm = { formNo: '', enrollmentNumber: '', rollNumber: '', studentName: '', courseName: '', certificateNumber: '', issueDate: today(), grade: '' };
 
@@ -206,7 +211,7 @@ export default function AdminCertificates() {
                   <td className="px-4 py-3.5 text-gray-500 text-xs">{new Date(c.issueDate).toLocaleDateString('en-IN')}</td>
                   <td className="px-4 py-3.5">
                     {c.certificateFile
-                      ? <a href={`${API_URL}${c.certificateFile}`} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-green-600 font-semibold hover:underline"><Eye className="w-3.5 h-3.5" /> View</a>
+                      ? <a href={fileUrl(c.certificateFile)} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-green-600 font-semibold hover:underline"><Eye className="w-3.5 h-3.5" /> View</a>
                       : <span className="text-xs text-red-400 font-semibold">Not uploaded</span>
                     }
                   </td>
