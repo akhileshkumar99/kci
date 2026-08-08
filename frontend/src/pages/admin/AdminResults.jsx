@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { Plus, Trash2, X, Save, Pencil, Upload, Search, Download, Hash, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, X, Save, Pencil, Upload, Search, Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import api from '../../utils/api';
 import Loader from '../../components/Loader';
@@ -43,14 +43,14 @@ const SUBJECTS = [
 
 const emptySub = { name: '', maxMarks: '', obtainedMarks: '' };
 const emptyForm = {
-  formNo: '', enrollmentNumber: '', rollNumber: '',
+  rollNumber: '',
   studentName: '', fatherName: '', courseName: '', branch: '',
   batch: '', examDate: '', uploadDate: '', subjects: [{ ...emptySub }],
 };
 
 const inp = 'w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500';
 
-function ResultForm({ form, setForm, lookingUp, onLookup, saving, onSubmit, onClose, title }) {
+function ResultForm({ form, setForm, saving, onSubmit, onClose, title }) {
   const setF = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const addSub = () => setForm(f => ({ ...f, subjects: [...f.subjects, { ...emptySub }] }));
   const removeSub = i => setForm(f => ({ ...f, subjects: f.subjects.filter((_, idx) => idx !== i) }));
@@ -60,31 +60,10 @@ function ResultForm({ form, setForm, lookingUp, onLookup, saving, onSubmit, onCl
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between p-5 border-b bg-gradient-to-r from-blue-600 to-indigo-600 sticky top-0 z-10">
-          <div>
-            <h2 className="text-lg font-bold text-white">{title}</h2>
-            <p className="text-blue-100 text-xs mt-0.5">Enter Form No or Enrollment No to auto-fill</p>
-          </div>
+          <h2 className="text-lg font-bold text-white">{title}</h2>
           <button type="button" onClick={onClose}><X className="w-5 h-5 text-white/80 hover:text-white" /></button>
         </div>
         <form onSubmit={onSubmit} className="p-5 space-y-4">
-          {/* Identifiers */}
-          <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-3">
-            <p className="text-xs font-bold text-blue-700 flex items-center gap-1.5"><Hash className="w-3.5 h-3.5" /> Student Identifiers (auto-fetch on blur)</p>
-            <div className="grid grid-cols-2 gap-3">
-              {[['formNo', 'Form Number', 'e.g. KCI/FORM/2025/0001'], ['enrollmentNumber', 'Enrollment Number', 'e.g. KC2500145']].map(([key, label, ph]) => (
-                <div key={key}>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">{label}</label>
-                  <div className="relative">
-                    <input value={form[key]} onChange={e => setF(key, e.target.value)}
-                      onBlur={e => onLookup(key, e.target.value)} placeholder={ph}
-                      className={inp + ' pr-8'} />
-                    {lookingUp && <RefreshCw className="absolute right-2 top-2.5 w-4 h-4 text-blue-400 animate-spin" />}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Student Details */}
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -166,8 +145,6 @@ export default function AdminResults() {
   const [editForm, setEditForm] = useState(emptyForm);
   const [editId, setEditId] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [lookingUp, setLookingUp] = useState(false);
-  const [editLookingUp, setEditLookingUp] = useState(false);
   const [search, setSearch] = useState('');
   const [filterPeriod, setFilterPeriod] = useState('all');
   const [filterYear, setFilterYear] = useState(new Date().getFullYear());
@@ -196,31 +173,6 @@ export default function AdminResults() {
     if (filterPeriod === 'weekly') { const w = new Date(now); w.setDate(now.getDate() - 7); return d >= w; }
     return true;
   });
-
-  const lookupStudent = useCallback(async (field, value, isEdit = false) => {
-    if (!value || value.length < 3) return;
-    isEdit ? setEditLookingUp(true) : setLookingUp(true);
-    try {
-      const params = field === 'formNo' ? { formNo: value } : { enrollmentNumber: value };
-      const { data } = await api.get('/results/lookup-student', { params });
-      if (data.success && data.student) {
-        const patch = {
-          studentName: data.student.name,
-          fatherName: data.student.fatherName,
-          courseName: data.student.courseName,
-          batch: data.student.batch,
-          branch: data.student.branch,
-          rollNumber: data.student.rollNumber,
-          enrollmentNumber: data.student.enrollmentNumber,
-          formNo: data.student.formNo,
-        };
-        if (isEdit) setEditForm(f => ({ ...f, ...patch }));
-        else setForm(f => ({ ...f, ...patch }));
-        toast.success(`Student found: ${data.student.name}`);
-      }
-    } catch {}
-    isEdit ? setEditLookingUp(false) : setLookingUp(false);
-  }, []);
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -406,8 +358,6 @@ export default function AdminResults() {
       {addModal && (
         <ResultForm
           form={form} setForm={setForm}
-          lookingUp={lookingUp}
-          onLookup={(field, val) => lookupStudent(field, val, false)}
           saving={saving} onSubmit={handleAdd}
           onClose={() => setAddModal(false)}
           title="Add Result"
@@ -418,8 +368,6 @@ export default function AdminResults() {
       {editModal && (
         <ResultForm
           form={editForm} setForm={setEditForm}
-          lookingUp={editLookingUp}
-          onLookup={(field, val) => lookupStudent(field, val, true)}
           saving={saving} onSubmit={handleEdit}
           onClose={() => setEditModal(false)}
           title="Edit Result"
