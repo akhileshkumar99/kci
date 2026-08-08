@@ -840,6 +840,22 @@ function fileUrl(path) {
   return `${API_BASE}${path}`;
 }
 
+// ─── Certificate download helper ─────────────────────────────────────────────
+function certDownloadUrl(filePath, studentName, certNumber) {
+  const ext = filePath?.split('.').pop()?.split('?')[0] || 'pdf';
+  const safeName = (studentName || 'Student').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+  const safeCertNo = (certNumber || '').replace(/\//g, '-').replace(/[^a-zA-Z0-9_-]/g, '');
+  const filename = `KCI_Certificate_${safeName}_${safeCertNo}.${ext}`;
+
+  // Cloudinary URL — add fl_attachment for forced download with filename
+  if (filePath?.includes('cloudinary.com')) {
+    // Insert fl_attachment:filename before /upload/
+    return filePath.replace('/upload/', `/upload/fl_attachment:${filename.replace(/\./g, '_')}/`);
+  }
+  // Local file — return as-is (backend serves it)
+  return fileUrl(filePath);
+}
+
 // ─── Exam Form Section ───────────────────────────────────────────────────────
 const COURSES = [
   'Certificate In Fundamental (CIF)',
@@ -2655,26 +2671,14 @@ export default function StudentDashboard() {
                               className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-black transition-all shadow-md">
                               <Eye className="w-3.5 h-3.5" /> View
                             </a>
-                            <button
-                              onClick={async () => {
-                                try {
-                                  const url = fileUrl(c.certificateFile);
-                                  const res = await fetch(url);
-                                  const blob = await res.blob();
-                                  const ext = c.certificateFile?.split('.').pop() || 'pdf';
-                                  const safeName = (c.studentName || 'Student').replace(/\s+/g, '_');
-                                  const safeCertNo = (c.certificateNumber || '').replace(/\//g, '-');
-                                  const filename = `KCI_Certificate_${safeName}_${safeCertNo}.${ext}`;
-                                  const a = document.createElement('a');
-                                  a.href = URL.createObjectURL(blob);
-                                  a.download = filename;
-                                  a.click();
-                                  URL.revokeObjectURL(a.href);
-                                } catch { toast.error('Download failed'); }
-                              }}
+                            <a
+                              href={certDownloadUrl(c.certificateFile, c.studentName, c.certificateNumber)}
+                              download={`KCI_Certificate_${(c.studentName||'Student').replace(/\s+/g,'_')}_${(c.certificateNumber||'').replace(/\//g,'-')}.${c.certificateFile?.split('.').pop()?.split('?')[0]||'pdf'}`}
+                              target="_blank"
+                              rel="noreferrer"
                               className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 active:scale-95 text-white rounded-xl text-xs font-black transition-all shadow-md">
                               <Download className="w-3.5 h-3.5" /> Download
-                            </button>
+                            </a>
                           </div>
                         </div>
                       </div>
