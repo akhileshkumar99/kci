@@ -26,19 +26,26 @@ router.post('/idcard-settings', protect, admin, async (req, res) => {
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-// Named download endpoint — no auth needed, student downloads their own cert
+// Named download endpoint — redirects to static file with proper filename via Content-Disposition
 router.get('/download/:id', async (req, res) => {
   try {
-    const Certificate = require('../models/Certificate');
     const cert = await Certificate.findById(req.params.id).select('certificateFile certificateNumber studentName');
     if (!cert?.certificateFile) return res.status(404).json({ success: false, message: 'File not found' });
-    const filePath = path.join(__dirname, '..', cert.certificateFile);
     const ext = path.extname(cert.certificateFile) || '.pdf';
     const safeName = (cert.studentName || 'Student').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
     const safeCertNo = (cert.certificateNumber || cert._id.toString()).replace(/[\/\\]/g, '-').replace(/[^a-zA-Z0-9_-]/g, '');
     const filename = `KCI_Certificate_${safeName}_${safeCertNo}${ext}`;
+    // Stream file directly — works on both local and Render
+    const fs = require('fs');
+    const filePath = path.join(__dirname, '..', cert.certificateFile);
+    if (!fs.existsSync(filePath)) {
+      // File not on disk (Render ephemeral) — redirect to static URL so browser downloads it
+      const staticUrl = cert.certificateFile.startsWith('/') ? cert.certificateFile : `/${cert.certificateFile}`;
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      return res.redirect(staticUrl);
+    }
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.sendFile(filePath, (err) => { if (err) res.status(404).json({ success: false, message: 'File not found' }); });
+    res.sendFile(filePath);
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 

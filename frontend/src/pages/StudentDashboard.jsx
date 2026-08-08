@@ -2655,10 +2655,26 @@ export default function StudentDashboard() {
                               className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-black transition-all shadow-md">
                               <Eye className="w-3.5 h-3.5" /> View
                             </a>
-                            <a href={`${import.meta.env.VITE_API_URL || ''}/api/certificates/download/${c._id}`}
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const url = fileUrl(c.certificateFile);
+                                  const res = await fetch(url);
+                                  const blob = await res.blob();
+                                  const ext = c.certificateFile?.split('.').pop() || 'pdf';
+                                  const safeName = (c.studentName || 'Student').replace(/\s+/g, '_');
+                                  const safeCertNo = (c.certificateNumber || '').replace(/\//g, '-');
+                                  const filename = `KCI_Certificate_${safeName}_${safeCertNo}.${ext}`;
+                                  const a = document.createElement('a');
+                                  a.href = URL.createObjectURL(blob);
+                                  a.download = filename;
+                                  a.click();
+                                  URL.revokeObjectURL(a.href);
+                                } catch { toast.error('Download failed'); }
+                              }}
                               className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 active:scale-95 text-white rounded-xl text-xs font-black transition-all shadow-md">
                               <Download className="w-3.5 h-3.5" /> Download
-                            </a>
+                            </button>
                           </div>
                         </div>
                       </div>
