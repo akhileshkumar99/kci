@@ -2612,7 +2612,7 @@ export default function StudentDashboard() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <button onClick={() => downloadCertificatePDF(c, student, branch)} className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black transition-all"><Download className="w-3.5 h-3.5" /> PDF</button>
+                      <a href={certDownloadUrl(c.certificateFile, c.studentName, c.certificateNumber)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black transition-all"><Download className="w-3.5 h-3.5" /> PDF</a>
                       <button onClick={() => {
                         const url = fileUrl(c.certificateFile);
                         const win = window.open(url, '_blank', 'width=900,height=650');
