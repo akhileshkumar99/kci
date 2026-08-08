@@ -15,7 +15,6 @@ const Courses = lazy(() => import('./pages/Courses'));
 const CourseDetail = lazy(() => import('./pages/CourseDetail'));
 const Admission = lazy(() => import('./pages/Admission'));
 const Login = lazy(() => import('./pages/Login'));
-const ResultPage = lazy(() => import('./pages/ResultPage'));
 const Gallery = lazy(() => import('./pages/Gallery'));
 const Branches = lazy(() => import('./pages/Branches'));
 const Staff = lazy(() => import('./pages/Staff'));
@@ -37,7 +36,6 @@ const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminCourses = lazy(() => import('./pages/admin/AdminCourses'));
 const AdminStudents = lazy(() => import('./pages/admin/AdminStudents'));
-const AdminResults = lazy(() => import('./pages/admin/AdminResults'));
 const AdminCertificates = lazy(() => import('./pages/admin/AdminCertificates'));
 const AdminGallery = lazy(() => import('./pages/admin/AdminGallery'));
 const AdminAdmissions = lazy(() => import('./pages/admin/AdminAdmissions'));
@@ -248,7 +246,6 @@ export default function App() {
           <Route path="/login" element={<PublicLayout><Login /></PublicLayout>} />
           <Route path="/register" element={<PublicLayout><Register /></PublicLayout>} />
           <Route path="/verify-certificate" element={<PublicLayout><CertificateVerify /></PublicLayout>} />
-          <Route path="/result" element={<PublicLayout><ResultPage /></PublicLayout>} />
           <Route path="/gallery" element={<PublicLayout><Gallery /></PublicLayout>} />
           <Route path="/branches" element={<PublicLayout><Branches /></PublicLayout>} />
           <Route path="/staff" element={<PublicLayout><Staff /></PublicLayout>} />
@@ -266,7 +263,6 @@ export default function App() {
             <Route path="courses" element={<AdminCourses />} />
             <Route path="students" element={<AdminStudents />} />
             <Route path="admissions" element={<AdminAdmissions />} />
-            <Route path="results" element={<AdminResults />} />
             <Route path="certificates" element={<AdminCertificates />} />
             <Route path="gallery" element={<AdminGallery />} />
             <Route path="staff" element={<AdminStaff />} />

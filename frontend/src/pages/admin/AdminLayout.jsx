@@ -15,7 +15,6 @@ const navItems = [
   { path: '/admin/courses', label: 'Courses', icon: BookOpen, color: 'text-emerald-400' },
   { path: '/admin/students', label: 'Students', icon: Users, color: 'text-violet-400' },
   { path: '/admin/admissions', label: 'Admissions', icon: ClipboardList, color: 'text-orange-400' },
-  { path: '/admin/results', label: 'Results', icon: Award, color: 'text-yellow-400' },
   { path: '/admin/certificates', label: 'Certificates', icon: FileText, color: 'text-teal-400' },
   { path: '/admin/gallery', label: 'Gallery', icon: Image, color: 'text-pink-400' },
   { path: '/admin/staff', label: 'Staff', icon: UserCheck, color: 'text-cyan-400' },
@@ -31,7 +30,7 @@ const navItems = [
 
 const mockNotifications = [
   { id: 1, type: 'info', title: 'New Admission', msg: 'A new admission form was submitted', time: '2m ago', read: false, link: '/admin/admissions' },
-  { id: 2, type: 'success', title: 'Result Published', msg: 'Result for KCI20240001 published', time: '1h ago', read: false, link: '/admin/results' },
+  { id: 2, type: 'success', title: 'Certificate Issued', msg: 'Certificate for KCI20240001 issued', time: '1h ago', read: false, link: '/admin/certificates' },
   { id: 3, type: 'warning', title: 'Gallery Upload', msg: '3 new images added to gallery', time: '3h ago', read: true, link: '/admin/gallery' },
   { id: 4, type: 'info', title: 'New Message', msg: 'Contact form message received', time: '5h ago', read: true, link: '/admin/contacts' },
 ];
