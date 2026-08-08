@@ -563,6 +563,7 @@ const { uploadDocument } = require('../middleware/cloudinary');
 router.post('/certificates', protect, branchAuth, uploadDocument.single('certificateFile'), async (req, res) => {
   try {
     const Certificate = require('../models/Certificate');
+    const Notification = require('../models/Notification');
     const data = { ...req.body };
     if (req.file) data.certificateFile = req.file.path;
     // Cross-populate all identifier fields so student dashboard can find it
@@ -586,6 +587,17 @@ router.post('/certificates', protect, branchAuth, uploadDocument.single('certifi
       }
     }
     const certificate = await Certificate.create(data);
+    // Notify student
+    try {
+      await Notification.create({
+        title: '🏅 Certificate Uploaded',
+        message: `Your certificate for ${certificate.courseName} has been uploaded. You can now view and download it from your Student Dashboard.`,
+        type: 'certificate',
+        targetRole: 'student',
+        branchId: req.user._id,
+        isActive: true,
+      });
+    } catch (_) {}
     res.status(201).json({ success: true, certificate });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
