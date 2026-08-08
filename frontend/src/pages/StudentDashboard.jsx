@@ -2612,8 +2612,12 @@ export default function StudentDashboard() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <a href={fileUrl(c.certificateFile)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black transition-all"><Eye className="w-3.5 h-3.5" /> View</a>
-                      <a href={certDownloadUrl(c.certificateFile,c.studentName,c.certificateNumber)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-black transition-all"><Download className="w-3.5 h-3.5" /> Download</a>
+                      <button onClick={() => downloadCertificatePDF(c, student, branch)} className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black transition-all"><Download className="w-3.5 h-3.5" /> PDF</button>
+                      <button onClick={() => {
+                        const url = fileUrl(c.certificateFile);
+                        const win = window.open(url, '_blank', 'width=900,height=650');
+                        if (win) { win.onload = () => { win.focus(); win.print(); }; }
+                      }} className="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-black transition-all"><Printer className="w-3.5 h-3.5" /> Print</button>
                     </div>
                   </motion.div>
                 ))}
