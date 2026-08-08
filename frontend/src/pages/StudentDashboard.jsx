@@ -2655,7 +2655,7 @@ export default function StudentDashboard() {
                               className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-black transition-all shadow-md">
                               <Eye className="w-3.5 h-3.5" /> View
                             </a>
-                            <a href={fileUrl(c.certificateFile)} download
+                            <a href={`${import.meta.env.VITE_API_URL || ''}/api/certificates/download/${c._id}`}
                               className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 active:scale-95 text-white rounded-xl text-xs font-black transition-all shadow-md">
                               <Download className="w-3.5 h-3.5" /> Download
                             </a>

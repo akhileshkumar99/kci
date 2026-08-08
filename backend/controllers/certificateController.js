@@ -31,7 +31,7 @@ const makeTemplateHandlers = (key) => ({
   upload: async (req, res) => {
     try {
       if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
-      const url = `/uploads/${req.file.filename}`;
+      const url = req.file.path || `/uploads/${req.file.filename}`;
       await Setting.findOneAndUpdate({ key }, { key, value: url }, { upsert: true, new: true });
       res.json({ success: true, templateUrl: url });
     } catch (err) { res.status(500).json({ success: false, message: err.message }); }
@@ -111,7 +111,7 @@ exports.getAllCertificates = async (req, res) => {
 exports.createCertificate = async (req, res) => {
   try {
     const data = { ...req.body };
-    if (req.file) data.certificateFile = `/uploads/${req.file.filename}`;
+    if (req.file) data.certificateFile = req.file.path; // Cloudinary secure_url
     // Ensure all identifier fields are cross-populated
     if (!data.enrollmentNumber && data.formNo) data.enrollmentNumber = data.formNo;
     if (!data.rollNumber && data.formNo) data.rollNumber = data.formNo;
@@ -149,7 +149,7 @@ exports.createCertificate = async (req, res) => {
 exports.updateCertificate = async (req, res) => {
   try {
     const data = { ...req.body };
-    if (req.file) data.certificateFile = `/uploads/${req.file.filename}`;
+    if (req.file) data.certificateFile = req.file.path; // Cloudinary secure_url
     if (!data.enrollmentNumber && data.formNo) data.enrollmentNumber = data.formNo;
     if (!data.rollNumber && data.formNo) data.rollNumber = data.formNo;
     if (!data.formNo && data.enrollmentNumber) data.formNo = data.enrollmentNumber;

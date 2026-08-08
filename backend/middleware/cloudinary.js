@@ -12,12 +12,13 @@ cloudinary.config({
 const makeUpload = (folder, resourceType = 'image') => {
   const storage = new CloudinaryStorage({
     cloudinary,
-    params: {
-      folder: `kci/${folder}`,
-      resource_type: resourceType,
-      allowed_formats: resourceType === 'image'
-        ? ['jpg', 'jpeg', 'png', 'gif', 'webp']
-        : ['pdf', 'jpg', 'jpeg', 'png'],
+    params: async (req, file) => {
+      const isPdf = file.mimetype === 'application/pdf';
+      return {
+        folder: `kci/${folder}`,
+        resource_type: isPdf ? 'raw' : 'image',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'],
+      };
     },
   });
   return multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
