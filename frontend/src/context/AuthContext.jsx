@@ -16,11 +16,25 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   const login = async (email, password, role) => {
-    const { data } = await api.post('/auth/login', { email, password, role });
-    localStorage.setItem('kci_token', data.token);
-    localStorage.setItem('kci_user', JSON.stringify(data.user));
-    setUser(data.user);
-    return data.user;
+    // Retry until server responds (handles Render cold start)
+    while (true) {
+      try {
+        const { data } = await api.post('/auth/login', { email, password, role });
+        localStorage.setItem('kci_token', data.token);
+        localStorage.setItem('kci_user', JSON.stringify(data.user));
+        setUser(data.user);
+        return data.user;
+      } catch (err) {
+        const status = err.response?.status;
+        // If server error or no response (cold start) — wait and retry silently
+        if (!err.response || status === 502 || status === 503 || status === 504) {
+          await new Promise(r => setTimeout(r, 4000));
+          continue;
+        }
+        // Real error (wrong password etc) — throw immediately
+        throw err;
+      }
+    }
   };
 
   const register = async (formData) => {
