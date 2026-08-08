@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -18,17 +18,34 @@ export default function Login() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [focused, setFocused] = useState('');
+  const [serverReady, setServerReady] = useState(false);
   const { login, logout } = useAuth();
   const navigate = useNavigate();
+
+  // Wake up Render backend as soon as login page loads
+  useEffect(() => {
+    let cancelled = false;
+    const wake = async () => {
+      for (let i = 0; i < 8; i++) {
+        try {
+          await api.get('/auth/ping');
+          if (!cancelled) setServerReady(true);
+          return;
+        } catch {
+          if (cancelled) return;
+          await new Promise(r => setTimeout(r, 5000));
+        }
+      }
+    };
+    wake();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.email || !form.password) return toast.error('Please fill all fields');
     setLoading(true);
-    const toastId = toast.loading('Connecting to server...');
-
-    // Wake up Render backend first
-    try { await api.get('/auth/ping').catch(() => {}); } catch {}
+    const toastId = toast.loading('Signing in...');
 
     let attempts = 0;
     const maxAttempts = 5;
@@ -48,11 +65,11 @@ export default function Login() {
         const status = err.response?.status;
         if (status === 503 || status === 502 || !err.response) {
           if (attempts < maxAttempts) {
-            toast.loading(`Server is starting up... please wait (${attempts * 12}s)`, { id: toastId });
-            await new Promise(r => setTimeout(r, 12000));
+            toast.loading(`Server starting... please wait (${attempts * 8}s)`, { id: toastId });
+            await new Promise(r => setTimeout(r, 8000));
           } else {
             toast.dismiss(toastId);
-            toast.error('Server took too long to respond. Please try again in a minute.');
+            toast.error('Server took too long. Please try again.');
           }
         } else {
           toast.dismiss(toastId);
@@ -210,8 +227,8 @@ export default function Login() {
             </div>
 
             <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <p className="text-xs text-gray-400">Secure encrypted connection</p>
+              <div className={`w-2 h-2 rounded-full ${serverReady ? 'bg-green-400 animate-pulse' : 'bg-yellow-400 animate-pulse'}`} />
+              <p className="text-xs text-gray-400">{serverReady ? 'Server connected' : 'Connecting to server...'}</p>
             </div>
           </div>
         </motion.div>
