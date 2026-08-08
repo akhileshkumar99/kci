@@ -9,7 +9,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['logo.png', 'favicon.ico'],
+      includeAssets: ['logo.png', 'icon-192.png', 'icon-512.png', 'favicon.png'],
       manifest: {
         name: 'Keerti Computer Institute',
         short_name: 'KCI',
@@ -19,15 +19,17 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
+        scope: '/',
         icons: [
-          { src: '/logo.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-          { src: '/logo.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+          { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        globPatterns: ['**/*.{js,css,html,ico,svg,woff2}'],
-        globIgnores: ['**/logo.png'],
+        globPatterns: ['**/*.{js,css,html,ico,svg,woff2,png,jpg}'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/kci-backend\.onrender\.com\/api\/.*/i,
