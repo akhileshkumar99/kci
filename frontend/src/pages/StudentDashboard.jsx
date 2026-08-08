@@ -2588,103 +2588,35 @@ export default function StudentDashboard() {
         {activeTab === 'certificates' && (() => {
           const uploadedCerts = certificates.filter(c => c.certificateFile);
           return (
-          <div className="space-y-5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-black text-gray-900">My Certificates <span className="text-blue-600">({uploadedCerts.length})</span></h2>
-              <span className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">Admin-issued certificates only</span>
-            </div>
+          <div className="space-y-4">
+            <h2 className="text-xl font-black text-gray-900">My Certificates <span className="text-blue-600">({uploadedCerts.length})</span></h2>
             {uploadedCerts.length === 0 ? (
               <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
-                <FileText className="w-12 h-12 mx-auto mb-3 text-gray-200" />
-                <p className="text-gray-500 font-semibold">Your certificate has not been uploaded yet.</p>
-                <p className="text-xs text-gray-400 mt-1">Please contact the institute administration for your certificate.</p>
-                <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-700 font-semibold">
-                  📞 9936384736 / 9919660880
-                </div>
+                <Award className="w-12 h-12 mx-auto mb-3 text-gray-200" />
+                <p className="text-gray-500 font-semibold">Certificate abhi upload nahi hua hai.</p>
+                <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-700 font-semibold">📞 9936384736</div>
               </div>
             ) : (
-              <div className="grid sm:grid-cols-2 gap-5">
-                {uploadedCerts.map((c, idx) => {
-                  const gradeClr = { 'A+': 'from-emerald-500 to-green-600', 'A': 'from-blue-500 to-blue-700', 'B+': 'from-violet-500 to-purple-700', 'B': 'from-indigo-500 to-indigo-700', 'C': 'from-orange-400 to-orange-600' };
-                  const gc = gradeClr[c.grade] || 'from-blue-600 to-indigo-700';
-                  return (
-                    <motion.div key={c._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.06 }}
-                      className="bg-white rounded-2xl shadow-sm border border-amber-100 overflow-hidden">
-
-                      {/* Gold header */}
-                      <div className="bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 px-5 py-3 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Award className="w-5 h-5 text-white" />
-                          <span className="text-white font-black text-sm tracking-wide">CERTIFICATE OF COMPLETION</span>
-                        </div>
-                        <span className="text-amber-900 bg-white/80 text-[10px] font-black px-2 py-0.5 rounded-full">KCI</span>
+              <div className="space-y-3">
+                {uploadedCerts.map((c, idx) => (
+                  <motion.div key={c._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
+                    className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+                        <Award className="w-5 h-5 text-amber-600" />
                       </div>
-
-                      <div className="p-5">
-                        {/* Institute + logo row */}
-                        <div className="flex items-center gap-3 mb-4 pb-3 border-b border-amber-100">
-                          <div className="kci-logo-wrap w-10 h-10"><img src="/logo.png" alt="KCI" /></div>
-                          <div>
-                            <div className="text-xs font-black text-gray-500 uppercase tracking-widest">Keerti Computer Institute</div>
-                            <div className="text-[10px] text-gray-400">Govt. Recognised | Est. 2005</div>
-                          </div>
-                          {/* Grade badge */}
-                          <div className={`ml-auto w-12 h-12 rounded-full bg-gradient-to-br ${gc} flex flex-col items-center justify-center shadow-lg border-2 border-white`}>
-                            <span className="text-white text-[9px] font-bold leading-none">GRADE</span>
-                            <span className="text-white text-lg font-black leading-tight">{c.grade || 'A'}</span>
-                          </div>
-                        </div>
-
-                        {/* This certifies */}
-                        <p className="text-center text-xs text-gray-400 italic mb-1">This is to certify that</p>
-                        <p className="text-center text-lg font-black text-blue-900 mb-1" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>{c.studentName || student?.name}</p>
-                        <p className="text-center text-xs text-gray-400 italic mb-3">has successfully completed</p>
-                        <p className="text-center text-sm font-black text-amber-700 mb-4 leading-tight">{c.courseName}</p>
-
-                        {/* Details grid */}
-                        <div className="grid grid-cols-2 gap-2 mb-4">
-                          {[
-                            ['Enrollment No.', c.rollNumber],
-                            ['Issue Date', c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '””'],
-                          ].map(([l, v]) => (
-                            <div key={l} className="bg-amber-50 rounded-xl p-2.5 border border-amber-100">
-                              <div className="text-[9px] font-bold text-amber-600 uppercase tracking-wide">{l}</div>
-                              <div className="text-xs font-black text-gray-800 mt-0.5">{v}</div>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Cert number */}
-                        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-xl px-4 py-2.5 mb-4 text-center">
-                          <div className="text-[9px] font-bold text-amber-600 uppercase tracking-widest mb-0.5">Certificate Number</div>
-                          <div className="font-mono font-black text-sm text-blue-800">{c.certificateNumber}</div>
-                        </div>
-
-                        {/* Valid badge + Actions */}
-                        <div className="flex items-center justify-between gap-2 flex-wrap">
-                          <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold">
-                            <CheckCircle className="w-4 h-4" />
-                            {c.isValid !== false ? 'Valid Certificate' : 'Expired'}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <a href={fileUrl(c.certificateFile)} target="_blank" rel="noreferrer"
-                              className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-black transition-all shadow-md">
-                              <Eye className="w-3.5 h-3.5" /> View
-                            </a>
-                            <a
-                              href={certDownloadUrl(c.certificateFile, c.studentName, c.certificateNumber)}
-                              download={`KCI_Certificate_${(c.studentName||'Student').replace(/\s+/g,'_')}_${(c.certificateNumber||'').replace(/\//g,'-')}.${c.certificateFile?.split('.').pop()?.split('?')[0]||'pdf'}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 active:scale-95 text-white rounded-xl text-xs font-black transition-all shadow-md">
-                              <Download className="w-3.5 h-3.5" /> Download
-                            </a>
-                          </div>
-                        </div>
+                      <div className="min-w-0">
+                        <p className="font-black text-gray-900 text-sm truncate">{c.courseName}</p>
+                        <p className="text-xs text-gray-400 font-mono">{c.certificateNumber}</p>
+                        <p className="text-xs text-gray-400">{c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : ''}</p>
                       </div>
-                    </motion.div>
-                  );
-                })}
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <a href={fileUrl(c.certificateFile)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black transition-all"><Eye className="w-3.5 h-3.5" /> View</a>
+                      <a href={certDownloadUrl(c.certificateFile,c.studentName,c.certificateNumber)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-black transition-all"><Download className="w-3.5 h-3.5" /> Download</a>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             )}
           </div>
