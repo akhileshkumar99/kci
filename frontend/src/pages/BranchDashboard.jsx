@@ -1209,7 +1209,7 @@ export default function BranchDashboard() {
     api.get('/branch/dashboard-stats').then(r => setStats(r.data.stats)).catch(() => {});
     api.get('/branch/students').then(r => setStudents(r.data.students || [])).catch(() => {});
     api.get('/branch/admissions').then(r => setAdmissions(r.data.admissions || [])).catch(() => {});
-    api.get('/branch/results').then(r => setResults(r.data.results || [])).catch(() => {});
+    api.get('/results').then(r => setResults(r.data.results || [])).catch(() => {});
     api.get('/branch/certificates').then(r => setCertificates(r.data.certificates || [])).catch(() => {});
     api.get('/branch/tests').then(r => setTests(r.data.tests || [])).catch(() => {});
     api.get('/study-material').then(r => setStudyMaterials(r.data.materials || [])).catch(() => {});
@@ -1274,10 +1274,15 @@ export default function BranchDashboard() {
 
   // Results CRUD
   const handleAddResult = async form => {
-    if (!form.rollNumber || !form.studentName) return toast.error('Roll number and student name required');
+    if (!form.studentName) return toast.error('Select a student');
     setSaving(true);
     try {
-      const r = await api.post('/branch/results', form);
+      const fd = new FormData();
+      Object.entries(form).forEach(([k, v]) => {
+        if (k === 'resultFile' && v instanceof File) fd.append('resultFile', v);
+        else if (k !== 'resultFile' && v !== null && v !== undefined) fd.append(k, v);
+      });
+      const r = await api.post('/results', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       setResults(p => [r.data.result, ...p]);
       setModal(null);
       toast.success('Result added!');
@@ -1288,7 +1293,12 @@ export default function BranchDashboard() {
   const handleEditResult = async form => {
     setSaving(true);
     try {
-      const r = await api.put(`/branch/results/${selected._id}`, form);
+      const fd = new FormData();
+      Object.entries(form).forEach(([k, v]) => {
+        if (k === 'resultFile' && v instanceof File) fd.append('resultFile', v);
+        else if (k !== 'resultFile' && v !== null && v !== undefined) fd.append(k, v);
+      });
+      const r = await api.put(`/results/${selected._id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       setResults(p => p.map(x => x._id === selected._id ? r.data.result : x));
       setModal(null);
       toast.success('Result updated!');
@@ -1299,7 +1309,7 @@ export default function BranchDashboard() {
   const handleDeleteResult = async (id) => {
     if (!window.confirm('Delete this result?')) return;
     try {
-      await api.delete(`/branch/results/${id}`);
+      await api.delete(`/results/${id}`);
       setResults(p => p.filter(x => x._id !== id));
       toast.success('Result deleted');
     } catch { toast.error('Delete failed'); }
@@ -1308,7 +1318,7 @@ export default function BranchDashboard() {
   const handleApproveResult = async (id, currentStatus) => {
     try {
       const newStatus = !currentStatus;
-      await api.put(`/branch/results/${id}/approve`, { isApproved: newStatus });
+      await api.put(`/results/${id}/approve`, { isApproved: newStatus });
       setResults(p => p.map(x => x._id === id ? { ...x, isApproved: newStatus } : x));
       toast.success(newStatus ? 'Result approved! Student can now view it.' : 'Result hidden from student.');
     } catch { toast.error('Failed'); }

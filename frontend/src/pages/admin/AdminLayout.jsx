@@ -15,6 +15,7 @@ const navItems = [
   { path: '/admin/courses', label: 'Courses', icon: BookOpen, color: 'text-emerald-400' },
   { path: '/admin/students', label: 'Students', icon: Users, color: 'text-violet-400' },
   { path: '/admin/admissions', label: 'Admissions', icon: ClipboardList, color: 'text-orange-400' },
+  { path: '/admin/results', label: 'Results', icon: Award, color: 'text-yellow-400' },
   { path: '/admin/certificates', label: 'Certificates', icon: FileText, color: 'text-teal-400' },
   { path: '/admin/gallery', label: 'Gallery', icon: Image, color: 'text-pink-400' },
   { path: '/admin/staff', label: 'Staff', icon: UserCheck, color: 'text-cyan-400' },
