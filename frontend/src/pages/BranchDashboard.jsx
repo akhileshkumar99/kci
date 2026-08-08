@@ -575,38 +575,30 @@ function CertForm({ initial, students, onSave, onClose, saving }) {
   const isEdit = !!initial._id;
   const [form, setForm] = useState({
     rollNumber: initial.rollNumber || '',
+    enrollmentNumber: initial.enrollmentNumber || '',
+    formNo: initial.formNo || '',
     studentName: initial.studentName || '',
     courseName: initial.courseName || '',
     certificateNumber: initial.certificateNumber || '',
     grade: initial.grade || '',
-    issueDate: initial.issueDate ? initial.issueDate.slice(0, 10) : '',
+    issueDate: initial.issueDate ? initial.issueDate.slice(0, 10) : new Date().toISOString().split('T')[0],
   });
   const [certFile, setCertFile] = useState(null);
-  const [loadingCertNo, setLoadingCertNo] = useState(false);
-
-  const fetchNextCertNumber = async (courseName) => {
-    if (!courseName || isEdit) return;
-    setLoadingCertNo(true);
-    try {
-      const { data } = await api.get('/branch/certificates/next-number', { params: { courseName } });
-      if (data.certNumber) setForm(p => ({ ...p, certificateNumber: data.certNumber }));
-    } catch {}
-    setLoadingCertNo(false);
-  };
 
   const handleRollChange = (rollNumber) => {
-    const student = students.find(s => s.rollNumber === rollNumber);
+    const student = students.find(s => s.rollNumber === rollNumber || s.enrollmentNumber === rollNumber);
     if (student) {
-      setForm(p => ({ ...p, rollNumber, studentName: student.name, courseName: student.courseName || '' }));
-      fetchNextCertNumber(student.courseName);
+      setForm(p => ({
+        ...p,
+        rollNumber: student.rollNumber || rollNumber,
+        enrollmentNumber: student.enrollmentNumber || '',
+        formNo: student.formNo || '',
+        studentName: student.name,
+        courseName: student.courseName || '',
+      }));
     } else {
       setForm(p => ({ ...p, rollNumber }));
     }
-  };
-
-  const handleCourseChange = (courseName) => {
-    setForm(p => ({ ...p, courseName }));
-    fetchNextCertNumber(courseName);
   };
 
   const inp = 'w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 bg-gray-50 focus:bg-white transition-all';
@@ -614,8 +606,8 @@ function CertForm({ initial, students, onSave, onClose, saving }) {
   return (
     <form onSubmit={e => { e.preventDefault(); onSave(form, certFile); }} className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-gray-600">Enrollment Number *</label>
+        <div className="space-y-1 sm:col-span-2">
+          <label className="text-xs font-semibold text-gray-600">Select Student *</label>
           <select value={form.rollNumber} onChange={e => handleRollChange(e.target.value)} className={inp}>
             <option value="">-- Select Student --</option>
             {students.map(s => <option key={s._id} value={s.rollNumber}>{s.enrollmentNumber || s.rollNumber} — {s.name}</option>)}
@@ -625,27 +617,26 @@ function CertForm({ initial, students, onSave, onClose, saving }) {
           <label className="text-xs font-semibold text-gray-600">Student Name *</label>
           <input value={form.studentName} onChange={e => setForm(p => ({ ...p, studentName: e.target.value }))} placeholder="Auto-filled" className={inp} />
         </div>
+        <div className="space-y-1">
+          <label className="text-xs font-semibold text-gray-600">Form No / Enrollment No</label>
+          <input value={form.enrollmentNumber || form.formNo} onChange={e => setForm(p => ({ ...p, enrollmentNumber: e.target.value, formNo: e.target.value }))} placeholder="Auto-filled" className={inp} />
+        </div>
         <div className="space-y-1 sm:col-span-2">
           <label className="text-xs font-semibold text-gray-600">Course *</label>
-          <select value={form.courseName} onChange={e => handleCourseChange(e.target.value)} className={inp}>
+          <select value={form.courseName} onChange={e => setForm(p => ({ ...p, courseName: e.target.value }))} className={inp}>
             <option value="">-- Select Course --</option>
             {COURSES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
           </select>
         </div>
         <div className="space-y-1 sm:col-span-2">
-          <label className="text-xs font-semibold text-gray-600">Certificate Number *</label>
-          <div className="relative">
-            <input
-              value={form.certificateNumber}
-              onChange={e => setForm(p => ({ ...p, certificateNumber: e.target.value }))}
-              placeholder="Auto-generated on course select"
-              className={`${inp} ${loadingCertNo ? 'opacity-60' : ''}`}
-            />
-            {loadingCertNo && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
-            )}
-          </div>
-          <p className="text-[10px] text-gray-400 mt-0.5">Auto-filled when course is selected. You can edit manually.</p>
+          <label className="text-xs font-semibold text-gray-600">Certificate Number * <span className="text-gray-400 font-normal">(enter manually)</span></label>
+          <input
+            value={form.certificateNumber}
+            onChange={e => setForm(p => ({ ...p, certificateNumber: e.target.value }))}
+            placeholder="e.g. KCI/2026/DCA/0001"
+            className={inp}
+            required
+          />
         </div>
         <div className="space-y-1">
           <label className="text-xs font-semibold text-gray-600">Grade</label>
@@ -657,9 +648,12 @@ function CertForm({ initial, students, onSave, onClose, saving }) {
         </div>
       </div>
 
-      {/* Certificate File Upload */}
+      {/* Certificate File Upload — mandatory for new */}
       <div className="space-y-1">
-        <label className="text-xs font-semibold text-gray-600">Certificate File <span className="text-gray-400 font-normal">(PDF or Image — optional)</span></label>
+        <label className="text-xs font-semibold text-gray-600">
+          Certificate File (PDF / Image) {!isEdit && <span className="text-red-500">*</span>}
+          {isEdit && <span className="text-gray-400 font-normal ml-1">(leave empty to keep existing)</span>}
+        </label>
         <label className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-teal-400 hover:bg-teal-50 transition-colors">
           <input type="file" accept="image/*,.pdf" className="hidden" onChange={e => setCertFile(e.target.files[0])} />
           <Upload className="w-4 h-4 text-gray-400 shrink-0" />
@@ -668,11 +662,15 @@ function CertForm({ initial, students, onSave, onClose, saving }) {
           </span>
         </label>
         {initial.certificateFile && !certFile && (
-          <a href={initial.certificateFile} target="_blank" rel="noreferrer"
+          <a href={`${import.meta.env.VITE_API_URL || ''}${initial.certificateFile}`} target="_blank" rel="noreferrer"
             className="inline-flex items-center gap-1 text-xs text-teal-600 font-semibold hover:underline mt-1">
             👁 View existing file
           </a>
         )}
+      </div>
+
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700">
+        ⚡ Certificate will be visible to student on their dashboard after you save and approve it.
       </div>
 
       <div className="flex gap-3 pt-1">
@@ -1212,7 +1210,8 @@ export default function BranchDashboard() {
 
   // Certificates CRUD
   const handleAddCert = async (form, certFile) => {
-    if (!form.rollNumber || !form.studentName || !form.certificateNumber) return toast.error('Roll no, student name and cert no required');
+    if (!form.rollNumber || !form.studentName || !form.certificateNumber) return toast.error('Student, name and certificate number required');
+    if (!certFile) return toast.error('Please upload the certificate file');
     setSaving(true);
     try {
       const fd = new FormData();
@@ -1221,7 +1220,7 @@ export default function BranchDashboard() {
       const r = await api.post('/branch/certificates', fd);
       setCertificates(p => [r.data.certificate, ...p]);
       setModal(null);
-      toast.success('Certificate added!');
+      toast.success('Certificate added! Approve it so student can view it.');
     } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
     setSaving(false);
   };

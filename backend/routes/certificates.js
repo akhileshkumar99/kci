@@ -2,12 +2,28 @@ const router = require('express').Router();
 const { verifyCertificate, getMyCertificate, getMyCertificates, getAllCertificates, createCertificate, updateCertificate, deleteCertificate, getTemplate, uploadTemplate, getIdCardTemplate, uploadIdCardTemplate } = require('../controllers/certificateController');
 const { protect, admin } = require('../middleware/auth');
 const upload = require('../middleware/upload');
+const Setting = require('../models/Setting');
 
 router.get('/template', protect, admin, getTemplate);
 router.post('/template', protect, admin, upload.single('template'), uploadTemplate);
 router.get('/idcard-template', protect, admin, getIdCardTemplate);
 router.post('/idcard-template', protect, admin, upload.single('template'), uploadIdCardTemplate);
 router.get('/idcard-template/public', getIdCardTemplate);
+
+// ID Card Settings (institute details)
+router.get('/idcard-settings', async (req, res) => {
+  try {
+    const s = await Setting.findOne({ key: 'idCardSettings' });
+    res.json({ success: true, settings: s ? s.value : {} });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+router.post('/idcard-settings', protect, admin, async (req, res) => {
+  try {
+    await Setting.findOneAndUpdate({ key: 'idCardSettings' }, { key: 'idCardSettings', value: req.body }, { upsert: true, new: true });
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
 router.get('/verify/:certNumber', verifyCertificate);
 router.get('/my-all', protect, getMyCertificates);
 router.get('/my', protect, getMyCertificate);

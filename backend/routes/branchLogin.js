@@ -565,6 +565,26 @@ router.post('/certificates', protect, branchAuth, uploadDocument.single('certifi
     const Certificate = require('../models/Certificate');
     const data = { ...req.body };
     if (req.file) data.certificateFile = req.file.path;
+    // Cross-populate all identifier fields so student dashboard can find it
+    if (!data.enrollmentNumber && data.rollNumber) data.enrollmentNumber = data.rollNumber;
+    if (!data.formNo && data.rollNumber) data.formNo = data.rollNumber;
+    if (!data.rollNumber && data.enrollmentNumber) data.rollNumber = data.enrollmentNumber;
+    // Try to link student _id
+    if (!data.student) {
+      const q = [];
+      if (data.enrollmentNumber) q.push({ enrollmentNumber: data.enrollmentNumber });
+      if (data.formNo) q.push({ formNo: data.formNo });
+      if (data.rollNumber) q.push({ rollNumber: data.rollNumber });
+      if (q.length) {
+        const s = await User.findOne({ $or: q, role: 'student' });
+        if (s) {
+          data.student = s._id;
+          if (!data.enrollmentNumber && s.enrollmentNumber) data.enrollmentNumber = s.enrollmentNumber;
+          if (!data.formNo && s.formNo) data.formNo = s.formNo;
+          if (!data.rollNumber && s.rollNumber) data.rollNumber = s.rollNumber;
+        }
+      }
+    }
     const certificate = await Certificate.create(data);
     res.status(201).json({ success: true, certificate });
   } catch (err) {
@@ -578,6 +598,9 @@ router.put('/certificates/:id', protect, branchAuth, uploadDocument.single('cert
     const Certificate = require('../models/Certificate');
     const data = { ...req.body };
     if (req.file) data.certificateFile = req.file.path;
+    if (!data.enrollmentNumber && data.rollNumber) data.enrollmentNumber = data.rollNumber;
+    if (!data.formNo && data.rollNumber) data.formNo = data.rollNumber;
+    if (!data.rollNumber && data.enrollmentNumber) data.rollNumber = data.enrollmentNumber;
     const certificate = await Certificate.findByIdAndUpdate(req.params.id, data, { new: true });
     if (!certificate) return res.status(404).json({ success: false, message: 'Not found' });
     res.json({ success: true, certificate });
@@ -851,9 +874,14 @@ router.get('/student/me', protect, async (req, res) => {
     const Result = require('../models/Result');
     const Certificate = require('../models/Certificate');
     const student = await User.findById(req.user._id).select('-password');
+    // Build OR conditions for all identifiers
+    const certOr = [{ student: req.user._id }];
+    if (req.user.rollNumber) certOr.push({ rollNumber: req.user.rollNumber }, { enrollmentNumber: req.user.rollNumber }, { formNo: req.user.rollNumber });
+    if (req.user.enrollmentNumber) certOr.push({ enrollmentNumber: req.user.enrollmentNumber }, { rollNumber: req.user.enrollmentNumber }, { formNo: req.user.enrollmentNumber });
+    if (req.user.formNo) certOr.push({ formNo: req.user.formNo }, { enrollmentNumber: req.user.formNo }, { rollNumber: req.user.formNo });
     const [results, certificates] = await Promise.all([
       Result.find({ rollNumber: req.user.rollNumber, isApproved: true }).sort('-createdAt'),
-      Certificate.find({ rollNumber: req.user.rollNumber, isApproved: true }).sort('-createdAt'),
+      Certificate.find({ $or: certOr, isApproved: true }).sort('-createdAt'),
     ]);
     const branch = (req.user.branchId || req.user.franchiseId)
       ? await User.findById(req.user.branchId || req.user.franchiseId).select('branchName branchCity franchiseCenter franchiseCity phone email')

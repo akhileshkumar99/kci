@@ -76,11 +76,22 @@ exports.getMyCertificate = async (req, res) => {
 
 exports.getMyCertificates = async (req, res) => {
   try {
-    const orConditions = [];
-    if (req.user.enrollmentNumber) orConditions.push({ enrollmentNumber: req.user.enrollmentNumber });
-    if (req.user.formNo) orConditions.push({ formNo: req.user.formNo });
-    if (req.user.rollNumber) orConditions.push({ rollNumber: req.user.rollNumber });
-    orConditions.push({ student: req.user._id });
+    const orConditions = [{ student: req.user._id }];
+    if (req.user.enrollmentNumber) {
+      orConditions.push({ enrollmentNumber: req.user.enrollmentNumber });
+      orConditions.push({ formNo: req.user.enrollmentNumber });
+      orConditions.push({ rollNumber: req.user.enrollmentNumber });
+    }
+    if (req.user.formNo) {
+      orConditions.push({ formNo: req.user.formNo });
+      orConditions.push({ enrollmentNumber: req.user.formNo });
+      orConditions.push({ rollNumber: req.user.formNo });
+    }
+    if (req.user.rollNumber) {
+      orConditions.push({ rollNumber: req.user.rollNumber });
+      orConditions.push({ enrollmentNumber: req.user.rollNumber });
+      orConditions.push({ formNo: req.user.rollNumber });
+    }
     const certs = await Certificate.find({ $or: orConditions }).populate('course', 'title').sort({ createdAt: -1 });
     res.json({ success: true, certificates: certs });
   } catch (err) {
@@ -101,6 +112,10 @@ exports.createCertificate = async (req, res) => {
   try {
     const data = { ...req.body };
     if (req.file) data.certificateFile = `/uploads/${req.file.filename}`;
+    // Ensure all identifier fields are cross-populated
+    if (!data.enrollmentNumber && data.formNo) data.enrollmentNumber = data.formNo;
+    if (!data.rollNumber && data.formNo) data.rollNumber = data.formNo;
+    if (!data.formNo && data.enrollmentNumber) data.formNo = data.enrollmentNumber;
     const cert = await Certificate.create(data);
     // Auto-notify student
     await notifyStudent(
@@ -135,6 +150,9 @@ exports.updateCertificate = async (req, res) => {
   try {
     const data = { ...req.body };
     if (req.file) data.certificateFile = `/uploads/${req.file.filename}`;
+    if (!data.enrollmentNumber && data.formNo) data.enrollmentNumber = data.formNo;
+    if (!data.rollNumber && data.formNo) data.rollNumber = data.formNo;
+    if (!data.formNo && data.enrollmentNumber) data.formNo = data.enrollmentNumber;
     const cert = await Certificate.findByIdAndUpdate(req.params.id, data, { new: true });
     res.json({ success: true, certificate: cert });
   } catch (err) {

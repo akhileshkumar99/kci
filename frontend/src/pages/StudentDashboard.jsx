@@ -1754,7 +1754,7 @@ export default function StudentDashboard() {
                     <div className="flex flex-wrap justify-center sm:justify-start gap-4">
                       {[
                         { label: 'Results', value: results.length, color: 'text-yellow-300' },
-                        { label: 'Certificates', value: certificates.length, color: 'text-emerald-300' },
+                        { label: 'Certificates', value: certificates.filter(c => c.certificateFile).length, color: 'text-emerald-300' },
                         { label: 'Tests', value: tests.length, color: 'text-violet-300' },
                       ].map(({ label, value, color }) => (
                         <div key={label} className="text-center">
@@ -1936,10 +1936,10 @@ export default function StudentDashboard() {
                   },
                   {
                     label: 'Certificate',
-                    value: certificates.length > 0 ? `${certificates.length} Issued` : 'Not Issued',
+                    value: certificates.filter(c => c.certificateFile).length > 0 ? `${certificates.filter(c => c.certificateFile).length} Issued` : 'Not Issued',
                     icon: Award,
-                    color: certificates.length > 0 ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-gray-50 border-gray-200 text-gray-500',
-                    dot: certificates.length > 0 ? 'bg-amber-500' : 'bg-gray-400',
+                    color: certificates.filter(c => c.certificateFile).length > 0 ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-gray-50 border-gray-200 text-gray-500',
+                    dot: certificates.filter(c => c.certificateFile).length > 0 ? 'bg-amber-500' : 'bg-gray-400',
                     tab: 'certificates',
                   },
                   {
@@ -2561,13 +2561,15 @@ export default function StudentDashboard() {
         )}
 
         {/* Certificates Tab */}
-        {activeTab === 'certificates' && (
+        {activeTab === 'certificates' && (() => {
+          const uploadedCerts = certificates.filter(c => c.certificateFile);
+          return (
           <div className="space-y-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-black text-gray-900">My Certificates <span className="text-blue-600">({certificates.length})</span></h2>
+              <h2 className="text-xl font-black text-gray-900">My Certificates <span className="text-blue-600">({uploadedCerts.length})</span></h2>
               <span className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">Admin-issued certificates only</span>
             </div>
-            {certificates.length === 0 ? (
+            {uploadedCerts.length === 0 ? (
               <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
                 <FileText className="w-12 h-12 mx-auto mb-3 text-gray-200" />
                 <p className="text-gray-500 font-semibold">Your certificate has not been uploaded yet.</p>
@@ -2578,7 +2580,7 @@ export default function StudentDashboard() {
               </div>
             ) : (
               <div className="grid sm:grid-cols-2 gap-5">
-                {certificates.map((c, idx) => {
+                {uploadedCerts.map((c, idx) => {
                   const gradeClr = { 'A+': 'from-emerald-500 to-green-600', 'A': 'from-blue-500 to-blue-700', 'B+': 'from-violet-500 to-purple-700', 'B': 'from-indigo-500 to-indigo-700', 'C': 'from-orange-400 to-orange-600' };
                   const gc = gradeClr[c.grade] || 'from-blue-600 to-indigo-700';
                   return (
@@ -2634,16 +2636,22 @@ export default function StudentDashboard() {
                           <div className="font-mono font-black text-sm text-blue-800">{c.certificateNumber}</div>
                         </div>
 
-                        {/* Valid badge + Download */}
-                        <div className="flex items-center justify-between">
+                        {/* Valid badge + Actions */}
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
                           <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold">
                             <CheckCircle className="w-4 h-4" />
                             {c.isValid !== false ? 'Valid Certificate' : 'Expired'}
                           </div>
-                          <button onClick={() => downloadCertificatePDF(c, student, branch).catch(() => toast.error('Download failed'))}
-                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 active:scale-95 text-white rounded-xl text-xs font-black transition-all shadow-md">
-                            <Download className="w-3.5 h-3.5" /> Download PDF
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <a href={`${import.meta.env.VITE_API_URL || ''}${c.certificateFile}`} target="_blank" rel="noreferrer"
+                              className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-black transition-all shadow-md">
+                              <Eye className="w-3.5 h-3.5" /> View
+                            </a>
+                            <a href={`${import.meta.env.VITE_API_URL || ''}${c.certificateFile}`} download
+                              className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 active:scale-95 text-white rounded-xl text-xs font-black transition-all shadow-md">
+                              <Download className="w-3.5 h-3.5" /> Download
+                            </a>
+                          </div>
                         </div>
                       </div>
                     </motion.div>
@@ -2652,7 +2660,8 @@ export default function StudentDashboard() {
               </div>
             )}
           </div>
-        )}
+          );
+        })()}
         </div>
       </div>
     </div>
