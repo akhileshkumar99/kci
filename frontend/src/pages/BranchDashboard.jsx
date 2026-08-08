@@ -598,10 +598,27 @@ function CertStudentSearch({ students, onSelect }) {
   };
 
   return (
-    <div ref={ref} className="relative">
-      <label className="text-xs font-semibold text-gray-600 block mb-1">
+    <div ref={ref} className="space-y-2">
+      <label className="text-xs font-semibold text-gray-600 block">
         Select Student <span className="text-gray-400 font-normal">(search to auto-fill fields)</span>
       </label>
+      {/* Dropdown selector */}
+      <select
+        onChange={e => {
+          const s = students.find(x => x._id === e.target.value);
+          if (s) { pick(s); }
+        }}
+        defaultValue=""
+        className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 bg-gray-50 focus:bg-white transition-all"
+      >
+        <option value="">-- Select from list --</option>
+        {students.map(s => (
+          <option key={s._id} value={s._id}>
+            {s.enrollmentNumber || s.formNo || s.rollNumber} — {s.name} ({s.courseName || 'No course'})
+          </option>
+        ))}
+      </select>
+      {/* Search input */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
         <input
@@ -611,9 +628,8 @@ function CertStudentSearch({ students, onSelect }) {
           placeholder="Search by name, form no, enrollment no..."
           className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 bg-gray-50 focus:bg-white transition-all"
         />
-      </div>
-      {open && filtered.length > 0 && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden max-h-52 overflow-y-auto">
+        {open && filtered.length > 0 && (
+          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden max-h-52 overflow-y-auto">
           {filtered.map(s => (
             <button key={s._id} type="button" onClick={() => pick(s)}
               className="w-full flex items-start gap-3 px-4 py-3 hover:bg-teal-50 transition-colors text-left border-b border-gray-50 last:border-0">
@@ -628,13 +644,14 @@ function CertStudentSearch({ students, onSelect }) {
               </div>
             </button>
           ))}
-        </div>
-      )}
-      {open && filtered.length === 0 && query.trim() && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl px-4 py-3 text-sm text-gray-400">
-          No students found
-        </div>
-      )}
+          </div>
+        )}
+        {open && filtered.length === 0 && query.trim() && (
+          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl px-4 py-3 text-sm text-gray-400">
+            No students found
+          </div>
+        )}
+      </div>
     </div>
   );
 }
