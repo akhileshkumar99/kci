@@ -69,6 +69,15 @@ router.put('/:id', protect, branchAuth, uploadDocument.single('resultFile'), asy
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
+// PUT approve/hide result
+router.put('/:id/approve', protect, branchAuth, async (req, res) => {
+  try {
+    const result = await Result.findByIdAndUpdate(req.params.id, { isApproved: req.body.isApproved }, { new: true });
+    if (!result) return res.status(404).json({ success: false, message: 'Not found' });
+    res.json({ success: true, result });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
 // DELETE result
 router.delete('/:id', protect, branchAuth, async (req, res) => {
   try {

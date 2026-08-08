@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
@@ -892,7 +892,7 @@ router.get('/student/me', protect, async (req, res) => {
     if (req.user.enrollmentNumber) certOr.push({ enrollmentNumber: req.user.enrollmentNumber }, { rollNumber: req.user.enrollmentNumber }, { formNo: req.user.enrollmentNumber });
     if (req.user.formNo) certOr.push({ formNo: req.user.formNo }, { enrollmentNumber: req.user.formNo }, { rollNumber: req.user.formNo });
     const [results, certificates] = await Promise.all([
-      Result.find({ rollNumber: req.user.rollNumber, isApproved: true }).sort('-createdAt'),
+      Result.find({ $or: [{ studentId: req.user._id }, { rollNumber: req.user.rollNumber }, { enrollmentNumber: req.user.enrollmentNumber }, { formNo: req.user.formNo }], isApproved: true }).sort('-createdAt'),
       Certificate.find({ $or: certOr, isApproved: true }).sort('-createdAt'),
     ]);
     const branch = (req.user.branchId || req.user.franchiseId)

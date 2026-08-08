@@ -38,7 +38,7 @@ function InfoRow({ label, value }) {
   );
 }
 
-// â‚¬â‚¬â‚¬ Grade color helper â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬
+// €€€ Grade color helper €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
 function CardInner({ W, H, student, branch, fields, qrDataUrl }) {
   const scale = W / 856;
   const s = (n) => Math.round(n * scale);
@@ -77,14 +77,14 @@ function CardInner({ W, H, student, branch, fields, qrDataUrl }) {
         </div>
       </div>
 
-      {/* BODY â€” height auto, never clipped */}
+      {/* BODY — height auto, never clipped */}
       <div style={{ background: '#f8f9fc', display: 'flex', flexShrink: 0, position: 'relative' }}>
         {/* Watermark */}
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: s(220), height: s(220), opacity: 0.05, pointerEvents: 'none', zIndex: 0 }}>
           <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
         </div>
 
-        {/* LEFT â€” fields, strict 3-column: label | colon | value */}
+        {/* LEFT — fields, strict 3-column: label | colon | value */}
         <div style={{ flex: '0 0 76%', paddingTop: s(10), paddingBottom: s(10), paddingLeft: s(20), paddingRight: s(12), position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: s(4) }}>
           {fields.map(([lbl, val], i) => (
             <div key={lbl} style={{
@@ -113,7 +113,7 @@ function CardInner({ W, H, student, branch, fields, qrDataUrl }) {
           ))}
         </div>
 
-        {/* RIGHT â€” photo + QR */}
+        {/* RIGHT — photo + QR */}
         <div style={{ flex: '0 0 24%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: s(8), padding: s(10) + 'px ' + s(10) + 'px ' + s(10) + 'px ' + s(4) + 'px', position: 'relative', zIndex: 1 }}>
           <div style={{ width: s(140), height: s(170), border: '2.5px solid #d4af37', borderRadius: s(16), overflow: 'hidden', background: '#dce7f8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             {student?.photo
@@ -235,7 +235,7 @@ function IDCard({ student, branch }) {
           el.style.display = 'block';
           await new Promise(r => setTimeout(r, 80));
           const win = window.open('', '_blank', 'width=1000,height=700');
-          win.document.write(`<html><head><title>ID Card â€” KCI</title><style>body{margin:0;padding:0;background:#fff;}@media print{body{margin:0;}@page{size:landscape;margin:0;}}</style></head><body>${el.innerHTML}</body></html>`);
+          win.document.write(`<html><head><title>ID Card — KCI</title><style>body{margin:0;padding:0;background:#fff;}@media print{body{margin:0;}@page{size:landscape;margin:0;}}</style></head><body>${el.innerHTML}</body></html>`);
           win.document.close(); win.focus();
           setTimeout(() => { win.print(); win.close(); }, 400);
           el.style.display = 'none';
@@ -244,7 +244,7 @@ function IDCard({ student, branch }) {
         </button>
       </div>
 
-      {/* Hidden PDF container â€” fixed 856px wide, never responsive, off-screen */}
+      {/* Hidden PDF container — fixed 856px wide, never responsive, off-screen */}
       <div
         ref={pdfRef}
         style={{
@@ -262,7 +262,7 @@ function IDCard({ student, branch }) {
         <CardInner W={856} student={student} branch={branch} fields={fields} qrDataUrl={qrDataUrl} />
       </div>
 
-      {/* Screen Preview â€” scales responsively, does NOT affect PDF */}
+      {/* Screen Preview — scales responsively, does NOT affect PDF */}
       <div style={{ width: '100%', overflowX: 'hidden', display: 'flex', justifyContent: 'center' }}>
         <div style={{ width: '100%', maxWidth: 856 }}>
           <div style={{
@@ -276,7 +276,7 @@ function IDCard({ student, branch }) {
           </div>
         </div>
       </div>
-      <p style={{ color: '#9ca3af', fontSize: 12, marginTop: 4 }}>â¬† Preview â€” Download PDF for print-ready card</p>
+      <p style={{ color: '#9ca3af', fontSize: 12, marginTop: 4 }}>⬆ Preview — Download PDF for print-ready card</p>
     </div>
   );
 }
@@ -289,15 +289,8 @@ function gradeColor(grade) {
   return { bg: 'bg-red-100', text: 'text-red-700', bar: 'bg-red-500' };
 }
 
-// â‚¬â‚¬â‚¬ Results Section â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬
-function ResultsSection({ results }) {
-  const API_BASE = import.meta.env.VITE_API_URL || '';
-  const fileUrl = (p) => {
-    if (!p) return '';
-    if (p.startsWith('http')) return p;
-    return `${API_BASE}${p}`;
-  };
-
+// €€€ Results Section €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
+function ResultsSection({ results, student, branch }) {
   if (results.length === 0) return (
     <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
       <Award className="w-12 h-12 mx-auto mb-3 text-gray-200" />
@@ -306,43 +299,11 @@ function ResultsSection({ results }) {
   );
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-black text-gray-900">My Results <span className="text-blue-600">({results.length})</span></h2>
-      {results.map((r, idx) => (
-        <motion.div key={r._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
-          className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-700 to-indigo-700 px-5 py-4">
-            <p className="text-blue-200 text-xs font-semibold uppercase tracking-widest mb-0.5">Result Card</p>
-            <h3 className="text-white font-black text-lg leading-tight">{r.courseName || 'Result'}</h3>
-            <p className="text-blue-300 text-xs mt-0.5">
-              {r.studentName}{r.batch ? ` | Batch: ${r.batch}` : ''}
-              {r.examDate ? ` | Exam: ${new Date(r.examDate).toLocaleDateString('en-IN')}` : ''}
-            </p>
-          </div>
-          <div className="p-4">
-            {r.fatherName && <p className="text-xs text-gray-500 mb-3">Father: <span className="font-semibold text-gray-700">{r.fatherName}</span></p>}
-            {r.resultFile ? (
-              <div className="flex flex-wrap gap-2">
-                <a href={fileUrl(r.resultFile)} target="_blank" rel="noreferrer"
-                  className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-all shadow-md">
-                  <Download className="w-4 h-4" /> Download PDF
-                </a>
-                <button onClick={() => {
-                  const win = window.open(fileUrl(r.resultFile), '_blank', 'width=900,height=650');
-                  if (win) { win.onload = () => { win.focus(); win.print(); }; }
-                }} className="flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition-all shadow-md">
-                  <Printer className="w-4 h-4" /> Print
-                </button>
-              </div>
-            ) : (
-              <p className="text-xs text-gray-400 italic">Result file not uploaded yet</p>
-            )}
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  );
-}
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-black text-gray-900">My Results <span className="text-blue-600">({results.length})</span></h2>
+
+      </div>
 
       {results.map((r, idx) => {
         const gc = gradeColor(r.grade);
@@ -351,7 +312,7 @@ function ResultsSection({ results }) {
           <motion.div key={r._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
             className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
 
-            {/* â‚¬â‚¬ Card Header â‚¬â‚¬ */}
+            {/* €€ Card Header €€ */}
             <div className="bg-gradient-to-r from-blue-700 to-indigo-700 px-6 py-4 flex items-center justify-between">
               <div>
                 <p className="text-blue-200 text-xs font-semibold uppercase tracking-widest mb-0.5">Result Card</p>
@@ -361,18 +322,18 @@ function ResultsSection({ results }) {
               <div className="flex flex-col items-end gap-2">
                 <span className={`px-3 py-1 rounded-full text-sm font-black border-2 ${
                   r.status === 'Pass' ? 'bg-green-400/20 border-green-400 text-green-300' : 'bg-red-400/20 border-red-400 text-red-300'
-                }`}>{r.status === 'Pass' ? 'â€œ PASS' : 'FAIL'}</span>
+                }`}>{r.status === 'Pass' ? '“ PASS' : 'FAIL'}</span>
                 <div className={`text-3xl font-black ${gc.text.replace('text-', 'text-').replace('700', '300')}`} style={{ color: '#fde68a' }}>{r.grade}</div>
               </div>
             </div>
 
-            {/* â‚¬â‚¬ Summary Strip â‚¬â‚¬ */}
+            {/* €€ Summary Strip €€ */}
             <div className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 divide-x-0 sm:divide-x divide-gray-100 border-b border-gray-100">
               {[
-                { label: 'Obtained', value: r.obtainedMarks ?? 'â€â€', sub: 'marks' },
-                { label: 'Total', value: r.totalMarks ?? 'â€â€', sub: 'marks' },
-                { label: 'Percentage', value: r.percentage ? `${r.percentage}%` : 'â€â€', sub: 'score', highlight: true },
-                { label: 'Grade', value: r.grade || 'â€â€', sub: 'overall', highlight: true },
+                { label: 'Obtained', value: r.obtainedMarks ?? '””', sub: 'marks' },
+                { label: 'Total', value: r.totalMarks ?? '””', sub: 'marks' },
+                { label: 'Percentage', value: r.percentage ? `${r.percentage}%` : '””', sub: 'score', highlight: true },
+                { label: 'Grade', value: r.grade || '””', sub: 'overall', highlight: true },
               ].map(({ label, value, sub, highlight }) => (
                 <div key={label} className="py-4 text-center">
                   <div className={`text-xl font-black ${highlight ? 'text-blue-600' : 'text-gray-900'}`}>{value}</div>
@@ -382,7 +343,7 @@ function ResultsSection({ results }) {
               ))}
             </div>
 
-            {/* â‚¬â‚¬ Percentage Bar â‚¬â‚¬ */}
+            {/* €€ Percentage Bar €€ */}
             <div className="px-6 pt-4 pb-2">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-bold text-gray-500 flex items-center gap-1"><TrendingUp className="w-3 h-3" /> Performance</span>
@@ -397,7 +358,7 @@ function ResultsSection({ results }) {
               </div>
             </div>
 
-            {/* â‚¬â‚¬ Subject Table â‚¬â‚¬ */}
+            {/* €€ Subject Table €€ */}
             {r.subjects?.length > 0 && (
               <div className="px-4 sm:px-6 pb-4">
                 <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-3 mt-2">Subject-wise Marks</p>
@@ -421,10 +382,10 @@ function ResultsSection({ results }) {
                           <tr key={i} className={`border-b border-gray-100 last:border-0 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
                             <td className="px-4 py-3 text-gray-400 font-bold text-xs">{i + 1}</td>
                             <td className="px-4 py-3 font-semibold text-gray-800">{sub.name}</td>
-                            <td className="px-4 py-3 text-center text-gray-600 font-bold">{sub.maxMarks ?? 'â€â€'}</td>
-                            <td className="px-4 py-3 text-center font-black text-gray-900">{sub.obtainedMarks ?? 'â€â€'}</td>
+                            <td className="px-4 py-3 text-center text-gray-600 font-bold">{sub.maxMarks ?? '””'}</td>
+                            <td className="px-4 py-3 text-center font-black text-gray-900">{sub.obtainedMarks ?? '””'}</td>
                             <td className="px-4 py-3 text-center">
-                              <span className="text-xs font-bold text-blue-600">{subPct ? `${subPct}%` : 'â€â€'}</span>
+                              <span className="text-xs font-bold text-blue-600">{subPct ? `${subPct}%` : '””'}</span>
                             </td>
                             <td className="px-4 py-3 text-center">
                               <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
@@ -438,9 +399,9 @@ function ResultsSection({ results }) {
                     <tfoot>
                       <tr className="bg-blue-50 border-t-2 border-blue-200">
                         <td colSpan={2} className="px-4 py-3 font-black text-blue-800 text-sm">TOTAL</td>
-                        <td className="px-4 py-3 text-center font-black text-blue-800">{r.totalMarks ?? 'â€â€'}</td>
-                        <td className="px-4 py-3 text-center font-black text-blue-800">{r.obtainedMarks ?? 'â€â€'}</td>
-                        <td className="px-4 py-3 text-center font-black text-blue-600">{r.percentage ? `${r.percentage}%` : 'â€â€'}</td>
+                        <td className="px-4 py-3 text-center font-black text-blue-800">{r.totalMarks ?? '””'}</td>
+                        <td className="px-4 py-3 text-center font-black text-blue-800">{r.obtainedMarks ?? '””'}</td>
+                        <td className="px-4 py-3 text-center font-black text-blue-600">{r.percentage ? `${r.percentage}%` : '””'}</td>
                         <td className="px-4 py-3 text-center">
                           <span className={`px-2 py-1 rounded-full text-xs font-black ${
                             r.status === 'Pass' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
@@ -465,7 +426,7 @@ function ResultsSection({ results }) {
   );
 }
 
-// â‚¬â‚¬â‚¬ Certificate PDF Download â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬â‚¬
+// €€€ Certificate PDF Download €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
 async function downloadCertificatePDF(c, student, branch) {
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   const W = 297, H = 210;
@@ -484,7 +445,7 @@ async function downloadCertificatePDF(c, student, branch) {
     logoUrl = cv.toDataURL('image/png');
   } catch (_) {}
 
-  // â‚¬â‚¬ OUTER DECORATIVE BORDER â‚¬â‚¬
+  // €€ OUTER DECORATIVE BORDER €€
   doc.setDrawColor(180, 140, 40); doc.setLineWidth(3);
   doc.rect(6, 6, W - 12, H - 12);
   doc.setDrawColor(210, 170, 60); doc.setLineWidth(0.8);
@@ -501,7 +462,7 @@ async function downloadCertificatePDF(c, student, branch) {
     doc.circle(x, y, 1.2, 'F');
   });
 
-  // â‚¬â‚¬ GOLD HEADER BG â‚¬â‚¬
+  // €€ GOLD HEADER BG €€
   doc.setFillColor(15, 40, 110);
   doc.rect(12, 12, W - 24, 38, 'F');
   doc.setFillColor(180, 140, 40);
@@ -519,15 +480,15 @@ async function downloadCertificatePDF(c, student, branch) {
   doc.setFontSize(8.5); doc.setTextColor(220, 200, 120);
   doc.text('ISO Certified Institute of Computer Education', W / 2, 48, { align: 'center' });
 
-  // â‚¬â‚¬ CERTIFICATE TITLE â‚¬â‚¬
+  // €€ CERTIFICATE TITLE €€
   doc.setFontSize(28); doc.setFont('helvetica', 'bold'); doc.setTextColor(140, 100, 20);
   doc.text('CERTIFICATE OF COMPLETION', W / 2, 72, { align: 'center' });
   // underline
   doc.setDrawColor(180, 140, 40); doc.setLineWidth(0.8);
   doc.line(W/2 - 70, 75, W/2 + 70, 75);
 
-  // â‚¬â‚¬ BODY TEXT â‚¬â‚¬
-  // â‚¬â‚¬ Load Colonna MT font â‚¬â‚¬
+  // €€ BODY TEXT €€
+  // €€ Load Colonna MT font €€
   let colonnaLoaded = false;
   try {
     const fontRes = await fetch('/colonna_b64.txt');
@@ -540,8 +501,8 @@ async function downloadCertificatePDF(c, student, branch) {
   doc.setFontSize(11); doc.setFont('helvetica', 'normal'); doc.setTextColor(60, 60, 60);
   doc.text('This is to certify that', W / 2, 88, { align: 'center' });
 
-  // Student name â€â€ Colonna MT font
-  const nameText = c.studentName || student?.name || 'â€â€';
+  // Student name ”” Colonna MT font
+  const nameText = c.studentName || student?.name || '””';
   doc.setFontSize(28);
   doc.setFont(colonnaLoaded ? 'Colonna' : 'times', colonnaLoaded ? 'normal' : 'bolditalic');
   doc.setTextColor(15, 40, 110);
@@ -555,10 +516,10 @@ async function downloadCertificatePDF(c, student, branch) {
 
   // Course name
   doc.setFontSize(17); doc.setFont('helvetica', 'bold'); doc.setTextColor(140, 100, 20);
-  doc.text(c.courseName || 'â€â€', W / 2, 128, { align: 'center' });
+  doc.text(c.courseName || '””', W / 2, 128, { align: 'center' });
 
   doc.setFontSize(10.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(60, 60, 60);
-  const rollText = `Roll No: ${c.rollNumber || 'â€â€'}   |   Grade: ${c.grade || 'â€â€'}   |   Issue Date: ${c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' }) : 'â€â€'}`;
+  const rollText = `Roll No: ${c.rollNumber || '””'}   |   Grade: ${c.grade || '””'}   |   Issue Date: ${c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' }) : '””'}`;
   doc.text(rollText, W / 2, 139, { align: 'center' });
 
   // Branch
@@ -567,14 +528,14 @@ async function downloadCertificatePDF(c, student, branch) {
     doc.text(`Branch: ${branch.branchName}${branch.branchCity ? ', ' + branch.branchCity : ''}`, W / 2, 147, { align: 'center' });
   }
 
-  // â‚¬â‚¬ CERT NUMBER BADGE â‚¬â‚¬
+  // €€ CERT NUMBER BADGE €€
   doc.setFillColor(245, 240, 220);
   doc.setDrawColor(180, 140, 40); doc.setLineWidth(0.5);
   doc.roundedRect(W/2 - 45, 151, 90, 10, 2, 2, 'FD');
   doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(100, 70, 10);
-  doc.text(`Certificate No: ${c.certificateNumber || 'â€â€'}`, W / 2, 157.5, { align: 'center' });
+  doc.text(`Certificate No: ${c.certificateNumber || '””'}`, W / 2, 157.5, { align: 'center' });
 
-  // â‚¬â‚¬ GRADE BADGE â‚¬â‚¬
+  // €€ GRADE BADGE €€
   const gradeColors = { 'A+': [22,163,74], 'A': [37,99,235], 'B+': [124,58,237], 'B': [79,70,229], 'C': [217,119,6], 'D': [234,179,8] };
   const gc = gradeColors[c.grade] || [15, 40, 110];
   doc.setFillColor(...gc);
@@ -586,7 +547,7 @@ async function downloadCertificatePDF(c, student, branch) {
   doc.setFontSize(20); doc.setFont('helvetica', 'bold');
   doc.text(c.grade || 'A', W - 35, 110, { align: 'center' });
 
-  // â‚¬â‚¬ FOOTER SIGNATURES â‚¬â‚¬
+  // €€ FOOTER SIGNATURES €€
   const SY = H - 30;
   doc.setDrawColor(100, 100, 100); doc.setLineWidth(0.4);
   // left sig
@@ -619,7 +580,7 @@ async function downloadCertificatePDF(c, student, branch) {
   toast.success('Certificate downloaded!');
 }
 
-// â”€â”€â”€ File URL helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── File URL helper ─────────────────────────────────────────────────────────
 const API_BASE = import.meta.env.VITE_API_URL || '';
 function fileUrl(path) {
   if (!path) return '';
@@ -627,23 +588,23 @@ function fileUrl(path) {
   return `${API_BASE}${path}`;
 }
 
-// â”€â”€â”€ Certificate download helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Certificate download helper ─────────────────────────────────────────────
 function certDownloadUrl(filePath, studentName, certNumber) {
   const ext = filePath?.split('.').pop()?.split('?')[0] || 'pdf';
   const safeName = (studentName || 'Student').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
   const safeCertNo = (certNumber || '').replace(/\//g, '-').replace(/[^a-zA-Z0-9_-]/g, '');
   const filename = `KCI_Certificate_${safeName}_${safeCertNo}.${ext}`;
 
-  // Cloudinary URL â€” add fl_attachment for forced download with filename
+  // Cloudinary URL — add fl_attachment for forced download with filename
   if (filePath?.includes('cloudinary.com')) {
     // Insert fl_attachment:filename before /upload/
     return filePath.replace('/upload/', `/upload/fl_attachment:${filename.replace(/\./g, '_')}/`);
   }
-  // Local file â€” return as-is (backend serves it)
+  // Local file — return as-is (backend serves it)
   return fileUrl(filePath);
 }
 
-// â”€â”€â”€ Exam Form Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Exam Form Section ───────────────────────────────────────────────────────
 const COURSES = [
   'Certificate In Fundamental (CIF)',
   'Certificate in Computer Application (CCA)',
@@ -808,7 +769,7 @@ function PayStep({ upiQr, upiId, amount, enrollmentNumber, onPaid, onBack }) {
     <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-sm mx-auto">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4 text-center">
-          <div className="text-white font-black text-lg">ðŸ’³ Pay Exam Fee</div>
+          <div className="text-white font-black text-lg">💳 Pay Exam Fee</div>
           <div className="text-green-100 text-xs mt-1">Scan QR code or tap Pay Now to pay</div>
         </div>
 
@@ -824,13 +785,13 @@ function PayStep({ upiQr, upiId, amount, enrollmentNumber, onPaid, onBack }) {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs font-bold text-gray-500">Amount</span>
-              <span className="text-lg font-black text-green-700">â‚¹{amount}</span>
+              <span className="text-lg font-black text-green-700">₹{amount}</span>
             </div>
           </div>
 
           <a href={upiDeepLink} onClick={() => setWaiting(true)}
             className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-black text-sm text-center shadow-md transition-all">
-            ðŸ“± Pay Now via UPI App
+            📱 Pay Now via UPI App
           </a>
 
           {waiting && (
@@ -842,7 +803,7 @@ function PayStep({ upiQr, upiId, amount, enrollmentNumber, onPaid, onBack }) {
 
 
           <button onClick={onBack} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
-            Back to Testsï¿½ Go Back
+            Back to Tests� Go Back
           </button>
         </div>
       </div>
@@ -950,7 +911,7 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
           ['Batch', myExamForm.batch],
           ['Phone', myExamForm.phone],
           ['Email', myExamForm.email],
-          ['Payment UTR', myExamForm.paymentUtr || 'â€”'],
+          ['Payment UTR', myExamForm.paymentUtr || '—'],
           ['Submitted', new Date(myExamForm.createdAt).toLocaleDateString('en-IN')],
         ].map(([l, v]) => (
           <div key={l} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
@@ -964,7 +925,7 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
 
   if (!form) return <div className="flex justify-center py-12"><div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin" /></div>;
 
-  // â”€â”€ STEP: PAY â”€â”€
+  // ── STEP: PAY ──
   if (step === 'pay') return (
     <PayStep
       upiQr={upiQr}
@@ -976,17 +937,17 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
     />
   );
 
-  // â”€â”€ STEP: UTR â”€â”€
+  // ── STEP: UTR ──
   if (step === 'utr') return (
     <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-sm mx-auto">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 text-center">
-          <div className="text-white font-black text-lg">ðŸ” Verify Payment</div>
+          <div className="text-white font-black text-lg">🔐 Verify Payment</div>
           <div className="text-blue-100 text-xs mt-1">Enter your UTR / Transaction ID</div>
         </div>
         <div className="p-6 space-y-4">
           <div className="bg-blue-50 rounded-xl p-3 border border-blue-100 text-xs text-blue-700 font-semibold text-center">
-            â‚¹{AMOUNT} paid to <span className="font-mono font-black">{UPI_ID}</span>
+            ₹{AMOUNT} paid to <span className="font-mono font-black">{UPI_ID}</span>
           </div>
           <div>
             <label className="text-xs font-black text-gray-700 mb-2 block">UTR / Transaction ID <span className="text-red-500">*</span></label>
@@ -1019,14 +980,14 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
             {submitting ? 'Submitting...' : 'Submit Examination Form'}
           </button>
           <button onClick={() => setStep('pay')} className="w-full text-xs text-gray-400 hover:text-gray-600 transition-colors py-1">
-            Back to Testsï¿½ Back to Payment
+            Back to Tests� Back to Payment
           </button>
         </div>
       </div>
     </motion.div>
   );
 
-  // â”€â”€ STEP: FORM â”€â”€
+  // ── STEP: FORM ──
   return (
     <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -1155,7 +1116,7 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
           {/* Proceed to Pay */}
           <button type="submit"
             className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md">
-            ðŸ’³ Proceed to Pay â‚¹{AMOUNT}
+            💳 Proceed to Pay ₹{AMOUNT}
           </button>
         </form>
       </div>
@@ -1286,7 +1247,7 @@ export default function StudentDashboard() {
       logoUrl = cv.toDataURL('image/png');
     } catch(_) {}
 
-    // â‚¬â‚¬ HEADER â‚¬â‚¬
+    // €€ HEADER €€
     doc.setFillColor(15,40,110); doc.rect(0,0,W,46,'F');
     doc.setFillColor(250,204,21); doc.rect(0,46,W,2.5,'F');
     if (logoUrl) doc.addImage(logoUrl,'PNG',M,7,28,28);
@@ -1300,7 +1261,7 @@ export default function StudentDashboard() {
     doc.setTextColor(15,40,110); doc.setFontSize(8.5); doc.setFont('helvetica','bold');
     doc.text('TEST RESULT CARD', M+56, 36.2, { align:'center' });
 
-    // â‚¬â‚¬ INFO BOX â‚¬â‚¬
+    // €€ INFO BOX €€
     doc.setFillColor(245,248,255); doc.setDrawColor(200,210,240);
     doc.roundedRect(M, 54, W-M*2, 46, 3, 3, 'FD');
     // section label
@@ -1308,14 +1269,14 @@ export default function StudentDashboard() {
     doc.setTextColor(255,255,255); doc.setFontSize(7); doc.setFont('helvetica','bold');
     doc.text('TEST DETAILS', M+18, 58.8, { align:'center' });
 
-    // PASS/FAIL badge â€â€ top right of info box
+    // PASS/FAIL badge ”” top right of info box
     const pass = attempt.percentage >= 33;
     doc.setFillColor(...(pass ? [22,163,74] : [220,38,38]));
     doc.roundedRect(W-M-26, 55, 24, 11, 2, 2, 'F');
     doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont('helvetica','bold');
     doc.text(pass ? 'PASS' : 'FAIL', W-M-14, 62, { align:'center' });
 
-    // Info rows â€â€ 2 columns, fixed positions
+    // Info rows ”” 2 columns, fixed positions
     // Left:  label @ M+4,  value @ M+30
     // Right: label @ W/2+4, value @ W/2+30
     const LL = M+4, LV = M+32;
@@ -1324,8 +1285,8 @@ export default function StudentDashboard() {
     const RMAX = W - M - RV - 2; // ~57mm
 
     const infoData = [
-      ['Test Title', test?.title||'â€â€',   'Month',      test?.month||'â€â€'],
-      ['Student',    attempt.studentName||'â€â€', 'Roll No.', attempt.rollNumber||'â€â€'],
+      ['Test Title', test?.title||'””',   'Month',      test?.month||'””'],
+      ['Student',    attempt.studentName||'””', 'Roll No.', attempt.rollNumber||'””'],
       ['Score',      `${attempt.score} / ${attempt.totalMarks}`, 'Percentage', `${attempt.percentage}%`],
     ];
 
@@ -1348,12 +1309,12 @@ export default function StudentDashboard() {
     if (attempt.timeTaken) doc.text(`Time Taken: ${Math.floor(attempt.timeTaken/60)}m ${attempt.timeTaken%60}s`, M, metaY);
     doc.text(`Date: ${new Date(attempt.submittedAt).toLocaleDateString('en-IN')}`, W-M, metaY, { align:'right' });
 
-    // â‚¬â‚¬ QUESTIONS TABLE â‚¬â‚¬
+    // €€ QUESTIONS TABLE €€
     const rows = (questions||[]).map((q, i) => [
       i+1,
       q.question,
-      attempt.answers[i] !== undefined ? (q.options[attempt.answers[i]]||'â€â€') : 'Not answered',
-      q.options[correctAnswers[i]]||'â€â€',
+      attempt.answers[i] !== undefined ? (q.options[attempt.answers[i]]||'””') : 'Not answered',
+      q.options[correctAnswers[i]]||'””',
       attempt.answers[i] === correctAnswers[i] ? 'Correct' : 'Wrong',
     ]);
 
@@ -1386,7 +1347,7 @@ export default function StudentDashboard() {
       margin: { left:M, right:M },
     });
 
-    // â‚¬â‚¬ SUMMARY BOX â‚¬â‚¬
+    // €€ SUMMARY BOX €€
     const tY = doc.lastAutoTable.finalY + 7;
     doc.setFillColor(15,40,110); doc.roundedRect(M, tY, W-M*2, 26, 3, 3, 'F');
     doc.setFillColor(250,204,21); doc.roundedRect(M, tY, W-M*2, 2, 1, 1, 'F');
@@ -1408,7 +1369,7 @@ export default function StudentDashboard() {
       doc.text(String(val), x, tY+22, { align:'center' });
     });
 
-    // â‚¬â‚¬ FOOTER â‚¬â‚¬
+    // €€ FOOTER €€
     const fY = tY + 34;
     doc.setFillColor(245,248,255); doc.rect(0, fY, W, 12, 'F');
     doc.setTextColor(120,120,120); doc.setFontSize(7); doc.setFont('helvetica','italic');
@@ -1422,146 +1383,96 @@ export default function StudentDashboard() {
   };
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#081d5b] via-blue-900 to-indigo-900">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-16 h-16 rounded-full border-4 border-blue-300/30 border-t-blue-400 animate-spin" />
-        <p className="text-blue-300 font-semibold text-sm tracking-wide animate-pulse">Loading your portal...</p>
+        <div className="w-16 h-16 border-4 border-blue-400 border-t-transparent rounded-full animate-spin" />
+        <p className="text-blue-300 font-semibold text-sm animate-pulse">Loading your portal...</p>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 flex overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex">
 
       {/* Mobile overlay */}
       {sidebarOpen && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 lg:hidden"
-          onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/40 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* â”€â”€ SIDEBAR â”€â”€ */}
-      <aside className={`
-        fixed lg:sticky top-0 inset-y-0 left-0 z-40 h-screen
-        flex flex-col bg-gradient-to-b from-[#060f2e] via-[#081d5b] to-[#0a2470]
-        shadow-2xl transition-all duration-300 ease-in-out shrink-0
-        ${sidebarOpen ? 'w-64 translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-[70px]'}
-      `}>
-        {/* Logo row */}
-        <div className="flex items-center gap-3 px-4 py-4 border-b border-white/10 shrink-0 min-h-[64px]">
-          <div className="w-9 h-9 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center shrink-0 shadow-lg">
+      {/* SIDEBAR */}
+      <aside className={`fixed lg:static inset-y-0 left-0 z-40 flex flex-col bg-gradient-to-b from-[#081d5b] to-[#0f2a8a] shadow-2xl transition-all duration-300 shrink-0 ${sidebarOpen ? 'w-60' : 'w-0 lg:w-16 overflow-hidden'}`}>
+        <div className="flex items-center gap-3 px-4 py-4 border-b border-white/10 shrink-0 min-h-[60px]">
+          <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
             <GraduationCap className="w-5 h-5 text-white" />
           </div>
           {sidebarOpen && (
-            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="min-w-0">
-              <div className="font-black text-white text-sm leading-tight">Student Portal</div>
-              <div className="text-[10px] text-blue-300 font-mono mt-0.5">{user?.rollNumber}</div>
-            </motion.div>
+            <div className="min-w-0">
+              <div className="font-black text-white text-sm leading-tight truncate">Student Portal</div>
+              <div className="text-[10px] text-blue-300 font-bold font-mono truncate">{user?.rollNumber}</div>
+            </div>
           )}
         </div>
-
-        {/* Student mini-profile */}
         {sidebarOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }}
-            className="mx-3 my-3 p-3 bg-white/8 rounded-2xl border border-white/10 shrink-0">
+          <div className="px-4 py-3 border-b border-white/10 shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white font-black text-lg shadow-lg shrink-0 overflow-hidden border-2 border-white/20">
-                {data.student?.photo
-                  ? <img src={data.student.photo} alt="" className="w-full h-full object-cover" />
-                  : user?.name?.[0]?.toUpperCase()}
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white font-black text-base shadow shrink-0 overflow-hidden">
+                {data.student?.photo ? <img src={data.student.photo} alt="" className="w-full h-full object-cover" /> : user?.name?.[0]?.toUpperCase()}
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-sm font-black text-white truncate leading-tight">{user?.name}</div>
-                <div className="text-[10px] text-blue-300 truncate mt-0.5 leading-tight">{user?.courseName}</div>
+              <div className="min-w-0">
+                <div className="text-sm font-black text-white truncate">{user?.name}</div>
+                <div className="text-[10px] text-blue-300 truncate">{user?.courseName}</div>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
-
-        {/* Nav items */}
-        <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5 scrollbar-none">
-          {tabs.map(({ id, label, icon: Icon }, idx) => (
-            <motion.button
-              key={id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.03 }}
-              onClick={() => { setActiveTab(id); if (window.innerWidth < 1024) setSidebarOpen(false); }}
+        <nav className="flex-1 overflow-y-auto py-3 space-y-0.5 px-2">
+          {tabs.map(({ id, label, icon: Icon }) => (
+            <button key={id} onClick={() => { setActiveTab(id); if (window.innerWidth < 1024) setSidebarOpen(false); }}
               title={!sidebarOpen ? label : undefined}
-              className={`
-                w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold
-                transition-all duration-200 relative group
-                ${activeTab === id
-                  ? 'bg-white/20 text-white shadow-sm'
-                  : 'text-blue-200/80 hover:bg-white/10 hover:text-white'}
-              `}>
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-150 relative ${activeTab === id ? 'bg-white/20 text-white' : 'text-blue-200 hover:bg-white/10 hover:text-white'}`}>
               <Icon className="w-4 h-4 shrink-0" />
-              {sidebarOpen && <span className="flex-1 text-left truncate text-[13px]">{label}</span>}
-              {activeTab === id && sidebarOpen && (
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-300 shrink-0" />
-              )}
+              {sidebarOpen && <span className="flex-1 text-left truncate">{label}</span>}
               {id === 'notifications' && unreadCount > 0 && (
                 sidebarOpen
-                  ? <span className="bg-red-500 text-white text-[9px] font-black rounded-full px-1.5 py-0.5 shrink-0 min-w-[18px] text-center">{unreadCount > 9 ? '9+' : unreadCount}</span>
-                  : <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-[#081d5b]" />
+                  ? <span className="bg-red-500 text-white text-[9px] font-black rounded-full px-1.5 py-0.5 shrink-0">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                  : <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
               )}
-            </motion.button>
+            </button>
           ))}
         </nav>
-
-        {/* Bottom: DevCredit + Logout */}
         <div className="p-3 border-t border-white/10 shrink-0 space-y-1">
           {sidebarOpen && <DevCredit popupDown />}
           <button onClick={handleLogout} title={!sidebarOpen ? 'Logout' : undefined}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-all">
+            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-all">
             <LogOut className="w-4 h-4 shrink-0" />
-            {sidebarOpen && <span>Logout</span>}
+            {sidebarOpen && 'Logout'}
           </button>
         </div>
       </aside>
 
-      {/* â”€â”€ MAIN AREA â”€â”€ */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-hidden">
-
-        {/* Topbar */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-20 shrink-0">
-          <div className="px-4 h-14 flex items-center justify-between gap-3">
-            {/* Hamburger */}
+      {/* MAIN AREA */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+        <header className="bg-white/80 backdrop-blur-xl border-b border-white/50 shadow-sm sticky top-0 z-20 shrink-0">
+          <div className="px-3 sm:px-5 h-14 flex items-center justify-between">
             <button onClick={() => setSidebarOpen(p => !p)}
-              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors text-gray-500 shrink-0">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors text-gray-600">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-
-            {/* Page title */}
-            <div className="flex-1 min-w-0">
-              <h1 className="font-black text-gray-900 text-sm truncate">
-                {tabs.find(t => t.id === activeTab)?.label || 'Dashboard'}
-              </h1>
-            </div>
-
-            {/* Right actions */}
-            <div className="flex items-center gap-2 shrink-0">
-              <button onClick={() => setActiveTab('notifications')}
-                className="relative w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors text-gray-500">
-                <Bell className="w-5 h-5" />
-                {unreadCount > 0 && (
+            <div className="font-black text-gray-900 text-sm">{tabs.find(t => t.id === activeTab)?.label || 'Dashboard'}</div>
+            <div className="flex items-center gap-2">
+              {unreadCount > 0 && (
+                <button onClick={() => setActiveTab('notifications')}
+                  className="relative w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 text-gray-600">
+                  <Bell className="w-5 h-5" />
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
-                )}
-              </button>
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm overflow-hidden">
-                {data.student?.photo
-                  ? <img src={data.student.photo} alt="" className="w-full h-full object-cover" />
-                  : user?.name?.[0]?.toUpperCase()}
-              </div>
+                </button>
+              )}
             </div>
           </div>
         </header>
-
-        {/* Page content */}
-        <div className="flex-1 overflow-y-auto">
-        <div className="p-4 sm:p-6 space-y-5 max-w-6xl mx-auto w-full">
+        <div className="flex-1 p-3 sm:p-5 space-y-4 sm:space-y-6 overflow-y-auto">
 
         {/* Profile Tab */}
         {activeTab === 'profile' && (
@@ -1633,7 +1544,7 @@ export default function StudentDashboard() {
                         ? 'bg-green-400/20 border-green-400/50 text-green-300'
                         : 'bg-yellow-400/20 border-yellow-400/50 text-yellow-300'
                     }`}>
-                      {student?.isApproved ? 'Approved' : 'Â³ Pending'}
+                      {student?.isApproved ? 'Approved' : '³ Pending'}
                     </div>
                   </div>
                 </div>
@@ -1874,7 +1785,7 @@ export default function StudentDashboard() {
         {/* Monthly Tests Tab */}
         {activeTab === 'tests' && (
           <div className="space-y-5">
-            {/* Active test â€â€ timer + questions */}
+            {/* Active test ”” timer + questions */}
             {activeTest ? (
               <div className="space-y-4">
                 {/* Timer bar */}
@@ -1917,7 +1828,7 @@ export default function StudentDashboard() {
                 ))}
                 <button onClick={() => handleSubmitTest(false)}
                   className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-base transition-colors shadow-lg">
-                  Submit Test â†’â€™
+                  Submit Test →’
                 </button>
               </div>
             ) : testResult ? (
@@ -1933,7 +1844,7 @@ export default function StudentDashboard() {
                   <div className="flex items-center gap-6 mt-3">
                     <div><div className="text-3xl font-black">{testResult.attempt.score}/{testResult.attempt.totalMarks}</div><div className="text-white/70 text-xs">Score</div></div>
                     <div><div className="text-3xl font-black">{testResult.attempt.percentage}%</div><div className="text-white/70 text-xs">Percentage</div></div>
-                    <div><div className="text-2xl font-black">{testResult.attempt.percentage >= 33 ? 'â€œ PASS' : 'FAIL'}</div><div className="text-white/70 text-xs">Result</div></div>
+                    <div><div className="text-2xl font-black">{testResult.attempt.percentage >= 33 ? '“ PASS' : 'FAIL'}</div><div className="text-white/70 text-xs">Result</div></div>
                   </div>
                 </div>
                 <div className="p-5 space-y-3">
@@ -1945,7 +1856,7 @@ export default function StudentDashboard() {
                       <div key={qi} className={`p-4 rounded-xl border-2 ${
                         isRight ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
                       }`}>
-                        <p className="font-semibold text-gray-900 text-sm mb-2"><span className="font-black">{isRight ? '' : 'Å’'} Q{qi+1}.</span> {q.question}</p>
+                        <p className="font-semibold text-gray-900 text-sm mb-2"><span className="font-black">{isRight ? '' : 'Œ'} Q{qi+1}.</span> {q.question}</p>
                         <p className="text-xs text-gray-600">Your answer: <span className={`font-bold ${isRight ? 'text-green-700' : 'text-red-600'}`}>{selected !== undefined ? q.options[selected] : 'Not answered'}</span></p>
                         {!isRight && <p className="text-xs text-green-700 font-bold">Correct: {q.options[correct]}</p>}
                       </div>
@@ -1954,7 +1865,7 @@ export default function StudentDashboard() {
                   <div className="flex gap-3 pt-2">
                     <button onClick={() => { setTestResult(null); }}
                       className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50">
-                      â†’Â Back to Tests
+                      → Back to Tests
                     </button>
                     <button onClick={() => downloadTestResult(testResult.attempt, testResult.test, testResult.test?.questions, testResult.correctAnswers)}
                       className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold">
@@ -1983,7 +1894,7 @@ export default function StudentDashboard() {
                             <p className="text-xs text-indigo-600 font-semibold">{t.month}</p>
                           </div>
                           {t.attempted
-                            ? <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-bold">â€œ Done</span>
+                            ? <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-bold">“ Done</span>
                             : <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold">New</span>
                           }
                         </div>
@@ -2031,7 +1942,7 @@ export default function StudentDashboard() {
                 <div>
                   <p className="font-black text-yellow-800">Exam Form Not Submitted</p>
                   <p className="text-sm text-yellow-700 mt-1">Please submit your examination form first to get your Admit Card.</p>
-                  <button onClick={() => setActiveTab('examform')} className="mt-3 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl text-xs font-bold transition-colors">Submit Exam Form â†’</button>
+                  <button onClick={() => setActiveTab('examform')} className="mt-3 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl text-xs font-bold transition-colors">Submit Exam Form →</button>
                 </div>
               </div>
             )}
@@ -2257,7 +2168,7 @@ export default function StudentDashboard() {
                   </div>
                   <button onClick={() => setViewedNotification(null)}
                     className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 text-white font-black text-base transition-colors shrink-0 ml-2">
-                    Ã—
+                    ×
                   </button>
                 </div>
 
@@ -2431,7 +2342,7 @@ export default function StudentDashboard() {
               <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
                 <Award className="w-12 h-12 mx-auto mb-3 text-gray-200" />
                 <p className="text-gray-500 font-semibold">Certificate abhi upload nahi hua hai.</p>
-                <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-700 font-semibold">ðŸ“ž 9936384736</div>
+                <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-700 font-semibold">📞 9936384736</div>
               </div>
             ) : (
               <div className="space-y-3">
@@ -2462,8 +2373,7 @@ export default function StudentDashboard() {
             )}
           </div>
           );
-                })()}
-        </div>
+        })()}
         </div>
       </div>
     </div>
