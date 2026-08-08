@@ -46,34 +46,35 @@ export default function Login() {
     if (!form.email || !form.password) return toast.error('Please fill all fields');
     setLoading(true);
 
-    // If server not ready yet, wait for it with visible countdown
+    // Keep pinging until server responds — no timeout limit
     if (!serverReady) {
-      const toastId = toast.loading('Waiting for server to start...');
-      for (let i = 0; i < 20; i++) {
+      const toastId = toast.loading('Server start ho raha hai, ruko...');
+      let secs = 0;
+      while (true) {
         try {
           await api.get('/auth/ping');
           setServerReady(true);
           toast.dismiss(toastId);
           break;
         } catch {
-          toast.loading(`Server starting... ${(i + 1) * 3}s`, { id: toastId });
+          secs += 3;
+          toast.loading(`Server start ho raha hai... ${secs}s`, { id: toastId });
           await new Promise(r => setTimeout(r, 3000));
         }
       }
-      toast.dismiss(toastId);
     }
 
-    const toastId = toast.loading('Signing in...');
+    const toastId2 = toast.loading('Signing in...');
     try {
       const user = await login(form.email, form.password, activeRole);
-      toast.dismiss(toastId);
+      toast.dismiss(toastId2);
       toast.success(`Welcome, ${user.name}! 🎉`);
       if (user.role === 'admin') navigate('/admin');
       else if (user.role === 'branch') navigate('/branch-dashboard');
       else if (user.role === 'student') navigate('/student-dashboard');
       else navigate('/');
     } catch (err) {
-      toast.dismiss(toastId);
+      toast.dismiss(toastId2);
       toast.error(err.response?.data?.message || 'Invalid credentials');
     }
     setLoading(false);

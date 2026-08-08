@@ -60,6 +60,17 @@ app.use('/api/test', require('./routes/test'));
 app.get('/', (req, res) => res.json({ message: 'KCI API Running' }));
 app.get('/api/auth/ping', (req, res) => res.json({ status: 'ok' }));
 
+// Self-ping every 14 minutes to prevent Render free tier sleep
+const http = require('http');
+const https = require('https');
+setInterval(() => {
+  const url = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+  const client = url.startsWith('https') ? https : http;
+  client.get(`${url}/api/auth/ping`, (res) => {
+    console.log(`Keep-alive ping: ${res.statusCode}`);
+  }).on('error', () => {});
+}, 14 * 60 * 1000);
+
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
