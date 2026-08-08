@@ -26,14 +26,14 @@ export default function Login() {
   useEffect(() => {
     let cancelled = false;
     const wake = async () => {
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < 15; i++) {
         try {
           await api.get('/auth/ping');
           if (!cancelled) setServerReady(true);
           return;
         } catch {
           if (cancelled) return;
-          await new Promise(r => setTimeout(r, 5000));
+          await new Promise(r => setTimeout(r, 3000));
         }
       }
     };
@@ -45,38 +45,36 @@ export default function Login() {
     e.preventDefault();
     if (!form.email || !form.password) return toast.error('Please fill all fields');
     setLoading(true);
-    const toastId = toast.loading('Signing in...');
 
-    let attempts = 0;
-    const maxAttempts = 5;
-    while (attempts < maxAttempts) {
-      try {
-        const user = await login(form.email, form.password, activeRole);
-        toast.dismiss(toastId);
-        toast.success(`Welcome, ${user.name}! 🎉`);
-        if (user.role === 'admin') navigate('/admin');
-        else if (user.role === 'branch') navigate('/branch-dashboard');
-        else if (user.role === 'student') navigate('/student-dashboard');
-        else navigate('/');
-        setLoading(false);
-        return;
-      } catch (err) {
-        attempts++;
-        const status = err.response?.status;
-        if (status === 503 || status === 502 || !err.response) {
-          if (attempts < maxAttempts) {
-            toast.loading(`Server starting... please wait (${attempts * 8}s)`, { id: toastId });
-            await new Promise(r => setTimeout(r, 8000));
-          } else {
-            toast.dismiss(toastId);
-            toast.error('Server took too long. Please try again.');
-          }
-        } else {
+    // If server not ready yet, wait for it with visible countdown
+    if (!serverReady) {
+      const toastId = toast.loading('Waiting for server to start...');
+      for (let i = 0; i < 20; i++) {
+        try {
+          await api.get('/auth/ping');
+          setServerReady(true);
           toast.dismiss(toastId);
-          toast.error(err.response?.data?.message || 'Invalid credentials');
           break;
+        } catch {
+          toast.loading(`Server starting... ${(i + 1) * 3}s`, { id: toastId });
+          await new Promise(r => setTimeout(r, 3000));
         }
       }
+      toast.dismiss(toastId);
+    }
+
+    const toastId = toast.loading('Signing in...');
+    try {
+      const user = await login(form.email, form.password, activeRole);
+      toast.dismiss(toastId);
+      toast.success(`Welcome, ${user.name}! 🎉`);
+      if (user.role === 'admin') navigate('/admin');
+      else if (user.role === 'branch') navigate('/branch-dashboard');
+      else if (user.role === 'student') navigate('/student-dashboard');
+      else navigate('/');
+    } catch (err) {
+      toast.dismiss(toastId);
+      toast.error(err.response?.data?.message || 'Invalid credentials');
     }
     setLoading(false);
   };
@@ -207,7 +205,7 @@ export default function Login() {
               <motion.button type="submit" disabled={loading} whileHover={{ scale: loading ? 1 : 1.02 }} whileTap={{ scale: 0.98 }}
                 className={`w-full py-4 rounded-xl text-white font-black text-sm flex items-center justify-center gap-2.5 shadow-lg transition-all bg-gradient-to-r ${roleConfig.color} disabled:opacity-70`}>
                 {loading
-                  ? <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Please wait...</>
+                  ? <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> {serverReady ? 'Signing in...' : 'Waiting for server...'}</>
                   : <><roleConfig.icon className="w-4 h-4" /> Login as {roleConfig.label} <ArrowRight className="w-4 h-4" /></>}
               </motion.button>
             </form>
