@@ -15,7 +15,19 @@ const app = express();
 // Gzip compression — reduces response size by ~70%
 app.use(compression());
 
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+}));
 app.use(express.json({ limit: '10mb' }));
 
 // Cache static uploads for 7 days
@@ -48,6 +60,12 @@ app.use('/api/test', require('./routes/test'));
 app.get('/', (req, res) => res.json({ message: 'KCI API Running' }));
 app.get('/api/auth/ping', (req, res) => res.json({ status: 'ok' }));
 
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({ success: false, message: err.message || 'Internal Server Error' });
+});
+
 // Keep-alive for MongoDB connection
 mongoose.connection.on('disconnected', () => {
   console.log('MongoDB disconnected, reconnecting...');
@@ -55,16 +73,22 @@ mongoose.connection.on('disconnected', () => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 if (!process.env.MONGO_URI) {
   console.error('ERROR: MONGO_URI environment variable is not set!');
+  process.exit(1);
 } else {
   mongoose.connect(process.env.MONGO_URI, {
     serverSelectionTimeoutMS: 10000,
     socketTimeoutMS: 45000,
     family: 4,
   })
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.error('DB Error:', err));
+    .then(() => {
+      console.log('MongoDB connected');
+      app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    })
+    .catch(err => {
+      console.error('DB Error:', err);
+      process.exit(1);
+    });
 }

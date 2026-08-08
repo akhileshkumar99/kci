@@ -7,7 +7,7 @@ router.post('/register', register);
 router.post('/login', login);
 router.get('/me', protect, getMe);
 router.get('/ping', (req, res) => res.json({ status: 'ok' }));
-router.get('/student-info/:rollNumber', getStudentInfo);
+router.get('/student-info/:rollNumber', protect, getStudentInfo);
 router.put('/profile', protect, upload.single('photo'), updateProfile);
 router.put('/change-password', protect, async (req, res) => {
   try {

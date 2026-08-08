@@ -5,8 +5,13 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const u = localStorage.getItem('kci_user');
-    return u ? JSON.parse(u) : null;
+    try {
+      const u = localStorage.getItem('kci_user');
+      return u ? JSON.parse(u) : null;
+    } catch {
+      localStorage.removeItem('kci_user');
+      return null;
+    }
   });
   const [loading, setLoading] = useState(false);
 

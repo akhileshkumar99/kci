@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -289,9 +289,17 @@ function gradeColor(grade) {
   return { bg: 'bg-red-100', text: 'text-red-700', bar: 'bg-red-500' };
 }
 
-// €€€ Results Section €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
-function ResultsSection({ results, student, branch }) {
-  if (results.length === 0) return (
+const API_BASE = import.meta.env.VITE_API_URL || '';
+function fileUrl(path) {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  return `${API_BASE}${path}`;
+}
+
+function ResultsSection({ results, fileResults, student, branch }) {
+  const totalCount = (results?.length || 0) + (fileResults?.length || 0);
+
+  if (totalCount === 0) return (
     <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
       <Award className="w-12 h-12 mx-auto mb-3 text-gray-200" />
       <p className="text-gray-400">No results published yet</p>
@@ -300,19 +308,81 @@ function ResultsSection({ results, student, branch }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-black text-gray-900">My Results <span className="text-blue-600">({results.length})</span></h2>
+      <h2 className="text-xl font-black text-gray-900">My Results <span className="text-blue-600">({totalCount})</span></h2>
 
-      </div>
+      {(fileResults || []).map((r, idx) => (
+        <motion.div key={r._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
+          className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-700 to-indigo-700 px-6 py-4 flex items-center justify-between">
+            <div>
+              <p className="text-blue-200 text-xs font-semibold uppercase tracking-widest mb-0.5">Result Card</p>
+              <h3 className="text-white font-black text-lg leading-tight">{r.courseName || 'Result'}</h3>
+              <p className="text-blue-300 text-xs mt-0.5">
+                {r.rollNumber && <>Roll No: <span className="font-mono font-bold text-yellow-300">{r.rollNumber}</span></>}
+                {r.formNo && <> | Form No: <span className="font-mono font-bold text-yellow-200">{r.formNo}</span></>}
+                {r.batch && <> | Batch: {r.batch}</>}
+              </p>
+            </div>
+            <div className="flex flex-col items-end gap-2">
+              {r.branch && <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">{r.branch}</span>}
+              {r.examDate && <span className="text-blue-200 text-xs">{new Date(r.examDate).toLocaleDateString('en-IN')}</span>}
+            </div>
+          </div>
+          <div className="p-5">
+            {(r.studentName || r.fatherName) && (
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                {r.studentName && (
+                  <div className="bg-gray-50 rounded-xl p-3">
+                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-0.5">Student</div>
+                    <div className="font-black text-gray-900 text-sm">{r.studentName}</div>
+                  </div>
+                )}
+                {r.fatherName && (
+                  <div className="bg-gray-50 rounded-xl p-3">
+                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-0.5">Father</div>
+                    <div className="font-bold text-gray-700 text-sm">{r.fatherName}</div>
+                  </div>
+                )}
+              </div>
+            )}
+            {r.resultFile ? (
+              <div className="space-y-3">
+                {/\.(png|jpe?g)$/i.test(r.resultFile) && (
+                  <img src={fileUrl(r.resultFile)} alt="Result" className="w-full rounded-xl border border-gray-200 object-contain max-h-96" />
+                )}
+                {/\.pdf$/i.test(r.resultFile) && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center gap-3">
+                    <FileText className="w-8 h-8 text-blue-600 shrink-0" />
+                    <div>
+                      <p className="font-bold text-blue-800 text-sm">Result PDF available</p>
+                      <p className="text-xs text-blue-500">Click Download to view your result</p>
+                    </div>
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <a href={fileUrl(r.resultFile)} target="_blank" rel="noreferrer"
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-black transition-all">
+                    <Eye className="w-4 h-4" /> View
+                  </a>
+                  <a href={fileUrl(r.resultFile)} download
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-black transition-all">
+                    <Download className="w-4 h-4" /> Download
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-gray-50 rounded-xl p-4 text-center text-sm text-gray-400">Result file not uploaded yet</div>
+            )}
+          </div>
+        </motion.div>
+      ))}
 
-      {results.map((r, idx) => {
+      {(results || []).map((r, idx) => {
         const gc = gradeColor(r.grade);
         const pct = r.percentage ?? 0;
         return (
-          <motion.div key={r._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
+          <motion.div key={r._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: ((fileResults?.length || 0) + idx) * 0.05 }}
             className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-
-            {/* €€ Card Header €€ */}
             <div className="bg-gradient-to-r from-blue-700 to-indigo-700 px-6 py-4 flex items-center justify-between">
               <div>
                 <p className="text-blue-200 text-xs font-semibold uppercase tracking-widest mb-0.5">Result Card</p>
@@ -320,20 +390,18 @@ function ResultsSection({ results, student, branch }) {
                 <p className="text-blue-300 text-xs mt-0.5">Roll No: <span className="font-mono font-bold text-yellow-300">{r.rollNumber}</span>{r.batch ? ` | Batch: ${r.batch}` : ''}</p>
               </div>
               <div className="flex flex-col items-end gap-2">
-                <span className={`px-3 py-1 rounded-full text-sm font-black border-2 ${
-                  r.status === 'Pass' ? 'bg-green-400/20 border-green-400 text-green-300' : 'bg-red-400/20 border-red-400 text-red-300'
-                }`}>{r.status === 'Pass' ? '“ PASS' : 'FAIL'}</span>
-                <div className={`text-3xl font-black ${gc.text.replace('text-', 'text-').replace('700', '300')}`} style={{ color: '#fde68a' }}>{r.grade}</div>
+                <span className={`px-3 py-1 rounded-full text-sm font-black border-2 ${r.status === 'Pass' ? 'bg-green-400/20 border-green-400 text-green-300' : 'bg-red-400/20 border-red-400 text-red-300'}`}>
+                  {r.status === 'Pass' ? 'PASS' : 'FAIL'}
+                </span>
+                <div className="text-3xl font-black" style={{ color: '#fde68a' }}>{r.grade}</div>
               </div>
             </div>
-
-            {/* €€ Summary Strip €€ */}
             <div className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 divide-x-0 sm:divide-x divide-gray-100 border-b border-gray-100">
               {[
-                { label: 'Obtained', value: r.obtainedMarks ?? '””', sub: 'marks' },
-                { label: 'Total', value: r.totalMarks ?? '””', sub: 'marks' },
-                { label: 'Percentage', value: r.percentage ? `${r.percentage}%` : '””', sub: 'score', highlight: true },
-                { label: 'Grade', value: r.grade || '””', sub: 'overall', highlight: true },
+                { label: 'Obtained', value: r.obtainedMarks ?? '-', sub: 'marks' },
+                { label: 'Total', value: r.totalMarks ?? '-', sub: 'marks' },
+                { label: 'Percentage', value: r.percentage ? `${r.percentage}%` : '-', sub: 'score', highlight: true },
+                { label: 'Grade', value: r.grade || '-', sub: 'overall', highlight: true },
               ].map(({ label, value, sub, highlight }) => (
                 <div key={label} className="py-4 text-center">
                   <div className={`text-xl font-black ${highlight ? 'text-blue-600' : 'text-gray-900'}`}>{value}</div>
@@ -342,8 +410,6 @@ function ResultsSection({ results, student, branch }) {
                 </div>
               ))}
             </div>
-
-            {/* €€ Percentage Bar €€ */}
             <div className="px-6 pt-4 pb-2">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-bold text-gray-500 flex items-center gap-1"><TrendingUp className="w-3 h-3" /> Performance</span>
@@ -353,12 +419,7 @@ function ResultsSection({ results, student, branch }) {
                 <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(pct, 100)}%` }} transition={{ duration: 0.8, delay: idx * 0.05 + 0.3 }}
                   className={`h-full rounded-full ${gc.bar}`} />
               </div>
-              <div className="flex justify-between text-[9px] text-gray-300 mt-1">
-                <span>0%</span><span>33% (Pass)</span><span>60%</span><span>75%</span><span>100%</span>
-              </div>
             </div>
-
-            {/* €€ Subject Table €€ */}
             {r.subjects?.length > 0 && (
               <div className="px-4 sm:px-6 pb-4">
                 <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-3 mt-2">Subject-wise Marks</p>
@@ -366,12 +427,9 @@ function ResultsSection({ results, student, branch }) {
                   <table className="w-full text-sm min-w-[480px]">
                     <thead>
                       <tr className="bg-gray-50 border-b border-gray-200">
-                        <th className="text-left px-4 py-2.5 text-xs font-black text-gray-500 uppercase tracking-wide">#</th>
-                        <th className="text-left px-4 py-2.5 text-xs font-black text-gray-500 uppercase tracking-wide">Subject</th>
-                        <th className="text-center px-4 py-2.5 text-xs font-black text-gray-500 uppercase tracking-wide">Max</th>
-                        <th className="text-center px-4 py-2.5 text-xs font-black text-gray-500 uppercase tracking-wide">Obtained</th>
-                        <th className="text-center px-4 py-2.5 text-xs font-black text-gray-500 uppercase tracking-wide">%</th>
-                        <th className="text-center px-4 py-2.5 text-xs font-black text-gray-500 uppercase tracking-wide">Status</th>
+                        {['#','Subject','Max','Obtained','%','Status'].map(h => (
+                          <th key={h} className="text-left px-4 py-2.5 text-xs font-black text-gray-500 uppercase tracking-wide">{h}</th>
+                        ))}
                       </tr>
                     </thead>
                     <tbody>
@@ -382,38 +440,20 @@ function ResultsSection({ results, student, branch }) {
                           <tr key={i} className={`border-b border-gray-100 last:border-0 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
                             <td className="px-4 py-3 text-gray-400 font-bold text-xs">{i + 1}</td>
                             <td className="px-4 py-3 font-semibold text-gray-800">{sub.name}</td>
-                            <td className="px-4 py-3 text-center text-gray-600 font-bold">{sub.maxMarks ?? '””'}</td>
-                            <td className="px-4 py-3 text-center font-black text-gray-900">{sub.obtainedMarks ?? '””'}</td>
+                            <td className="px-4 py-3 text-center text-gray-600 font-bold">{sub.maxMarks ?? '-'}</td>
+                            <td className="px-4 py-3 text-center font-black text-gray-900">{sub.obtainedMarks ?? '-'}</td>
+                            <td className="px-4 py-3 text-center"><span className="text-xs font-bold text-blue-600">{subPct ? `${subPct}%` : '-'}</span></td>
                             <td className="px-4 py-3 text-center">
-                              <span className="text-xs font-bold text-blue-600">{subPct ? `${subPct}%` : '””'}</span>
-                            </td>
-                            <td className="px-4 py-3 text-center">
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                                pass ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
-                              }`}>{pass ? 'Pass' : 'Fail'}</span>
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${pass ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>{pass ? 'Pass' : 'Fail'}</span>
                             </td>
                           </tr>
                         );
                       })}
                     </tbody>
-                    <tfoot>
-                      <tr className="bg-blue-50 border-t-2 border-blue-200">
-                        <td colSpan={2} className="px-4 py-3 font-black text-blue-800 text-sm">TOTAL</td>
-                        <td className="px-4 py-3 text-center font-black text-blue-800">{r.totalMarks ?? '””'}</td>
-                        <td className="px-4 py-3 text-center font-black text-blue-800">{r.obtainedMarks ?? '””'}</td>
-                        <td className="px-4 py-3 text-center font-black text-blue-600">{r.percentage ? `${r.percentage}%` : '””'}</td>
-                        <td className="px-4 py-3 text-center">
-                          <span className={`px-2 py-1 rounded-full text-xs font-black ${
-                            r.status === 'Pass' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
-                          }`}>{r.status}</span>
-                        </td>
-                      </tr>
-                    </tfoot>
                   </table>
                 </div>
               </div>
             )}
-
             {r.examDate && (
               <div className="px-6 py-3 bg-gray-50 border-t border-gray-100">
                 <span className="text-xs text-gray-400">Exam Date: {new Date(r.examDate).toLocaleDateString('en-IN')}</span>
@@ -425,6 +465,7 @@ function ResultsSection({ results, student, branch }) {
     </div>
   );
 }
+
 
 // €€€ Certificate PDF Download €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
 async function downloadCertificatePDF(c, student, branch) {
@@ -578,14 +619,6 @@ async function downloadCertificatePDF(c, student, branch) {
 
   doc.save(`Certificate_${c.certificateNumber || c.rollNumber}.pdf`);
   toast.success('Certificate downloaded!');
-}
-
-// ─── File URL helper ─────────────────────────────────────────────────────────
-const API_BASE = import.meta.env.VITE_API_URL || '';
-function fileUrl(path) {
-  if (!path) return '';
-  if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  return `${API_BASE}${path}`;
 }
 
 // ─── Certificate download helper ─────────────────────────────────────────────
@@ -1148,6 +1181,7 @@ export default function StudentDashboard() {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [viewedNotification, setViewedNotification] = useState(null);
+  const [fileResults, setFileResults] = useState([]);
 
   useEffect(() => {
     if (!user) { navigate('/login'); return; }
@@ -1166,6 +1200,8 @@ export default function StudentDashboard() {
         api.get('/admit-card/my').then(r2 => setAdmitCard(r2.data.admitCard || null)).catch(() => {});
       }
     }).catch(() => {});
+    // Fetch file-based results uploaded by admin/branch
+    api.get('/results/my').then(r => setFileResults(r.data.results || [])).catch(() => {});
     // Fetch all certificates by enrollmentNumber/formNo
     api.get('/certificates/my-all').then(r => {
       if (r.data.certificates?.length) {
@@ -1779,7 +1815,7 @@ export default function StudentDashboard() {
 
         {/* Results Tab */}
         {activeTab === 'results' && (
-          <ResultsSection results={results} student={student} branch={branch} />
+          <ResultsSection results={results} fileResults={fileResults} student={student} branch={branch} />
         )}
 
         {/* Monthly Tests Tab */}

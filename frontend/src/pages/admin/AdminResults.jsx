@@ -19,7 +19,7 @@ const inp = 'w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ou
 
 const emptyForm = {
   studentId: '', studentName: '', fatherName: '', courseName: '',
-  branch: '', batch: '', examDate: '', uploadDate: '', resultFile: null,
+  branch: '', batch: '', rollNumber: '', formNo: '', examDate: '', uploadDate: '', resultFile: null,
 };
 
 function ResultModal({ title, form, setForm, students, saving, onSubmit, onClose }) {
@@ -40,6 +40,8 @@ function ResultModal({ title, form, setForm, students, saving, onSubmit, onClose
       courseName: s.courseName || '',
       branch: s.branchName || '',
       batch: s.batch || '',
+      rollNumber: s.rollNumber || '',
+      formNo: s.formNo || '',
     }));
     setQuery(s.name);
     setShowDrop(false);
@@ -97,6 +99,14 @@ function ResultModal({ title, form, setForm, students, saving, onSubmit, onClose
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Session / Batch</label>
               <input value={form.batch} onChange={e => setForm(f => ({ ...f, batch: e.target.value }))} placeholder="e.g. 2024-25" className={inp} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Roll Number</label>
+              <input value={form.rollNumber} onChange={e => setForm(f => ({ ...f, rollNumber: e.target.value }))} placeholder="Auto-filled" className={inp} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Form No</label>
+              <input value={form.formNo} onChange={e => setForm(f => ({ ...f, formNo: e.target.value }))} placeholder="Auto-filled" className={inp} />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Exam Date</label>
@@ -191,6 +201,8 @@ export default function AdminResults() {
       courseName: r.courseName || '',
       branch: r.branch || '',
       batch: r.batch || '',
+      rollNumber: r.rollNumber || '',
+      formNo: r.formNo || '',
       examDate: r.examDate ? new Date(r.examDate).toISOString().split('T')[0] : '',
       uploadDate: r.uploadDate ? new Date(r.uploadDate).toISOString().split('T')[0] : '',
       resultFile: r.resultFile || null,

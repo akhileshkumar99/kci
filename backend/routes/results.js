@@ -9,17 +9,19 @@ const branchAuth = (req, res, next) => {
   res.status(403).json({ success: false, message: 'Access denied' });
 };
 
-// GET all results (admin: all, branch: own students)
-router.get('/', protect, branchAuth, async (req, res) => {
+// Student: get own results — MUST be before /:id
+router.get('/my', protect, async (req, res) => {
   try {
-    let results;
-    if (req.user.role === 'admin') {
-      results = await Result.find().sort('-createdAt');
-    } else {
-      const students = await User.find({ role: 'student', branchId: req.user._id }).select('_id');
-      const ids = students.map(s => s._id);
-      results = await Result.find({ studentId: { $in: ids } }).sort('-createdAt');
-    }
+    if (req.user.role !== 'student') return res.status(403).json({ success: false, message: 'Students only' });
+    const results = await Result.find({
+      $or: [
+        { studentId: req.user._id },
+        { rollNumber: req.user.rollNumber },
+        { enrollmentNumber: req.user.enrollmentNumber },
+        { formNo: req.user.formNo },
+      ],
+      isApproved: true,
+    }).sort('-createdAt');
     res.json({ success: true, results });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
@@ -34,6 +36,21 @@ router.get('/students', protect, branchAuth, async (req, res) => {
       .select('name fatherName courseName batch branchName rollNumber enrollmentNumber formNo _id')
       .sort('name');
     res.json({ success: true, students });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+// GET all results (admin: all, branch: own students)
+router.get('/', protect, branchAuth, async (req, res) => {
+  try {
+    let results;
+    if (req.user.role === 'admin') {
+      results = await Result.find().sort('-createdAt');
+    } else {
+      const students = await User.find({ role: 'student', branchId: req.user._id }).select('_id');
+      const ids = students.map(s => s._id);
+      results = await Result.find({ studentId: { $in: ids } }).sort('-createdAt');
+    }
+    res.json({ success: true, results });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
@@ -83,23 +100,6 @@ router.delete('/:id', protect, branchAuth, async (req, res) => {
   try {
     await Result.findByIdAndDelete(req.params.id);
     res.json({ success: true });
-  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
-});
-
-// Student: get own results
-router.get('/my', protect, async (req, res) => {
-  try {
-    if (req.user.role !== 'student') return res.status(403).json({ success: false, message: 'Students only' });
-    const results = await Result.find({
-      $or: [
-        { studentId: req.user._id },
-        { rollNumber: req.user.rollNumber },
-        { enrollmentNumber: req.user.enrollmentNumber },
-        { formNo: req.user.formNo },
-      ],
-      isApproved: true,
-    }).sort('-createdAt');
-    res.json({ success: true, results });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
