@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { Trash2, Search, Plus, X, User, Mail, Phone, BookOpen, Hash, Calendar, Pencil, Eye, ImagePlus } from 'lucide-react';
+import { Trash2, Search, Plus, X, User, Mail, Phone, BookOpen, Hash, Calendar, Pencil, Eye, ImagePlus, Users } from 'lucide-react';
 import api from '../../utils/api';
 import Loader from '../../components/Loader';
 
@@ -241,7 +241,7 @@ await api.post('/franchise/students/register', fd, { headers: { 'Content-Type': 
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white/90 backdrop-blur-xl rounded-3xl w-full max-w-sm shadow-2xl">
             <div className="p-6 text-center">
-              <img src={viewStudent.photo ? `http://localhost:5000${viewStudent.photo}` : '/default-avatar.jpg'} 
+              <img src={viewStudent.photo ? `${import.meta.env.VITE_API_URL || ''}${viewStudent.photo}` : '/logo.png'} 
                 className="w-24 h-24 rounded-full mx-auto mb-4 shadow-xl object-cover" />
               <h2 className="text-2xl font-bold text-gray-900 mb-2">{viewStudent.name}</h2>
               <p className="text-emerald-600 font-mono text-lg mb-6">{viewStudent.rollNumber}</p>

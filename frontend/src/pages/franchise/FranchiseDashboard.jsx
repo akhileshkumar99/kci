@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Users, BookOpen, ClipboardList, Award, FileText, MessageSquare, TrendingUp, ArrowUpRight, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -47,11 +47,6 @@ export default function FranchiseDashboard() {
     }
     setLoading(false);
     setRefreshing(false);
-    
-    // Trigger counter animations
-    Object.values(counterRefs.current).forEach(ref => {
-      if (ref) ref.current = 0;
-    });
   };
 
   useEffect(() => { fetchData(); }, []);
@@ -73,37 +68,6 @@ export default function FranchiseDashboard() {
     { label: 'View Messages', path: '/franchise/contacts', color: 'bg-teal-600 hover:bg-teal-700' },
     { label: 'Manage Quiz', path: '/franchise/quiz', color: 'bg-rose-600 hover:bg-rose-700' },
   ];
-
-  const AnimatedCounter = ({ target, className, ref }) => {
-    const countRef = useRef(0);
-    const mounted = useRef(false);
-    
-    useEffect(() => {
-      mounted.current = true;
-      const duration = 2000;
-      const start = Date.now();
-      const increment = target / (duration / 16);
-      
-      const animate = () => {
-        const elapsed = Date.now() - start;
-        if (elapsed < duration && mounted.current) {
-          countRef.current = Math.min(target, (elapsed / duration) * target);
-          requestAnimationFrame(animate);
-        } else {
-          countRef.current = target;
-        }
-      };
-      animate();
-      
-      return () => { mounted.current = false; };
-    }, [target]);
-    
-    return (
-      <span className={className}>
-        {Math.floor(countRef.current).toLocaleString()}
-      </span>
-    );
-  };
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
@@ -175,36 +139,31 @@ export default function FranchiseDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         {cards.map(({ label, value, icon: Icon, bg, path }, i) => (
           <motion.div key={label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
-            <motion.div 
-              className="block bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 group overflow-hidden relative cursor-pointer"
-              initial="initial"
-              whileHover="hover"
-              whileTap="tap"
-              variants={{
-                initial: { rotateX: 0, rotateY: 0, rotateZ: 0 },
-                hover: { 
-                  rotateX: -5, 
-                  rotateY: 5, 
-                  rotateZ: 1,
-                  y: -8,
-                  scale: 1.02
-                },
-                tap: { scale: 0.98 }
-              }}
-            >
-              <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${bg} opacity-10 rounded-bl-full`} />
-              <div className="flex items-start justify-between">
-                <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${bg} flex items-center justify-center shadow-sm`}>
-                  <Icon className="w-5 h-5 text-white" />
+            <Link to={path}>
+              <motion.div 
+                className="block bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 group overflow-hidden relative cursor-pointer"
+                initial="initial"
+                whileHover="hover"
+                whileTap="tap"
+                variants={{
+                  initial: { rotateX: 0, rotateY: 0, rotateZ: 0 },
+                  hover: { rotateX: -5, rotateY: 5, rotateZ: 1, y: -8, scale: 1.02 },
+                  tap: { scale: 0.98 }
+                }}
+              >
+                <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${bg} opacity-10 rounded-bl-full`} />
+                <div className="flex items-start justify-between">
+                  <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${bg} flex items-center justify-center shadow-sm`}>
+                    <Icon className="w-5 h-5 text-white" />
+                  </div>
+                  <ArrowUpRight className="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors" />
                 </div>
-                <ArrowUpRight className="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors" />
-              </div>
-              <div className="mt-3">
-                <AnimatedCounter ref={(el) => { counterRefs.current[label] = el; }} target={value} className="text-3xl font-bold text-gray-900" />
-                <p className="text-sm text-gray-500 mt-0.5">{label}</p>
-              </div>
+                <div className="mt-3">
+                  <span className="text-3xl font-bold text-gray-900">{value}</span>
+                  <p className="text-sm text-gray-500 mt-0.5">{label}</p>
+                </div>
+              </motion.div>
             </Link>
-          </motion.div>
         ))}
       </div>
 
@@ -285,25 +244,14 @@ export default function FranchiseDashboard() {
         <h2 className="font-bold text-gray-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {quickActions.map(({ label, path, color }) => (
-          <motion.div 
-            key={path} 
-            className={`${color} text-white rounded-xl py-3 px-3 text-xs font-semibold text-center transition-all shadow-sm cursor-pointer`}
-            initial="initial"
-            whileHover="hover"
-            whileTap="tap"
-            custom={path}
-            variants={{
-              initial: { rotateX: 0, rotateY: 0 },
-              hover: { 
-                rotateX: -3, 
-                rotateY: 3,
-                scale: 1.1,
-                y: -4
-              },
-              tap: { scale: 0.95 }
-            }}
-          >
-              {label}
+            <Link to={path} key={path}>
+              <motion.div 
+                className={`${color} text-white rounded-xl py-3 px-3 text-xs font-semibold text-center transition-all shadow-sm cursor-pointer`}
+                whileHover={{ scale: 1.1, y: -4 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {label}
+              </motion.div>
             </Link>
           ))}
         </div>

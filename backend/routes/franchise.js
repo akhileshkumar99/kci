@@ -40,7 +40,7 @@ async function sendApprovalEmail(email, name, franchiseCenter, franchiseCode, pa
               <p style="margin:4px 0;color:#374151"><strong>Password:</strong> <code style="background:#dcfce7;padding:2px 8px;border-radius:4px;font-size:15px">${password}</code></p>
               <p style="margin:4px 0;color:#374151"><strong>Franchise Code:</strong> <code style="background:#dcfce7;padding:2px 8px;border-radius:4px">${franchiseCode}</code></p>
             </div>
-            <p style="color:#374151">Login at: <a href="http://localhost:5173/login" style="color:#16a34a">KCI Portal</a></p>
+            <p style="color:#374151">Login at: <a href="${process.env.FRONTEND_URL || 'https://kci-seven.vercel.app'}/login" style="color:#16a34a">KCI Portal</a></p>
             <p style="color:#6b7280;font-size:13px">Please change your password after first login.</p>
           </div>
           <div style="background:#f9fafb;padding:16px;text-align:center;color:#9ca3af;font-size:12px">

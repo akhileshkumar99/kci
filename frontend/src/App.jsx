@@ -30,6 +30,9 @@ const AdmitCard = lazy(() => import('./pages/AdmitCard'));
 const BranchApply = lazy(() => import('./pages/BranchApply'));
 const BranchDashboard = lazy(() => import('./pages/BranchDashboard'));
 const StudentDashboard = lazy(() => import('./pages/StudentDashboard'));
+const FranchiseDashboard = lazy(() => import('./pages/franchise/FranchiseDashboard'));
+const FranchiseLayout = lazy(() => import('./pages/franchise/FranchiseLayout'));
+const FranchiseStudents = lazy(() => import('./pages/franchise/FranchiseStudents'));
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminCourses = lazy(() => import('./pages/admin/AdminCourses'));
@@ -257,6 +260,7 @@ export default function App() {
           <Route path="/exam-form" element={<PublicLayout><ExaminationForm /></PublicLayout>} />
           <Route path="/branch-dashboard" element={<BranchDashboard />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} />
+          <Route path="/franchise-dashboard" element={<FranchiseDashboard />} />
           <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
             <Route index element={<AdminDashboard />} />
             <Route path="courses" element={<AdminCourses />} />
