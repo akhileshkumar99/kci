@@ -2,6 +2,7 @@ const Certificate = require('../models/Certificate');
 const Setting = require('../models/Setting');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
+const AuditLog = require('../models/AuditLog');
 const path = require('path');
 const fs = require('fs');
 
@@ -17,6 +18,16 @@ async function notifyStudent(enrollmentNumber, formNo, rollNumber, studentId, ti
       targetRole: 'student',
       branchId: student?.branchId || student?.franchiseId || null,
       isActive: true,
+    });
+  } catch (_) {}
+}
+
+async function logAudit(action, user, targetId, details, ip) {
+  try {
+    await AuditLog.create({
+      action, performedBy: user._id, performedByName: user.name,
+      performedByRole: user.role, branchId: user.branchId || user._id,
+      targetId, targetModel: 'Certificate', details, ip: ip || 'unknown',
     });
   } catch (_) {}
 }
@@ -48,7 +59,20 @@ exports.uploadIdCardTemplate = idCardTpl.upload;
 
 exports.verifyCertificate = async (req, res) => {
   try {
-    const cert = await Certificate.findOne({ certificateNumber: req.params.certNumber }).populate('course', 'title');
+    const { certNumber } = req.params;
+    const { formNo } = req.query;
+
+    let cert = null;
+    if (certNumber && certNumber !== 'undefined') {
+      cert = await Certificate.findOne({ certificateNumber: certNumber }).populate('course', 'title');
+    }
+    if (!cert && formNo) {
+      cert = await Certificate.findOne({
+        $or: [{ formNo }, { enrollmentNumber: formNo }, { rollNumber: formNo }],
+        isApproved: true,
+      }).populate('course', 'title');
+    }
+
     if (!cert) return res.status(404).json({ success: false, message: 'Certificate not found or invalid' });
     res.json({ success: true, certificate: cert });
   } catch (err) {
@@ -58,7 +82,6 @@ exports.verifyCertificate = async (req, res) => {
 
 exports.getMyCertificate = async (req, res) => {
   try {
-    // Search by enrollmentNumber, formNo, or rollNumber
     const cert = await Certificate.findOne({
       $or: [
         { enrollmentNumber: req.user.enrollmentNumber },
@@ -66,6 +89,8 @@ exports.getMyCertificate = async (req, res) => {
         { rollNumber: req.user.rollNumber },
         { student: req.user._id },
       ].filter(c => Object.values(c)[0]),
+      isApproved: true,
+      certificateFile: { $exists: true, $ne: null, $ne: '' },
     }).populate('course', 'title');
     if (!cert) return res.status(404).json({ success: false, message: 'Certificate not yet issued. Please contact the institute administration.' });
     res.json({ success: true, certificate: cert });
@@ -92,7 +117,11 @@ exports.getMyCertificates = async (req, res) => {
       orConditions.push({ enrollmentNumber: req.user.rollNumber });
       orConditions.push({ formNo: req.user.rollNumber });
     }
-    const certs = await Certificate.find({ $or: orConditions }).populate('course', 'title').sort({ createdAt: -1 });
+    const certs = await Certificate.find({
+      $or: orConditions,
+      isApproved: true,
+      certificateFile: { $exists: true, $ne: null, $ne: '' },
+    }).populate('course', 'title').sort({ createdAt: -1 });
     res.json({ success: true, certificates: certs });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -111,35 +140,49 @@ exports.getAllCertificates = async (req, res) => {
 exports.createCertificate = async (req, res) => {
   try {
     const data = { ...req.body };
-    if (req.file) data.certificateFile = req.file.path; // Cloudinary secure_url
-    // Ensure all identifier fields are cross-populated
+    if (req.file) data.certificateFile = req.file.path;
     if (!data.enrollmentNumber && data.formNo) data.enrollmentNumber = data.formNo;
     if (!data.rollNumber && data.formNo) data.rollNumber = data.formNo;
     if (!data.formNo && data.enrollmentNumber) data.formNo = data.enrollmentNumber;
+
+    data.issuedBy = req.user._id;
+    data.issuedByRole = req.user.role;
+
+    // Auto-publish if file uploaded
+    if (data.certificateFile) {
+      data.isApproved = true;
+      data.isPublished = true;
+    }
+
+    // Try to link student
+    if (!data.student) {
+      const q = [];
+      if (data.enrollmentNumber) q.push({ enrollmentNumber: data.enrollmentNumber });
+      if (data.formNo) q.push({ formNo: data.formNo });
+      if (data.rollNumber) q.push({ rollNumber: data.rollNumber });
+      if (q.length) {
+        const s = await User.findOne({ $or: q, role: 'student' });
+        if (s) {
+          data.student = s._id;
+          if (!data.branchId && s.branchId) data.branchId = s.branchId;
+        }
+      }
+    }
+
     const cert = await Certificate.create(data);
-    // Auto-notify student
+
     await notifyStudent(
       cert.enrollmentNumber, cert.formNo, cert.rollNumber, cert.student,
       '🏅 Certificate Uploaded',
       `Your certificate for ${cert.courseName} has been uploaded. You can now view and download it from your Student Dashboard.`
     );
-    // Audit log
-    if (req.user) {
-      try {
-        const AuditLog = require('../models/AuditLog');
-        const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
-        await AuditLog.create({
-          action: 'CERTIFICATE_GENERATED',
-          performedBy: req.user._id,
-          performedByName: req.user.name,
-          performedByRole: req.user.role,
-          targetId: cert._id,
-          targetModel: 'Certificate',
-          details: { studentName: cert.studentName, enrollmentNumber: cert.enrollmentNumber, formNo: cert.formNo, courseName: cert.courseName },
-          ip,
-        });
-      } catch {}
-    }
+
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+    await logAudit('CERTIFICATE_GENERATED', req.user, cert._id, {
+      studentName: cert.studentName, enrollmentNumber: cert.enrollmentNumber,
+      formNo: cert.formNo, courseName: cert.courseName,
+    }, ip);
+
     res.status(201).json({ success: true, certificate: cert });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -149,11 +192,37 @@ exports.createCertificate = async (req, res) => {
 exports.updateCertificate = async (req, res) => {
   try {
     const data = { ...req.body };
-    if (req.file) data.certificateFile = req.file.path; // Cloudinary secure_url
+    if (req.file) {
+      data.certificateFile = req.file.path;
+      data.isApproved = true;
+      data.isPublished = true;
+    }
     if (!data.enrollmentNumber && data.formNo) data.enrollmentNumber = data.formNo;
     if (!data.rollNumber && data.formNo) data.rollNumber = data.formNo;
     if (!data.formNo && data.enrollmentNumber) data.formNo = data.enrollmentNumber;
+
     const cert = await Certificate.findByIdAndUpdate(req.params.id, data, { new: true });
+
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+    await logAudit('CERTIFICATE_UPDATED', req.user, cert._id, {
+      studentName: cert.studentName, certificateNumber: cert.certificateNumber,
+    }, ip);
+
+    res.json({ success: true, certificate: cert });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.approveCertificate = async (req, res) => {
+  try {
+    const isApproved = req.body.isApproved !== undefined ? req.body.isApproved : true;
+    const cert = await Certificate.findByIdAndUpdate(req.params.id, { isApproved, isPublished: isApproved }, { new: true });
+    if (!cert) return res.status(404).json({ success: false, message: 'Not found' });
+
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+    await logAudit('CERTIFICATE_PUBLISHED', req.user, cert._id, { isApproved }, ip);
+
     res.json({ success: true, certificate: cert });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -162,7 +231,16 @@ exports.updateCertificate = async (req, res) => {
 
 exports.deleteCertificate = async (req, res) => {
   try {
+    const cert = await Certificate.findById(req.params.id);
+    if (!cert) return res.status(404).json({ success: false, message: 'Not found' });
+
     await Certificate.findByIdAndDelete(req.params.id);
+
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+    await logAudit('CERTIFICATE_DELETED', req.user, req.params.id, {
+      studentName: cert.studentName, certificateNumber: cert.certificateNumber,
+    }, ip);
+
     res.json({ success: true, message: 'Certificate deleted' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

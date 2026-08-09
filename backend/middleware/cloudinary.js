@@ -24,6 +24,33 @@ const makeUpload = (folder, resourceType = 'image') => {
   return multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 };
 
+// PNG-ONLY upload for results and certificates
+const pngOnlyFilter = (req, file, cb) => {
+  const ext = file.originalname.split('.').pop().toLowerCase();
+  const mime = file.mimetype.toLowerCase();
+  if (ext === 'png' && mime === 'image/png') {
+    cb(null, true);
+  } else {
+    cb(new Error('ONLY_PNG_ALLOWED: Only PNG files are accepted for results and certificates.'));
+  }
+};
+
+const makePngUpload = (folder) => {
+  const storage = new CloudinaryStorage({
+    cloudinary,
+    params: async (req, file) => ({
+      folder: `kci/${folder}`,
+      resource_type: 'image',
+      allowed_formats: ['png'],
+      format: 'png',
+    }),
+  });
+  return multer({ storage, fileFilter: pngOnlyFilter, limits: { fileSize: 10 * 1024 * 1024 } });
+};
+
+const uploadResultPng = makePngUpload('results');
+const uploadCertificatePng = makePngUpload('certificates');
+
 const uploadStudent  = makeUpload('students');
 const uploadStaff    = makeUpload('staff');
 const uploadDocument = makeUpload('documents', 'raw');
@@ -55,4 +82,4 @@ const deleteFromCloudinary = async (url) => {
   } catch (_) {}
 };
 
-module.exports = { uploadStudent, uploadGallery, uploadStaff, uploadDocument, uploadGeneral, deleteFromCloudinary, uploadToCloudinary, cloudinary };
+module.exports = { uploadStudent, uploadGallery, uploadStaff, uploadDocument, uploadGeneral, uploadResultPng, uploadCertificatePng, deleteFromCloudinary, uploadToCloudinary, cloudinary };

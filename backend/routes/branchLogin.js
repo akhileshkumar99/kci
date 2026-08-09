@@ -466,22 +466,73 @@ router.get('/results', protect, branchAuth, async (req, res) => {
   }
 });
 
-// Branch: Add result
-router.post('/results', protect, branchAuth, async (req, res) => {
+// Branch: Add result (PNG ONLY)
+const { uploadResultPng } = require('../middleware/cloudinary');
+
+const handleResultPngUpload = (req, res, next) => {
+  uploadResultPng.single('resultFile')(req, res, (err) => {
+    if (err) {
+      const msg = err.message?.includes('ONLY_PNG_ALLOWED')
+        ? 'Only PNG files are accepted for results. Please upload a PNG image.'
+        : err.message || 'File upload error';
+      return res.status(400).json({ success: false, message: msg });
+    }
+    next();
+  });
+};
+
+router.post('/results', protect, branchAuth, handleResultPngUpload, async (req, res) => {
   try {
     const Result = require('../models/Result');
-    const result = await Result.create(req.body);
+    const AuditLog = require('../models/AuditLog');
+    const data = { ...req.body };
+    if (req.file) {
+      data.resultFile = req.file.path;
+      data.isApproved = true;
+      data.isPublished = true;
+    }
+    data.uploadedBy = req.user._id;
+    data.uploadedByRole = req.user.role;
+    if (!data.branchId) data.branchId = req.user._id;
+    const result = await Result.create(data);
+    try {
+      const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+      await AuditLog.create({
+        action: 'RESULT_UPLOADED', performedBy: req.user._id, performedByName: req.user.name,
+        performedByRole: req.user.role, branchId: req.user._id,
+        targetId: result._id, targetModel: 'Result',
+        details: { studentName: result.studentName, rollNumber: result.rollNumber }, ip,
+      });
+    } catch (_) {}
     res.status(201).json({ success: true, result });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// Branch: Update result
-router.put('/results/:id', protect, branchAuth, async (req, res) => {
+// Branch: Update result (PNG ONLY)
+router.put('/results/:id', protect, branchAuth, handleResultPngUpload, async (req, res) => {
   try {
     const Result = require('../models/Result');
-    const result = await Result.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const existing = await Result.findById(req.params.id);
+    if (!existing) return res.status(404).json({ success: false, message: 'Not found' });
+    // Branch ownership check
+    if (req.user.role === 'branch') {
+      const students = await User.find({ role: 'student', branchId: req.user._id }).select('_id rollNumber');
+      const ids = students.map(s => s._id.toString());
+      const rolls = students.map(s => s.rollNumber).filter(Boolean);
+      const isOwned = (existing.branchId?.toString() === req.user._id.toString()) ||
+        (existing.studentId && ids.includes(existing.studentId.toString())) ||
+        (existing.rollNumber && rolls.includes(existing.rollNumber));
+      if (!isOwned) return res.status(403).json({ success: false, message: 'Access denied: not your branch result' });
+    }
+    const data = { ...req.body };
+    if (req.file) {
+      data.resultFile = req.file.path;
+      data.isApproved = true;
+      data.isPublished = true;
+    }
+    const result = await Result.findByIdAndUpdate(req.params.id, data, { new: true });
     if (!result) return res.status(404).json({ success: false, message: 'Not found' });
     res.json({ success: true, result });
   } catch (err) {
@@ -506,6 +557,18 @@ router.put('/results/:id/approve', protect, branchAuth, async (req, res) => {
 router.delete('/results/:id', protect, branchAuth, async (req, res) => {
   try {
     const Result = require('../models/Result');
+    const existing = await Result.findById(req.params.id);
+    if (!existing) return res.status(404).json({ success: false, message: 'Not found' });
+    // Branch ownership check
+    if (req.user.role === 'branch') {
+      const students = await User.find({ role: 'student', branchId: req.user._id }).select('_id rollNumber');
+      const ids = students.map(s => s._id.toString());
+      const rolls = students.map(s => s.rollNumber).filter(Boolean);
+      const isOwned = (existing.branchId?.toString() === req.user._id.toString()) ||
+        (existing.studentId && ids.includes(existing.studentId.toString())) ||
+        (existing.rollNumber && rolls.includes(existing.rollNumber));
+      if (!isOwned) return res.status(403).json({ success: false, message: 'Access denied: not your branch result' });
+    }
     await Result.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'Result deleted' });
   } catch (err) {
@@ -558,9 +621,22 @@ router.get('/certificates/next-number', protect, branchAuth, async (req, res) =>
   }
 });
 
-// Branch: Add certificate (with optional file upload)
-const { uploadDocument } = require('../middleware/cloudinary');
-router.post('/certificates', protect, branchAuth, uploadDocument.single('certificateFile'), async (req, res) => {
+// Branch: Add certificate (PNG ONLY)
+const { uploadCertificatePng } = require('../middleware/cloudinary');
+
+const handleCertPngUpload = (req, res, next) => {
+  uploadCertificatePng.single('certificateFile')(req, res, (err) => {
+    if (err) {
+      const msg = err.message?.includes('ONLY_PNG_ALLOWED')
+        ? 'Only PNG files are accepted for certificates. Please upload a PNG image.'
+        : err.message || 'File upload error';
+      return res.status(400).json({ success: false, message: msg });
+    }
+    next();
+  });
+};
+
+router.post('/certificates', protect, branchAuth, handleCertPngUpload, async (req, res) => {
   try {
     const Certificate = require('../models/Certificate');
     const Notification = require('../models/Notification');
@@ -604,8 +680,8 @@ router.post('/certificates', protect, branchAuth, uploadDocument.single('certifi
   }
 });
 
-// Branch: Update certificate (with optional file upload)
-router.put('/certificates/:id', protect, branchAuth, uploadDocument.single('certificateFile'), async (req, res) => {
+// Branch: Update certificate (PNG ONLY)
+router.put('/certificates/:id', protect, branchAuth, handleCertPngUpload, async (req, res) => {
   try {
     const Certificate = require('../models/Certificate');
     const data = { ...req.body };
@@ -638,6 +714,22 @@ router.put('/certificates/:id/approve', protect, branchAuth, async (req, res) =>
 router.delete('/certificates/:id', protect, branchAuth, async (req, res) => {
   try {
     const Certificate = require('../models/Certificate');
+    const existing = await Certificate.findById(req.params.id);
+    if (!existing) return res.status(404).json({ success: false, message: 'Not found' });
+    // Branch ownership check
+    if (req.user.role === 'branch') {
+      const students = await User.find({ role: 'student', branchId: req.user._id }).select('_id rollNumber enrollmentNumber formNo');
+      const ids = students.map(s => s._id.toString());
+      const rolls = students.map(s => s.rollNumber).filter(Boolean);
+      const enrolNos = students.map(s => s.enrollmentNumber).filter(Boolean);
+      const formNos = students.map(s => s.formNo).filter(Boolean);
+      const isOwned = (existing.branchId?.toString() === req.user._id.toString()) ||
+        (existing.student && ids.includes(existing.student.toString())) ||
+        (existing.rollNumber && rolls.includes(existing.rollNumber)) ||
+        (existing.enrollmentNumber && enrolNos.includes(existing.enrollmentNumber)) ||
+        (existing.formNo && formNos.includes(existing.formNo));
+      if (!isOwned) return res.status(403).json({ success: false, message: 'Access denied: not your branch certificate' });
+    }
     await Certificate.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'Certificate deleted' });
   } catch (err) {
