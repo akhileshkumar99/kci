@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Mail, Lock, Eye, EyeOff, ShieldCheck, GraduationCap, Building2, ArrowRight, BookOpen, Users, Award } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import api from '../utils/api';
 
 const roles = [
   { id: 'student', label: 'Student', icon: GraduationCap, color: 'from-blue-500 to-blue-600', desc: 'View results & certificates' },
@@ -18,42 +17,21 @@ export default function Login() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [focused, setFocused] = useState('');
-  const [serverReady, setServerReady] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
-
-  // Ping backend on page load to warm it up
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      while (alive) {
-        try {
-          await api.get('/auth/ping');
-          if (alive) setServerReady(true);
-          return;
-        } catch {
-          await new Promise(r => setTimeout(r, 3000));
-        }
-      }
-    })();
-    return () => { alive = false; };
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.email || !form.password) return toast.error('Please fill all fields');
     setLoading(true);
-    const tid = toast.loading('Signing in...');
     try {
       const user = await login(form.email, form.password, activeRole);
-      toast.dismiss(tid);
       toast.success(`Welcome, ${user.name}!`);
       if (user.role === 'admin') navigate('/admin');
       else if (user.role === 'branch') navigate('/branch-dashboard');
       else if (user.role === 'student') navigate('/student-dashboard');
       else navigate('/');
     } catch (err) {
-      toast.dismiss(tid);
       toast.error(err.response?.data?.message || 'Invalid credentials');
     }
     setLoading(false);
@@ -150,7 +128,6 @@ export default function Login() {
             </AnimatePresence>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Email */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                   {activeRole === 'student' ? 'Form Number / Email' : 'Email Address'}
@@ -165,7 +142,6 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* Password */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
                 <div className="relative">
@@ -181,16 +157,14 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* Submit */}
               <motion.button type="submit" disabled={loading} whileHover={{ scale: loading ? 1 : 1.02 }} whileTap={{ scale: 0.98 }}
                 className={`w-full py-4 rounded-xl text-white font-black text-sm flex items-center justify-center gap-2.5 shadow-lg transition-all bg-gradient-to-r ${roleConfig.color} disabled:opacity-70`}>
                 {loading
-                  ? <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Please wait...</>
+                  ? <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Logging in...</>
                   : <><roleConfig.icon className="w-4 h-4" /> Login as {roleConfig.label} <ArrowRight className="w-4 h-4" /></>}
               </motion.button>
             </form>
 
-            {/* Demo Credentials */}
             <div className="mt-5 p-4 bg-blue-50 rounded-2xl border border-blue-100">
               <p className="text-xs font-bold text-blue-700 mb-2">🔑 Demo Credentials:</p>
               <div className="space-y-1 text-xs text-blue-600">
@@ -198,15 +172,13 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Links */}
             <div className="mt-5 flex items-center justify-center text-xs">
               <Link to="/branch-apply" className="text-indigo-600 hover:underline font-semibold">Apply for Branch</Link>
-
             </div>
 
             <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${serverReady ? 'bg-green-400 animate-pulse' : 'bg-yellow-400 animate-pulse'}`} />
-              <p className="text-xs text-gray-400">{serverReady ? 'Server connected' : 'Connecting to server...'}</p>
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              <p className="text-xs text-gray-400">Secure encrypted connection</p>
             </div>
           </div>
         </motion.div>
