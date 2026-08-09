@@ -10,7 +10,7 @@ const certificateSchema = new mongoose.Schema(
     studentName: { type: String, required: true },
     course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
     courseName: { type: String, required: true },
-    certificateNumber: { type: String, required: true, unique: true, index: true },
+    certificateNumber: { type: String, required: true, unique: true },
     issueDate: { type: Date, required: true },
     grade: { type: String },
     certificateFile: { type: String }, // PNG URL
