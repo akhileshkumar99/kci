@@ -289,37 +289,117 @@ export default function Home() {
       {/* Hero */}
       <section className="relative min-h-[100svh] flex items-center overflow-hidden">
         {/* Background Image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/hero-bg.jpg')" }}
-        />
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-blue-800/10 to-blue-600/10" />
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/hero-bg.jpg')" }} />
+        {/* Premium dark overlay with gradient */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(8,29,91,0.85) 0%, rgba(15,40,110,0.75) 50%, rgba(30,27,75,0.80) 100%)' }} />
+        {/* Animated orbs */}
+        <motion.div animate={{ scale: [1,1.3,1], opacity: [0.15,0.3,0.15] }} transition={{ duration: 8, repeat: Infinity }}
+          className="absolute top-1/4 right-1/4 w-96 h-96 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%)' }} />
+        <motion.div animate={{ scale: [1,1.2,1], opacity: [0.1,0.25,0.1] }} transition={{ duration: 10, repeat: Infinity, delay: 3 }}
+          className="absolute bottom-1/4 left-1/4 w-80 h-80 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 70%)' }} />
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 grid lg:grid-cols-2 gap-12 items-center">
           <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-white text-sm mb-6">
-              <Award className="w-4 h-4 text-yellow-400" />
+            {/* Badge */}
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-white text-sm mb-6 border border-white/20"
+              style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
+              <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}>
+                <Award className="w-4 h-4 text-yellow-400" />
+              </motion.div>
               <span className="font-bold">Government Recognized Institute</span>
-            </div>
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+              <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+            </motion.div>
+
+            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+              className="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
               Shape Your Future with
-              <span className="text-yellow-400"> Digital Skills</span>
-            </h1>
-            <p className="text-white text-base sm:text-lg mb-8 leading-relaxed font-bold">
-              Join Keerti Computer Institute — most trusted computer training center with 18+ years of excellence, 10,000+ successful students, and 25+ industry-relevant courses.
-            </p>
-            <div className="flex flex-wrap gap-3 sm:gap-4">
-              <Link to="/admission" className="px-6 sm:px-8 py-3 sm:py-3.5 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold rounded-xl transition-all duration-200 hover:scale-105 shadow-lg text-sm sm:text-base">
-                Apply for Admission
-              </Link>
-              <Link to="/courses" className="px-6 sm:px-8 py-3 sm:py-3.5 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/30 transition-all duration-200 flex items-center gap-2 text-sm sm:text-base">
-                <span className="font-bold">Explore Courses</span> <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+              <motion.span
+                animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
+                transition={{ duration: 4, repeat: Infinity }}
+                className="block"
+                style={{ background: 'linear-gradient(90deg, #fbbf24, #f59e0b, #fcd34d, #fbbf24)', backgroundSize: '200% 100%', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                Digital Skills
+              </motion.span>
+            </motion.h1>
+
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+              className="text-white/80 text-base sm:text-lg mb-8 leading-relaxed">
+              Join Keerti Computer Institute — most trusted computer training center with <span className="text-yellow-300 font-bold">18+ years</span> of excellence, <span className="text-yellow-300 font-bold">10,000+</span> successful students, and <span className="text-yellow-300 font-bold">25+</span> industry-relevant courses.
+            </motion.p>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+              className="flex flex-wrap gap-3 sm:gap-4">
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+                <Link to="/admission"
+                  className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 font-black rounded-xl shadow-lg text-sm sm:text-base"
+                  style={{ background: 'linear-gradient(135deg,#fbbf24,#f59e0b)', color: '#1e1b4b', boxShadow: '0 8px 32px rgba(251,191,36,0.4)' }}>
+                  Apply for Admission <ArrowRight className="w-4 h-4" />
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+                <Link to="/courses"
+                  className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-white font-bold rounded-xl border border-white/30 text-sm sm:text-base transition-all"
+                  style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
+                  Explore Courses <ArrowRight className="w-4 h-4" />
+                </Link>
+              </motion.div>
+            </motion.div>
+
+            {/* Mini stats row */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
+              className="flex flex-wrap gap-4 mt-8">
+              {[['10K+','Students'],['25+','Courses'],['18+','Years'],['95%','Placement']].map(([val, lbl]) => (
+                <div key={lbl} className="text-center">
+                  <div className="text-xl font-black text-yellow-300">{val}</div>
+                  <div className="text-white/50 text-[10px] font-bold uppercase tracking-wide">{lbl}</div>
+                </div>
+              ))}
+            </motion.div>
+          </motion.div>
+
+          {/* Right side floating card */}
+          <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.3 }}
+            className="hidden lg:flex flex-col gap-4">
+            {[
+              { icon: GraduationCap, title: 'DCA / ADCA', desc: 'Diploma in Computer Application', color: '#6366f1' },
+              { icon: Award, title: 'Tally with GST', desc: 'Professional Accounting Course', color: '#10b981' },
+              { icon: BookOpen, title: 'Web Design', desc: 'HTML, CSS, JavaScript & More', color: '#f59e0b' },
+            ].map(({ icon: Icon, title, desc, color }, i) => (
+              <motion.div key={title}
+                initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 + i * 0.15 }}
+                whileHover={{ x: -8, scale: 1.02 }}
+                className="flex items-center gap-4 p-4 rounded-2xl border border-white/10 cursor-pointer"
+                style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)' }}>
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${color}30`, border: `1px solid ${color}50` }}>
+                  <Icon className="w-6 h-6" style={{ color }} />
+                </div>
+                <div>
+                  <div className="text-white font-black text-sm">{title}</div>
+                  <div className="text-white/50 text-xs">{desc}</div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-white/30 ml-auto" />
+              </motion.div>
+            ))}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
+              className="text-center text-white/40 text-xs font-semibold">+ 22 more courses available</motion.div>
           </motion.div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-16 bg-white" style={{ clipPath: 'ellipse(55% 100% at 50% 100%)' }} />
       </section>
+
+      {/* Premium Marquee Ticker */}
+      <div className="overflow-hidden py-3" style={{ background: 'linear-gradient(90deg, #081d5b, #1a3a8f, #081d5b)' }}>
+        <div className="animate-marquee flex items-center gap-0">
+          {[...notices, ...notices].map((n, i) => (
+            <span key={i} className="text-sm font-semibold px-6 whitespace-nowrap text-white/90 border-r border-white/20 last:border-r-0 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full" />{n}
+            </span>
+          ))}
+        </div>
+      </div>
 
       {/* Stats Mobile */}
       <section className="lg:hidden bg-white py-10">
@@ -334,22 +414,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Counters */}
+      {/* Premium Counters */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
             {counterData.map(({ icon: Icon, label, value, suffix, color, bg, border }, i) => (
               <motion.div key={label}
-                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                whileHover={{ y: -6, scale: 1.04 }}
-                className={`bg-white rounded-2xl p-6 text-center border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 cursor-default ${bg} ${border}`}>
-                <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-md`}>
+                initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                whileHover={{ y: -8, scale: 1.05 }}
+                className={`relative bg-white rounded-2xl p-6 text-center border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300 cursor-default overflow-hidden ${bg} ${border}`}>
+                <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300"
+                  style={{ background: `linear-gradient(135deg, transparent 60%, rgba(99,102,241,0.05) 100%)` }} />
+                <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg`}>
                   <Icon className="w-7 h-7 text-white" />
                 </div>
                 <div className="text-3xl font-extrabold text-gray-950 mb-1">
                   <Counter value={value} suffix={suffix} />
                 </div>
-                <div className="text-sm text-gray-700 font-semibold">{label}</div>
+                <div className="text-sm text-gray-600 font-semibold">{label}</div>
+                <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                  initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 + 0.3, duration: 0.6 }}
+                  style={{ background: `linear-gradient(90deg, transparent, currentColor, transparent)` }} />
               </motion.div>
             ))}
           </div>

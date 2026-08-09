@@ -1362,8 +1362,8 @@ export default function StudentDashboard() {
             {/* Drawer Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center">
-                  <GraduationCap className="w-5 h-5 text-white" />
+                <div className="w-9 h-9 rounded-xl overflow-hidden border border-white/20 shrink-0">
+                  <img src="/logo.png" alt="KCI" className="w-full h-full object-cover" />
                 </div>
                 <div>
                   <div className="text-white font-black text-sm leading-tight">KCI Student Portal</div>
@@ -1470,77 +1470,101 @@ export default function StudentDashboard() {
         {/* Profile Tab */}
         {activeTab === 'profile' && (
           <div className="space-y-5">
-            {/* Profile Hero Card */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              className="relative bg-gradient-to-br from-blue-700 via-indigo-700 to-violet-700 rounded-3xl overflow-hidden shadow-2xl">
-              {/* BG decorations */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full translate-x-1/3 -translate-y-1/3" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -translate-x-1/3 translate-y-1/3" />
-              <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-white/3 rounded-full -translate-x-1/2 -translate-y-1/2" />
+            {/* PREMIUM Profile Hero Card */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+              className="relative rounded-3xl overflow-hidden shadow-2xl"
+              style={{ background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)' }}>
+              {/* Animated BG orbs */}
+              <motion.div animate={{ scale: [1,1.2,1], opacity: [0.3,0.5,0.3] }} transition={{ duration: 6, repeat: Infinity }}
+                className="absolute top-0 right-0 w-72 h-72 rounded-full -translate-y-1/3 translate-x-1/3"
+                style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%)' }} />
+              <motion.div animate={{ scale: [1,1.3,1], opacity: [0.2,0.4,0.2] }} transition={{ duration: 8, repeat: Infinity, delay: 2 }}
+                className="absolute bottom-0 left-0 w-56 h-56 rounded-full translate-y-1/3 -translate-x-1/3"
+                style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.4) 0%, transparent 70%)' }} />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.3) 100%)' }} />
 
               <div className="relative p-6 sm:p-8">
+                {/* Top badge */}
+                <div className="flex items-center justify-between mb-5">
+                  <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
+                    className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-3 py-1.5">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                    <span className="text-white/80 text-xs font-bold uppercase tracking-widest">Student Portal</span>
+                  </motion.div>
+                  <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
+                    className={`px-3 py-1.5 rounded-full text-xs font-black border ${
+                      student?.isApproved ? 'bg-green-400/20 border-green-400/40 text-green-300' : 'bg-yellow-400/20 border-yellow-400/40 text-yellow-300'
+                    }`}>
+                    {student?.isApproved ? '✓ Approved' : '⏳ Pending'}
+                  </motion.div>
+                </div>
+
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                  {/* Avatar */}
-                  <div className="relative shrink-0">
-                    <div className="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center shadow-2xl overflow-hidden">
+                  {/* Avatar with ring animation */}
+                  <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+                    className="relative shrink-0">
+                    <div className="absolute inset-0 rounded-full animate-ping opacity-20" style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', borderRadius: '1rem', animationDuration: '3s' }} />
+                    <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-white/30 shadow-2xl"
+                      style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
                       {student?.photo
                         ? <img src={student.photo} alt={student.name} className="w-full h-full object-cover" />
-                        : <span className="text-4xl font-black text-white">{student?.name?.[0]?.toUpperCase() || 'S'}</span>
+                        : <span className="w-full h-full flex items-center justify-center text-4xl font-black text-white">{student?.name?.[0]?.toUpperCase() || 'S'}</span>
                       }
                     </div>
-                    <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-green-400 rounded-xl border-2 border-white flex items-center justify-center">
-                      <CheckCircle className="w-3.5 h-3.5 text-white" />
-                    </div>
-                  </div>
+                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+                      className="absolute -bottom-1 -right-1 w-8 h-8 rounded-xl flex items-center justify-center"
+                      style={{ background: 'linear-gradient(135deg,#10b981,#059669)', border: '2px solid rgba(255,255,255,0.3)' }}>
+                      <CheckCircle className="w-4 h-4 text-white" />
+                    </motion.div>
+                  </motion.div>
 
                   {/* Name + info */}
                   <div className="flex-1 text-center sm:text-left">
-                    <div className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-1">Student Profile</div>
-                    <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-2">{student?.name}</h2>
-                    <div className="flex flex-wrap justify-center sm:justify-start gap-2 mb-4">
-                      <span className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20">
-                        <GraduationCap className="w-3.5 h-3.5" /> {student?.courseName || 'N/A'}
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                      <div className="text-white/50 text-xs font-bold uppercase tracking-widest mb-1">Student Profile</div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-3" style={{ textShadow: '0 2px 20px rgba(99,102,241,0.5)' }}>{student?.name}</h2>
+                    </motion.div>
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+                      className="flex flex-wrap justify-center sm:justify-start gap-2 mb-4">
+                      <span className="flex items-center gap-1.5 text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
+                        <GraduationCap className="w-3.5 h-3.5 text-violet-300" /> {student?.courseName || 'N/A'}
                       </span>
-                      <span className="flex items-center gap-1.5 bg-yellow-400/20 backdrop-blur-sm text-yellow-300 text-xs font-bold px-3 py-1.5 rounded-xl border border-yellow-400/30 font-mono">
+                      <span className="flex items-center gap-1.5 text-yellow-300 text-xs font-bold px-3 py-1.5 rounded-xl border border-yellow-400/30 font-mono" style={{ background: 'rgba(250,204,21,0.1)', backdropFilter: 'blur(10px)' }}>
                         <BookOpen className="w-3.5 h-3.5" /> {student?.rollNumber || 'N/A'}
                       </span>
                       {student?.batch && (
-                        <span className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20">
-                          <Calendar className="w-3.5 h-3.5" /> Batch {student.batch}
+                        <span className="flex items-center gap-1.5 text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
+                          <Calendar className="w-3.5 h-3.5 text-blue-300" /> Batch {student.batch}
                         </span>
                       )}
                       {student?.fatherName && (
-                        <span className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20">
-                          <Users className="w-3.5 h-3.5" /> {student.fatherName}
+                        <span className="flex items-center gap-1.5 text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
+                          <Users className="w-3.5 h-3.5 text-pink-300" /> {student.fatherName}
                         </span>
                       )}
-                    </div>
-                    {/* Quick stats */}
-                    <div className="flex flex-wrap justify-center sm:justify-start gap-4">
+                    </motion.div>
+                    {/* Animated stats */}
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+                      className="flex flex-wrap justify-center sm:justify-start gap-5">
                       {[
-                        { label: 'Results', value: results.length, color: 'text-yellow-300' },
-                        { label: 'Certificates', value: certificates.filter(c => c.certificateFile).length, color: 'text-emerald-300' },
-                        { label: 'Tests', value: tests.length, color: 'text-violet-300' },
-                      ].map(({ label, value, color }) => (
-                        <div key={label} className="text-center">
-                          <div className={`text-2xl font-black ${color}`}>{value}</div>
-                          <div className="text-white/50 text-[10px] font-semibold uppercase tracking-wide">{label}</div>
-                        </div>
+                        { label: 'Results', value: results.length, color: '#fbbf24', icon: '📊' },
+                        { label: 'Certificates', value: certificates.filter(c => c.certificateFile).length, color: '#34d399', icon: '🏆' },
+                        { label: 'Tests', value: tests.length, color: '#a78bfa', icon: '📝' },
+                      ].map(({ label, value, color, icon }, i) => (
+                        <motion.div key={label} initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 + i * 0.1, type: 'spring' }}
+                          className="text-center">
+                          <div className="text-2xl font-black" style={{ color }}>{value}</div>
+                          <div className="text-white/50 text-[10px] font-bold uppercase tracking-wide">{label}</div>
+                        </motion.div>
                       ))}
-                    </div>
-                  </div>
-
-                  {/* Status badge */}
-                  <div className="shrink-0">
-                    <div className={`px-4 py-2 rounded-2xl text-sm font-black border-2 ${
-                      student?.isApproved
-                        ? 'bg-green-400/20 border-green-400/50 text-green-300'
-                        : 'bg-yellow-400/20 border-yellow-400/50 text-yellow-300'
-                    }`}>
-                      {student?.isApproved ? '✓ Approved' : '⏳ Pending'}
-                    </div>
+                    </motion.div>
                   </div>
                 </div>
+
+                {/* Bottom shimmer line */}
+                <motion.div animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }} transition={{ duration: 3, repeat: Infinity }}
+                  className="mt-5 h-0.5 rounded-full"
+                  style={{ background: 'linear-gradient(90deg, transparent, #6366f1, #8b5cf6, #ec4899, transparent)', backgroundSize: '200% 100%' }} />
               </div>
             </motion.div>
 
@@ -1732,24 +1756,34 @@ export default function StudentDashboard() {
 
             {/* Quick Actions */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <h3 className="font-black text-gray-900 mb-4 text-sm uppercase tracking-wide">Quick Actions</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-7 gap-2 sm:gap-3">
+              className="rounded-2xl overflow-hidden shadow-sm border border-gray-100"
+              style={{ background: 'linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%)' }}>
+              <div className="px-5 pt-5 pb-3 flex items-center gap-2">
+                <div className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#6366f1,#8b5cf6)' }} />
+                <h3 className="font-black text-gray-900 text-sm uppercase tracking-wide">Quick Actions</h3>
+              </div>
+              <div className="p-4 grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3">
                 {[
-                  { label: 'Exam Form', icon: FileText, color: 'from-blue-500 to-blue-600', tab: 'examform' },
-                  { label: 'View ID Card', icon: CreditCard, color: 'from-cyan-500 to-blue-600', tab: 'idcard' },
-                  { label: 'Admit Card', icon: FileText, color: 'from-indigo-500 to-indigo-600', tab: 'admitcard' },
-                  { label: 'My Results', icon: Award, color: 'from-yellow-500 to-orange-500', tab: 'results' },
-                  { label: 'Certificates', icon: Award, color: 'from-teal-500 to-emerald-600', tab: 'certificates' },
-                  { label: 'Study Material', icon: BookMarked, color: 'from-green-500 to-green-600', tab: 'studymaterial' },
-                  { label: 'Take Test', icon: ClipboardCheck, color: 'from-violet-500 to-purple-600', tab: 'tests' },
-                  { label: 'Change Password', icon: Lock, color: 'from-rose-500 to-red-600', tab: 'changepassword' },
-                ].map(({ label, icon: Icon, color, tab }) => (
-                  <button key={label} onClick={() => setActiveTab(tab)}
-                    className={`flex flex-col items-center gap-2 p-4 bg-gradient-to-br ${color} rounded-2xl text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all`}>
-                    <Icon className="w-6 h-6" />
+                  { label: 'Exam Form', icon: FileText, grad: 'linear-gradient(135deg,#3b82f6,#1d4ed8)', shadow: 'rgba(59,130,246,0.4)', tab: 'examform' },
+                  { label: 'ID Card', icon: CreditCard, grad: 'linear-gradient(135deg,#06b6d4,#0284c7)', shadow: 'rgba(6,182,212,0.4)', tab: 'idcard' },
+                  { label: 'Admit Card', icon: FileText, grad: 'linear-gradient(135deg,#6366f1,#4338ca)', shadow: 'rgba(99,102,241,0.4)', tab: 'admitcard' },
+                  { label: 'Results', icon: Award, grad: 'linear-gradient(135deg,#f59e0b,#d97706)', shadow: 'rgba(245,158,11,0.4)', tab: 'results' },
+                  { label: 'Certificates', icon: Award, grad: 'linear-gradient(135deg,#10b981,#059669)', shadow: 'rgba(16,185,129,0.4)', tab: 'certificates' },
+                  { label: 'Study', icon: BookMarked, grad: 'linear-gradient(135deg,#22c55e,#16a34a)', shadow: 'rgba(34,197,94,0.4)', tab: 'studymaterial' },
+                  { label: 'Tests', icon: ClipboardCheck, grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', shadow: 'rgba(139,92,246,0.4)', tab: 'tests' },
+                  { label: 'Password', icon: Lock, grad: 'linear-gradient(135deg,#f43f5e,#e11d48)', shadow: 'rgba(244,63,94,0.4)', tab: 'changepassword' },
+                ].map(({ label, icon: Icon, grad, shadow, tab }, i) => (
+                  <motion.button key={label} onClick={() => setActiveTab(tab)}
+                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.05 }}
+                    whileHover={{ y: -4, scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                    className="flex flex-col items-center gap-2 p-4 rounded-2xl text-white relative overflow-hidden"
+                    style={{ background: grad, boxShadow: `0 8px 24px ${shadow}` }}>
+                    <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity" style={{ background: 'rgba(255,255,255,0.1)' }} />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                      <Icon className="w-5 h-5" />
+                    </div>
                     <span className="text-xs font-bold text-center leading-tight">{label}</span>
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </motion.div>
