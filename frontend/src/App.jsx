@@ -21,6 +21,7 @@ const Staff = lazy(() => import('./pages/Staff'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Register = lazy(() => import('./pages/Register'));
 const CertificateVerify = lazy(() => import('./pages/CertificateVerify'));
+const Result = lazy(() => import('./pages/Result'));
 const StudyMaterial = lazy(() => import('./pages/StudyMaterial'));
 const IDCard = lazy(() => import('./pages/IDCard'));
 const Notifications = lazy(() => import('./pages/Notifications'));
@@ -248,6 +249,7 @@ export default function App() {
           <Route path="/login" element={<PublicLayout><Login /></PublicLayout>} />
           <Route path="/register" element={<PublicLayout><Register /></PublicLayout>} />
           <Route path="/verify-certificate" element={<PublicLayout><CertificateVerify /></PublicLayout>} />
+          <Route path="/result" element={<PublicLayout><Result /></PublicLayout>} />
           <Route path="/gallery" element={<PublicLayout><Gallery /></PublicLayout>} />
           <Route path="/branches" element={<PublicLayout><Branches /></PublicLayout>} />
           <Route path="/staff" element={<PublicLayout><Staff /></PublicLayout>} />
