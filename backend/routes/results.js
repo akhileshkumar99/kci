@@ -14,8 +14,8 @@ const branchAuth = (req, res, next) => {
 const handlePngUpload = (req, res, next) => {
   uploadResultPng.single('resultFile')(req, res, (err) => {
     if (err) {
-      const msg = err.message?.includes('ONLY_PNG_ALLOWED')
-        ? 'Only PNG files are accepted for results. Please upload a PNG image.'
+      const msg = err.message?.includes('ONLY_IMAGE_ALLOWED')
+        ? 'Only PNG, JPG, JPEG files are accepted for results.'
         : err.message || 'File upload error';
       return res.status(400).json({ success: false, message: msg });
     }

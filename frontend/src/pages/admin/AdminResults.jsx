@@ -120,8 +120,8 @@ function ResultModal({ title, form, setForm, students, saving, onSubmit, onClose
 
           {/* File Upload */}
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Result File (PDF / PNG / JPEG)</label>
-            <input type="file" accept=".pdf,.png,.jpg,.jpeg"
+            <label className="block text-xs font-medium text-gray-700 mb-1">Result File (PNG / JPG / JPEG)</label>
+            <input type="file" accept=".png,.jpg,.jpeg"
               onChange={e => setForm(f => ({ ...f, resultFile: e.target.files[0] }))}
               className="w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-blue-50 file:text-blue-700 file:font-semibold hover:file:bg-blue-100 cursor-pointer" />
             {form.resultFile && typeof form.resultFile === 'string' && (

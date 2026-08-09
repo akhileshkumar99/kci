@@ -24,14 +24,14 @@ const makeUpload = (folder, resourceType = 'image') => {
   return multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 };
 
-// PNG-ONLY upload for results and certificates
-const pngOnlyFilter = (req, file, cb) => {
+// PNG/JPG/JPEG upload for results and certificates
+const imageOnlyFilter = (req, file, cb) => {
   const ext = file.originalname.split('.').pop().toLowerCase();
   const mime = file.mimetype.toLowerCase();
-  if (ext === 'png' && mime === 'image/png') {
+  if (['png', 'jpg', 'jpeg'].includes(ext) && mime.startsWith('image/')) {
     cb(null, true);
   } else {
-    cb(new Error('ONLY_PNG_ALLOWED: Only PNG files are accepted for results and certificates.'));
+    cb(new Error('ONLY_IMAGE_ALLOWED: Only PNG, JPG, JPEG files are accepted.'));
   }
 };
 
@@ -41,11 +41,10 @@ const makePngUpload = (folder) => {
     params: async (req, file) => ({
       folder: `kci/${folder}`,
       resource_type: 'image',
-      allowed_formats: ['png'],
-      format: 'png',
+      allowed_formats: ['png', 'jpg', 'jpeg'],
     }),
   });
-  return multer({ storage, fileFilter: pngOnlyFilter, limits: { fileSize: 10 * 1024 * 1024 } });
+  return multer({ storage, fileFilter: imageOnlyFilter, limits: { fileSize: 10 * 1024 * 1024 } });
 };
 
 const uploadResultPng = makePngUpload('results');
