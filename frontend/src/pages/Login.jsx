@@ -32,7 +32,8 @@ export default function Login() {
       else if (user.role === 'student') navigate('/student-dashboard');
       else navigate('/');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Invalid credentials');
+      const msg = err.response?.data?.message || err.message || 'Login failed. Please try again.';
+      toast.error(msg);
     }
     setLoading(false);
   };
