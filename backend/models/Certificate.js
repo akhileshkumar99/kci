@@ -27,7 +27,6 @@ const certificateSchema = new mongoose.Schema(
 );
 
 // Compound indexes
-certificateSchema.index({ certificateNumber: 1 }, { unique: true });
 certificateSchema.index({ branchId: 1, isApproved: 1 });
 certificateSchema.index({ student: 1, isApproved: 1 });
 
