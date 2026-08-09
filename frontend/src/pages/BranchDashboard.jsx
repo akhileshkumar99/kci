@@ -398,165 +398,171 @@ function getGrade(pct) {
 function ResultForm({ initial, students, onSave, onClose, saving }) {
   const isEdit = !!initial._id;
   const [form, setForm] = useState({
-    rollNumber: initial.rollNumber || '',
+    studentId: initial.studentId || '',
     studentName: initial.studentName || '',
+    fatherName: initial.fatherName || '',
     courseName: initial.courseName || '',
+    branch: initial.branch || '',
     batch: initial.batch || '',
-    totalMarks: initial.totalMarks || '',
-    obtainedMarks: initial.obtainedMarks || '',
-    percentage: initial.percentage || '',
-    grade: initial.grade || '',
-    status: initial.status || 'Pass',
+    rollNumber: initial.rollNumber || '',
+    formNo: initial.formNo || '',
     examDate: initial.examDate ? initial.examDate.slice(0, 10) : '',
+    uploadDate: initial.uploadDate ? initial.uploadDate.slice(0, 10) : '',
   });
-  const [subjects, setSubjects] = useState(() => {
-    if (initial.subjects?.length) return initial.subjects;
-    const subs = COURSE_SUBJECTS[initial.courseName] || [];
-    return subs.map(s => ({ name: s.name, maxMarks: s.maxMarks, obtainedMarks: '' }));
-  });
+  const [resultFile, setResultFile] = useState(null);
+  const [preview, setPreview] = useState(initial.resultFile || null);
+  const [query, setQuery] = useState(initial.studentName || '');
+  const [dropOpen, setDropOpen] = useState(false);
+  const dropRef = useRef(null);
 
-  // Auto-fill when roll number selected
-  const handleRollChange = (rollNumber) => {
-    const student = students.find(s => s.rollNumber === rollNumber);
-    if (student) {
-      const subs = COURSE_SUBJECTS[student.courseName] || [];
-      setSubjects(subs.map(s => ({ name: s.name, maxMarks: s.maxMarks, obtainedMarks: '' })));
-      setForm(p => ({
-        ...p,
-        rollNumber,
-        studentName: student.name,
-        courseName: student.courseName || '',
-        batch: student.batch || '',
-      }));
-    } else {
-      setForm(p => ({ ...p, rollNumber }));
-    }
-  };
+  useEffect(() => {
+    const handler = (e) => { if (dropRef.current && !dropRef.current.contains(e.target)) setDropOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
-  // Auto-fill subjects when course changes
-  const handleCourseChange = (courseName) => {
-    const subs = COURSE_SUBJECTS[courseName] || [];
-    setSubjects(subs.map(s => ({ name: s.name, maxMarks: s.maxMarks, obtainedMarks: '' })));
-    setForm(p => ({ ...p, courseName }));
-  };
+  const filteredStudents = query.trim()
+    ? students.filter(s =>
+        s.name?.toLowerCase().includes(query.toLowerCase()) ||
+        s.rollNumber?.toLowerCase().includes(query.toLowerCase()) ||
+        s.enrollmentNumber?.toLowerCase().includes(query.toLowerCase())
+      ).slice(0, 8)
+    : students.slice(0, 8);
 
-  // Recalculate totals when subject marks change
-  const handleSubjectMark = (idx, val) => {
-    const updated = subjects.map((s, i) => i === idx ? { ...s, obtainedMarks: val } : s);
-    setSubjects(updated);
-    const total = updated.reduce((a, s) => a + Number(s.maxMarks || 0), 0);
-    const obtained = updated.reduce((a, s) => a + Number(s.obtainedMarks || 0), 0);
-    const pct = total > 0 ? Math.round((obtained / total) * 100) : 0;
+  const selectStudent = (s) => {
+    setQuery(s.name);
+    setDropOpen(false);
     setForm(p => ({
       ...p,
-      totalMarks: total,
-      obtainedMarks: obtained,
-      percentage: pct,
-      grade: getGrade(pct),
-      status: pct >= 33 ? 'Pass' : 'Fail',
+      studentId: s._id,
+      studentName: s.name,
+      fatherName: s.fatherName || '',
+      courseName: s.courseName || '',
+      branch: s.branchName || '',
+      batch: s.batch || '',
+      rollNumber: s.rollNumber || '',
+      formNo: s.formNo || '',
     }));
   };
 
-  const addSubject = () => setSubjects(p => [...p, { name: '', maxMarks: 100, obtainedMarks: '' }]);
-  const removeSubject = (idx) => {
-    const updated = subjects.filter((_, i) => i !== idx);
-    setSubjects(updated);
-    const total = updated.reduce((a, s) => a + Number(s.maxMarks || 0), 0);
-    const obtained = updated.reduce((a, s) => a + Number(s.obtainedMarks || 0), 0);
-    const pct = total > 0 ? Math.round((obtained / total) * 100) : 0;
-    setForm(p => ({ ...p, totalMarks: total, obtainedMarks: obtained, percentage: pct, grade: getGrade(pct), status: pct >= 33 ? 'Pass' : 'Fail' }));
+  const handleFile = (file) => {
+    if (!file) return;
+    const allowed = ['image/png', 'image/jpeg', 'image/jpg'];
+    if (!allowed.includes(file.type)) {
+      toast.error('Only PNG, JPG, JPEG files are allowed');
+      return;
+    }
+    setResultFile(file);
+    setPreview(URL.createObjectURL(file));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave({ ...form, subjects });
-  };
-
-  const inp = 'w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all';
+  const inp = 'w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-500 bg-gray-50 focus:bg-white transition-all';
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Roll Number selector */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-gray-600">Enrollment Number *</label>
-          <select value={form.rollNumber} onChange={e => handleRollChange(e.target.value)} className={inp}>
-            <option value="">-- Select Student --</option>
-            {students.map(s => (
-              <option key={s._id} value={s.rollNumber}>{s.enrollmentNumber || s.rollNumber} — {s.name}</option>
+    <form onSubmit={e => { e.preventDefault(); onSave(form, resultFile); }} className="space-y-4">
+
+      {/* Student Search */}
+      <div ref={dropRef} className="space-y-1 relative">
+        <label className="text-xs font-semibold text-gray-600">Student Name *</label>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            value={query}
+            onChange={e => { setQuery(e.target.value); setDropOpen(true); }}
+            onFocus={() => setDropOpen(true)}
+            placeholder="Search student name or roll no..."
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-500 bg-gray-50 focus:bg-white transition-all"
+          />
+        </div>
+        {dropOpen && filteredStudents.length > 0 && (
+          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl max-h-48 overflow-y-auto">
+            {filteredStudents.map(s => (
+              <button key={s._id} type="button" onMouseDown={() => selectStudent(s)}
+                className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-yellow-50 text-left border-b border-gray-50 last:border-0">
+                <div className="w-7 h-7 rounded-lg bg-yellow-100 flex items-center justify-center shrink-0 text-yellow-700 font-black text-xs">
+                  {s.name?.[0]?.toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-gray-900 truncate">{s.name}</p>
+                  <p className="text-xs text-gray-400 truncate">{s.rollNumber} · {s.courseName}</p>
+                </div>
+              </button>
             ))}
-          </select>
+          </div>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <label className="text-xs font-semibold text-gray-600">Father's Name</label>
+          <input value={form.fatherName} onChange={e => setForm(p => ({ ...p, fatherName: e.target.value }))} className={inp} />
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-gray-600">Student Name *</label>
-          <input value={form.studentName} onChange={e => setForm(p => ({ ...p, studentName: e.target.value }))} placeholder="Auto-filled" className={inp} />
-        </div>
-        <div className="space-y-1 sm:col-span-2">
-          <label className="text-xs font-semibold text-gray-600">Course *</label>
-          <select value={form.courseName} onChange={e => handleCourseChange(e.target.value)} className={inp}>
-            <option value="">-- Select Course --</option>
+          <label className="text-xs font-semibold text-gray-600">Course</label>
+          <select value={form.courseName} onChange={e => setForm(p => ({ ...p, courseName: e.target.value }))} className={inp}>
+            <option value="">-- Select --</option>
             {COURSES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
           </select>
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-gray-600">Batch</label>
+          <label className="text-xs font-semibold text-gray-600">Branch</label>
+          <input value={form.branch} onChange={e => setForm(p => ({ ...p, branch: e.target.value }))} className={inp} />
+        </div>
+        <div className="space-y-1">
+          <label className="text-xs font-semibold text-gray-600">Session / Batch</label>
           <input value={form.batch} onChange={e => setForm(p => ({ ...p, batch: e.target.value }))} placeholder="e.g. 2024-25" className={inp} />
+        </div>
+        <div className="space-y-1">
+          <label className="text-xs font-semibold text-gray-600">Roll Number</label>
+          <input value={form.rollNumber} onChange={e => setForm(p => ({ ...p, rollNumber: e.target.value }))} placeholder="Auto-filled" className={inp} />
+        </div>
+        <div className="space-y-1">
+          <label className="text-xs font-semibold text-gray-600">Form No</label>
+          <input value={form.formNo} onChange={e => setForm(p => ({ ...p, formNo: e.target.value }))} placeholder="Auto-filled" className={inp} />
         </div>
         <div className="space-y-1">
           <label className="text-xs font-semibold text-gray-600">Exam Date</label>
           <input type="date" value={form.examDate} onChange={e => setForm(p => ({ ...p, examDate: e.target.value }))} className={inp} />
         </div>
-      </div>
-
-      {/* Subjects / Syllabus */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <label className="text-xs font-semibold text-gray-600">📚 Subjects / Syllabus</label>
-          <button type="button" onClick={addSubject} className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-semibold">
-            <Plus className="w-3.5 h-3.5" /> Add Subject
-          </button>
-        </div>
-        <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-          {subjects.length === 0 && (
-            <p className="text-xs text-gray-400 text-center py-3 border-2 border-dashed border-gray-200 rounded-xl">No subjects. Select a course or add manually.</p>
-          )}
-          {subjects.map((s, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <input value={s.name} onChange={e => setSubjects(p => p.map((x, j) => j === i ? { ...x, name: e.target.value } : x))}
-                placeholder="Subject name" className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-blue-500 bg-gray-50" />
-              <input type="number" value={s.maxMarks} onChange={e => setSubjects(p => p.map((x, j) => j === i ? { ...x, maxMarks: e.target.value } : x))}
-                placeholder="Max" className="w-16 px-2 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-blue-500 bg-gray-50 text-center" />
-              <input type="number" value={s.obtainedMarks} onChange={e => handleSubjectMark(i, e.target.value)}
-                placeholder="Got" className="w-16 px-2 py-2 border border-blue-200 rounded-xl text-xs focus:outline-none focus:border-blue-500 bg-blue-50 text-center" />
-              <button type="button" onClick={() => removeSubject(i)} className="p-1.5 text-red-400 hover:text-red-600">
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ))}
+        <div className="space-y-1">
+          <label className="text-xs font-semibold text-gray-600">Upload Date</label>
+          <input type="date" value={form.uploadDate} onChange={e => setForm(p => ({ ...p, uploadDate: e.target.value }))} className={inp} />
         </div>
       </div>
 
-      {/* Auto-calculated summary */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-gray-50 rounded-2xl p-4">
-        {[['Total Marks', form.totalMarks], ['Obtained', form.obtainedMarks], ['Percentage', form.percentage ? form.percentage + '%' : ''], ['Grade', form.grade]].map(([l, v]) => (
-          <div key={l} className="text-center">
-            <div className="text-xs text-gray-400 font-medium">{l}</div>
-            <div className="text-lg font-black text-gray-900">{v || '—'}</div>
+      {/* File Upload */}
+      <div className="space-y-2">
+        <label className="text-xs font-semibold text-gray-600">
+          Result File (PNG / JPG / JPEG) {!isEdit && <span className="text-red-500">*</span>}
+          {isEdit && <span className="text-gray-400 font-normal ml-1">(leave empty to keep existing)</span>}
+        </label>
+        <label
+          className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-yellow-400 hover:bg-yellow-50 transition-colors group"
+          onDragOver={e => e.preventDefault()}
+          onDrop={e => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); }}
+        >
+          <div className="w-9 h-9 bg-yellow-100 group-hover:bg-yellow-200 rounded-lg flex items-center justify-center shrink-0 transition-colors">
+            <Upload className="w-4 h-4 text-yellow-600" />
           </div>
-        ))}
-      </div>
-
-      {/* Status */}
-      <div className="flex items-center gap-3">
-        <label className="text-xs font-semibold text-gray-600">Status</label>
-        {['Pass', 'Fail'].map(s => (
-          <button key={s} type="button" onClick={() => setForm(p => ({ ...p, status: s }))}
-            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
-              form.status === s
-                ? s === 'Pass' ? 'bg-green-600 text-white' : 'bg-red-500 text-white'
-                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-            }`}>{s}</button>
-        ))}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-700 truncate">
+              {resultFile ? resultFile.name : initial.resultFile ? 'Upload new file (optional)' : 'Choose or drag & drop result image'}
+            </p>
+            <p className="text-xs text-gray-400">PNG, JPG, JPEG — max 10MB</p>
+          </div>
+          <input type="file" accept="image/png,image/jpeg,image/jpg,.png,.jpg,.jpeg" className="hidden"
+            onChange={e => handleFile(e.target.files[0])} />
+        </label>
+        {resultFile && <p className="text-xs text-green-600 font-medium">✓ {resultFile.name} selected</p>}
+        {preview && (
+          <div className="relative">
+            <img src={preview} alt="Preview" className="w-full max-h-48 object-contain rounded-xl border border-gray-200 bg-gray-50" />
+            <button type="button" onClick={() => { setResultFile(null); setPreview(initial.resultFile || null); }}
+              className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600">
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="flex gap-3 pt-1">
@@ -1273,11 +1279,14 @@ export default function BranchDashboard() {
   };
 
   // Results CRUD
-  const handleAddResult = async form => {
-    if (!form.rollNumber || !form.studentName) return toast.error('Roll number and student name required');
+  const handleAddResult = async (form, resultFile) => {
+    if (!form.studentName) return toast.error('Select a student');
     setSaving(true);
     try {
-      const r = await api.post('/branch/results', form);
+      const fd = new FormData();
+      Object.entries(form).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') fd.append(k, v); });
+      if (resultFile) fd.append('resultFile', resultFile);
+      const r = await api.post('/branch/results', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       setResults(p => [r.data.result, ...p]);
       setModal(null);
       toast.success('Result added!');
@@ -1285,10 +1294,13 @@ export default function BranchDashboard() {
     setSaving(false);
   };
 
-  const handleEditResult = async form => {
+  const handleEditResult = async (form, resultFile) => {
     setSaving(true);
     try {
-      const r = await api.put(`/branch/results/${selected._id}`, form);
+      const fd = new FormData();
+      Object.entries(form).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') fd.append(k, v); });
+      if (resultFile) fd.append('resultFile', resultFile);
+      const r = await api.put(`/branch/results/${selected._id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       setResults(p => p.map(x => x._id === selected._id ? r.data.result : x));
       setModal(null);
       toast.success('Result updated!');
@@ -2604,7 +2616,7 @@ export default function BranchDashboard() {
       )}
       {modal === 'add-result' && (
         <Modal title="Add Result" onClose={() => setModal(null)}>
-          <ResultForm initial={EMPTY_RESULT} students={students} onSave={handleAddResult} onClose={() => setModal(null)} saving={saving} />
+          <ResultForm initial={{}} students={students} onSave={handleAddResult} onClose={() => setModal(null)} saving={saving} />
         </Modal>
       )}
       {modal === 'edit-result' && selected && (
