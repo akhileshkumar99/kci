@@ -1761,6 +1761,9 @@ export default function StudentDashboard() {
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
             className="space-y-4">
             <div className="flex items-center gap-3 mb-2">
+              <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                <ChevronRight className="w-4 h-4 rotate-180" />
+              </button>
               <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
                 <CreditCard className="w-4 h-4 text-white" />
               </div>
@@ -1772,12 +1775,34 @@ export default function StudentDashboard() {
 
         {/* Results Tab */}
         {activeTab === 'results' && (
-          <ResultsSection results={results} fileResults={fileResults} />
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                <ChevronRight className="w-4 h-4 rotate-180" />
+              </button>
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                <Award className="w-4 h-4 text-white" />
+              </div>
+              <h2 className="text-xl font-black text-gray-900">My Results</h2>
+            </div>
+            <ResultsSection results={results} fileResults={fileResults} />
+          </div>
         )}
 
         {/* Monthly Tests Tab */}
         {activeTab === 'tests' && (
           <div className="space-y-5">
+            {!activeTest && !testResult && (
+              <div className="flex items-center gap-3">
+                <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                  <ChevronRight className="w-4 h-4 rotate-180" />
+                </button>
+                <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center">
+                  <ClipboardCheck className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-xl font-black text-gray-900">Monthly Tests</h2>
+              </div>
+            )}
             {/* Active test ”” timer + questions */}
             {activeTest ? (
               <div className="space-y-4">
@@ -1923,6 +1948,9 @@ export default function StudentDashboard() {
         {activeTab === 'admitcard' && (
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
             <div className="flex items-center gap-3">
+              <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                <ChevronRight className="w-4 h-4 rotate-180" />
+              </button>
               <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-xl flex items-center justify-center">
                 <FileText className="w-4 h-4 text-white" />
               </div>
@@ -1973,7 +2001,15 @@ export default function StudentDashboard() {
         {/* Study Material Tab */}
         {activeTab === 'studymaterial' && (
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-            <h2 className="text-xl font-black text-gray-900">Study Material</h2>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                <ChevronRight className="w-4 h-4 rotate-180" />
+              </button>
+              <div className="w-8 h-8 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center">
+                <BookMarked className="w-4 h-4 text-white" />
+              </div>
+              <h2 className="text-xl font-black text-gray-900">Study Material</h2>
+            </div>
             {studyMaterials.length === 0 ? (
               <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
                 <BookMarked className="w-12 h-12 mx-auto mb-3 text-gray-200" />
@@ -2106,6 +2142,12 @@ export default function StudentDashboard() {
                                 {/* Change Password Tab */}
         {activeTab === 'changepassword' && (
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-md mx-auto">
+            <div className="flex items-center gap-3 mb-4">
+              <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                <ChevronRight className="w-4 h-4 rotate-180" />
+              </button>
+              <h2 className="text-xl font-black text-gray-900">Change Password</h2>
+            </div>
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="bg-gradient-to-r from-rose-600 to-red-600 px-5 py-4 flex items-center gap-3">
                 <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
@@ -2223,6 +2265,9 @@ export default function StudentDashboard() {
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
+                <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                  <ChevronRight className="w-4 h-4 rotate-180" />
+                </button>
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
                   <Bell className="w-4 h-4 text-white" />
                 </div>
@@ -2328,6 +2373,16 @@ export default function StudentDashboard() {
 
         {/* Exam Form Tab */}
         {activeTab === 'examform' && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                <ChevronRight className="w-4 h-4 rotate-180" />
+              </button>
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                <FileText className="w-4 h-4 text-white" />
+              </div>
+              <h2 className="text-xl font-black text-gray-900">Exam Form</h2>
+            </div>
           <ExamFormSection
             student={student}
             myExamForm={examFormData}
@@ -2336,6 +2391,7 @@ export default function StudentDashboard() {
               setMyExamForm(form);
             }}
           />
+          </div>
         )}
 
         {/* Certificates Tab */}
@@ -2343,7 +2399,15 @@ export default function StudentDashboard() {
           const uploadedCerts = certificates.filter(c => c.certificateFile);
           return (
           <div className="space-y-4">
-            <h2 className="text-xl font-black text-gray-900">My Certificates <span className="text-blue-600">({uploadedCerts.length})</span></h2>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                <ChevronRight className="w-4 h-4 rotate-180" />
+              </button>
+              <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
+                <Award className="w-4 h-4 text-white" />
+              </div>
+              <h2 className="text-xl font-black text-gray-900">My Certificates <span className="text-blue-600">({uploadedCerts.length})</span></h2>
+            </div>
             {uploadedCerts.length === 0 ? (
               <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
                 <Award className="w-12 h-12 mx-auto mb-3 text-gray-200" />

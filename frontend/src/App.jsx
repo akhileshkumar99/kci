@@ -83,7 +83,8 @@ function ChatBox() {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[999] flex flex-col items-end gap-3">
+    <div className="fixed right-4 sm:right-6 z-[999] flex flex-col items-end gap-3" style={{bottom: 'max(5rem, calc(env(safe-area-inset-bottom) + 5rem))'}}>
+      {/* On mobile push above bottom nav (64px) */}
 
       {/* Chat Box */}
       <AnimatePresenceWA>
