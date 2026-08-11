@@ -47,14 +47,15 @@ export default function Loader() {
               transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
             />
             <div className="absolute rounded-full bg-[#0f172a]" style={{ width: 134, height: 134 }} />
-            <motion.img
-              src="/logo.png"
-              alt="KCI"
-              className="w-32 h-32 rounded-full object-cover object-center relative z-10 overflow-hidden"
+            <motion.div
+              className="relative z-10 flex items-center justify-center overflow-hidden"
+              style={{ width: 120, height: 120, borderRadius: '50%', background: 'white' }}
               initial={{ opacity: 0, scale: 0.7 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, type: 'spring', stiffness: 200 }}
-            />
+            >
+              <img src="/logo.png" alt="KCI" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 50%', display: 'block' }} />
+            </motion.div>
           </div>
 
           <div className="relative z-10 text-center px-6">
