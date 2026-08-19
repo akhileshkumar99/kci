@@ -54,7 +54,7 @@ export default function Loader() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, type: 'spring', stiffness: 200 }}
             >
-              <img src="/logo.png" alt="KCI" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 50%', display: 'block' }} />
+              <img src="/logo.png" alt="KCI" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block', padding: '0' }} />
             </motion.div>
           </div>
 
