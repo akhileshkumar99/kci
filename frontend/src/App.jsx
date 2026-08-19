@@ -210,7 +210,7 @@ function InstallPrompt() {
           className="fixed bottom-4 left-4 right-4 z-[9998] max-w-sm mx-auto"
         >
           <div className="bg-white rounded-2xl shadow-2xl border border-blue-100 p-4 flex items-center gap-4">
-            <img src="/logo.png" alt="KCI" className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+            <img src="/logo.png" alt="KCI" className="w-14 h-14 rounded-xl object-contain flex-shrink-0 bg-white p-1" />
             <div className="flex-1 min-w-0">
               <div className="font-black text-gray-900 text-sm">Install KCI App</div>
               <div className="text-xs text-gray-500 mt-0.5">Add to home screen for quick access</div>
