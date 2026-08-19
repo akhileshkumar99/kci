@@ -177,6 +177,61 @@ function ChatBox() {
 
 function WhatsAppButton() { return null; }
 
+function InstallPrompt() {
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setTimeout(() => setShow(true), 3000);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    setShow(false);
+    setDeferredPrompt(null);
+  };
+
+  return (
+    <AnimatePresenceWA>
+      {show && (
+        <motion.div
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 100, opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          className="fixed bottom-4 left-4 right-4 z-[9998] max-w-sm mx-auto"
+        >
+          <div className="bg-white rounded-2xl shadow-2xl border border-blue-100 p-4 flex items-center gap-4">
+            <img src="/logo.png" alt="KCI" className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="font-black text-gray-900 text-sm">Install KCI App</div>
+              <div className="text-xs text-gray-500 mt-0.5">Add to home screen for quick access</div>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <button onClick={handleInstall}
+                className="px-4 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-xs font-bold whitespace-nowrap">
+                Install
+              </button>
+              <button onClick={() => setShow(false)}
+                className="px-4 py-1.5 text-gray-400 rounded-xl text-xs font-semibold hover:bg-gray-50">
+                Not now
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresenceWA>
+  );
+}
+
 function ScrollToTop() {
   const location = useLocation();
   useEffect(() => {
@@ -236,6 +291,7 @@ export default function App() {
       <BrowserRouter>
         <Loader />
         <ChatBox />
+        <InstallPrompt />
         <RouteLoader />
         <ScrollToTop />
         <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
