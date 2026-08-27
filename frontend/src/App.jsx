@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense, Component } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence as AnimatePresenceWA } from 'framer-motion';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -53,8 +53,39 @@ const AdminAuditLogs = lazy(() => import('./pages/admin/AdminAuditLogs'));
 const AdminQuiz = lazy(() => import('./pages/admin/AdminQuiz'));
 const AdminFranchise = lazy(() => import('./pages/admin/AdminFranchise'));
 
-const PageLoader = () => null;
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("KCI App Error:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
+          <div className="w-16 h-16 bg-red-500/20 text-red-400 rounded-full flex items-center justify-center mb-4 text-2xl font-bold">⚠️</div>
+          <h1 className="text-2xl font-black mb-2">Something went wrong</h1>
+          <p className="text-slate-400 text-xs sm:text-sm max-w-md mb-6">{this.state.error?.toString()}</p>
+          <button onClick={() => { this.setState({ hasError: false }); window.location.href = '/'; }} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs sm:text-sm transition-all">
+            Return to Homepage
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
+const PageLoader = () => (
+  <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+    <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 const WHATSAPP_NUMBER = '919936384736';
 const AUTO_MESSAGES = [
@@ -84,7 +115,7 @@ function ChatBox() {
   };
 
   return (
-    <div className="fixed right-4 sm:right-6 z-[999] flex flex-col items-end gap-3" style={{bottom: 'max(5rem, calc(env(safe-area-inset-bottom) + 5rem))'}}>
+    <div className="fixed right-4 sm:right-6 z-[999] flex flex-col items-end gap-3" style={{ bottom: 'max(5rem, calc(env(safe-area-inset-bottom) + 5rem))' }}>
       {/* On mobile push above bottom nav (64px) */}
 
       {/* Chat Box */}
@@ -149,7 +180,7 @@ function ChatBox() {
       >
         {!open && <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-[9px] flex items-center justify-center font-bold">1</span>}
         <svg viewBox="0 0 24 24" className="w-6 h-6" fill="white">
-          <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+          <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
         </svg>
       </motion.button>
 
@@ -168,7 +199,7 @@ function ChatBox() {
       >
         <span className="absolute inline-flex w-full h-full rounded-full bg-green-400 opacity-50 animate-ping" />
         <svg viewBox="0 0 32 32" className="w-8 h-8 relative z-10" fill="white">
-          <path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.648 4.829 1.781 6.859L2 30l7.352-1.758A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.5a11.44 11.44 0 01-5.834-1.594l-.418-.248-4.363 1.043 1.074-4.25-.273-.437A11.47 11.47 0 014.5 16C4.5 9.649 9.649 4.5 16 4.5S27.5 9.649 27.5 16 22.351 27.5 16 27.5zm6.29-8.617c-.344-.172-2.035-1.004-2.35-1.117-.316-.115-.547-.172-.777.172-.23.344-.893 1.117-1.094 1.348-.2.23-.402.258-.746.086-.344-.172-1.453-.535-2.766-1.707-1.023-.91-1.713-2.035-1.914-2.379-.2-.344-.021-.531.15-.703.155-.154.344-.402.516-.603.172-.2.23-.344.344-.574.115-.23.058-.43-.029-.603-.086-.172-.777-1.875-1.064-2.566-.281-.672-.566-.58-.777-.59l-.66-.012c-.23 0-.603.086-.918.43-.316.344-1.207 1.18-1.207 2.877s1.236 3.338 1.408 3.568c.172.23 2.432 3.713 5.893 5.207.824.355 1.467.568 1.969.727.827.263 1.58.226 2.174.137.663-.1 2.035-.832 2.322-1.635.287-.803.287-1.492.2-1.635-.086-.143-.316-.23-.66-.402z"/>
+          <path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.648 4.829 1.781 6.859L2 30l7.352-1.758A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.5a11.44 11.44 0 01-5.834-1.594l-.418-.248-4.363 1.043 1.074-4.25-.273-.437A11.47 11.47 0 014.5 16C4.5 9.649 9.649 4.5 16 4.5S27.5 9.649 27.5 16 22.351 27.5 16 27.5zm6.29-8.617c-.344-.172-2.035-1.004-2.35-1.117-.316-.115-.547-.172-.777.172-.23.344-.893 1.117-1.094 1.348-.2.23-.402.258-.746.086-.344-.172-1.453-.535-2.766-1.707-1.023-.91-1.713-2.035-1.914-2.379-.2-.344-.021-.531.15-.703.155-.154.344-.402.516-.603.172-.2.23-.344.344-.574.115-.23.058-.43-.029-.603-.086-.172-.777-1.875-1.064-2.566-.281-.672-.566-.58-.777-.59l-.66-.012c-.23 0-.603.086-.918.43-.316.344-1.207 1.18-1.207 2.877s1.236 3.338 1.408 3.568c.172.23 2.432 3.713 5.893 5.207.824.355 1.467.568 1.969.727.827.263 1.58.226 2.174.137.663-.1 2.035-.832 2.322-1.635.287-.803.287-1.492.2-1.635-.086-.143-.316-.23-.66-.402z" />
         </svg>
       </motion.a>
     </div>
@@ -248,9 +279,9 @@ function RouteLoader() {
   useEffect(() => {
     setProgress(0);
     setVisible(true);
-    const t1 = setTimeout(() => setProgress(70), 30);
-    const t2 = setTimeout(() => setProgress(100), 200);
-    const t3 = setTimeout(() => setVisible(false), 400);
+    const t1 = setTimeout(() => setProgress(85), 10);
+    const t2 = setTimeout(() => setProgress(100), 50);
+    const t3 = setTimeout(() => setVisible(false), 120);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [location.pathname]);
 
@@ -286,63 +317,65 @@ const PublicLayout = ({ children }) => (
 
 export default function App() {
   return (
-    <ThemeProvider>
-    <AuthProvider>
-      <BrowserRouter>
-        <Loader />
-        <ChatBox />
-        <InstallPrompt />
-        <RouteLoader />
-        <ScrollToTop />
-        <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
-        <Suspense fallback={<PageLoader />}>
-        <Routes>
-          <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
-          <Route path="/about" element={<PublicLayout><About /></PublicLayout>} />
-          <Route path="/courses" element={<PublicLayout><Courses /></PublicLayout>} />
-          <Route path="/courses/:id" element={<PublicLayout><CourseDetail /></PublicLayout>} />
-          <Route path="/admission" element={<PublicLayout><Admission /></PublicLayout>} />
-          <Route path="/login" element={<PublicLayout><Login /></PublicLayout>} />
-          <Route path="/register" element={<PublicLayout><Register /></PublicLayout>} />
-          <Route path="/verify-certificate" element={<PublicLayout><CertificateVerify /></PublicLayout>} />
-          <Route path="/result" element={<PublicLayout><Result /></PublicLayout>} />
-          <Route path="/gallery" element={<PublicLayout><Gallery /></PublicLayout>} />
-          <Route path="/branches" element={<PublicLayout><Branches /></PublicLayout>} />
-          <Route path="/staff" element={<PublicLayout><Staff /></PublicLayout>} />
-          <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
-          <Route path="/study-material" element={<PublicLayout><StudyMaterial /></PublicLayout>} />
-          <Route path="/id-card" element={<PublicLayout><IDCard /></PublicLayout>} />
-          <Route path="/notifications" element={<PublicLayout><Notifications /></PublicLayout>} />
-          <Route path="/branch-apply" element={<PublicLayout><BranchApply /></PublicLayout>} />
-          <Route path="/exam-form" element={<PublicLayout><ExaminationForm /></PublicLayout>} />
-          <Route path="/branch-dashboard" element={<BranchDashboard />} />
-          <Route path="/student-dashboard" element={<StudentDashboard />} />
-          <Route path="/franchise-dashboard" element={<FranchiseDashboard />} />
-          <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="courses" element={<AdminCourses />} />
-            <Route path="students" element={<AdminStudents />} />
-            <Route path="admissions" element={<AdminAdmissions />} />
-            <Route path="results" element={<AdminResults />} />
-            <Route path="certificates" element={<AdminCertificates />} />
-            <Route path="gallery" element={<AdminGallery />} />
-            <Route path="staff" element={<AdminStaff />} />
-            <Route path="study-material" element={<AdminStudyMaterial />} />
-            <Route path="notifications" element={<AdminNotifications />} />
-            <Route path="branches" element={<AdminBranches />} />
-            <Route path="contacts" element={<AdminContacts />} />
-            <Route path="exam-forms" element={<AdminExamForms />} />
-            <Route path="admit-card" element={<AdminAdmitCard />} />
-            <Route path="analytics" element={<AdminAnalytics />} />
-            <Route path="audit-logs" element={<AdminAuditLogs />} />
-            <Route path="quiz" element={<AdminQuiz />} />
-            <Route path="franchise" element={<AdminFranchise />} />
-          </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-        </Suspense>
-      </BrowserRouter>
-    </AuthProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <Loader />
+            <ChatBox />
+            <InstallPrompt />
+            <RouteLoader />
+            <ScrollToTop />
+            <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
+                <Route path="/about" element={<PublicLayout><About /></PublicLayout>} />
+                <Route path="/courses" element={<PublicLayout><Courses /></PublicLayout>} />
+                <Route path="/courses/:id" element={<PublicLayout><CourseDetail /></PublicLayout>} />
+                <Route path="/admission" element={<PublicLayout><Admission /></PublicLayout>} />
+                <Route path="/login" element={<PublicLayout><Login /></PublicLayout>} />
+                <Route path="/register" element={<PublicLayout><Register /></PublicLayout>} />
+                <Route path="/verify-certificate" element={<PublicLayout><CertificateVerify /></PublicLayout>} />
+                <Route path="/result" element={<PublicLayout><Result /></PublicLayout>} />
+                <Route path="/gallery" element={<PublicLayout><Gallery /></PublicLayout>} />
+                <Route path="/branches" element={<PublicLayout><Branches /></PublicLayout>} />
+                <Route path="/staff" element={<PublicLayout><Staff /></PublicLayout>} />
+                <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
+                <Route path="/study-material" element={<PublicLayout><StudyMaterial /></PublicLayout>} />
+                <Route path="/id-card" element={<PublicLayout><IDCard /></PublicLayout>} />
+                <Route path="/notifications" element={<PublicLayout><Notifications /></PublicLayout>} />
+                <Route path="/branch-apply" element={<PublicLayout><BranchApply /></PublicLayout>} />
+                <Route path="/exam-form" element={<PublicLayout><ExaminationForm /></PublicLayout>} />
+                <Route path="/branch-dashboard" element={<BranchDashboard />} />
+                <Route path="/student-dashboard" element={<StudentDashboard />} />
+                <Route path="/franchise-dashboard" element={<FranchiseDashboard />} />
+                <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="courses" element={<AdminCourses />} />
+                  <Route path="students" element={<AdminStudents />} />
+                  <Route path="admissions" element={<AdminAdmissions />} />
+                  <Route path="results" element={<AdminResults />} />
+                  <Route path="certificates" element={<AdminCertificates />} />
+                  <Route path="gallery" element={<AdminGallery />} />
+                  <Route path="staff" element={<AdminStaff />} />
+                  <Route path="study-material" element={<AdminStudyMaterial />} />
+                  <Route path="notifications" element={<AdminNotifications />} />
+                  <Route path="branches" element={<AdminBranches />} />
+                  <Route path="contacts" element={<AdminContacts />} />
+                  <Route path="exam-forms" element={<AdminExamForms />} />
+                  <Route path="admit-card" element={<AdminAdmitCard />} />
+                  <Route path="analytics" element={<AdminAnalytics />} />
+                  <Route path="audit-logs" element={<AdminAuditLogs />} />
+                  <Route path="quiz" element={<AdminQuiz />} />
+                  <Route path="franchise" element={<AdminFranchise />} />
+                </Route>
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </AuthProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }

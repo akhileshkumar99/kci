@@ -1,20 +1,20 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GraduationCap, Users, Award, BookOpen, ArrowRight, CheckCircle, Star, Phone, MapPin, TrendingUp, Building2, X, Laptop, Clock, BadgeCheck, Newspaper, PlayCircle, FileText, Wifi } from 'lucide-react';
+import { GraduationCap, Users, Award, BookOpen, ArrowRight, CheckCircle, Star, Phone, MapPin, TrendingUp, Building2, X, Laptop, Clock, BadgeCheck, Newspaper, PlayCircle, FileText, Wifi, Sparkles, ShieldCheck, Zap } from 'lucide-react';
 import api from '../utils/api';
 import CourseCard from '../components/CourseCard';
 import SectionTitle from '../components/SectionTitle';
 
 const counterData = [
-  { icon: Users, label: 'Students Enrolled', value: 10000, suffix: '+', color: 'from-blue-500 to-blue-600', bg: 'hover:bg-blue-50', border: 'hover:border-blue-200' },
-  { icon: BookOpen, label: 'Courses Offered', value: 21, suffix: '+', color: 'from-emerald-500 to-emerald-600', bg: 'hover:bg-emerald-50', border: 'hover:border-emerald-200' },
-  { icon: Award, label: 'Years Experience', value: 18, suffix: '+', color: 'from-violet-500 to-violet-600', bg: 'hover:bg-violet-50', border: 'hover:border-violet-200' },
-  { icon: Building2, label: 'Branches', value: 30, suffix: '+', color: 'from-orange-500 to-orange-600', bg: 'hover:bg-orange-50', border: 'hover:border-orange-200' },
-  { icon: TrendingUp, label: 'Placement Rate', value: 95, suffix: '%', color: 'from-teal-500 to-teal-600', bg: 'hover:bg-teal-50', border: 'hover:border-teal-200' },
+  { icon: Users, label: 'Students Enrolled', value: 10000, suffix: '+', color: 'from-blue-600 to-indigo-700', bg: 'hover:bg-blue-50/80', border: 'hover:border-blue-300' },
+  { icon: BookOpen, label: 'Courses Offered', value: 21, suffix: '+', color: 'from-emerald-600 to-teal-700', bg: 'hover:bg-emerald-50/80', border: 'hover:border-emerald-300' },
+  { icon: Award, label: 'Years Experience', value: 18, suffix: '+', color: 'from-violet-600 to-purple-700', bg: 'hover:bg-violet-50/80', border: 'hover:border-violet-300' },
+  { icon: Building2, label: 'Branches', value: 30, suffix: '+', color: 'from-amber-600 to-orange-700', bg: 'hover:bg-amber-50/80', border: 'hover:border-amber-300' },
+  { icon: TrendingUp, label: 'Placement Rate', value: 95, suffix: '%', color: 'from-cyan-600 to-blue-700', bg: 'hover:bg-cyan-50/80', border: 'hover:border-cyan-300' },
 ];
 
-function Counter({ value, suffix, duration = 3500 }) {
+function Counter({ value, suffix, duration = 2000 }) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
   const started = useRef(false);
@@ -23,7 +23,7 @@ function Counter({ value, suffix, duration = 3500 }) {
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting && !started.current) {
         started.current = true;
-        const steps = 60;
+        const steps = 40;
         const increment = value / steps;
         let current = 0;
         const timer = setInterval(() => {
@@ -44,7 +44,7 @@ const stats = [
   { icon: Users, label: 'Students Enrolled', value: '10,000+' },
   { icon: BookOpen, label: 'Courses Offered', value: '25+' },
   { icon: Award, label: 'Years Experience', value: '18+' },
-  { icon: MapPin, label: 'Branches', value: '10+' },
+  { icon: MapPin, label: 'Branches', value: '30+' },
 ];
 
 const features = [
@@ -57,10 +57,20 @@ const features = [
 ];
 
 const testimonials = [
-  { name: 'Akhilesh Infotech', course: 'Fullstack Developer', text: 'Keerti computer is institute best in india good faculty and facility', rating: 5 },
-  { name: 'Priya Sharma', course: 'DCA', text: 'KCI helped me get my first job in IT. The faculty is excellent and the course content is very practical.', rating: 5 },
-  { name: 'Rahul Verma', course: 'Tally with GST', text: 'Best institute for computer courses. I learned Tally here and now working as an accountant.', rating: 5 },
-  { name: 'Anjali Singh', course: 'Web Design', text: 'The web design course was amazing. I built my first website within 2 months of joining.', rating: 5 },
+  { name: 'Akhilesh Infotech', course: 'Fullstack Developer', text: 'Keerti computer institute is the best institute with top-notch faculty and lab facilities.', rating: 5 },
+  { name: 'Priya Sharma', course: 'DCA', text: 'KCI helped me get my first IT job. The faculty is excellent and practical hands-on learning is great.', rating: 5 },
+  { name: 'Rahul Verma', course: 'Tally with GST', text: 'Best computer training center. Learned Tally GST here and working as an accountant now.', rating: 5 },
+  { name: 'Anjali Singh', course: 'Web Design', text: 'The web development course was amazing. Built complete websites within 2 months.', rating: 5 },
+];
+
+const govtAffiliations = [
+  { name: 'NIELIT', bg: 'bg-blue-50', text: 'text-blue-900', icon: GraduationCap },
+  { name: 'Ministry of IT', bg: 'bg-indigo-50', text: 'text-indigo-900', icon: Building2 },
+  { name: 'NSDC', bg: 'bg-emerald-50', text: 'text-emerald-900', icon: Award },
+  { name: 'Skill India', bg: 'bg-amber-50', text: 'text-amber-900', icon: Zap },
+  { name: 'Govt. of UP', bg: 'bg-purple-50', text: 'text-purple-900', icon: ShieldCheck },
+  { name: 'Digital India', bg: 'bg-cyan-50', text: 'text-cyan-900', icon: Laptop },
+  { name: 'ISO Certified', bg: 'bg-teal-50', text: 'text-teal-900', icon: BadgeCheck },
 ];
 
 function TestimonialsSection() {
@@ -86,74 +96,70 @@ function TestimonialsSection() {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50/40">
+    <section className="py-16 bg-slate-100/70 border-t border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
           <div>
-            <p className="text-blue-600 font-semibold text-sm uppercase tracking-widest mb-2">Testimonials</p>
-            <h2 className="text-3xl sm:text-4xl font-black text-gray-900">Student Reviews</h2>
-            <p className="text-gray-500 mt-2">What our students say about us</p>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-blue-100 text-blue-800 border border-blue-200 mb-2">
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> Student Feedback
+            </span>
+            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">Student Reviews</h2>
+            <p className="text-slate-600 text-xs sm:text-sm font-medium mt-1">What our students say about their learning experience at KCI</p>
           </div>
-          <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+          <button
             onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-sm shadow-md hover:shadow-lg transition-all whitespace-nowrap">
-            <Star className="w-4 h-4 fill-yellow-300 text-yellow-300" />
+            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs sm:text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 self-start sm:self-auto">
+            <Star className="w-4 h-4 fill-amber-300 text-amber-300" />
             {showForm ? 'Cancel' : 'Write a Review'}
-          </motion.button>
+          </button>
         </div>
 
         {/* Review Form */}
         <AnimatePresence>
           {showForm && (
-            <motion.div initial={{ opacity: 0, y: -20, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -20, scale: 0.97 }}
-              className="bg-white rounded-3xl shadow-xl border border-blue-100 p-8 mb-10">
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+              className="bg-white rounded-3xl shadow-lg border border-slate-200 p-6 sm:p-8 mb-8">
               {submitted ? (
-                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center py-6">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <CheckCircle className="w-8 h-8 text-green-500" />
+                <div className="text-center py-6">
+                  <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <CheckCircle className="w-7 h-7 text-emerald-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900">Thank you for your review! 🎉</h3>
-                  <p className="text-gray-500 text-sm mt-1">Your review has been added.</p>
-                </motion.div>
+                  <h3 className="text-lg font-bold text-slate-900">Thank you for your review! 🎉</h3>
+                  <p className="text-slate-600 text-xs mt-1">Your feedback has been added successfully.</p>
+                </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">Share Your Experience</h3>
-                  {/* Star Rating */}
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <h3 className="text-lg font-black text-slate-900">Share Your Experience</h3>
                   <div>
-                    <label className="text-sm font-semibold text-gray-700 block mb-2">Your Rating</label>
-                    <div className="flex gap-2">
-                      {[1,2,3,4,5].map(s => (
-                        <button key={s} type="button" onClick={() => setNewReview(r => ({ ...r, rating: s }))}
-                          className="transition-transform hover:scale-125">
-                          <Star className={`w-8 h-8 transition-colors ${s <= newReview.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
+                    <label className="text-xs font-bold text-slate-700 block mb-1.5 uppercase tracking-wider">Your Rating</label>
+                    <div className="flex gap-1.5">
+                      {[1, 2, 3, 4, 5].map(s => (
+                        <button key={s} type="button" onClick={() => setNewReview(r => ({ ...r, rating: s }))} className="focus:outline-none hover:scale-110 transition-transform duration-150">
+                          <Star className={`w-7 h-7 ${s <= newReview.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`} />
                         </button>
                       ))}
                     </div>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-semibold text-gray-700 block mb-1.5">Your Name *</label>
-                      <input value={newReview.name} onChange={e => setNewReview(r => ({ ...r, name: e.target.value }))}
-                        placeholder="Enter your name" required
-                        className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 transition-all" />
+                      <label className="text-xs font-bold text-slate-700 block mb-1 uppercase tracking-wider">Your Name *</label>
+                      <input value={newReview.name} onChange={e => setNewReview(r => ({ ...r, name: e.target.value }))} placeholder="Full name" required
+                        className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 bg-slate-50 text-xs sm:text-sm font-medium text-slate-900" />
                     </div>
                     <div>
-                      <label className="text-sm font-semibold text-gray-700 block mb-1.5">Course Name</label>
-                      <input value={newReview.course} onChange={e => setNewReview(r => ({ ...r, course: e.target.value }))}
-                        placeholder="e.g. DCA, Tally, Web Design"
-                        className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 transition-all" />
+                      <label className="text-xs font-bold text-slate-700 block mb-1 uppercase tracking-wider">Course Name</label>
+                      <input value={newReview.course} onChange={e => setNewReview(r => ({ ...r, course: e.target.value }))} placeholder="e.g. DCA, Tally, Web Design"
+                        className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 bg-slate-50 text-xs sm:text-sm font-medium text-slate-900" />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-gray-700 block mb-1.5">Your Review *</label>
-                    <textarea value={newReview.text} onChange={e => setNewReview(r => ({ ...r, text: e.target.value }))}
-                      placeholder="Share your experience at KCI..." rows={3} required
-                      className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 transition-all resize-none" />
+                    <label className="text-xs font-bold text-slate-700 block mb-1 uppercase tracking-wider">Review *</label>
+                    <textarea value={newReview.text} onChange={e => setNewReview(r => ({ ...r, text: e.target.value }))} placeholder="Share your experience at KCI..." rows={3} required
+                      className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 bg-slate-50 text-xs sm:text-sm font-medium text-slate-900 resize-none" />
                   </div>
-                  <motion.button type="submit" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-                    className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all">
+                  <button type="submit" className="px-6 py-2.5 bg-blue-600 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-150">
                     Submit Review
-                  </motion.button>
+                  </button>
                 </form>
               )}
             </motion.div>
@@ -161,38 +167,35 @@ function TestimonialsSection() {
         </AnimatePresence>
 
         {/* Sliding Reviews */}
-        <div className="relative overflow-hidden bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
-          <div className="flex transition-transform duration-700 ease-in-out" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
+        <div className="relative overflow-hidden bg-white rounded-3xl shadow-sm border border-slate-200 p-6 sm:p-8">
+          <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
             {reviews.map((t, i) => (
-              <div key={i} className="w-full flex-shrink-0 px-4">
-                <div className="text-center max-w-4xl mx-auto">
-                  <div className="flex justify-center gap-1 mb-4">
-                    {[...Array(5)].map((_, j) => <Star key={j} className={`w-5 h-5 ${j < t.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />)}
+              <div key={i} className="w-full flex-shrink-0 px-2">
+                <div className="text-center max-w-2xl mx-auto">
+                  <div className="flex justify-center gap-1 mb-3">
+                    {[...Array(5)].map((_, j) => <Star key={j} className={`w-4 h-4 ${j < t.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />)}
                   </div>
-                  <blockquote className="text-xl sm:text-2xl text-gray-700 font-medium leading-relaxed mb-6 italic">
+                  <blockquote className="text-base sm:text-xl text-slate-900 font-bold leading-relaxed mb-4 italic">
                     "{t.text}"
                   </blockquote>
-                  <div className="flex items-center justify-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shrink-0">
+                  <div className="flex items-center justify-center gap-2.5">
+                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-md">
                       {t.name.charAt(0)}
                     </div>
                     <div className="text-left">
-                      <div className="font-bold text-gray-900 text-lg">{t.name}</div>
-                      {t.course && <div className="text-blue-600 text-sm font-medium">{t.course}</div>}
+                      <div className="font-extrabold text-slate-900 text-xs sm:text-sm">{t.name}</div>
+                      {t.course && <div className="text-blue-700 text-xs font-bold">{t.course}</div>}
                     </div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-          
-          {/* Dots Indicator */}
-          <div className="flex justify-center gap-2 mt-8">
+
+          <div className="flex justify-center gap-1.5 mt-6">
             {reviews.map((_, i) => (
               <button key={i} onClick={() => setCurrentIndex(i)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  i === currentIndex ? 'bg-blue-600 scale-125' : 'bg-gray-300 hover:bg-gray-400'
-                }`} />
+                className={`h-2 rounded-full transition-all duration-200 ${i === currentIndex ? 'w-6 bg-blue-600' : 'w-2 bg-slate-300 hover:bg-slate-400'}`} />
             ))}
           </div>
         </div>
@@ -202,41 +205,26 @@ function TestimonialsSection() {
 }
 
 const notices = [
-  '🔔 New Batch Starting: DCA & ADCA — 1st of Every Month',
-  '🏆 KCI Students Achieved 95% Placement Rate in 2024',
-  '📢 Free Demo Class Available — Register Now!',
-  '🎓 Government Recognized Certificates Accepted Nationwide',
-
-  '📅 Admission Open for All Courses — Limited Seats!',
+  { text: 'New Batch Starting: DCA & ADCA — 1st of Every Month', badge: '📢 BATCH' },
+  { text: 'KCI Students Achieved 95% Placement Rate', badge: '🏆 PLACEMENT' },
+  { text: 'Free Demo Class Available — Register Now!', badge: '⚡ DEMO' },
+  { text: 'Government Recognized Certificates Accepted Nationwide', badge: '🎓 CERTIFIED' },
+  { text: 'Admission Open for All Courses — Limited Seats!', badge: '📅 ADMISSION' },
 ];
 
 const steps = [
-  { icon: FileText, title: 'Fill Admission Form', desc: 'Online ya offline form bharo, simple process hai', color: 'from-blue-500 to-blue-600' },
-  { icon: BadgeCheck, title: 'Course Select Karo', desc: '25+ courses mein se apni pasand ka course chuno', color: 'from-violet-500 to-violet-600' },
-  { icon: Laptop, title: 'Classes Join Karo', desc: 'Modern labs mein expert faculty se seekho', color: 'from-emerald-500 to-emerald-600' },
-  { icon: Award, title: 'Certificate Pao', desc: 'Government recognized certificate haasil karo', color: 'from-orange-500 to-orange-600' },
+  { icon: FileText, stepNum: '01', title: 'Fill Admission Form', desc: 'Online ya offline form bharo, simple process hai', color: 'from-blue-600 to-indigo-700' },
+  { icon: BadgeCheck, stepNum: '02', title: 'Course Select Karo', desc: '25+ courses mein se apni pasand ka course chuno', color: 'from-violet-600 to-purple-700' },
+  { icon: Laptop, stepNum: '03', title: 'Classes Join Karo', desc: 'Modern labs mein expert faculty se seekho', color: 'from-emerald-600 to-teal-700' },
+  { icon: Award, stepNum: '04', title: 'Certificate Pao', desc: 'Government recognized certificate haasil karo', color: 'from-amber-600 to-orange-700' },
 ];
 
 const certBadges = [
-  { label: 'ISO Certified', icon: '🏅' },
-  { label: 'Govt. Recognized', icon: '🏛️' },
-  { label: 'NIELIT Affiliated', icon: '🎓' },
-  { label: 'Nationally Accepted', icon: '🇮🇳' },
+  { label: 'ISO Certified', icon: ShieldCheck },
+  { label: 'Govt. Recognized', icon: BadgeCheck },
+  { label: 'NIELIT Affiliated', icon: GraduationCap },
+  { label: 'Nationally Accepted', icon: Award },
 ];
-
-function MarqueeTicker() {
-  return (
-    <div className="bg-blue-700 text-white py-2.5 overflow-hidden relative">
-      <div className="flex items-center gap-2 mb-0">
-        <div className="animate-marquee flex items-center gap-0 shrink-0">
-          {[...notices, ...notices].map((n, i) => (
-            <span key={i} className="text-sm font-semibold px-6 whitespace-nowrap border-r border-blue-500 last:border-r-0">{n}</span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function Home() {
   const [courses, setCourses] = useState([]);
@@ -247,320 +235,286 @@ export default function Home() {
     api.get('/courses?featured=true').then(({ data }) => {
       const excluded = ['CCA', 'COPT', 'CIF'];
       setCourses((data.courses || []).filter(c => !excluded.some(code => c.title?.includes(code))));
-    }).catch(() => {});
-    api.get('/admit-card/setting').then(({ data }) => setAdmitCardEnabled(data.enabled)).catch(() => {});
+    }).catch(() => { });
+    api.get('/admit-card/setting').then(({ data }) => setAdmitCardEnabled(data.enabled)).catch(() => { });
     const timer = setTimeout(() => setPopup(true), 800);
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div className="pt-16">
+    <div className="pt-24 sm:pt-28 min-h-screen bg-slate-50 text-slate-900">
 
       {/* Welcome Popup */}
       {popup && (
-        <motion.div
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-4"
+        <div
+          className="fixed inset-0 bg-slate-950/70 z-[100] flex items-center justify-center p-4 backdrop-blur-xs"
           onClick={() => setPopup(false)}
         >
-          <motion.div
-            initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+          <div
             onClick={e => e.stopPropagation()}
-            className="relative"
+            className="relative max-w-xl w-full"
           >
             <button
               onClick={() => setPopup(false)}
-              className="absolute -top-3 -right-3 z-10 w-8 h-8 bg-white hover:bg-gray-100 rounded-full flex items-center justify-center shadow-lg transition-colors"
+              className="absolute -top-3 -right-3 z-10 w-9 h-9 bg-white hover:bg-slate-100 text-slate-900 rounded-full flex items-center justify-center shadow-xl transition-all duration-150 hover:scale-110"
             >
-              <X className="w-4 h-4 text-gray-700" />
+              <X className="w-5 h-5" />
             </button>
             <img
               src="/popup.jpg"
-              alt="KCI Popup"
-              className="max-w-[90vw] max-h-[85vh] w-auto h-auto object-contain rounded-2xl shadow-2xl"
+              alt="KCI Welcome Notice"
+              className="w-full h-auto object-contain rounded-3xl shadow-2xl border-4 border-white/20"
             />
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       )}
 
+      {/* Premium Hero Section */}
+      <section className="relative min-h-[85vh] flex items-center overflow-hidden bg-slate-950 pt-6 pb-16 text-white">
+        <div className="absolute inset-0 bg-cover bg-center opacity-25 mix-blend-overlay" style={{ backgroundImage: "url('/hero-bg.jpg')" }} />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-950/95 via-slate-900/95 to-indigo-950/95" />
 
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 w-full grid lg:grid-cols-12 gap-10 items-center">
+          
+          {/* Left Column */}
+          <div className="lg:col-span-7">
+            <div className="inline-flex items-center gap-2 rounded-full px-3.5 py-1 text-white text-xs sm:text-sm mb-5 border border-white/15 bg-white/10 backdrop-blur-md shadow-md">
+              <Award className="w-4 h-4 text-amber-400 shrink-0" />
+              <span className="font-extrabold tracking-wide">Government Recognized Institute</span>
+            </div>
 
-      {/* Hero */}
-      <section className="relative min-h-[100svh] flex items-center overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/hero-bg.jpg')" }} />
-        {/* Premium dark overlay with gradient */}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(8,29,91,0.85) 0%, rgba(15,40,110,0.75) 50%, rgba(30,27,75,0.80) 100%)' }} />
-        {/* Animated orbs */}
-        <motion.div animate={{ scale: [1,1.3,1], opacity: [0.15,0.3,0.15] }} transition={{ duration: 8, repeat: Infinity }}
-          className="absolute top-1/4 right-1/4 w-96 h-96 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%)' }} />
-        <motion.div animate={{ scale: [1,1.2,1], opacity: [0.1,0.25,0.1] }} transition={{ duration: 10, repeat: Infinity, delay: 3 }}
-          className="absolute bottom-1/4 left-1/4 w-80 h-80 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 70%)' }} />
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 grid lg:grid-cols-2 gap-12 items-center">
-          <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
-            {/* Badge */}
-            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-white text-sm mb-6 border border-white/20"
-              style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
-              <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}>
-                <Award className="w-4 h-4 text-yellow-400" />
-              </motion.div>
-              <span className="font-bold">Government Recognized Institute</span>
-              <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-            </motion.div>
-
-            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-              className="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
-              Shape Your Future with
-              <motion.span
-                animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
-                transition={{ duration: 4, repeat: Infinity }}
-                className="block"
-                style={{ background: 'linear-gradient(90deg, #fbbf24, #f59e0b, #fcd34d, #fbbf24)', backgroundSize: '200% 100%', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.15] mb-5 tracking-tight">
+              Shape Your Future with{' '}
+              <span className="bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-200 bg-clip-text text-transparent block mt-1">
                 Digital Skills
-              </motion.span>
-            </motion.h1>
+              </span>
+            </h1>
 
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-              className="text-white/80 text-base sm:text-lg mb-8 leading-relaxed">
-              Join Keerti Computer Institute — most trusted computer training center with <span className="text-yellow-300 font-bold">18+ years</span> of excellence, <span className="text-yellow-300 font-bold">10,000+</span> successful students, and <span className="text-yellow-300 font-bold">25+</span> industry-relevant courses.
-            </motion.p>
+            <p className="text-slate-200 text-sm sm:text-base mb-7 leading-relaxed font-medium max-w-2xl">
+              Join Keerti Computer Institute — top rated computer training center with <strong className="text-amber-300 font-black">18+ years</strong> of excellence, <strong className="text-amber-300 font-black">10,000+</strong> successful students, and <strong className="text-amber-300 font-black">25+</strong> industry-relevant courses.
+            </p>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-              className="flex flex-wrap gap-3 sm:gap-4">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-                <Link to="/admission"
-                  className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 font-black rounded-xl shadow-lg text-sm sm:text-base"
-                  style={{ background: 'linear-gradient(135deg,#fbbf24,#f59e0b)', color: '#1e1b4b', boxShadow: '0 8px 32px rgba(251,191,36,0.4)' }}>
-                  Apply for Admission <ArrowRight className="w-4 h-4" />
-                </Link>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-                <Link to="/courses"
-                  className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-white font-bold rounded-xl border border-white/30 text-sm sm:text-base transition-all"
-                  style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
-                  Explore Courses <ArrowRight className="w-4 h-4" />
-                </Link>
-              </motion.div>
-            </motion.div>
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3.5 mb-8">
+              <Link to="/admission"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-xs sm:text-sm transition-all duration-150">
+                Apply for Admission <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link to="/courses"
+                className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold rounded-xl border border-white/25 bg-white/10 backdrop-blur-md text-xs sm:text-sm hover:bg-white/20 hover:-translate-y-0.5 transition-all duration-150">
+                Explore Courses <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
 
-            {/* Mini stats row */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-              className="flex flex-wrap gap-4 mt-8">
-              {[['10K+','Students'],['25+','Courses'],['18+','Years'],['95%','Placement']].map(([val, lbl]) => (
-                <div key={lbl} className="text-center">
-                  <div className="text-xl font-black text-yellow-300">{val}</div>
-                  <div className="text-white/50 text-[10px] font-bold uppercase tracking-wide">{lbl}</div>
+            {/* Statistics */}
+            <div className="grid grid-cols-4 gap-3 pt-5 border-t border-white/15 max-w-xl">
+              {[
+                { val: '10K+', lbl: 'Students' },
+                { val: '25+', lbl: 'Courses' },
+                { val: '18+', lbl: 'Years' },
+                { val: '95%', lbl: 'Placement' },
+              ].map(({ val, lbl }) => (
+                <div key={lbl} className="text-left group cursor-default">
+                  <div className="text-lg sm:text-2xl font-black text-amber-300 group-hover:text-yellow-200 transition-colors">{val}</div>
+                  <div className="text-slate-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider">{lbl}</div>
                 </div>
               ))}
-            </motion.div>
-          </motion.div>
+            </div>
 
-          {/* Right side floating card */}
-          <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.3 }}
-            className="hidden lg:flex flex-col gap-4">
-            {[
-              { icon: GraduationCap, title: 'DCA / ADCA', desc: 'Diploma in Computer Application', color: '#6366f1' },
-              { icon: Award, title: 'Tally with GST', desc: 'Professional Accounting Course', color: '#10b981' },
-              { icon: BookOpen, title: 'Web Design', desc: 'HTML, CSS, JavaScript & More', color: '#f59e0b' },
-            ].map(({ icon: Icon, title, desc, color }, i) => (
-              <motion.div key={title}
-                initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 + i * 0.15 }}
-                whileHover={{ x: -8, scale: 1.02 }}
-                className="flex items-center gap-4 p-4 rounded-2xl border border-white/10 cursor-pointer"
-                style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)' }}>
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${color}30`, border: `1px solid ${color}50` }}>
-                  <Icon className="w-6 h-6" style={{ color }} />
+          </div>
+
+          {/* Right Column: Hero Visual Showcase */}
+          <div className="lg:col-span-5 hidden lg:flex flex-col gap-4">
+            <div className="bg-white/10 backdrop-blur-xl border border-white/15 rounded-3xl p-5 shadow-2xl space-y-3">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2 text-white font-extrabold text-sm">
+                  <Sparkles className="w-4 h-4 text-amber-400" /> Featured Programs
                 </div>
-                <div>
-                  <div className="text-white font-black text-sm">{title}</div>
-                  <div className="text-white/50 text-xs">{desc}</div>
+                <span className="text-[10px] bg-amber-400/20 text-amber-300 font-extrabold px-2.5 py-0.5 rounded-full border border-amber-400/30">2026 Academic</span>
+              </div>
+
+              {[
+                { icon: GraduationCap, title: 'DCA / ADCA', desc: 'Diploma in Computer Application', badge: '12 Months', color: 'from-blue-600 to-indigo-700' },
+                { icon: Award, title: 'Tally with GST', desc: 'Professional Accounting Course', badge: '4 Months', color: 'from-emerald-600 to-teal-700' },
+                { icon: BookOpen, title: 'Web Design', desc: 'HTML, CSS, JavaScript & More', badge: '6 Months', color: 'from-purple-600 to-violet-700' },
+              ].map(({ icon: Icon, title, desc, badge, color }) => (
+                <div key={title}
+                  className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/20 hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 cursor-pointer">
+                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shrink-0 shadow-md`}>
+                    <Icon className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-white font-black text-xs sm:text-sm truncate">{title}</div>
+                    <div className="text-slate-300 text-[11px] font-medium truncate">{desc}</div>
+                  </div>
+                  <span className="text-[10px] font-extrabold text-amber-300 bg-amber-400/10 px-2 py-0.5 rounded-md shrink-0 border border-amber-400/20">{badge}</span>
                 </div>
-                <ArrowRight className="w-4 h-4 text-white/30 ml-auto" />
-              </motion.div>
-            ))}
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
-              className="text-center text-white/40 text-xs font-semibold">+ 22 more courses available</motion.div>
-          </motion.div>
+              ))}
+
+              <div className="pt-1 text-center">
+                <Link to="/courses" className="text-amber-300 text-xs font-bold hover:underline inline-flex items-center gap-1">
+                  + 22 more courses available <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-white" style={{ clipPath: 'ellipse(55% 100% at 50% 100%)' }} />
       </section>
 
-      {/* Premium Marquee Ticker */}
-      <div className="overflow-hidden py-3" style={{ background: 'linear-gradient(90deg, #081d5b, #1a3a8f, #081d5b)' }}>
+      {/* Announcement Marquee Ticker */}
+      <div className="bg-slate-900 text-white py-2.5 border-y border-slate-800 overflow-hidden">
         <div className="animate-marquee flex items-center gap-0">
           {[...notices, ...notices].map((n, i) => (
-            <span key={i} className="text-sm font-semibold px-6 whitespace-nowrap text-white/90 border-r border-white/20 last:border-r-0 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full" />{n}
-            </span>
+            <div key={i} className="flex items-center gap-3 px-6 whitespace-nowrap text-xs font-semibold text-slate-200 border-r border-slate-800">
+              <span className="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded">{n.badge}</span>
+              <span>{n.text}</span>
+            </div>
           ))}
         </div>
       </div>
 
-      {/* Stats Mobile */}
-      <section className="lg:hidden bg-white py-10">
-        <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 gap-4">
-          {stats.map(({ icon: Icon, label, value }) => (
-            <motion.div key={label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bg-blue-50 rounded-2xl p-4 text-center">
-              <Icon className="w-7 h-7 text-blue-600 mx-auto mb-2" />
-              <div className="text-xl font-bold text-gray-900">{value}</div>
-              <div className="text-gray-500 text-xs">{label}</div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* Premium Counters */}
-      <section className="py-16 bg-white">
+      {/* Statistics Section */}
+      <section className="py-14 bg-white border-b border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
-            {counterData.map(({ icon: Icon, label, value, suffix, color, bg, border }, i) => (
-              <motion.div key={label}
-                initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                whileHover={{ y: -8, scale: 1.05 }}
-                className={`relative bg-white rounded-2xl p-6 text-center border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300 cursor-default overflow-hidden ${bg} ${border}`}>
-                <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300"
-                  style={{ background: `linear-gradient(135deg, transparent 60%, rgba(99,102,241,0.05) 100%)` }} />
-                <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg`}>
-                  <Icon className="w-7 h-7 text-white" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {counterData.map(({ icon: Icon, label, value, suffix, color, bg, border }) => (
+              <div key={label}
+                className={`bg-slate-50 rounded-2xl p-4 text-center border border-slate-200/80 shadow-2xs hover:shadow-md hover:-translate-y-1 transition-all duration-150 ${bg} ${border}`}>
+                <div className={`w-11 h-11 mx-auto mb-2.5 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shadow-md`}>
+                  <Icon className="w-5 h-5 text-white" />
                 </div>
-                <div className="text-3xl font-extrabold text-gray-950 mb-1">
+                <div className="text-2xl font-black text-slate-900 mb-0.5">
                   <Counter value={value} suffix={suffix} />
                 </div>
-                <div className="text-sm text-gray-600 font-semibold">{label}</div>
-                <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                  initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 + 0.3, duration: 0.6 }}
-                  style={{ background: `linear-gradient(90deg, transparent, currentColor, transparent)` }} />
-              </motion.div>
+                <div className="text-xs text-slate-700 font-extrabold">{label}</div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50/30">
+      {/* How It Works Section */}
+      <section className="py-16 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <SectionTitle title="How It Works" subtitle="4 simple steps mein apna career shuru karo" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
-            {steps.map(({ icon: Icon, title, desc, color }, i) => (
-              <motion.div key={i}
-                initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}
-                whileHover={{ y: -6 }}
-                className="relative bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all text-center border border-gray-100"
+          <SectionTitle badge="PROCESS" title="How It Works" subtitle="4 simple steps to start your computer training journey" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-10">
+            {steps.map(({ icon: Icon, stepNum, title, desc, color }, i) => (
+              <div key={i}
+                className="relative bg-white rounded-2xl p-5 shadow-xs hover:shadow-md hover:-translate-y-1 hover:border-blue-300 transition-all duration-150 text-center border border-slate-200/80 flex flex-col items-center"
               >
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-black flex items-center justify-center shadow-lg">{i + 1}</div>
-                <div className={`w-16 h-16 mx-auto mb-4 mt-2 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-md`}>
-                  <Icon className="w-8 h-8 text-white" />
+                <span className="absolute -top-3 bg-blue-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-xs">
+                  STEP {stepNum}
+                </span>
+                <div className={`w-12 h-12 mx-auto mb-3 mt-1 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shadow-md`}>
+                  <Icon className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="font-bold text-gray-900 mb-2">{title}</h3>
-                <p className="text-gray-500 text-sm">{desc}</p>
-                {i < steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-1/2 -right-3 w-6 h-0.5 bg-blue-200" />
-                )}
-              </motion.div>
+                <h3 className="font-black text-slate-900 text-sm mb-1">{title}</h3>
+                <p className="text-slate-600 text-xs leading-relaxed font-medium">{desc}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Certificate & Recognition */}
-      <section className="py-16 bg-white">
+      {/* Certifications Section */}
+      <section className="py-14 bg-white border-y border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-6 sm:p-10 flex flex-col lg:flex-row items-center gap-8">
-            <div className="flex-1 text-white">
-              <div className="text-yellow-400 font-bold text-sm uppercase tracking-widest mb-2">Certifications</div>
-              <h2 className="text-3xl font-black mb-3">Nationally Recognized Certificates</h2>
-              <p className="text-blue-100 mb-6">Hamare certificates government aur private sector dono mein accepted hain. Apna career secure karo KCI ke saath.</p>
-              <div className="grid grid-cols-2 gap-3">
-                {certBadges.map(({ label, icon }) => (
-                  <div key={label} className="flex items-center gap-2 bg-white/10 rounded-xl px-4 py-2.5">
-                    <span className="text-xl">{icon}</span>
-                    <span className="text-white font-semibold text-sm">{label}</span>
+          <div className="bg-gradient-to-r from-blue-700 via-indigo-800 to-blue-900 rounded-3xl p-6 sm:p-8 flex flex-col lg:flex-row items-center gap-6 text-white shadow-xl">
+            <div className="flex-1">
+              <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-white/15 text-amber-300 border border-white/20 mb-2">
+                <ShieldCheck className="w-3.5 h-3.5" /> Official Certification
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black mb-2 tracking-tight">Nationally Recognized Certificates</h2>
+              <p className="text-slate-100 text-xs sm:text-sm mb-5 leading-relaxed font-medium">
+                Our certificates are accepted in both government and private sector jobs across India.
+              </p>
+              <div className="grid grid-cols-2 gap-2.5">
+                {certBadges.map(({ label, icon: Icon }) => (
+                  <div key={label} className="flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-xl px-3 py-2 border border-white/15 hover:bg-white/20 transition-all duration-150">
+                    <Icon className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span className="text-white font-bold text-xs">{label}</span>
                   </div>
                 ))}
               </div>
             </div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
-              className="flex-shrink-0"
-            >
-              <div className="w-48 h-48 rounded-full bg-white/10 border-4 border-white/20 flex flex-col items-center justify-center text-center p-4">
-                <BadgeCheck className="w-16 h-16 text-yellow-400 mb-2" />
-                <div className="text-white font-black text-lg">Govt.</div>
-                <div className="text-yellow-400 font-bold text-sm">Recognized</div>
+            <div className="shrink-0">
+              <div className="w-36 h-36 rounded-full bg-white/10 backdrop-blur-md border-2 border-white/20 flex flex-col items-center justify-center text-center p-3 shadow-xl">
+                <BadgeCheck className="w-10 h-10 text-amber-400 mb-1" />
+                <div className="text-white font-black text-sm">Govt.</div>
+                <div className="text-amber-300 font-bold text-xs">Recognized</div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Notice Board */}
-      <section className="py-16 bg-gray-50">
+      {/* Notice Board & Online Services */}
+      <section className="py-16 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-12 gap-8">
+            
             {/* Notices */}
-            <div className="lg:col-span-2">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center">
-                  <Newspaper className="w-5 h-5 text-white" />
+            <div className="lg:col-span-7">
+              <div className="flex items-center gap-2.5 mb-5">
+                <div className="w-9 h-9 bg-red-600 rounded-xl flex items-center justify-center shadow-xs">
+                  <Newspaper className="w-4 h-4 text-white" />
                 </div>
-                <h2 className="text-2xl font-black text-gray-900">Notice Board</h2>
-                <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs font-bold rounded-full animate-pulse">LIVE</span>
+                <h2 className="text-xl font-black text-slate-900">Notice Board</h2>
+                <span className="px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-extrabold rounded-full border border-red-200">LIVE</span>
               </div>
-              <div className="space-y-3">
-                {notices.map((notice, i) => (
-                  <motion.div key={i}
-                    initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-                    className="flex items-start gap-3 bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all"
+              <div className="space-y-2.5">
+                {notices.map((n, i) => (
+                  <div key={i}
+                    className="flex items-center gap-3 bg-white rounded-xl p-3.5 shadow-2xs border border-slate-200/80 hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-150"
                   >
-                    <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 shrink-0" />
-                    <p className="text-gray-700 text-sm font-medium">{notice}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* Online Features */}
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-                  <Wifi className="w-5 h-5 text-white" />
-                </div>
-                <h2 className="text-2xl font-black text-gray-900">Online Services</h2>
-              </div>
-              <div className="space-y-3">
-                {[
-                  { icon: PlayCircle, label: 'Online Classes Available', color: 'text-blue-600', bg: 'bg-blue-50' },
-                  { icon: FileText, label: 'Digital Study Material', color: 'text-violet-600', bg: 'bg-violet-50' },
-                  { icon: Award, label: 'Online Result Check', color: 'text-emerald-600', bg: 'bg-emerald-50' },
-                  { icon: BadgeCheck, label: 'Certificate Verification', color: 'text-orange-600', bg: 'bg-orange-50' },
-                  { icon: Clock, label: 'Flexible Batch Timings', color: 'text-teal-600', bg: 'bg-teal-50' },
-                  { icon: Phone, label: '24/7 Student Support', color: 'text-pink-600', bg: 'bg-pink-50' },
-                ].map(({ icon: Icon, label, color, bg }) => (
-                  <div key={label} className={`flex items-center gap-3 ${bg} rounded-xl px-4 py-3`}>
-                    <Icon className={`w-5 h-5 ${color} shrink-0`} />
-                    <span className="text-gray-700 text-sm font-semibold">{label}</span>
+                    <span className="text-[10px] font-black bg-blue-50 text-blue-800 px-2 py-0.5 rounded shrink-0 border border-blue-200">
+                      {n.badge}
+                    </span>
+                    <p className="text-slate-900 text-xs sm:text-sm font-bold">{n.text}</p>
                   </div>
                 ))}
               </div>
             </div>
+
+            {/* Online Services */}
+            <div className="lg:col-span-5">
+              <div className="flex items-center gap-2.5 mb-5">
+                <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-xs">
+                  <Wifi className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-xl font-black text-slate-900">Online Student Services</h2>
+              </div>
+              <div className="space-y-2.5">
+                {[
+                  { icon: PlayCircle, label: 'Online Classes Available', color: 'text-blue-700', bg: 'bg-blue-50/80 border-blue-200' },
+                  { icon: FileText, label: 'Digital Study Material', color: 'text-purple-700', bg: 'bg-purple-50/80 border-purple-200' },
+                  { icon: Award, label: 'Online Result Verification', color: 'text-emerald-700', bg: 'bg-emerald-50/80 border-emerald-200' },
+                  { icon: BadgeCheck, label: 'Certificate Verification', color: 'text-amber-700', bg: 'bg-amber-50/80 border-amber-200' },
+                  { icon: Clock, label: 'Flexible Batch Timings', color: 'text-teal-700', bg: 'bg-teal-50/80 border-teal-200' },
+                  { icon: Phone, label: '24/7 Student Support', color: 'text-pink-700', bg: 'bg-pink-50/80 border-pink-200' },
+                ].map(({ icon: Icon, label, color, bg }) => (
+                  <div key={label} className={`flex items-center gap-3 ${bg} border rounded-xl px-3.5 py-2.5 shadow-2xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-150`}>
+                    <Icon className={`w-4 h-4 ${color} shrink-0`} />
+                    <span className="text-slate-900 text-xs sm:text-sm font-extrabold">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
       {/* Featured Courses */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-16 bg-white border-y border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <SectionTitle title="Featured Courses" subtitle="Industry-relevant courses designed to boost your career" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <SectionTitle badge="CATALOG" title="Featured Courses" subtitle="Industry-relevant computer programs designed to boost your career" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
             {courses.map((course, i) => <CourseCard key={course._id} course={course} index={i} />)}
           </div>
           <div className="text-center mt-10">
-            <Link to="/courses" className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">
+            <Link to="/courses" className="inline-flex items-center gap-2 px-7 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 text-xs sm:text-sm">
               View All Courses <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -568,59 +522,61 @@ export default function Home() {
       </section>
 
       {/* Why Choose Us */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
-          <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-            <SectionTitle title="Why Choose KCI?" subtitle="We provide the best computer education with modern facilities" center={false} />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
+      <section className="py-16 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-10 items-center">
+          <div>
+            <SectionTitle badge="ADVANTAGES" title="Why Choose KCI?" subtitle="We provide the best computer education with modern lab facilities" center={false} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
               {features.map((f) => (
-                <div key={f} className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl">
-                  <CheckCircle className="w-5 h-5 text-blue-600 shrink-0" />
-                  <span className="text-gray-700 text-sm font-medium">{f}</span>
+                <div key={f} className="flex items-center gap-2.5 p-3 bg-white rounded-xl shadow-2xs border border-slate-200/80 hover:shadow-xs hover:border-blue-200 transition-all duration-150">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="text-slate-900 text-xs sm:text-sm font-bold">{f}</span>
                 </div>
               ))}
             </div>
-            <Link to="/about" className="inline-flex items-center gap-2 mt-8 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors">
+            <Link to="/about" className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 shadow-md text-xs sm:text-sm">
               Learn More About Us <ArrowRight className="w-4 h-4" />
             </Link>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl p-8 text-white">
-            <h3 className="text-2xl font-bold mb-6">Quick Actions</h3>
+          </div>
+          
+          <div className="bg-gradient-to-br from-blue-700 to-indigo-900 rounded-3xl p-6 text-white shadow-xl">
+            <h3 className="text-xl font-black mb-5">Quick Actions</h3>
             <div className="space-y-3">
               {[
-                { label: 'Check Your Result', path: '/result', icon: Award },
+                { label: 'Check Examination Result', path: '/result', icon: Award },
                 { label: 'Apply for Admission', path: '/admission', icon: GraduationCap },
                 { label: 'Contact Us', path: '/contact', icon: Phone },
               ].map(({ label, path, icon: Icon }) => (
-                <Link key={path} to={path} className="flex items-center gap-3 p-4 bg-white/10 hover:bg-white/20 rounded-xl transition-colors group">
-                  <Icon className="w-5 h-5 text-yellow-400" />
-                  <span className="font-medium">{label}</span>
+                <Link key={path} to={path} className="flex items-center gap-3 p-3.5 bg-white/10 hover:bg-white/20 rounded-2xl backdrop-blur-md transition-all duration-150 group border border-white/10 hover:shadow-md">
+                  <div className="w-9 h-9 rounded-xl bg-amber-400/20 flex items-center justify-center shrink-0">
+                    <Icon className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <span className="font-extrabold text-xs sm:text-sm">{label}</span>
                   <ArrowRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform" />
                 </Link>
               ))}
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Admit Card Download — only when admin enables */}
+      {/* Admit Card Download */}
       {admitCardEnabled && (
-        <section className="py-16 bg-gradient-to-r from-blue-700 to-indigo-700">
+        <section className="py-14 bg-gradient-to-r from-blue-700 via-indigo-800 to-blue-900 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8">
-              <div className="text-white text-center lg:text-left">
-                <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm font-semibold mb-4">
-                  <FileText className="w-4 h-4" /> Exam Season Active
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+              <div className="text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-3.5 py-1 text-xs font-bold mb-3">
+                  <FileText className="w-4 h-4 text-amber-300" /> Exam Season Active
                 </div>
-                <h2 className="text-2xl sm:text-4xl font-black mb-3">Download Your Admit Card</h2>
-                <p className="text-blue-200 text-sm sm:text-base max-w-md">Admit cards are now available. Enter your enrollment number to download your examination admit card instantly.</p>
+                <h2 className="text-2xl sm:text-3xl font-black mb-2">Download Your Admit Card</h2>
+                <p className="text-slate-100 text-xs sm:text-sm max-w-md font-medium">Admit cards are now available. Enter your enrollment number to download your examination admit card instantly.</p>
               </div>
               <Link to="/admit-card"
-                className="flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-black rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 text-base sm:text-lg whitespace-nowrap">
-                <FileText className="w-5 sm:w-6 h-5 sm:h-6" /> Download Admit Card
+                className="flex items-center gap-2 px-7 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-150 text-xs sm:text-sm whitespace-nowrap">
+                <FileText className="w-4.5 h-4.5" /> Download Admit Card
               </Link>
-            </motion.div>
+            </div>
           </div>
         </section>
       )}
@@ -628,59 +584,24 @@ export default function Home() {
       {/* Testimonials */}
       <TestimonialsSection />
 
-      {/* Partners & Government Affiliations */}
-      <section className="py-16 bg-white overflow-hidden">
+      {/* Government Affiliations */}
+      <section className="py-14 bg-white overflow-hidden border-t border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <SectionTitle title="Our Partners & Affiliations" subtitle="Trusted by government bodies and leading companies" />
+          <SectionTitle badge="TRUSTED" title="Government Recognized & Affiliated" subtitle="Recognized by government bodies and national skill development councils" />
 
-          {/* Government Bodies */}
-          <div className="mb-8">
-            <p className="text-center text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">Government Recognized & Affiliated</p>
-            <div className="relative overflow-hidden">
-              <div className="flex gap-8 animate-marquee">
-                {[...Array(2)].map((_, repeat) =>
-                  [
-                    { name: 'NIELIT', bg: 'bg-blue-50', text: 'text-blue-700', emoji: '🏛️' },
-                    { name: 'Ministry of IT', bg: 'bg-indigo-50', text: 'text-indigo-700', emoji: '🇮🇳' },
-                    { name: 'NSDC', bg: 'bg-green-50', text: 'text-green-700', emoji: '🎓' },
-                    { name: 'Skill India', bg: 'bg-orange-50', text: 'text-orange-700', emoji: '⚡' },
-                    { name: 'Govt. of UP', bg: 'bg-yellow-50', text: 'text-yellow-700', emoji: '🏅' },
-                    { name: 'Digital India', bg: 'bg-teal-50', text: 'text-teal-700', emoji: '💻' },
-                    { name: 'ISO Certified', bg: 'bg-purple-50', text: 'text-purple-700', emoji: '✅' },
-                  ].map((item, i) => (
-                    <div key={`${repeat}-${i}`} className={`flex-shrink-0 flex items-center gap-3 ${item.bg} rounded-2xl px-6 py-4 shadow-sm border border-white`}>
-                      <span className="text-3xl">{item.emoji}</span>
-                      <span className={`font-bold text-sm ${item.text} whitespace-nowrap`}>{item.name}</span>
+          <div className="relative overflow-hidden mt-6">
+            <div className="flex gap-4 animate-marquee">
+              {['0', '1'].map((repeatKey) =>
+                govtAffiliations.map((item, i) => {
+                  const ItemIcon = item.icon;
+                  return (
+                    <div key={`${repeatKey}-${i}`} className={`flex-shrink-0 flex items-center gap-2.5 ${item.bg} rounded-xl px-4 py-3 shadow-2xs border border-slate-200/70 hover:shadow-md hover:-translate-y-0.5 transition-all duration-150`}>
+                      <ItemIcon className="w-4 h-4 text-blue-600 shrink-0" />
+                      <span className={`font-black text-xs sm:text-sm ${item.text} whitespace-nowrap`}>{item.name}</span>
                     </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Company Partners - reverse direction */}
-          <div>
-            <p className="text-center text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">Industry & Corporate Partners</p>
-            <div className="relative overflow-hidden">
-              <div className="flex gap-8 animate-marquee-reverse">
-                {[...Array(2)].map((_, repeat) =>
-                  [
-                    { name: 'TCS', bg: 'bg-blue-50', text: 'text-blue-800', emoji: '🔵' },
-                    { name: 'Infosys', bg: 'bg-indigo-50', text: 'text-indigo-800', emoji: '🟣' },
-                    { name: 'Wipro', bg: 'bg-cyan-50', text: 'text-cyan-800', emoji: '🔷' },
-                    { name: 'HCL Tech', bg: 'bg-green-50', text: 'text-green-800', emoji: '🟢' },
-                    { name: 'Tech Mahindra', bg: 'bg-red-50', text: 'text-red-800', emoji: '🔴' },
-                    { name: 'Accenture', bg: 'bg-purple-50', text: 'text-purple-800', emoji: '🟪' },
-                    { name: 'IBM', bg: 'bg-blue-50', text: 'text-blue-900', emoji: '💠' },
-                    { name: 'Microsoft', bg: 'bg-sky-50', text: 'text-sky-800', emoji: '🪟' },
-                  ].map((item, i) => (
-                    <div key={`${repeat}-${i}`} className={`flex-shrink-0 flex items-center gap-3 ${item.bg} rounded-2xl px-6 py-4 shadow-sm border border-white`}>
-                      <span className="text-3xl">{item.emoji}</span>
-                      <span className={`font-bold text-sm ${item.text} whitespace-nowrap`}>{item.name}</span>
-                    </div>
-                  ))
-                )}
-              </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>

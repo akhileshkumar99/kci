@@ -15,9 +15,9 @@ export default function Loader() {
       setDisplayed(TEXT.slice(0, i + 1));
       i++;
       if (i >= TEXT.length) { clearInterval(type); setDone(true); }
-    }, 30);
-    const blink = setInterval(() => setCursor(c => !c), 500);
-    const hide = setTimeout(() => setVisible(false), TEXT.length * 30 + 300);
+    }, 15);
+    const blink = setInterval(() => setCursor(c => !c), 250);
+    const hide = setTimeout(() => setVisible(false), TEXT.length * 15 + 200);
     return () => { clearInterval(type); clearInterval(blink); clearTimeout(hide); };
   }, []);
 
@@ -27,7 +27,7 @@ export default function Loader() {
         <motion.div
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.3 }}
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
           style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)' }}
         >
@@ -44,7 +44,7 @@ export default function Loader() {
                 borderRadius: '50%',
               }}
               animate={{ rotate: 360 }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+              transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
             />
             <div className="absolute rounded-full bg-[#0f172a]" style={{ width: 134, height: 134 }} />
             <motion.div
@@ -52,7 +52,7 @@ export default function Loader() {
               style={{ width: 120, height: 120, borderRadius: '50%', background: 'white' }}
               initial={{ opacity: 0, scale: 0.7 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, type: 'spring', stiffness: 200 }}
+              transition={{ duration: 0.2, type: 'spring', stiffness: 300 }}
             >
               <img src="/logo.png" alt="KCI" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block', padding: '0' }} />
             </motion.div>
@@ -68,7 +68,7 @@ export default function Loader() {
               style={{ background: 'linear-gradient(90deg, transparent, #facc15, transparent)' }}
               initial={{ scaleX: 0 }}
               animate={{ scaleX: done ? 1 : displayed.length / TEXT.length }}
-              transition={{ duration: 0.1 }}
+              transition={{ duration: 0.05 }}
             />
           </div>
 
@@ -81,7 +81,7 @@ export default function Loader() {
                   className="rounded-full w-2"
                   style={{ background: colors[i % colors.length] }}
                   animate={{ height: ['25%', `${40 + Math.sin((i / 16) * Math.PI) * 60}%`, '25%'] }}
-                  transition={{ duration: 0.7, repeat: Infinity, delay: i * 0.06, ease: 'easeInOut' }}
+                  transition={{ duration: 0.4, repeat: Infinity, delay: i * 0.03, ease: 'easeInOut' }}
                 />
               );
             })}
@@ -92,7 +92,7 @@ export default function Loader() {
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.1 }}
                 className="mt-4 text-yellow-400/60 text-xs font-mono tracking-[0.4em] uppercase z-10"
               >
                 Est. 2006

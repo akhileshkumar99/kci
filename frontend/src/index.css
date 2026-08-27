@@ -5,7 +5,9 @@
 @layer base {
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+    background-color: #f1f5f9;
+    color: #0f172a;
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
     overscroll-behavior: none;
@@ -103,14 +105,14 @@
 }
 .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
 
-/* Card press animation */
-.card-press { transition: transform 0.12s ease, box-shadow 0.12s ease; }
-.card-press:active { transform: scale(0.97); }
+/* Fast Card press animation */
+.card-press { transition: transform 0.08s ease, box-shadow 0.08s ease; }
+.card-press:active { transform: scale(0.98); }
 
-/* Smooth tab content */
-.tab-content { animation: tabFadeIn 0.22s ease; }
+/* Fast & smooth tab content */
+.tab-content { animation: tabFadeIn 0.1s ease; }
 @keyframes tabFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -131,10 +133,10 @@
 
 /* Quick action card gradient hover */
 .quick-action-card {
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
-.quick-action-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
-.quick-action-card:active { transform: scale(0.96); }
+.quick-action-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+.quick-action-card:active { transform: scale(0.97); }
 
 /* Mobile touch targets — min 44px */
 @media (max-width: 768px) {
@@ -145,7 +147,7 @@
 }
 
 /* Dark mode base */
-.dark body { background-color: #0f172a; color: #e2e8f0; }
+.dark body { background-color: #0f172a; color: #f8fafc; }
 .dark .bg-white { background-color: #1e293b !important; }
 .dark .bg-gray-50 { background-color: #0f172a !important; }
 .dark .bg-gray-100 { background-color: #1e293b !important; }
