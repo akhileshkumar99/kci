@@ -9,6 +9,14 @@
     padding: 0;
   }
 
+  html,
+  body,
+  #root {
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+  }
+
   body {
     font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
     background-color: #f1f5f9;
@@ -16,7 +24,6 @@
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
     overscroll-behavior: none;
-    overflow-x: hidden;
     font-size: 16px;
     line-height: 1.6;
   }
@@ -40,6 +47,35 @@
 
   button {
     cursor: pointer;
+  }
+}
+
+/* Floating Widgets Positioning & Z-index Safety */
+.floating-whatsapp,
+[class*="whatsapp"],
+[id*="whatsapp"] {
+  z-index: 100 !important;
+}
+
+@media (min-width: 768px) {
+  .floating-whatsapp {
+    bottom: 24px !important;
+    right: 24px !important;
+  }
+  .floating-chat {
+    bottom: 100px !important;
+    right: 24px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .floating-whatsapp {
+    bottom: 80px !important;
+    right: 16px !important;
+  }
+  .floating-chat {
+    bottom: 145px !important;
+    right: 16px !important;
   }
 }
 

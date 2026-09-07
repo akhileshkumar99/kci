@@ -42,7 +42,7 @@ function InfoRow({ label, value }) {
 function CardInner({ W, H, student, branch, fields, qrDataUrl }) {
   const scale = W / 856;
   const s = (n) => Math.round(n * scale);
-  const HDR  = s(130);
+  const HDR = s(130);
   const FOOT = s(72);
   return (
     <div style={{
@@ -205,20 +205,20 @@ function IDCard({ student, branch }) {
     });
     QRCode.toDataURL(qrData, { width: 300, margin: 1, color: { dark: '#081d5b', light: '#ffffff' } })
       .then(url => setQrDataUrl(url))
-      .catch(() => {});
+      .catch(() => { });
   }, [student, branch, uniqueId]);
 
   const admDate = student?.admissionDate ? new Date(student.admissionDate).toLocaleDateString('en-IN') : '-';
   const fields = [
-    ['Form No',        uniqueId],
-    ['Name',           student?.name],
-    ['Father Name',    student?.fatherName],
-    ['Course',         student?.courseName],
-    ['Branch',         branch?.branchName || student?.branchName || 'N/A'],
-    ['Session',        student?.batch || '-'],
+    ['Form No', uniqueId],
+    ['Name', student?.name],
+    ['Father Name', student?.fatherName],
+    ['Course', student?.courseName],
+    ['Branch', branch?.branchName || student?.branchName || 'N/A'],
+    ['Session', student?.batch || '-'],
     ['Date of Admission', admDate],
-    ['Date of Birth',  dob],
-    ['Address',        student?.address],
+    ['Date of Birth', dob],
+    ['Address', student?.address],
   ];
 
   return (
@@ -388,10 +388,10 @@ async function downloadCertificatePDF(c, student, branch) {
     const sz = 300;
     const cv = document.createElement('canvas'); cv.width = sz; cv.height = sz;
     const cx2 = cv.getContext('2d');
-    cx2.beginPath(); cx2.arc(sz/2, sz/2, sz/2, 0, Math.PI*2); cx2.closePath(); cx2.clip();
+    cx2.beginPath(); cx2.arc(sz / 2, sz / 2, sz / 2, 0, Math.PI * 2); cx2.closePath(); cx2.clip();
     cx2.drawImage(img, 0, 0, sz, sz);
     logoUrl = cv.toDataURL('image/png');
-  } catch (_) {}
+  } catch (_) { }
 
   // €€ OUTER DECORATIVE BORDER €€
   doc.setDrawColor(180, 140, 40); doc.setLineWidth(3);
@@ -402,7 +402,7 @@ async function downloadCertificatePDF(c, student, branch) {
   doc.rect(11, 11, W - 22, H - 22);
 
   // corner ornaments
-  const corners = [[12,12],[W-12,12],[12,H-12],[W-12,H-12]];
+  const corners = [[12, 12], [W - 12, 12], [12, H - 12], [W - 12, H - 12]];
   corners.forEach(([x, y]) => {
     doc.setFillColor(180, 140, 40);
     doc.circle(x, y, 2.5, 'F');
@@ -433,7 +433,7 @@ async function downloadCertificatePDF(c, student, branch) {
   doc.text('CERTIFICATE OF COMPLETION', W / 2, 72, { align: 'center' });
   // underline
   doc.setDrawColor(180, 140, 40); doc.setLineWidth(0.8);
-  doc.line(W/2 - 70, 75, W/2 + 70, 75);
+  doc.line(W / 2 - 70, 75, W / 2 + 70, 75);
 
   // €€ BODY TEXT €€
   // €€ Load Colonna MT font €€
@@ -444,7 +444,7 @@ async function downloadCertificatePDF(c, student, branch) {
     doc.addFileToVFS('Colonna.ttf', b64);
     doc.addFont('Colonna.ttf', 'Colonna', 'normal');
     colonnaLoaded = true;
-  } catch (_) {}
+  } catch (_) { }
 
   doc.setFontSize(11); doc.setFont('helvetica', 'normal'); doc.setTextColor(60, 60, 60);
   doc.text('This is to certify that', W / 2, 88, { align: 'center' });
@@ -457,7 +457,7 @@ async function downloadCertificatePDF(c, student, branch) {
   doc.text(nameText, W / 2, 103, { align: 'center' });
   // name underline
   doc.setDrawColor(15, 40, 110); doc.setLineWidth(0.5);
-  doc.line(W/2 - 55, 106, W/2 + 55, 106);
+  doc.line(W / 2 - 55, 106, W / 2 + 55, 106);
 
   doc.setFontSize(11); doc.setFont('helvetica', 'normal'); doc.setTextColor(60, 60, 60);
   doc.text('has successfully completed the course', W / 2, 116, { align: 'center' });
@@ -467,7 +467,7 @@ async function downloadCertificatePDF(c, student, branch) {
   doc.text(c.courseName || '””', W / 2, 128, { align: 'center' });
 
   doc.setFontSize(10.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(60, 60, 60);
-  const rollText = `Roll No: ${c.rollNumber || '””'}   |   Grade: ${c.grade || '””'}   |   Issue Date: ${c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' }) : '””'}`;
+  const rollText = `Roll No: ${c.rollNumber || '””'}   |   Grade: ${c.grade || '””'}   |   Issue Date: ${c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : '””'}`;
   doc.text(rollText, W / 2, 139, { align: 'center' });
 
   // Branch
@@ -479,12 +479,12 @@ async function downloadCertificatePDF(c, student, branch) {
   // €€ CERT NUMBER BADGE €€
   doc.setFillColor(245, 240, 220);
   doc.setDrawColor(180, 140, 40); doc.setLineWidth(0.5);
-  doc.roundedRect(W/2 - 45, 151, 90, 10, 2, 2, 'FD');
+  doc.roundedRect(W / 2 - 45, 151, 90, 10, 2, 2, 'FD');
   doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(100, 70, 10);
   doc.text(`Certificate No: ${c.certificateNumber || '””'}`, W / 2, 157.5, { align: 'center' });
 
   // €€ GRADE BADGE €€
-  const gradeColors = { 'A+': [22,163,74], 'A': [37,99,235], 'B+': [124,58,237], 'B': [79,70,229], 'C': [217,119,6], 'D': [234,179,8] };
+  const gradeColors = { 'A+': [22, 163, 74], 'A': [37, 99, 235], 'B+': [124, 58, 237], 'B': [79, 70, 229], 'C': [217, 119, 6], 'D': [234, 179, 8] };
   const gc = gradeColors[c.grade] || [15, 40, 110];
   doc.setFillColor(...gc);
   doc.circle(W - 35, 105, 16, 'F');
@@ -506,7 +506,7 @@ async function downloadCertificatePDF(c, student, branch) {
   doc.text(c.studentName || student?.name || '', 55, SY + 10, { align: 'center' });
 
   // center logo seal
-  if (logoUrl) doc.addImage(logoUrl, 'PNG', W/2 - 10, SY - 12, 20, 20);
+  if (logoUrl) doc.addImage(logoUrl, 'PNG', W / 2 - 10, SY - 12, 20, 20);
   doc.setTextColor(100, 70, 10); doc.setFontSize(7.5); doc.setFont('helvetica', 'bold');
   doc.text('KCI Official Seal', W / 2, SY + 10, { align: 'center' });
 
@@ -573,41 +573,41 @@ async function downloadReceiptPDF(form) {
   try {
     const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = '/logo.png'; });
     const sz = 300, cv = document.createElement('canvas'); cv.width = sz; cv.height = sz;
-    const cx = cv.getContext('2d'); cx.beginPath(); cx.arc(sz/2,sz/2,sz/2,0,Math.PI*2); cx.closePath(); cx.clip(); cx.drawImage(img,0,0,sz,sz);
+    const cx = cv.getContext('2d'); cx.beginPath(); cx.arc(sz / 2, sz / 2, sz / 2, 0, Math.PI * 2); cx.closePath(); cx.clip(); cx.drawImage(img, 0, 0, sz, sz);
     logoUrl = cv.toDataURL('image/png');
-  } catch(_) {}
+  } catch (_) { }
 
   // Header
-  doc.setFillColor(8,29,91); doc.rect(0,0,W,42,'F');
-  doc.setFillColor(212,175,55); doc.rect(0,42,W,2,'F');
-  if (logoUrl) doc.addImage(logoUrl,'PNG',M,7,24,24);
-  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
-  doc.text('KEERTI COMPUTER INSTITUTE', M+30, 18);
-  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(180,200,255);
-  doc.text('Govt. Recognised | ISO Certified | Ayodhya, U.P. | www.kci.org.in', M+30, 26);
+  doc.setFillColor(8, 29, 91); doc.rect(0, 0, W, 42, 'F');
+  doc.setFillColor(212, 175, 55); doc.rect(0, 42, W, 2, 'F');
+  if (logoUrl) doc.addImage(logoUrl, 'PNG', M, 7, 24, 24);
+  doc.setTextColor(255, 255, 255); doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+  doc.text('KEERTI COMPUTER INSTITUTE', M + 30, 18);
+  doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(180, 200, 255);
+  doc.text('Govt. Recognised | ISO Certified | Ayodhya, U.P. | www.kci.org.in', M + 30, 26);
   // Receipt pill
-  doc.setFillColor(212,175,55);
-  doc.roundedRect(M+30, 30, 50, 8, 2, 2, 'F');
-  doc.setTextColor(8,29,91); doc.setFontSize(8.5); doc.setFont('helvetica','bold');
-  doc.text('PAYMENT RECEIPT', M+55, 35.2, { align:'center' });
+  doc.setFillColor(212, 175, 55);
+  doc.roundedRect(M + 30, 30, 50, 8, 2, 2, 'F');
+  doc.setTextColor(8, 29, 91); doc.setFontSize(8.5); doc.setFont('helvetica', 'bold');
+  doc.text('PAYMENT RECEIPT', M + 55, 35.2, { align: 'center' });
 
   let y = 56;
 
   // Receipt No & Date
-  doc.setDrawColor(200,210,240); doc.setLineWidth(0.3);
-  doc.roundedRect(M, y, W-M*2, 14, 2, 2, 'FD');
-  doc.setFillColor(245,248,255); doc.roundedRect(M, y, W-M*2, 14, 2, 2, 'F');
-  doc.setTextColor(8,29,91); doc.setFontSize(8); doc.setFont('helvetica','bold');
-  doc.text(`Receipt No: KCI-${form.enrollmentNumber}-${Date.now().toString().slice(-6)}`, M+4, y+6);
-  doc.text(`Date: ${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}`, W-M-4, y+6, { align:'right' });
-  doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(100,100,100);
-  doc.text(`Status: ${form.status || 'Pending'} | Submitted: ${new Date(form.createdAt).toLocaleDateString('en-IN')}`, M+4, y+11);
+  doc.setDrawColor(200, 210, 240); doc.setLineWidth(0.3);
+  doc.roundedRect(M, y, W - M * 2, 14, 2, 2, 'FD');
+  doc.setFillColor(245, 248, 255); doc.roundedRect(M, y, W - M * 2, 14, 2, 2, 'F');
+  doc.setTextColor(8, 29, 91); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+  doc.text(`Receipt No: KCI-${form.enrollmentNumber}-${Date.now().toString().slice(-6)}`, M + 4, y + 6);
+  doc.text(`Date: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}`, W - M - 4, y + 6, { align: 'right' });
+  doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
+  doc.text(`Status: ${form.status || 'Pending'} | Submitted: ${new Date(form.createdAt).toLocaleDateString('en-IN')}`, M + 4, y + 11);
   y += 20;
 
   // Section: Student Details
-  doc.setFillColor(8,29,91); doc.roundedRect(M, y, W-M*2, 7, 1, 1, 'F');
-  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont('helvetica','bold');
-  doc.text('STUDENT DETAILS', M+4, y+5);
+  doc.setFillColor(8, 29, 91); doc.roundedRect(M, y, W - M * 2, 7, 1, 1, 'F');
+  doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+  doc.text('STUDENT DETAILS', M + 4, y + 5);
   y += 10;
 
   const studentRows = [
@@ -620,23 +620,23 @@ async function downloadReceiptPDF(form) {
     ['Email', form.email || '-'],
     ['Address', form.address || '-'],
   ];
-  studentRows.forEach(([l,v], i) => {
-    doc.setFillColor(i%2===0?255:248,i%2===0?255:249,i%2===0?255:255);
-    doc.rect(M, y, W-M*2, 8, 'F');
-    doc.setDrawColor(220,225,240); doc.setLineWidth(0.2);
-    doc.rect(M, y, W-M*2, 8, 'S');
-    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(8,29,91);
-    doc.text(l, M+3, y+5.5);
-    doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30);
-    doc.text(String(v), M+65, y+5.5, { maxWidth: W-M*2-68 });
+  studentRows.forEach(([l, v], i) => {
+    doc.setFillColor(i % 2 === 0 ? 255 : 248, i % 2 === 0 ? 255 : 249, i % 2 === 0 ? 255 : 255);
+    doc.rect(M, y, W - M * 2, 8, 'F');
+    doc.setDrawColor(220, 225, 240); doc.setLineWidth(0.2);
+    doc.rect(M, y, W - M * 2, 8, 'S');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(8, 29, 91);
+    doc.text(l, M + 3, y + 5.5);
+    doc.setFont('helvetica', 'normal'); doc.setTextColor(30, 30, 30);
+    doc.text(String(v), M + 65, y + 5.5, { maxWidth: W - M * 2 - 68 });
     y += 8;
   });
   y += 5;
 
   // Section: Payment Details
-  doc.setFillColor(22,101,52); doc.roundedRect(M, y, W-M*2, 7, 1, 1, 'F');
-  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont('helvetica','bold');
-  doc.text('PAYMENT DETAILS', M+4, y+5);
+  doc.setFillColor(22, 101, 52); doc.roundedRect(M, y, W - M * 2, 7, 1, 1, 'F');
+  doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+  doc.text('PAYMENT DETAILS', M + 4, y + 5);
   y += 10;
 
   const payRows = [
@@ -646,44 +646,44 @@ async function downloadReceiptPDF(form) {
     ['UTR / Transaction ID', form.paymentUtr || '-'],
     ['Payment Status', 'Paid'],
   ];
-  payRows.forEach(([l,v], i) => {
-    doc.setFillColor(i%2===0?240:255, i%2===0?253:255, i%2===0?244:255);
-    doc.rect(M, y, W-M*2, 8, 'F');
-    doc.setDrawColor(187,247,208); doc.setLineWidth(0.2);
-    doc.rect(M, y, W-M*2, 8, 'S');
-    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(22,101,52);
-    doc.text(l, M+3, y+5.5);
-    doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30);
-    doc.text(String(v), M+65, y+5.5);
+  payRows.forEach(([l, v], i) => {
+    doc.setFillColor(i % 2 === 0 ? 240 : 255, i % 2 === 0 ? 253 : 255, i % 2 === 0 ? 244 : 255);
+    doc.rect(M, y, W - M * 2, 8, 'F');
+    doc.setDrawColor(187, 247, 208); doc.setLineWidth(0.2);
+    doc.rect(M, y, W - M * 2, 8, 'S');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(22, 101, 52);
+    doc.text(l, M + 3, y + 5.5);
+    doc.setFont('helvetica', 'normal'); doc.setTextColor(30, 30, 30);
+    doc.text(String(v), M + 65, y + 5.5);
     y += 8;
   });
   y += 8;
 
   // Total box
-  doc.setFillColor(8,29,91); doc.roundedRect(M, y, W-M*2, 14, 3, 3, 'F');
-  doc.setTextColor(212,175,55); doc.setFontSize(12); doc.setFont('helvetica','bold');
-  doc.text('TOTAL PAID', M+6, y+9);
+  doc.setFillColor(8, 29, 91); doc.roundedRect(M, y, W - M * 2, 14, 3, 3, 'F');
+  doc.setTextColor(212, 175, 55); doc.setFontSize(12); doc.setFont('helvetica', 'bold');
+  doc.text('TOTAL PAID', M + 6, y + 9);
   doc.setFontSize(16);
-  doc.text(`\u20B9${form.amount || 1}`, W-M-6, y+9, { align:'right' });
+  doc.text(`\u20B9${form.amount || 1}`, W - M - 6, y + 9, { align: 'right' });
   y += 20;
 
   // Note
-  doc.setFillColor(254,252,232); doc.setDrawColor(234,179,8); doc.setLineWidth(0.4);
-  doc.roundedRect(M, y, W-M*2, 16, 2, 2, 'FD');
-  doc.setTextColor(120,80,0); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
-  doc.text('NOTE:', M+4, y+6);
-  doc.setFont('helvetica','normal'); doc.setTextColor(80,60,0);
-  doc.text('This is a computer-generated payment receipt for your exam form submission.', M+4, y+11, { maxWidth: W-M*2-8 });
-  doc.text('Keep this receipt for your records. For queries: 9936384736', M+4, y+15.5, { maxWidth: W-M*2-8 });
+  doc.setFillColor(254, 252, 232); doc.setDrawColor(234, 179, 8); doc.setLineWidth(0.4);
+  doc.roundedRect(M, y, W - M * 2, 16, 2, 2, 'FD');
+  doc.setTextColor(120, 80, 0); doc.setFontSize(7.5); doc.setFont('helvetica', 'bold');
+  doc.text('NOTE:', M + 4, y + 6);
+  doc.setFont('helvetica', 'normal'); doc.setTextColor(80, 60, 0);
+  doc.text('This is a computer-generated payment receipt for your exam form submission.', M + 4, y + 11, { maxWidth: W - M * 2 - 8 });
+  doc.text('Keep this receipt for your records. For queries: 9936384736', M + 4, y + 15.5, { maxWidth: W - M * 2 - 8 });
   y += 22;
 
   // Footer
-  doc.setFillColor(8,29,91); doc.rect(0, 275, W, 22, 'F');
-  doc.setTextColor(180,200,255); doc.setFontSize(7.5); doc.setFont('helvetica','normal');
-  doc.text('Keerti Computer Institute | Civil Lines, Ayodhya, U.P. - 224001', W/2, 282, { align:'center' });
-  doc.text('www.kci.org.in | info@kci.org.in | Mo: 9936384736', W/2, 288, { align:'center' });
-  doc.setTextColor(212,175,55); doc.setFontSize(7);
-  doc.text('This receipt is system generated and does not require a physical signature.', W/2, 293, { align:'center' });
+  doc.setFillColor(8, 29, 91); doc.rect(0, 275, W, 22, 'F');
+  doc.setTextColor(180, 200, 255); doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+  doc.text('Keerti Computer Institute | Civil Lines, Ayodhya, U.P. - 224001', W / 2, 282, { align: 'center' });
+  doc.text('www.kci.org.in | info@kci.org.in | Mo: 9936384736', W / 2, 288, { align: 'center' });
+  doc.setTextColor(212, 175, 55); doc.setFontSize(7);
+  doc.text('This receipt is system generated and does not require a physical signature.', W / 2, 293, { align: 'center' });
 
   doc.save(`KCI_Receipt_${form.enrollmentNumber}_${Date.now()}.pdf`);
   toast.success('Receipt downloaded!');
@@ -767,7 +767,7 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
     const txnNote = `KCI-EXAM-${student.enrollmentNumber || student.rollNumber || Date.now()}`;
     const upiString = `upi://pay?pa=${UPI_ID}&pn=Keerti Computer Institute&am=${AMOUNT}&cu=INR&tn=${encodeURIComponent(txnNote)}`;
     QRCode.toDataURL(upiString, { width: 200, margin: 1, color: { dark: '#081d5b', light: '#ffffff' } })
-      .then(setUpiQr).catch(() => {});
+      .then(setUpiQr).catch(() => { });
   }, [student]);
 
   // Auto-fill when student data loads
@@ -775,22 +775,22 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
     if (myExamForm) return; // already submitted, don't overwrite
     if (!student) return;
     setForm(f => f ? f : {
-      studentName:      student.name || '',
-      fatherName:       student.fatherName || '',
-      motherName:       '',
-      dob:              student.dob ? new Date(student.dob).toISOString().split('T')[0] : '',
-      gender:           '',
-      category:         'General',
+      studentName: student.name || '',
+      fatherName: student.fatherName || '',
+      motherName: '',
+      dob: student.dob ? new Date(student.dob).toISOString().split('T')[0] : '',
+      gender: '',
+      category: 'General',
       enrollmentNumber: student.enrollmentNumber || student.rollNumber || '',
-      course:           student.courseName || '',
-      batch:            student.batch || '',
-      session:          '',
-      qualification:    '',
-      subjects:         '',
-      phone:            student.phone || '',
-      email:            student.email || '',
-      address:          student.address || '',
-      paymentUtr:       '',
+      course: student.courseName || '',
+      batch: student.batch || '',
+      session: '',
+      qualification: '',
+      subjects: '',
+      phone: student.phone || '',
+      email: student.email || '',
+      address: student.address || '',
+      paymentUtr: '',
     });
   }, [student, myExamForm]);
 
@@ -813,7 +813,7 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
   };
 
   const statusColor = {
-    Pending:  'bg-yellow-100 text-yellow-700 border-yellow-200',
+    Pending: 'bg-yellow-100 text-yellow-700 border-yellow-200',
     Approved: 'bg-green-100 text-green-700 border-green-200',
     Rejected: 'bg-red-100 text-red-700 border-red-200',
   };
@@ -1115,11 +1115,10 @@ function StudentSidebarContent({ tabs, activeTab, setActiveTab, onCloseMobile, s
                 setActiveTab(id);
                 if (onCloseMobile) onCloseMobile();
               }}
-              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-bold transition-all duration-200 text-left cursor-pointer ${
-                isActive
+              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-bold transition-all duration-200 text-left cursor-pointer ${isActive
                   ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/25 font-black scale-[1.01]'
                   : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
-              }`}
+                }`}
             >
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isActive ? 'bg-white/20' : 'bg-white/5'}`}>
                 <Icon className="w-4 h-4" />
@@ -1184,25 +1183,25 @@ export default function StudentDashboard() {
     api.get('/branch/student/me')
       .then(r => { setData(r.data); setLoading(false); })
       .catch(() => { toast.error('Failed to load data'); setLoading(false); });
-    api.get('/branch/student/tests').then(r => setTests(r.data.tests || [])).catch(() => {});
-    api.get('/study-material').then(r => setStudyMaterials(r.data.materials || [])).catch(() => {});
-    api.get('/admit-card/setting').then(r => setAdmitCardEnabled(r.data.enabled || false)).catch(() => {});
+    api.get('/branch/student/tests').then(r => setTests(r.data.tests || [])).catch(() => { });
+    api.get('/study-material').then(r => setStudyMaterials(r.data.materials || [])).catch(() => { });
+    api.get('/admit-card/setting').then(r => setAdmitCardEnabled(r.data.enabled || false)).catch(() => { });
     api.get('/exam-forms/my').then(r => {
       setMyExamForm(r.data.form || null);
       setExamFormData(r.data.form || null);
       if (r.data.form) {
-        api.get('/admit-card/my').then(r2 => setAdmitCard(r2.data.admitCard || null)).catch(() => {});
+        api.get('/admit-card/my').then(r2 => setAdmitCard(r2.data.admitCard || null)).catch(() => { });
       }
-    }).catch(() => {});
+    }).catch(() => { });
     // Fetch file-based results uploaded by admin/branch
-    api.get('/results/my').then(r => setFileResults(r.data.results || [])).catch(() => {});
+    api.get('/results/my').then(r => setFileResults(r.data.results || [])).catch(() => { });
     // Fetch all certificates by enrollmentNumber/formNo
     api.get('/certificates/my-all').then(r => {
       if (r.data.certificates?.length) {
         setData(prev => ({ ...prev, certificates: r.data.certificates }));
       }
-    }).catch(() => {});
-    api.get('/notifications/my').then(r => { setNotifications(r.data.notifications || []); setUnreadCount(r.data.unreadCount || 0); }).catch(() => {});
+    }).catch(() => { });
+    api.get('/notifications/my').then(r => { setNotifications(r.data.notifications || []); setUnreadCount(r.data.unreadCount || 0); }).catch(() => { });
   }, [user?.id]);
 
   const handleLogout = () => { logout(); navigate('/'); };
@@ -1274,78 +1273,78 @@ export default function StudentDashboard() {
     try {
       const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = '/logo.png'; });
       const sz = 300, cv = document.createElement('canvas'); cv.width = sz; cv.height = sz;
-      const cx = cv.getContext('2d'); cx.beginPath(); cx.arc(sz/2,sz/2,sz/2,0,Math.PI*2); cx.closePath(); cx.clip(); cx.drawImage(img,0,0,sz,sz);
+      const cx = cv.getContext('2d'); cx.beginPath(); cx.arc(sz / 2, sz / 2, sz / 2, 0, Math.PI * 2); cx.closePath(); cx.clip(); cx.drawImage(img, 0, 0, sz, sz);
       logoUrl = cv.toDataURL('image/png');
-    } catch(_) {}
+    } catch (_) { }
 
     // €€ HEADER €€
-    doc.setFillColor(15,40,110); doc.rect(0,0,W,46,'F');
-    doc.setFillColor(250,204,21); doc.rect(0,46,W,2.5,'F');
-    if (logoUrl) doc.addImage(logoUrl,'PNG',M,7,28,28);
-    doc.setTextColor(255,255,255); doc.setFontSize(15); doc.setFont('helvetica','bold');
-    doc.text('KEERTI COMPUTER INSTITUTE', M+34, 18);
-    doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(180,210,255);
-    doc.text('Govt. Recognised | Est. 2005 | www.kci.org.in', M+34, 26);
+    doc.setFillColor(15, 40, 110); doc.rect(0, 0, W, 46, 'F');
+    doc.setFillColor(250, 204, 21); doc.rect(0, 46, W, 2.5, 'F');
+    if (logoUrl) doc.addImage(logoUrl, 'PNG', M, 7, 28, 28);
+    doc.setTextColor(255, 255, 255); doc.setFontSize(15); doc.setFont('helvetica', 'bold');
+    doc.text('KEERTI COMPUTER INSTITUTE', M + 34, 18);
+    doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(180, 210, 255);
+    doc.text('Govt. Recognised | Est. 2005 | www.kci.org.in', M + 34, 26);
     // RESULT CARD pill
-    doc.setFillColor(250,204,21);
-    doc.roundedRect(M+34, 31, 44, 8, 2, 2, 'F');
-    doc.setTextColor(15,40,110); doc.setFontSize(8.5); doc.setFont('helvetica','bold');
-    doc.text('TEST RESULT CARD', M+56, 36.2, { align:'center' });
+    doc.setFillColor(250, 204, 21);
+    doc.roundedRect(M + 34, 31, 44, 8, 2, 2, 'F');
+    doc.setTextColor(15, 40, 110); doc.setFontSize(8.5); doc.setFont('helvetica', 'bold');
+    doc.text('TEST RESULT CARD', M + 56, 36.2, { align: 'center' });
 
     // €€ INFO BOX €€
-    doc.setFillColor(245,248,255); doc.setDrawColor(200,210,240);
-    doc.roundedRect(M, 54, W-M*2, 46, 3, 3, 'FD');
+    doc.setFillColor(245, 248, 255); doc.setDrawColor(200, 210, 240);
+    doc.roundedRect(M, 54, W - M * 2, 46, 3, 3, 'FD');
     // section label
-    doc.setFillColor(15,40,110); doc.roundedRect(M, 54, 36, 7, 2, 2, 'F');
-    doc.setTextColor(255,255,255); doc.setFontSize(7); doc.setFont('helvetica','bold');
-    doc.text('TEST DETAILS', M+18, 58.8, { align:'center' });
+    doc.setFillColor(15, 40, 110); doc.roundedRect(M, 54, 36, 7, 2, 2, 'F');
+    doc.setTextColor(255, 255, 255); doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+    doc.text('TEST DETAILS', M + 18, 58.8, { align: 'center' });
 
     // PASS/FAIL badge ”” top right of info box
     const pass = attempt.percentage >= 33;
-    doc.setFillColor(...(pass ? [22,163,74] : [220,38,38]));
-    doc.roundedRect(W-M-26, 55, 24, 11, 2, 2, 'F');
-    doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont('helvetica','bold');
-    doc.text(pass ? 'PASS' : 'FAIL', W-M-14, 62, { align:'center' });
+    doc.setFillColor(...(pass ? [22, 163, 74] : [220, 38, 38]));
+    doc.roundedRect(W - M - 26, 55, 24, 11, 2, 2, 'F');
+    doc.setTextColor(255, 255, 255); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+    doc.text(pass ? 'PASS' : 'FAIL', W - M - 14, 62, { align: 'center' });
 
     // Info rows ”” 2 columns, fixed positions
     // Left:  label @ M+4,  value @ M+30
     // Right: label @ W/2+4, value @ W/2+30
-    const LL = M+4, LV = M+32;
-    const RL = W/2+4, RV = W/2+32;
-    const LMAX = W/2 - LV - 2;   // ~57mm
+    const LL = M + 4, LV = M + 32;
+    const RL = W / 2 + 4, RV = W / 2 + 32;
+    const LMAX = W / 2 - LV - 2;   // ~57mm
     const RMAX = W - M - RV - 2; // ~57mm
 
     const infoData = [
-      ['Test Title', test?.title||'””',   'Month',      test?.month||'””'],
-      ['Student',    attempt.studentName||'””', 'Roll No.', attempt.rollNumber||'””'],
-      ['Score',      `${attempt.score} / ${attempt.totalMarks}`, 'Percentage', `${attempt.percentage}%`],
+      ['Test Title', test?.title || '””', 'Month', test?.month || '””'],
+      ['Student', attempt.studentName || '””', 'Roll No.', attempt.rollNumber || '””'],
+      ['Score', `${attempt.score} / ${attempt.totalMarks}`, 'Percentage', `${attempt.percentage}%`],
     ];
 
-    infoData.forEach(([l1,v1,l2,v2], i) => {
+    infoData.forEach(([l1, v1, l2, v2], i) => {
       const y = 70 + i * 11;
-      doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(80,100,160);
-      doc.text(l1+' :', LL, y);
-      doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(15,15,15);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(80, 100, 160);
+      doc.text(l1 + ' :', LL, y);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(15, 15, 15);
       doc.text(String(v1), LV, y, { maxWidth: LMAX });
 
-      doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(80,100,160);
-      doc.text(l2+' :', RL, y);
-      doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(15,15,15);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(80, 100, 160);
+      doc.text(l2 + ' :', RL, y);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(15, 15, 15);
       doc.text(String(v2), RV, y, { maxWidth: RMAX });
     });
 
     // Time + Date below info box
     const metaY = 103;
-    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(100,100,100);
-    if (attempt.timeTaken) doc.text(`Time Taken: ${Math.floor(attempt.timeTaken/60)}m ${attempt.timeTaken%60}s`, M, metaY);
-    doc.text(`Date: ${new Date(attempt.submittedAt).toLocaleDateString('en-IN')}`, W-M, metaY, { align:'right' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(100, 100, 100);
+    if (attempt.timeTaken) doc.text(`Time Taken: ${Math.floor(attempt.timeTaken / 60)}m ${attempt.timeTaken % 60}s`, M, metaY);
+    doc.text(`Date: ${new Date(attempt.submittedAt).toLocaleDateString('en-IN')}`, W - M, metaY, { align: 'right' });
 
     // €€ QUESTIONS TABLE €€
-    const rows = (questions||[]).map((q, i) => [
-      i+1,
+    const rows = (questions || []).map((q, i) => [
+      i + 1,
       q.question,
-      attempt.answers[i] !== undefined ? (q.options[attempt.answers[i]]||'””') : 'Not answered',
-      q.options[correctAnswers[i]]||'””',
+      attempt.answers[i] !== undefined ? (q.options[attempt.answers[i]] || '””') : 'Not answered',
+      q.options[correctAnswers[i]] || '””',
       attempt.answers[i] === correctAnswers[i] ? 'Correct' : 'Wrong',
     ]);
 
@@ -1354,62 +1353,62 @@ export default function StudentDashboard() {
       head: [['#', 'Question', 'Your Answer', 'Correct Answer', 'Result']],
       body: rows,
       theme: 'grid',
-      headStyles: { fillColor:[15,40,110], textColor:[255,255,255], fontStyle:'bold', fontSize:8, cellPadding:3 },
-      bodyStyles: { fontSize:8, textColor:[20,20,20], cellPadding:3 },
-      alternateRowStyles: { fillColor:[245,248,255] },
+      headStyles: { fillColor: [15, 40, 110], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8, cellPadding: 3 },
+      bodyStyles: { fontSize: 8, textColor: [20, 20, 20], cellPadding: 3 },
+      alternateRowStyles: { fillColor: [245, 248, 255] },
       columnStyles: {
-        0: { halign:'center', cellWidth:10 },
-        1: { cellWidth:66 },
-        2: { cellWidth:36 },
-        3: { cellWidth:36 },
-        4: { halign:'center', cellWidth:20 },
+        0: { halign: 'center', cellWidth: 10 },
+        1: { cellWidth: 66 },
+        2: { cellWidth: 36 },
+        3: { cellWidth: 36 },
+        4: { halign: 'center', cellWidth: 20 },
       },
       didDrawCell: (data) => {
-        if (data.section==='body' && data.column.index===4) {
+        if (data.section === 'body' && data.column.index === 4) {
           const v = data.cell.raw;
           const isCorrect = v === 'Correct';
-          doc.setFillColor(isCorrect?220:255, isCorrect?255:220, isCorrect?220:220);
+          doc.setFillColor(isCorrect ? 220 : 255, isCorrect ? 255 : 220, isCorrect ? 220 : 220);
           doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, 'F');
-          doc.setTextColor(isCorrect?22:180, isCorrect?120:30, isCorrect?22:30);
-          doc.setFontSize(8); doc.setFont('helvetica','bold');
-          doc.text(v, data.cell.x+data.cell.width/2, data.cell.y+data.cell.height/2+1.5, { align:'center' });
+          doc.setTextColor(isCorrect ? 22 : 180, isCorrect ? 120 : 30, isCorrect ? 22 : 30);
+          doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+          doc.text(v, data.cell.x + data.cell.width / 2, data.cell.y + data.cell.height / 2 + 1.5, { align: 'center' });
         }
       },
-      margin: { left:M, right:M },
+      margin: { left: M, right: M },
     });
 
     // €€ SUMMARY BOX €€
     const tY = doc.lastAutoTable.finalY + 7;
-    doc.setFillColor(15,40,110); doc.roundedRect(M, tY, W-M*2, 26, 3, 3, 'F');
-    doc.setFillColor(250,204,21); doc.roundedRect(M, tY, W-M*2, 2, 1, 1, 'F');
+    doc.setFillColor(15, 40, 110); doc.roundedRect(M, tY, W - M * 2, 26, 3, 3, 'F');
+    doc.setFillColor(250, 204, 21); doc.roundedRect(M, tY, W - M * 2, 2, 1, 1, 'F');
 
     const sumItems = [
-      ['SCORE',      `${attempt.score}/${attempt.totalMarks}`],
+      ['SCORE', `${attempt.score}/${attempt.totalMarks}`],
       ['PERCENTAGE', `${attempt.percentage}%`],
-      ['RESULT',     pass ? 'PASS' : 'FAIL'],
+      ['RESULT', pass ? 'PASS' : 'FAIL'],
     ];
-    const cW = (W-M*2)/3;
-    sumItems.forEach(([lbl,val], i) => {
-      const x = M + i*cW + cW/2;
-      if (i>0) { doc.setDrawColor(255,255,255); doc.setLineWidth(0.3); doc.line(M+i*cW, tY+3, M+i*cW, tY+24); }
-      doc.setTextColor(180,210,255); doc.setFontSize(7); doc.setFont('helvetica','normal');
-      doc.text(lbl, x, tY+10, { align:'center' });
-      const isResult = lbl==='RESULT';
-      doc.setTextColor(isResult?250:255, isResult?204:255, isResult?21:255);
-      doc.setFontSize(13); doc.setFont('helvetica','bold');
-      doc.text(String(val), x, tY+22, { align:'center' });
+    const cW = (W - M * 2) / 3;
+    sumItems.forEach(([lbl, val], i) => {
+      const x = M + i * cW + cW / 2;
+      if (i > 0) { doc.setDrawColor(255, 255, 255); doc.setLineWidth(0.3); doc.line(M + i * cW, tY + 3, M + i * cW, tY + 24); }
+      doc.setTextColor(180, 210, 255); doc.setFontSize(7); doc.setFont('helvetica', 'normal');
+      doc.text(lbl, x, tY + 10, { align: 'center' });
+      const isResult = lbl === 'RESULT';
+      doc.setTextColor(isResult ? 250 : 255, isResult ? 204 : 255, isResult ? 21 : 255);
+      doc.setFontSize(13); doc.setFont('helvetica', 'bold');
+      doc.text(String(val), x, tY + 22, { align: 'center' });
     });
 
     // €€ FOOTER €€
     const fY = tY + 34;
-    doc.setFillColor(245,248,255); doc.rect(0, fY, W, 12, 'F');
-    doc.setTextColor(120,120,120); doc.setFontSize(7); doc.setFont('helvetica','italic');
+    doc.setFillColor(245, 248, 255); doc.rect(0, fY, W, 12, 'F');
+    doc.setTextColor(120, 120, 120); doc.setFontSize(7); doc.setFont('helvetica', 'italic');
     doc.text(
       `Generated on ${new Date().toLocaleDateString('en-IN')}  |  Keerti Computer Institute  |  9936384736`,
-      W/2, fY+7, { align:'center' }
+      W / 2, fY + 7, { align: 'center' }
     );
 
-    doc.save(`TestResult_${attempt.rollNumber}_${(test?.title||'KCI').replace(/\s+/g,'_')}.pdf`);
+    doc.save(`TestResult_${attempt.rollNumber}_${(test?.title || 'KCI').replace(/\s+/g, '_')}.pdf`);
     toast.success('PDF downloaded!');
   };
 
@@ -1423,10 +1422,10 @@ export default function StudentDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex student-portal font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-[#F5F7FB] text-[#0F172A] font-sans overflow-x-hidden w-full lg:grid lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)] 2xl:grid-cols-[260px_minmax(0,1fr)] student-portal">
 
       {/* DESKTOP PERMANENT DARK SIDEBAR (Visible >= 1024px) */}
-      <aside className="hidden lg:flex w-[260px] shrink-0 border-r border-slate-800 h-screen sticky top-0 z-40">
+      <aside className="hidden lg:flex flex-col h-screen sticky top-0 z-40 bg-[#151D2C] border-r border-slate-800 shrink-0 overflow-hidden">
         <StudentSidebarContent
           tabs={tabs}
           activeTab={activeTab}
@@ -1471,29 +1470,29 @@ export default function StudentDashboard() {
         )}
       </AnimatePresence>
 
-      {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+      {/* MAIN AREA */}
+      <div className="min-w-0 w-full bg-[#F5F7FB] flex flex-col min-h-screen">
 
-        {/* STICKY HEADER */}
-        <header className="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 shrink-0 h-16 px-4 sm:px-6 flex items-center justify-between shadow-xs">
+        {/* TOP HEADER */}
+        <header className="bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 shrink-0 h-[72px] px-4 sm:px-6 flex items-center justify-between shadow-xs">
           {/* Left Header Controls */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer shrink-0"
             >
               <Menu className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-3 min-w-0">
               <div className="lg:hidden w-8 h-8 rounded-lg overflow-hidden border border-slate-200 shrink-0">
                 <img src="/logo.png" alt="KCI" className="w-full h-full object-cover" />
               </div>
-              <div>
-                <h1 className="font-black text-slate-900 text-base sm:text-lg leading-tight">
+              <div className="min-w-0">
+                <h1 className="font-black text-slate-900 text-base sm:text-lg lg:text-xl leading-tight truncate">
                   {tabs.find(t => t.id === activeTab)?.label || 'Student Portal'}
                 </h1>
-                <p className="hidden sm:block text-xs text-slate-500 font-semibold">
+                <p className="hidden sm:block text-xs text-slate-500 font-semibold truncate">
                   Welcome back, {data.student?.name || user?.name || 'Student'}
                 </p>
               </div>
@@ -1501,7 +1500,7 @@ export default function StudentDashboard() {
           </div>
 
           {/* Right Header Controls */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={() => setActiveTab('notifications')}
               className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
@@ -1518,1045 +1517,1005 @@ export default function StudentDashboard() {
               onClick={() => setActiveTab('profile')}
               className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
             >
-              <div className="w-9 h-9 rounded-xl bg-blue-600 text-white font-black flex items-center justify-center overflow-hidden border border-slate-300 shadow-sm">
+              <div className="w-9 h-9 rounded-xl bg-blue-600 text-white font-black flex items-center justify-center overflow-hidden border border-slate-300 shadow-sm shrink-0">
                 {data.student?.photo ? (
                   <img src={data.student.photo} alt="" className="w-full h-full object-cover" />
                 ) : (
                   ((data.student?.name?.[0] || user?.name?.[0] || 'S').toUpperCase())
                 )}
               </div>
-              <div className="hidden sm:block text-left">
-                <div className="text-xs font-black text-slate-900 leading-tight">{data.student?.name || user?.name}</div>
-                <div className="text-[10px] text-blue-600 font-bold font-mono">{data.student?.rollNumber || 'Student'}</div>
+              <div className="hidden sm:block text-left min-w-0">
+                <div className="text-xs font-black text-slate-900 leading-tight truncate max-w-[120px]">{data.student?.name || user?.name}</div>
+                <div className="text-[10px] text-blue-600 font-bold font-mono truncate">{data.student?.rollNumber || 'Student'}</div>
               </div>
             </button>
           </div>
         </header>
 
-        {/* CONTENT SECTION */}
-        <div className="flex-1 p-4 sm:p-6 space-y-6 overflow-y-auto pb-24 lg:pb-8 max-w-7xl mx-auto w-full">
+        {/* MAIN CONTENT AREA */}
+        <main className="w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6 flex-1 box-border pb-24 lg:pb-8">
 
-        {/* Profile Tab */}
-        {activeTab === 'profile' && (
-          <div className="space-y-5">
-            {/* PREMIUM Profile Hero Card */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-              className="relative rounded-3xl overflow-hidden shadow-2xl"
-              style={{ background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)' }}>
-              {/* Animated BG orbs */}
-              <motion.div animate={{ scale: [1,1.2,1], opacity: [0.3,0.5,0.3] }} transition={{ duration: 6, repeat: Infinity }}
-                className="absolute top-0 right-0 w-72 h-72 rounded-full -translate-y-1/3 translate-x-1/3"
-                style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%)' }} />
-              <motion.div animate={{ scale: [1,1.3,1], opacity: [0.2,0.4,0.2] }} transition={{ duration: 8, repeat: Infinity, delay: 2 }}
-                className="absolute bottom-0 left-0 w-56 h-56 rounded-full translate-y-1/3 -translate-x-1/3"
-                style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.4) 0%, transparent 70%)' }} />
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.3) 100%)' }} />
+          {/* Profile Tab */}
+          {activeTab === 'profile' && (
+            <div className="space-y-6">
 
-              <div className="relative p-6 sm:p-8">
-                {/* Top badge */}
-                <div className="flex items-center justify-between mb-5">
-                  <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
-                    className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-3 py-1.5">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                    <span className="text-white/80 text-xs font-bold uppercase tracking-widest">Student Portal</span>
-                  </motion.div>
-                  <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
-                    className={`px-3 py-1.5 rounded-full text-xs font-black border ${
-                      student?.isApproved ? 'bg-green-400/20 border-green-400/40 text-green-300' : 'bg-yellow-400/20 border-yellow-400/40 text-yellow-300'
-                    }`}>
-                    {student?.isApproved ? '✓ Approved' : '⏳ Pending'}
-                  </motion.div>
-                </div>
+              {/* Profile Hero Card */}
+              <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
+                className="relative rounded-[24px] overflow-hidden shadow-lg border border-slate-200/80 bg-slate-900 text-white p-6 sm:p-8">
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0F172A] via-[#1E293B] to-[#1E1B4B] opacity-95" />
+                <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-blue-600/10 blur-3xl pointer-events-none" />
 
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                  {/* Avatar with ring animation */}
-                  <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
-                    className="relative shrink-0">
-                    <div className="absolute inset-0 rounded-full animate-ping opacity-20" style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', borderRadius: '1rem', animationDuration: '3s' }} />
-                    <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-white/30 shadow-2xl"
-                      style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
-                      {student?.photo
-                        ? <img src={student.photo} alt={student.name} className="w-full h-full object-cover" />
-                        : <span className="w-full h-full flex items-center justify-center text-4xl font-black text-white">{student?.name?.[0]?.toUpperCase() || 'S'}</span>
-                      }
+                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[auto_minmax(0,1fr)_auto] gap-6 items-center">
+                  {/* Avatar */}
+                  <div className="relative mx-auto lg:mx-0 shrink-0">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-[20px] overflow-hidden border-2 border-white/20 shadow-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-3xl font-black text-white">
+                      {data.student?.photo ? (
+                        <img src={data.student.photo} alt={data.student.name} className="w-full h-full object-cover" />
+                      ) : (
+                        (data.student?.name?.[0] || user?.name?.[0] || 'S').toUpperCase()
+                      )}
                     </div>
-                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-                      className="absolute -bottom-1 -right-1 w-8 h-8 rounded-xl flex items-center justify-center"
-                      style={{ background: 'linear-gradient(135deg,#10b981,#059669)', border: '2px solid rgba(255,255,255,0.3)' }}>
-                      <CheckCircle className="w-4 h-4 text-white" />
-                    </motion.div>
-                  </motion.div>
+                    <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center border-2 border-slate-900 shadow-md">
+                      <CheckCircle className="w-4 h-4" />
+                    </div>
+                  </div>
 
-                  {/* Name + info */}
-                  <div className="flex-1 text-center sm:text-left">
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                      <div className="text-white/50 text-xs font-bold uppercase tracking-widest mb-1">Student Profile</div>
-                      <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-3" style={{ textShadow: '0 2px 20px rgba(99,102,241,0.5)' }}>{student?.name}</h2>
-                    </motion.div>
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                      className="flex flex-wrap justify-center sm:justify-start gap-2 mb-4">
-                      <span className="flex items-center gap-1.5 text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
-                        <GraduationCap className="w-3.5 h-3.5 text-violet-300" /> {student?.courseName || 'N/A'}
+                  {/* Name & Academic Tags */}
+                  <div className="text-center lg:text-left min-w-0">
+                    <div className="flex items-center justify-center lg:justify-start gap-2 mb-1.5 flex-wrap">
+                      <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                        Student Profile
                       </span>
-                      <span className="flex items-center gap-1.5 text-yellow-300 text-xs font-bold px-3 py-1.5 rounded-xl border border-yellow-400/30 font-mono" style={{ background: 'rgba(250,204,21,0.1)', backdropFilter: 'blur(10px)' }}>
-                        <BookOpen className="w-3.5 h-3.5" /> {student?.rollNumber || 'N/A'}
+                      <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border ${data.student?.isApproved ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30'}`}>
+                        {data.student?.isApproved ? '✓ Verified Account' : '⏳ Pending Approval'}
                       </span>
-                      {student?.batch && (
-                        <span className="flex items-center gap-1.5 text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
-                          <Calendar className="w-3.5 h-3.5 text-blue-300" /> Batch {student.batch}
+                    </div>
+
+                    <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-3 truncate">
+                      {data.student?.name || user?.name}
+                    </h2>
+
+                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-xs">
+                      <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-slate-200 font-semibold">
+                        <GraduationCap className="w-4 h-4 text-violet-400 shrink-0" />
+                        <span className="truncate max-w-[180px]">{data.student?.courseName || 'N/A'}</span>
+                      </span>
+                      <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-400/30 text-amber-300 font-mono font-bold">
+                        <BookOpen className="w-4 h-4 text-amber-400 shrink-0" />
+                        <span>{data.student?.rollNumber || data.student?.formNo || 'N/A'}</span>
+                      </span>
+                      {data.student?.batch && (
+                        <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-slate-200 font-semibold">
+                          <Calendar className="w-4 h-4 text-blue-400 shrink-0" />
+                          <span>Batch {data.student.batch}</span>
                         </span>
                       )}
-                      {student?.fatherName && (
-                        <span className="flex items-center gap-1.5 text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/20" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
-                          <Users className="w-3.5 h-3.5 text-pink-300" /> {student.fatherName}
-                        </span>
-                      )}
-                    </motion.div>
-                    {/* Animated stats */}
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-                      className="flex flex-wrap justify-center sm:justify-start gap-5">
-                      {[
-                        { label: 'Results', value: results.length, color: '#fbbf24', icon: '📊' },
-                        { label: 'Certificates', value: certificates.filter(c => c.certificateFile).length, color: '#34d399', icon: '🏆' },
-                        { label: 'Tests', value: tests.length, color: '#a78bfa', icon: '📝' },
-                      ].map(({ label, value, color, icon }, i) => (
-                        <motion.div key={label} initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 + i * 0.1, type: 'spring' }}
-                          className="text-center">
-                          <div className="text-2xl font-black" style={{ color }}>{value}</div>
-                          <div className="text-white/50 text-[10px] font-bold uppercase tracking-wide">{label}</div>
-                        </motion.div>
-                      ))}
-                    </motion.div>
-                  </div>
-                </div>
-
-                {/* Bottom shimmer line */}
-                <motion.div animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }} transition={{ duration: 3, repeat: Infinity }}
-                  className="mt-5 h-0.5 rounded-full"
-                  style={{ background: 'linear-gradient(90deg, transparent, #6366f1, #8b5cf6, #ec4899, transparent)', backgroundSize: '200% 100%' }} />
-              </div>
-            </motion.div>
-
-            {/* Info Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-
-              {/* Personal Info */}
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-3 flex items-center gap-2">
-                  <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
-                    <User className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-white font-black text-sm">Personal Info</span>
-                </div>
-                <div className="p-4 space-y-3">
-                  {[
-                    { icon: User, label: 'Full Name', value: student?.name },
-                    { icon: Mail, label: 'Email', value: student?.email },
-                    { icon: Phone, label: 'Phone', value: student?.phone },
-                    { icon: Users, label: "Father's Name", value: student?.fatherName },
-                    { icon: Calendar, label: 'Date of Birth', value: student?.dob ? new Date(student.dob).toLocaleDateString('en-IN') : null },
-                    { icon: MapPin, label: 'Address', value: student?.address },
-                  ].map(({ icon: Icon, label, value }) => (
-                    <div key={label} className="flex items-start gap-3 py-1.5 border-b border-gray-50 last:border-0">
-                      <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-blue-400"><Icon className="w-4 h-4" /></div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label}</div>
-                        <div className="text-sm font-bold text-gray-800 truncate">{value || '-'}</div>
-                      </div>
                     </div>
-                  ))}
-                </div>
-              </motion.div>
-
-              {/* Academic Info */}
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="bg-gradient-to-r from-violet-600 to-purple-700 px-5 py-3 flex items-center gap-2">
-                  <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
-                    <BookOpen className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-white font-black text-sm">Academic Details</span>
-                </div>
-                <div className="p-4 space-y-3">
-                  {[
-                    { icon: BadgeCheck, label: 'Roll Number', value: student?.rollNumber, mono: true, highlight: true },
-                    { icon: Hash, label: 'Enrollment No.', value: student?.enrollmentNumber, mono: true },
-                    { icon: FileText, label: 'Form No.', value: student?.formNo, mono: true },
-                    { icon: BookOpen, label: 'Course', value: student?.courseName },
-                    { icon: Layers, label: 'Batch', value: student?.batch },
-                    { icon: ShieldCheck, label: 'Account Status', value: student?.isApproved ? 'Approved' : 'Pending' },
-                    { icon: CalendarDays, label: 'Admission Date', value: student?.admissionDate ? new Date(student.admissionDate).toLocaleDateString('en-IN') : null },
-                  ].map(({ icon: Icon, label, value, mono, highlight }) => (
-                    <div key={label} className="flex items-start gap-3 py-1.5 border-b border-gray-50 last:border-0">
-                      <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-violet-400"><Icon className="w-4 h-4" /></div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label}</div>
-                        <div className={`text-sm font-bold truncate ${
-                          highlight ? 'font-mono text-blue-600 text-base' : mono ? 'font-mono text-blue-600' : 'text-gray-800'
-                        }`}>{value || '-'}</div>
-                      </div>
+
+                  {/* Quick Stats Column */}
+                  <div className="flex lg:flex-col items-center justify-center gap-4 border-t lg:border-t-0 lg:border-l border-white/10 pt-4 lg:pt-0 lg:pl-6 shrink-0">
+                    <div className="text-center min-w-[65px]">
+                      <div className="text-2xl font-black text-amber-400">{results.length}</div>
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Results</div>
                     </div>
-                  ))}
-                </div>
-                {/* Performance mini bar */}
-                <div className="px-4 pb-4">
-                  <div className="bg-violet-50 rounded-xl p-3 border border-violet-100">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-violet-700 flex items-center gap-1"><TrendingUp className="w-3.5 h-3.5" /> Academic Progress</span>
-                      <span className="text-xs font-black text-violet-700">{results.length > 0 ? Math.round(results.reduce((a,r) => a + (r.percentage||0), 0) / results.length) : 0}% avg</span>
+                    <div className="text-center min-w-[65px]">
+                      <div className="text-2xl font-black text-emerald-400">{certificates.filter(c => c.certificateFile).length}</div>
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Certs</div>
                     </div>
-                    <div className="h-2 bg-violet-200 rounded-full overflow-hidden">
-                      <motion.div initial={{ width: 0 }} animate={{ width: `${results.length > 0 ? Math.min(Math.round(results.reduce((a,r) => a + (r.percentage||0), 0) / results.length), 100) : 0}%` }}
-                        transition={{ duration: 1, delay: 0.5 }} className="h-full bg-violet-600 rounded-full" />
+                    <div className="text-center min-w-[65px]">
+                      <div className="text-2xl font-black text-indigo-400">{tests.length}</div>
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tests</div>
                     </div>
                   </div>
                 </div>
               </motion.div>
 
-              {/* Branch Info */}
-              {branch && (
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                  className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                  <div className="bg-gradient-to-r from-indigo-600 to-blue-700 px-5 py-3 flex items-center gap-2">
-                    <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
-                      <Building2 className="w-4 h-4 text-white" />
+              {/* Info Cards Grid — 3 cols large desktop, 2-3 laptop, 1 mobile */}
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+
+                {/* Personal Info */}
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+                  className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.06)] border border-slate-200/80 overflow-hidden hover:-translate-y-[3px] transition-all duration-200">
+                  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-3.5 flex items-center gap-2.5 text-white">
+                    <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
+                      <User className="w-4 h-4" />
                     </div>
-                    <span className="text-white font-black text-sm">My Branch</span>
+                    <span className="font-black text-sm tracking-wide">Personal Info</span>
                   </div>
-                  <div className="p-4 space-y-3">
+                  <div className="p-5 space-y-3">
                     {[
-                      { icon: Building2, label: 'Branch Name', value: branch?.branchName },
-                      { icon: MapPinned, label: 'City', value: branch?.branchCity },
-                      { icon: Phone, label: 'Phone', value: branch?.phone },
-                      { icon: Mail, label: 'Email', value: branch?.email },
+                      { icon: User, label: 'Full Name', value: data.student?.name },
+                      { icon: Mail, label: 'Email', value: data.student?.email },
+                      { icon: Phone, label: 'Phone', value: data.student?.phone },
+                      { icon: Users, label: "Father's Name", value: data.student?.fatherName },
+                      { icon: Calendar, label: 'Date of Birth', value: data.student?.dob ? new Date(data.student.dob).toLocaleDateString('en-IN') : null },
+                      { icon: MapPin, label: 'Address', value: data.student?.address },
                     ].map(({ icon: Icon, label, value }) => (
-                      <div key={label} className="flex items-start gap-3 py-1.5 border-b border-gray-50 last:border-0">
-                        <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-indigo-400"><Icon className="w-4 h-4" /></div>
+                      <div key={label} className="flex items-start gap-3 py-1.5 border-b border-slate-100 last:border-0">
+                        <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-blue-500"><Icon className="w-4 h-4" /></div>
                         <div className="flex-1 min-w-0">
-                          <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label}</div>
-                          <div className="text-sm font-bold text-gray-800 truncate">{value || '-'}</div>
+                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</div>
+                          <div className="text-sm font-bold text-slate-800 truncate">{value || '-'}</div>
                         </div>
                       </div>
                     ))}
                   </div>
-                  {/* Branch map placeholder */}
-                  <div className="mx-4 mb-4 bg-indigo-50 rounded-xl p-3 border border-indigo-100 flex items-center gap-3">
-                    <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shrink-0">
-                      <Building2 className="w-5 h-5 text-white" />
+                </motion.div>
+
+                {/* Academic Info */}
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+                  className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.06)] border border-slate-200/80 overflow-hidden hover:-translate-y-[3px] transition-all duration-200">
+                  <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3.5 flex items-center gap-2.5 text-white">
+                    <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
+                      <BookOpen className="w-4 h-4" />
                     </div>
-                    <div>
-                      <div className="text-xs font-black text-indigo-800">{branch?.branchName}</div>
-                      <div className="text-[10px] text-indigo-500">{branch?.branchCity} | KCI Authorized Center</div>
+                    <span className="font-black text-sm tracking-wide">Academic Details</span>
+                  </div>
+                  <div className="p-5 space-y-3">
+                    {[
+                      { icon: BadgeCheck, label: 'Roll Number', value: data.student?.rollNumber, mono: true, highlight: true },
+                      { icon: Hash, label: 'Enrollment No.', value: data.student?.enrollmentNumber, mono: true },
+                      { icon: FileText, label: 'Form No.', value: data.student?.formNo, mono: true },
+                      { icon: BookOpen, label: 'Course', value: data.student?.courseName },
+                      { icon: Layers, label: 'Batch', value: data.student?.batch },
+                      { icon: ShieldCheck, label: 'Account Status', value: data.student?.isApproved ? 'Approved' : 'Pending' },
+                      { icon: CalendarDays, label: 'Admission Date', value: data.student?.admissionDate ? new Date(data.student.admissionDate).toLocaleDateString('en-IN') : null },
+                    ].map(({ icon: Icon, label, value, mono, highlight }) => (
+                      <div key={label} className="flex items-start gap-3 py-1.5 border-b border-slate-100 last:border-0">
+                        <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-indigo-500"><Icon className="w-4 h-4" /></div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</div>
+                          <div className={`text-sm font-bold truncate ${highlight ? 'font-mono text-blue-600 text-base' : mono ? 'font-mono text-blue-600' : 'text-slate-800'
+                            }`}>{value || '-'}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="px-5 pb-5">
+                    <div className="bg-indigo-50/70 rounded-xl p-3 border border-indigo-100">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs font-bold text-indigo-800 flex items-center gap-1"><TrendingUp className="w-3.5 h-3.5" /> Academic Progress</span>
+                        <span className="text-xs font-black text-indigo-700">{results.length > 0 ? Math.round(results.reduce((a, r) => a + (r.percentage || 0), 0) / results.length) : 0}% avg</span>
+                      </div>
+                      <div className="h-2 bg-indigo-200/80 rounded-full overflow-hidden">
+                        <motion.div initial={{ width: 0 }} animate={{ width: `${results.length > 0 ? Math.min(Math.round(results.reduce((a, r) => a + (r.percentage || 0), 0) / results.length), 100) : 0}%` }}
+                          transition={{ duration: 1, delay: 0.5 }} className="h-full bg-indigo-600 rounded-full" />
+                      </div>
                     </div>
                   </div>
                 </motion.div>
-              )}
-            </div>
 
-            {/* Dashboard Status Cards */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <h3 className="font-black text-gray-900 mb-4 text-sm uppercase tracking-wide">My Status Overview</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                {[
-                  {
-                    label: 'Admission',
-                    value: student?.isApproved ? 'Approved' : 'Pending',
-                    icon: CheckCircle,
-                    color: student?.isApproved ? 'bg-green-50 border-green-200 text-green-700' : 'bg-yellow-50 border-yellow-200 text-yellow-700',
-                    dot: student?.isApproved ? 'bg-green-500' : 'bg-yellow-500',
-                    tab: null,
-                  },
-                  {
-                    label: 'Exam Form',
-                    value: myExamForm ? myExamForm.status : 'Not Submitted',
-                    icon: FileText,
-                    color: myExamForm?.status === 'Approved' ? 'bg-green-50 border-green-200 text-green-700' : myExamForm?.status === 'Rejected' ? 'bg-red-50 border-red-200 text-red-700' : myExamForm ? 'bg-yellow-50 border-yellow-200 text-yellow-700' : 'bg-gray-50 border-gray-200 text-gray-500',
-                    dot: myExamForm?.status === 'Approved' ? 'bg-green-500' : myExamForm?.status === 'Rejected' ? 'bg-red-500' : myExamForm ? 'bg-yellow-500' : 'bg-gray-400',
-                    tab: 'examform',
-                  },
-                  {
-                    label: 'Admit Card',
-                    value: admitCard ? 'Available' : myExamForm?.status === 'Approved' ? 'Not Released' : 'Pending',
-                    icon: CreditCard,
-                    color: admitCard ? 'bg-green-50 border-green-200 text-green-700' : myExamForm?.status === 'Approved' ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-gray-50 border-gray-200 text-gray-500',
-                    dot: admitCard ? 'bg-green-500' : myExamForm?.status === 'Approved' ? 'bg-blue-500' : 'bg-gray-400',
-                    tab: 'admitcard',
-                  },
-                  {
-                    label: 'Results',
-                    value: results.length > 0 ? `${results.length} Published` : 'Not Published',
-                    icon: Award,
-                    color: results.length > 0 ? 'bg-green-50 border-green-200 text-green-700' : 'bg-gray-50 border-gray-200 text-gray-500',
-                    dot: results.length > 0 ? 'bg-green-500' : 'bg-gray-400',
-                    tab: 'results',
-                  },
-                  {
-                    label: 'Certificate',
-                    value: certificates.filter(c => c.certificateFile).length > 0 ? `${certificates.filter(c => c.certificateFile).length} Issued` : 'Not Issued',
-                    icon: Award,
-                    color: certificates.filter(c => c.certificateFile).length > 0 ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-gray-50 border-gray-200 text-gray-500',
-                    dot: certificates.filter(c => c.certificateFile).length > 0 ? 'bg-amber-500' : 'bg-gray-400',
-                    tab: 'certificates',
-                  },
-                  {
-                    label: 'ID Card',
-                    value: student ? 'Download' : 'Pending',
-                    icon: CreditCard,
-                    color: student ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-gray-50 border-gray-200 text-gray-500',
-                    dot: student ? 'bg-blue-500' : 'bg-gray-400',
-                    tab: 'idcard',
-                  },
-                ].map(({ label, value, icon: Icon, color, dot, tab }) => (
-                  <div key={label}
-                    onClick={() => tab && setActiveTab(tab)}
-                    className={`flex flex-col gap-2 p-3 rounded-xl border ${color} ${tab ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}>
-                    <div className="flex items-center justify-between">
-                      <Icon className="w-4 h-4" />
-                      <span className={`w-2 h-2 rounded-full ${dot}`} />
+                {/* Branch Info */}
+                {data.branch && (
+                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                    className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.06)] border border-slate-200/80 overflow-hidden hover:-translate-y-[3px] transition-all duration-200">
+                    <div className="bg-gradient-to-r from-blue-700 to-indigo-800 px-5 py-3.5 flex items-center gap-2.5 text-white">
+                      <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
+                        <Building2 className="w-4 h-4" />
+                      </div>
+                      <span className="font-black text-sm tracking-wide">My Branch</span>
                     </div>
-                    <div className="text-[10px] font-bold uppercase tracking-wide opacity-70">{label}</div>
-                    <div className="text-xs font-black leading-tight">{value}</div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Quick Actions */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-              className="rounded-2xl overflow-hidden shadow-sm border border-gray-100"
-              style={{ background: 'linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%)' }}>
-              <div className="px-5 pt-5 pb-3 flex items-center gap-2">
-                <div className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#6366f1,#8b5cf6)' }} />
-                <h3 className="font-black text-gray-900 text-sm uppercase tracking-wide">Quick Actions</h3>
-              </div>
-              <div className="p-4 grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3">
-                {[
-                  { label: 'Exam Form', icon: FileText, grad: 'linear-gradient(135deg,#3b82f6,#1d4ed8)', shadow: 'rgba(59,130,246,0.4)', tab: 'examform' },
-                  { label: 'ID Card', icon: CreditCard, grad: 'linear-gradient(135deg,#06b6d4,#0284c7)', shadow: 'rgba(6,182,212,0.4)', tab: 'idcard' },
-                  { label: 'Admit Card', icon: FileText, grad: 'linear-gradient(135deg,#6366f1,#4338ca)', shadow: 'rgba(99,102,241,0.4)', tab: 'admitcard' },
-                  { label: 'Results', icon: Award, grad: 'linear-gradient(135deg,#f59e0b,#d97706)', shadow: 'rgba(245,158,11,0.4)', tab: 'results' },
-                  { label: 'Certificates', icon: Award, grad: 'linear-gradient(135deg,#10b981,#059669)', shadow: 'rgba(16,185,129,0.4)', tab: 'certificates' },
-                  { label: 'Study', icon: BookMarked, grad: 'linear-gradient(135deg,#22c55e,#16a34a)', shadow: 'rgba(34,197,94,0.4)', tab: 'studymaterial' },
-                  { label: 'Tests', icon: ClipboardCheck, grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', shadow: 'rgba(139,92,246,0.4)', tab: 'tests' },
-                  { label: 'Password', icon: Lock, grad: 'linear-gradient(135deg,#f43f5e,#e11d48)', shadow: 'rgba(244,63,94,0.4)', tab: 'changepassword' },
-                ].map(({ label, icon: Icon, grad, shadow, tab }, i) => (
-                  <motion.button key={label} onClick={() => setActiveTab(tab)}
-                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.05 }}
-                    whileHover={{ y: -4, scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                    className="flex flex-col items-center gap-2 p-4 rounded-2xl text-white relative overflow-hidden"
-                    style={{ background: grad, boxShadow: `0 8px 24px ${shadow}` }}>
-                    <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity" style={{ background: 'rgba(255,255,255,0.1)' }} />
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.2)' }}>
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <span className="text-xs font-bold text-center leading-tight">{label}</span>
-                  </motion.button>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        )}
-
-        {/* ID Card Tab */}
-        {activeTab === 'idcard' && (
-          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
-            className="space-y-4">
-            <div className="flex items-center gap-3 mb-2">
-              <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
-                <ChevronRight className="w-4 h-4 rotate-180" />
-              </button>
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                <CreditCard className="w-4 h-4 text-white" />
-              </div>
-              <h2 className="text-xl font-black text-gray-900">My ID Card</h2>
-            </div>
-            <IDCard student={student} branch={branch} />
-          </motion.div>
-        )}
-
-        {/* Results Tab */}
-        {activeTab === 'results' && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
-                <ChevronRight className="w-4 h-4 rotate-180" />
-              </button>
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                <Award className="w-4 h-4 text-white" />
-              </div>
-              <h2 className="text-xl font-black text-gray-900">My Results</h2>
-            </div>
-            <ResultsSection results={results} fileResults={fileResults} />
-          </div>
-        )}
-
-        {/* Monthly Tests Tab */}
-        {activeTab === 'tests' && (
-          <div className="space-y-5">
-            {!activeTest && !testResult && (
-              <div className="flex items-center gap-3">
-                <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
-                  <ChevronRight className="w-4 h-4 rotate-180" />
-                </button>
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center">
-                  <ClipboardCheck className="w-4 h-4 text-white" />
-                </div>
-                <h2 className="text-xl font-black text-gray-900">Monthly Tests</h2>
-              </div>
-            )}
-            {/* Active test ”” timer + questions */}
-            {activeTest ? (
-              <div className="space-y-4">
-                {/* Timer bar */}
-                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
-                  <div>
-                    <h3 className="font-black text-gray-900">{activeTest.title}</h3>
-                    <p className="text-xs text-gray-400">{activeTest.questions.length} questions | {activeTest.totalMarks} marks</p>
-                  </div>
-                  <div className={`flex items-center gap-2 px-4 py-2 rounded-xl font-black text-lg ${
-                    timeLeft < 60 ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-indigo-100 text-indigo-700'
-                  }`}>
-                    <Clock className="w-5 h-5" />
-                    {String(Math.floor(timeLeft/60)).padStart(2,'0')}:{String(timeLeft%60).padStart(2,'0')}
-                  </div>
-                </div>
-                {/* Progress */}
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-indigo-500 rounded-full transition-all"
-                    style={{ width: `${(testAnswers.filter(a => a !== undefined).length / activeTest.questions.length) * 100}%` }} />
-                </div>
-                <p className="text-xs text-gray-400 text-right">{testAnswers.filter(a => a !== undefined).length}/{activeTest.questions.length} answered</p>
-                {/* Questions */}
-                {activeTest.questions.map((q, qi) => (
-                  <div key={qi} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-                    <p className="font-semibold text-gray-900 mb-3"><span className="text-indigo-600 font-black">Q{qi+1}.</span> {q.question} <span className="text-xs text-gray-400">({q.marks} mark{q.marks>1?'s':''})</span></p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {q.options.map((opt, oi) => (
-                        <button key={oi} type="button" onClick={() => setTestAnswers(p => p.map((a,i) => i===qi ? oi : a))}
-                          className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-sm font-medium text-left transition-all ${
-                            testAnswers[qi] === oi ? 'border-indigo-500 bg-indigo-50 text-indigo-800' : 'border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/50'
-                          }`}>
-                          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
-                            testAnswers[qi] === oi ? 'bg-indigo-500 text-white' : 'bg-gray-200 text-gray-600'
-                          }`}>{String.fromCharCode(65+oi)}</span>
-                          {opt}
-                        </button>
+                    <div className="p-5 space-y-3">
+                      {[
+                        { icon: Building2, label: 'Branch Name', value: data.branch?.branchName },
+                        { icon: MapPinned, label: 'City', value: data.branch?.branchCity },
+                        { icon: Phone, label: 'Phone', value: data.branch?.phone },
+                        { icon: Mail, label: 'Email', value: data.branch?.email },
+                      ].map(({ icon: Icon, label, value }) => (
+                        <div key={label} className="flex items-start gap-3 py-1.5 border-b border-slate-100 last:border-0">
+                          <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-blue-500"><Icon className="w-4 h-4" /></div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</div>
+                            <div className="text-sm font-bold text-slate-800 truncate">{value || '-'}</div>
+                          </div>
+                        </div>
                       ))}
                     </div>
-                  </div>
-                ))}
-                <button onClick={() => handleSubmitTest(false)}
-                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-base transition-colors shadow-lg">
-                  Submit Test →’
-                </button>
-              </div>
-            ) : testResult ? (
-              /* Result view */
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className={`px-6 py-5 text-white ${
-                  testResult.attempt.percentage >= 60 ? 'bg-gradient-to-r from-green-600 to-emerald-600' :
-                  testResult.attempt.percentage >= 33 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
-                  'bg-gradient-to-r from-red-600 to-rose-600'
-                }`}>
-                  <h3 className="font-black text-xl">{testResult.test?.title}</h3>
-                  <p className="text-white/80 text-sm">{testResult.test?.month}</p>
-                  <div className="flex items-center gap-6 mt-3">
-                    <div><div className="text-3xl font-black">{testResult.attempt.score}/{testResult.attempt.totalMarks}</div><div className="text-white/70 text-xs">Score</div></div>
-                    <div><div className="text-3xl font-black">{testResult.attempt.percentage}%</div><div className="text-white/70 text-xs">Percentage</div></div>
-                    <div><div className="text-2xl font-black">{testResult.attempt.percentage >= 33 ? '“ PASS' : 'FAIL'}</div><div className="text-white/70 text-xs">Result</div></div>
-                  </div>
-                </div>
-                <div className="p-5 space-y-3">
-                  {testResult.test?.questions?.map((q, qi) => {
-                    const selected = testResult.attempt.answers[qi];
-                    const correct = testResult.correctAnswers[qi];
-                    const isRight = selected === correct;
-                    return (
-                      <div key={qi} className={`p-4 rounded-xl border-2 ${
-                        isRight ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
-                      }`}>
-                        <p className="font-semibold text-gray-900 text-sm mb-2"><span className="font-black">{isRight ? '' : 'Œ'} Q{qi+1}.</span> {q.question}</p>
-                        <p className="text-xs text-gray-600">Your answer: <span className={`font-bold ${isRight ? 'text-green-700' : 'text-red-600'}`}>{selected !== undefined ? q.options[selected] : 'Not answered'}</span></p>
-                        {!isRight && <p className="text-xs text-green-700 font-bold">Correct: {q.options[correct]}</p>}
+                    <div className="mx-5 mb-5 bg-blue-50/70 rounded-xl p-3 border border-blue-100 flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm text-white">
+                        <Building2 className="w-5 h-5" />
                       </div>
-                    );
-                  })}
-                  <div className="flex gap-3 pt-2">
-                    <button onClick={() => { setTestResult(null); }}
-                      className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50">
-                      → Back to Tests
-                    </button>
-                    <button onClick={() => downloadTestResult(testResult.attempt, testResult.test, testResult.test?.questions, testResult.correctAnswers)}
-                      className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold">
-                      <Download className="w-4 h-4" /> Download Result
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              /* Tests list */
-              <div className="space-y-4">
-                <h2 className="text-xl font-black text-gray-900">Monthly Tests <span className="text-indigo-600">({tests.length})</span></h2>
-                {tests.length === 0 ? (
-                  <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
-                    <ClipboardCheck className="w-12 h-12 mx-auto mb-3 text-gray-200" />
-                    <p className="text-gray-400">No tests available yet</p>
-                  </div>
-                ) : (
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    {tests.map(t => (
-                      <motion.div key={t._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
-                        className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <h3 className="font-black text-gray-900">{t.title}</h3>
-                            <p className="text-xs text-indigo-600 font-semibold">{t.month}</p>
-                          </div>
-                          {t.attempted
-                            ? <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-bold">“ Done</span>
-                            : <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold">New</span>
-                          }
-                        </div>
-                        <div className="grid grid-cols-3 gap-2 text-center mb-4">
-                          {[['Questions', t.questions?.length||0], ['Marks', t.totalMarks||0], ['Duration', `${t.duration}m`]].map(([l,v]) => (
-                            <div key={l} className="bg-gray-50 rounded-xl py-2">
-                              <div className="text-sm font-black text-gray-900">{v}</div>
-                              <div className="text-[10px] text-gray-400">{l}</div>
-                            </div>
-                          ))}
-                        </div>
-                        {t.attempted && t.myScore !== undefined && (
-                          <div className="mb-3 px-3 py-2 bg-green-50 rounded-xl text-xs text-green-700 font-semibold">
-                            Your Score: {t.myScore}/{t.totalMarks} ({t.myPercentage}%)
-                          </div>
-                        )}
-                        <button onClick={() => handleStartTest(t)}
-                          className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-colors ${
-                            t.attempted ? 'bg-gray-100 hover:bg-gray-200 text-gray-700' : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md'
-                          }`}>
-                          {t.attempted ? <><Eye className="w-4 h-4" /> View Result</> : <><ChevronRight className="w-4 h-4" /> Start Test</>}
-                        </button>
-                      </motion.div>
-                    ))}
-                  </div>
+                      <div className="min-w-0">
+                        <div className="text-xs font-black text-blue-900 truncate">{data.branch?.branchName}</div>
+                        <div className="text-[10px] text-blue-600 font-bold truncate">{data.branch?.branchCity} | KCI Center</div>
+                      </div>
+                    </div>
+                  </motion.div>
                 )}
               </div>
-            )}
-          </div>
-        )}
 
-        {/* Admit Card Tab */}
-        {activeTab === 'admitcard' && (
-          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
-                <ChevronRight className="w-4 h-4 rotate-180" />
-              </button>
-              <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-xl flex items-center justify-center">
-                <FileText className="w-4 h-4 text-white" />
-              </div>
-              <h2 className="text-xl font-black text-gray-900">My Admit Card</h2>
-            </div>
-            {/* Workflow status messages */}
-            {!myExamForm && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-5 flex items-start gap-3">
-                <div className="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center shrink-0"><FileText className="w-5 h-5 text-yellow-600" /></div>
-                <div>
-                  <p className="font-black text-yellow-800">Exam Form Not Submitted</p>
-                  <p className="text-sm text-yellow-700 mt-1">Please submit your examination form first to get your Admit Card.</p>
-                  <button onClick={() => setActiveTab('examform')} className="mt-3 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl text-xs font-bold transition-colors">Submit Exam Form →</button>
-                </div>
-              </div>
-            )}
-            {myExamForm && myExamForm.status === 'Pending' && (
-              <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 flex items-start gap-3">
-                <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center shrink-0"><Clock className="w-5 h-5 text-orange-600" /></div>
-                <div>
-                  <p className="font-black text-orange-800">Examination Form Pending Approval</p>
-                  <p className="text-sm text-orange-700 mt-1">Your examination form is under review. Admit Card will be available once approved by admin.</p>
-                </div>
-              </div>
-            )}
-            {myExamForm && myExamForm.status === 'Rejected' && (
-              <div className="bg-red-50 border border-red-200 rounded-2xl p-5 flex items-start gap-3">
-                <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center shrink-0"><XCircle className="w-5 h-5 text-red-600" /></div>
-                <div>
-                  <p className="font-black text-red-800">Examination Form Rejected</p>
-                  <p className="text-sm text-red-700 mt-1">Your examination form was rejected. Please contact the institute administration.</p>
-                </div>
-              </div>
-            )}
-            {myExamForm && myExamForm.status === 'Approved' && !admitCard && (
-              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 flex items-start gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center shrink-0"><Clock className="w-5 h-5 text-blue-600" /></div>
-                <div>
-                  <p className="font-black text-blue-800">Admit Card Not Released Yet</p>
-                  <p className="text-sm text-blue-700 mt-1">Your exam form is approved. Admit Card will be available once the admin publishes the exam schedule and releases admit cards.</p>
-                </div>
-              </div>
-            )}
-            {admitCard && <AdmitCardComponent student={student} admitCard={admitCard} branch={branch} />}
-          </motion.div>
-        )}
-
-        {/* Study Material Tab */}
-        {activeTab === 'studymaterial' && (
-          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
-                <ChevronRight className="w-4 h-4 rotate-180" />
-              </button>
-              <div className="w-8 h-8 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center">
-                <BookMarked className="w-4 h-4 text-white" />
-              </div>
-              <h2 className="text-xl font-black text-gray-900">Study Material</h2>
-            </div>
-            {studyMaterials.length === 0 ? (
-              <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
-                <BookMarked className="w-12 h-12 mx-auto mb-3 text-gray-200" />
-                <p className="text-gray-500 font-semibold">No study material available yet</p>
-              </div>
-            ) : (
-              <div className="grid sm:grid-cols-2 gap-4">
-                {studyMaterials.map((m, i) => {
-                  const ytMatch = m.videoUrl && m.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^?&/]+)/);
-                  const ytThumb = ytMatch ? ('https://img.youtube.com/vi/' + ytMatch[1] + '/hqdefault.jpg') : null;
-                  const thumb = m.thumbnailUrl || ytThumb;
-                  const fixT = s => s ? s.replace(/-/g,'\u2013').replace(/-/g,'\u2014').replace(/ /g,' ') : s;
-                  const dateStr = m.createdAt ? new Date(m.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
-                  const handleDownloadPdf = async () => {
-                    const { default: jsPDF } = await import('jspdf');
-                    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-                    const W = 210, M = 15;
-                    let logoUrl = null;
-                    try {
-                      const img = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = '/logo.png'; });
-                      const sz = 200, cv = document.createElement('canvas'); cv.width = sz; cv.height = sz;
-                      const cx = cv.getContext('2d'); cx.beginPath(); cx.arc(sz/2,sz/2,sz/2,0,Math.PI*2); cx.closePath(); cx.clip(); cx.drawImage(img,0,0,sz,sz);
-                      logoUrl = cv.toDataURL('image/png');
-                    } catch(_) {}
-                    doc.setFillColor(8,29,91); doc.rect(0,0,W,40,'F');
-                    doc.setFillColor(212,175,55); doc.rect(0,40,W,2,'F');
-                    if (logoUrl) doc.addImage(logoUrl,'PNG',M,7,24,24);
-                    doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
-                    doc.text('KEERTI COMPUTER INSTITUTE', M+30,18);
-                    doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(180,200,255);
-                    doc.text('Govt. Recognised | ISO Certified | Ayodhya, U.P. | www.kci.org.in', M+30,26);
-                    doc.setFillColor(212,175,55); doc.roundedRect(M+30,30,50,8,2,2,'F');
-                    doc.setTextColor(8,29,91); doc.setFontSize(8.5); doc.setFont('helvetica','bold');
-                    doc.text('STUDY MATERIAL', M+55,35.5,{align:'center'});
-                    let y = 52;
-                    doc.setTextColor(8,29,91); doc.setFontSize(15); doc.setFont('helvetica','bold');
-                    doc.text(fixT(m.title) || 'Study Material', W/2, y, {align:'center', maxWidth: W-M*2});
-                    y += 8;
-                    doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(100,100,100);
-                    doc.text('Category: ' + (m.category ? m.category.replace('_',' ') : 'General') + '   |   Date: ' + (dateStr || 'N/A'), W/2, y, {align:'center'});
-                    y += 5;
-                    doc.setDrawColor(212,175,55); doc.setLineWidth(0.8); doc.line(M,y,W-M,y);
-                    y += 8;
-                    if (m.description) {
-                      doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(40,40,40);
-                      const lines = doc.splitTextToSize(m.description, W-M*2);
-                      doc.text(lines, M, y); y += lines.length * 6 + 6;
-                    }
-                    if (thumb) {
-                      try {
-                        const imgEl = await new Promise((res,rej) => { const im = new Image(); im.crossOrigin='anonymous'; im.onload=()=>res(im); im.onerror=rej; im.src=thumb; });
-                        const cvT = document.createElement('canvas'); cvT.width=imgEl.naturalWidth; cvT.height=imgEl.naturalHeight;
-                        cvT.getContext('2d').drawImage(imgEl,0,0);
-                        const imgH = Math.min(60, (imgEl.naturalHeight/imgEl.naturalWidth)*(W-M*2));
-                        doc.addImage(cvT.toDataURL('image/jpeg',0.9),'JPEG',M,y,W-M*2,imgH);
-                        y += imgH + 8;
-                      } catch(_) {}
-                    }
-                    if (m.fileUrl) {
-                      doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(8,29,91);
-                      doc.text('Document Link:', M, y); y += 6;
-                      doc.setFont('helvetica','normal'); doc.setTextColor(0,0,200);
-                      doc.textWithLink(m.fileUrl, M, y, { url: m.fileUrl }); y += 10;
-                    }
-                    if (m.videoUrl) {
-                      doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(8,29,91);
-                      doc.text('Video Link:', M, y); y += 6;
-                      doc.setFont('helvetica','normal'); doc.setTextColor(200,0,0);
-                      doc.textWithLink(m.videoUrl, M, y, { url: m.videoUrl }); y += 10;
-                    }
-                    doc.setFillColor(8,29,91); doc.rect(0,275,W,22,'F');
-                    doc.setTextColor(180,200,255); doc.setFontSize(7.5); doc.setFont('helvetica','normal');
-                    doc.text('Keerti Computer Institute | Civil Lines, Ayodhya, U.P. - 224001 | www.kci.org.in', W/2,284,{align:'center'});
-                    doc.save((fixT(m.title)||'StudyMaterial').replace(/[^a-zA-Z0-9]/g,'_') + '.pdf');
-                    toast.success('PDF downloaded!');
-                  };
-                  return (
-                    <motion.div key={m._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                      {thumb ? (
-                        <div className="relative">
-                          <img src={thumb} alt={fixT(m.title)} className="w-full object-contain bg-white" style={{maxHeight:'160px'}} />
-                          {m.videoUrl && (
-                            <a href={m.videoUrl} target="_blank" rel="noreferrer"
-                              className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/50 transition-colors">
-                              <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
-                                <svg className="w-5 h-5 text-red-600 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                              </div>
-                            </a>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="w-full h-36 bg-green-50 flex items-center justify-center">
-                          <BookMarked className="w-10 h-10 text-green-300" />
-                        </div>
-                      )}
-                      <div className="p-4">
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <p className="font-black text-gray-900 leading-snug flex-1">{fixT(m.title)}</p>
-                          {dateStr && <span className="text-[10px] text-gray-400 whitespace-nowrap shrink-0 mt-0.5">{dateStr}</span>}
-                        </div>
-                        <p className="text-xs text-gray-400 mb-3 capitalize">{m.category ? m.category.replace('_',' ') : ''}</p>
-                        <div className="flex gap-2 flex-wrap">
-                          {m.fileUrl && (
-                            <a href={m.fileUrl} target="_blank" rel="noreferrer"
-                              className="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold">
-                              <Download className="w-3.5 h-3.5" /> Download
-                            </a>
-                          )}
-                          <button onClick={handleDownloadPdf}
-                            className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold">
-                            <Download className="w-3.5 h-3.5" /> PDF
-                          </button>
-                          {m.videoUrl && (
-                            <a href={m.videoUrl} target="_blank" rel="noreferrer"
-                              className="flex items-center gap-1.5 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold">
-                              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Watch
-                            </a>
-                          )}
-                        </div>
+              {/* Dashboard Status Cards — 6 cols desktop, 3 laptop, 2 mobile */}
+              <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
+                className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.06)] border border-slate-200/80 p-5 sm:p-6">
+                <h3 className="font-black text-slate-900 mb-4 text-xs sm:text-sm uppercase tracking-wider">Status Overview</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3.5">
+                  {[
+                    {
+                      label: 'Admission',
+                      value: data.student?.isApproved ? 'Approved' : 'Pending',
+                      icon: CheckCircle,
+                      color: data.student?.isApproved ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-amber-50 border-amber-200 text-amber-800',
+                      dot: data.student?.isApproved ? 'bg-emerald-500' : 'bg-amber-500',
+                      tab: null,
+                    },
+                    {
+                      label: 'Exam Form',
+                      value: myExamForm ? myExamForm.status : 'Not Submitted',
+                      icon: FileText,
+                      color: myExamForm?.status === 'Approved' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : myExamForm?.status === 'Rejected' ? 'bg-red-50 border-red-200 text-red-800' : myExamForm ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-600',
+                      dot: myExamForm?.status === 'Approved' ? 'bg-emerald-500' : myExamForm?.status === 'Rejected' ? 'bg-red-500' : myExamForm ? 'bg-amber-500' : 'bg-slate-400',
+                      tab: 'examform',
+                    },
+                    {
+                      label: 'Admit Card',
+                      value: admitCard ? 'Available' : myExamForm?.status === 'Approved' ? 'Not Released' : 'Pending',
+                      icon: CreditCard,
+                      color: admitCard ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : myExamForm?.status === 'Approved' ? 'bg-blue-50 border-blue-200 text-blue-800' : 'bg-slate-50 border-slate-200 text-slate-600',
+                      dot: admitCard ? 'bg-emerald-500' : myExamForm?.status === 'Approved' ? 'bg-blue-500' : 'bg-slate-400',
+                      tab: 'admitcard',
+                    },
+                    {
+                      label: 'Results',
+                      value: results.length > 0 ? `${results.length} Published` : 'Not Published',
+                      icon: Award,
+                      color: results.length > 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-600',
+                      dot: results.length > 0 ? 'bg-emerald-500' : 'bg-slate-400',
+                      tab: 'results',
+                    },
+                    {
+                      label: 'Certificate',
+                      value: certificates.filter(c => c.certificateFile).length > 0 ? `${certificates.filter(c => c.certificateFile).length} Issued` : 'Not Issued',
+                      icon: Award,
+                      color: certificates.filter(c => c.certificateFile).length > 0 ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-600',
+                      dot: certificates.filter(c => c.certificateFile).length > 0 ? 'bg-amber-500' : 'bg-slate-400',
+                      tab: 'certificates',
+                    },
+                    {
+                      label: 'ID Card',
+                      value: data.student ? 'Download' : 'Pending',
+                      icon: CreditCard,
+                      color: data.student ? 'bg-blue-50 border-blue-200 text-blue-800' : 'bg-slate-50 border-slate-200 text-slate-600',
+                      dot: data.student ? 'bg-blue-500' : 'bg-slate-400',
+                      tab: 'idcard',
+                    },
+                  ].map(({ label, value, icon: Icon, color, dot, tab }) => (
+                    <div key={label}
+                      onClick={() => tab && setActiveTab(tab)}
+                      className={`min-h-[110px] p-4 rounded-[18px] border ${color} transition-all duration-200 flex flex-col justify-between ${tab ? 'cursor-pointer hover:-translate-y-1 hover:shadow-md' : ''}`}>
+                      <div className="flex items-center justify-between">
+                        <Icon className="w-4 h-4" />
+                        <span className={`w-2 h-2 rounded-full ${dot}`} />
                       </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            )}
-          </motion.div>
-        )}
-
-                                {/* Change Password Tab */}
-        {activeTab === 'changepassword' && (
-          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-md mx-auto">
-            <div className="flex items-center gap-3 mb-4">
-              <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
-                <ChevronRight className="w-4 h-4 rotate-180" />
-              </button>
-              <h2 className="text-xl font-black text-gray-900">Change Password</h2>
-            </div>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="bg-gradient-to-r from-rose-600 to-red-600 px-5 py-4 flex items-center gap-3">
-                <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
-                  <Lock className="w-4 h-4 text-white" />
-                </div>
-                <h2 className="text-white font-black">Change Password</h2>
-              </div>
-              <form onSubmit={handleChangePassword} className="p-6 space-y-4">
-                {[['Current Password', 'current', 'Enter current password'], ['New Password', 'newPw', 'Min 6 characters'], ['Confirm New Password', 'confirm', 'Re-enter new password']].map(([label, key, placeholder]) => (
-                  <div key={key}>
-                    <label className="text-xs font-bold text-gray-600 mb-1.5 block">{label}</label>
-                    <div className="relative">
-                      <input
-                        type={pwShow[key] ? 'text' : 'password'}
-                        value={pwForm[key]}
-                        onChange={e => setPwForm(p => ({ ...p, [key]: e.target.value }))}
-                        placeholder={placeholder} required
-                        className="w-full px-4 py-3 pr-11 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose-500 bg-gray-50 focus:bg-white transition-all"
-                      />
-                      <button type="button" onClick={() => setPwShow(p => ({...p, [key]: !p[key]}))}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                        {pwShow[key]
-                          ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-                          : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                        }
-                      </button>
+                      <div>
+                        <div className="text-[10px] font-black uppercase tracking-wider opacity-70 mb-0.5">{label}</div>
+                        <div className="text-xs font-black leading-tight truncate">{value}</div>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                <button type="submit" disabled={pwLoading}
-                  className="w-full py-3 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 disabled:opacity-60 transition-all">
-                  {pwLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Lock className="w-4 h-4" />}
-                  {pwLoading ? 'Changing...' : 'Change Password'}
-                </button>
-              </form>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Notification View Modal */}
-        {viewedNotification && (() => {
-          const typeConfig = {
-            exam: { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200', label: 'Exam' },
-            result: { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-200', label: 'Result' },
-            course: { bg: 'bg-violet-100', text: 'text-violet-700', border: 'border-violet-200', label: 'Course' },
-            fee: { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200', label: 'Fee' },
-            holiday: { bg: 'bg-teal-100', text: 'text-teal-700', border: 'border-teal-200', label: 'Holiday' },
-            urgent: { bg: 'bg-red-100', text: 'text-red-700', border: 'border-red-200', label: 'Urgent' },
-            admission: { bg: 'bg-indigo-100', text: 'text-indigo-700', border: 'border-indigo-200', label: 'Admission' },
-            general: { bg: 'bg-gray-100', text: 'text-gray-600', border: 'border-gray-200', label: 'General' },
-          };
-          const tc = typeConfig[viewedNotification.type] || typeConfig.general;
-          return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setViewedNotification(null)}>
-              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-                onClick={e => e.stopPropagation()}
-                className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-
-                {/* Modal Header */}
-                <div className="bg-gradient-to-r from-[#081d5b] to-[#1a3a8f] px-5 py-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
-                      <Bell className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-white font-black text-sm truncate">{viewedNotification.title}</span>
-                  </div>
-                  <button onClick={() => setViewedNotification(null)}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 text-white font-black text-base transition-colors shrink-0 ml-2">
-                    ×
-                  </button>
+                  ))}
                 </div>
+              </motion.div>
 
-                {/* Image (if exists) */}
-                {viewedNotification.image && (
-                  <div className="w-full bg-gray-100">
-                    <img
-                      src={viewedNotification.image}
-                      alt={viewedNotification.title}
-                      className="w-full max-h-56 object-cover"
-                    />
-                  </div>
-                )}
-
-                {/* Modal Body */}
-                <div className="p-5 space-y-4">
-                  <p className="text-gray-800 text-sm leading-relaxed">{viewedNotification.message}</p>
-
-                  {/* Meta row */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${tc.bg} ${tc.text} ${tc.border}`}>
-                      {tc.label}
-                    </span>
-                    <span className="text-[11px] text-gray-400 font-medium">
-                      {new Date(viewedNotification.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                    </span>
-                    {viewedNotification.createdBy && (
-                      <span className="text-[11px] text-gray-400">
-                        From: <span className="font-semibold text-gray-600">{viewedNotification.createdBy.branchName || viewedNotification.createdBy.name || 'KCI Admin'}</span>
-                      </span>
-                    )}
-                  </div>
-
-                  <button onClick={() => setViewedNotification(null)}
-                    className="w-full py-2.5 bg-gradient-to-r from-[#081d5b] to-[#1a3a8f] hover:opacity-90 text-white rounded-xl text-sm font-bold transition-all">
-                    Close
-                  </button>
+              {/* Quick Actions Grid — 8 cols desktop, 4 laptop, 2 mobile */}
+              <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+                className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.06)] border border-slate-200/80 p-5 sm:p-6">
+                <h3 className="font-black text-slate-900 mb-4 text-xs sm:text-sm uppercase tracking-wider">Quick Actions</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3.5">
+                  {[
+                    { label: 'Exam Form', icon: FileText, grad: 'from-[#2563EB] to-[#1D4ED8]', tab: 'examform' },
+                    { label: 'ID Card', icon: CreditCard, grad: 'from-[#0284C7] to-[#0369A1]', tab: 'idcard' },
+                    { label: 'Admit Card', icon: FileText, grad: 'from-[#4F46E5] to-[#3730A3]', tab: 'admitcard' },
+                    { label: 'Results', icon: Award, grad: 'from-[#D97706] to-[#B45309]', tab: 'results' },
+                    { label: 'Certificates', icon: Award, grad: 'from-[#059669] to-[#047857]', tab: 'certificates' },
+                    { label: 'Study', icon: BookMarked, grad: 'from-[#10B981] to-[#059669]', tab: 'studymaterial' },
+                    { label: 'Tests', icon: ClipboardCheck, grad: 'from-[#7C3AED] to-[#6D28D9]', tab: 'tests' },
+                    { label: 'Password', icon: Lock, grad: 'from-[#E11D48] to-[#BE123C]', tab: 'changepassword' },
+                  ].map(({ label, icon: Icon, grad, tab }) => (
+                    <button key={label} onClick={() => setActiveTab(tab)}
+                      type="button"
+                      className={`min-h-[110px] p-4 rounded-[18px] bg-gradient-to-br ${grad} text-white flex flex-col items-center justify-center gap-2.5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer`}>
+                      <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <span className="text-xs font-bold text-center leading-tight">{label}</span>
+                    </button>
+                  ))}
                 </div>
               </motion.div>
             </div>
-          );
-        })()}
+          )}
 
-        {/* Notifications Tab */}
-        {activeTab === 'notifications' && (
-          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-            <div className="flex items-center justify-between">
+          {/* ID Card Tab */}
+          {activeTab === 'idcard' && (
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
+              className="space-y-4">
+              <div className="flex items-center gap-3 mb-2">
+                <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                  <ChevronRight className="w-4 h-4 rotate-180" />
+                </button>
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <CreditCard className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-xl font-black text-gray-900">My ID Card</h2>
+              </div>
+              <IDCard student={student} branch={branch} />
+            </motion.div>
+          )}
+
+          {/* Results Tab */}
+          {activeTab === 'results' && (
+            <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
                   <ChevronRight className="w-4 h-4 rotate-180" />
                 </button>
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                  <Bell className="w-4 h-4 text-white" />
+                  <Award className="w-4 h-4 text-white" />
                 </div>
-                <h2 className="text-xl font-black text-gray-900">
-                  Notifications {unreadCount > 0 && <span className="text-sm font-bold text-red-500 ml-1">({unreadCount} unread)</span>}
-                </h2>
+                <h2 className="text-xl font-black text-gray-900">My Results</h2>
               </div>
-              {unreadCount > 0 && (
-                <button onClick={() => {
-                  api.put('/notifications/mark-all-read').catch(() => {});
-                  setNotifications(p => p.map(n => ({ ...n, isRead: true })));
-                  setUnreadCount(0);
-                }} className="text-xs font-bold text-blue-600 hover:text-blue-800 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-all">
-                  Mark all read
-                </button>
+              <ResultsSection results={results} fileResults={fileResults} />
+            </div>
+          )}
+
+          {/* Monthly Tests Tab */}
+          {activeTab === 'tests' && (
+            <div className="space-y-5">
+              {!activeTest && !testResult && (
+                <div className="flex items-center gap-3">
+                  <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                    <ChevronRight className="w-4 h-4 rotate-180" />
+                  </button>
+                  <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center">
+                    <ClipboardCheck className="w-4 h-4 text-white" />
+                  </div>
+                  <h2 className="text-xl font-black text-gray-900">Monthly Tests</h2>
+                </div>
+              )}
+              {/* Active test ”” timer + questions */}
+              {activeTest ? (
+                <div className="space-y-4">
+                  {/* Timer bar */}
+                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
+                    <div>
+                      <h3 className="font-black text-gray-900">{activeTest.title}</h3>
+                      <p className="text-xs text-gray-400">{activeTest.questions.length} questions | {activeTest.totalMarks} marks</p>
+                    </div>
+                    <div className={`flex items-center gap-2 px-4 py-2 rounded-xl font-black text-lg ${timeLeft < 60 ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-indigo-100 text-indigo-700'
+                      }`}>
+                      <Clock className="w-5 h-5" />
+                      {String(Math.floor(timeLeft / 60)).padStart(2, '0')}:{String(timeLeft % 60).padStart(2, '0')}
+                    </div>
+                  </div>
+                  {/* Progress */}
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-indigo-500 rounded-full transition-all"
+                      style={{ width: `${(testAnswers.filter(a => a !== undefined).length / activeTest.questions.length) * 100}%` }} />
+                  </div>
+                  <p className="text-xs text-gray-400 text-right">{testAnswers.filter(a => a !== undefined).length}/{activeTest.questions.length} answered</p>
+                  {/* Questions */}
+                  {activeTest.questions.map((q, qi) => (
+                    <div key={qi} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                      <p className="font-semibold text-gray-900 mb-3"><span className="text-indigo-600 font-black">Q{qi + 1}.</span> {q.question} <span className="text-xs text-gray-400">({q.marks} mark{q.marks > 1 ? 's' : ''})</span></p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {q.options.map((opt, oi) => (
+                          <button key={oi} type="button" onClick={() => setTestAnswers(p => p.map((a, i) => i === qi ? oi : a))}
+                            className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-sm font-medium text-left transition-all ${testAnswers[qi] === oi ? 'border-indigo-500 bg-indigo-50 text-indigo-800' : 'border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/50'
+                              }`}>
+                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${testAnswers[qi] === oi ? 'bg-indigo-500 text-white' : 'bg-gray-200 text-gray-600'
+                              }`}>{String.fromCharCode(65 + oi)}</span>
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  <button onClick={() => handleSubmitTest(false)}
+                    className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-base transition-colors shadow-lg">
+                    Submit Test →’
+                  </button>
+                </div>
+              ) : testResult ? (
+                /* Result view */
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div className={`px-6 py-5 text-white ${testResult.attempt.percentage >= 60 ? 'bg-gradient-to-r from-green-600 to-emerald-600' :
+                      testResult.attempt.percentage >= 33 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
+                        'bg-gradient-to-r from-red-600 to-rose-600'
+                    }`}>
+                    <h3 className="font-black text-xl">{testResult.test?.title}</h3>
+                    <p className="text-white/80 text-sm">{testResult.test?.month}</p>
+                    <div className="flex items-center gap-6 mt-3">
+                      <div><div className="text-3xl font-black">{testResult.attempt.score}/{testResult.attempt.totalMarks}</div><div className="text-white/70 text-xs">Score</div></div>
+                      <div><div className="text-3xl font-black">{testResult.attempt.percentage}%</div><div className="text-white/70 text-xs">Percentage</div></div>
+                      <div><div className="text-2xl font-black">{testResult.attempt.percentage >= 33 ? '“ PASS' : 'FAIL'}</div><div className="text-white/70 text-xs">Result</div></div>
+                    </div>
+                  </div>
+                  <div className="p-5 space-y-3">
+                    {testResult.test?.questions?.map((q, qi) => {
+                      const selected = testResult.attempt.answers[qi];
+                      const correct = testResult.correctAnswers[qi];
+                      const isRight = selected === correct;
+                      return (
+                        <div key={qi} className={`p-4 rounded-xl border-2 ${isRight ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
+                          }`}>
+                          <p className="font-semibold text-gray-900 text-sm mb-2"><span className="font-black">{isRight ? '' : 'Œ'} Q{qi + 1}.</span> {q.question}</p>
+                          <p className="text-xs text-gray-600">Your answer: <span className={`font-bold ${isRight ? 'text-green-700' : 'text-red-600'}`}>{selected !== undefined ? q.options[selected] : 'Not answered'}</span></p>
+                          {!isRight && <p className="text-xs text-green-700 font-bold">Correct: {q.options[correct]}</p>}
+                        </div>
+                      );
+                    })}
+                    <div className="flex gap-3 pt-2">
+                      <button onClick={() => { setTestResult(null); }}
+                        className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                        → Back to Tests
+                      </button>
+                      <button onClick={() => downloadTestResult(testResult.attempt, testResult.test, testResult.test?.questions, testResult.correctAnswers)}
+                        className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold">
+                        <Download className="w-4 h-4" /> Download Result
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* Tests list */
+                <div className="space-y-4">
+                  <h2 className="text-xl font-black text-gray-900">Monthly Tests <span className="text-indigo-600">({tests.length})</span></h2>
+                  {tests.length === 0 ? (
+                    <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
+                      <ClipboardCheck className="w-12 h-12 mx-auto mb-3 text-gray-200" />
+                      <p className="text-gray-400">No tests available yet</p>
+                    </div>
+                  ) : (
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {tests.map(t => (
+                        <motion.div key={t._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
+                          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h3 className="font-black text-gray-900">{t.title}</h3>
+                              <p className="text-xs text-indigo-600 font-semibold">{t.month}</p>
+                            </div>
+                            {t.attempted
+                              ? <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-bold">“ Done</span>
+                              : <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold">New</span>
+                            }
+                          </div>
+                          <div className="grid grid-cols-3 gap-2 text-center mb-4">
+                            {[['Questions', t.questions?.length || 0], ['Marks', t.totalMarks || 0], ['Duration', `${t.duration}m`]].map(([l, v]) => (
+                              <div key={l} className="bg-gray-50 rounded-xl py-2">
+                                <div className="text-sm font-black text-gray-900">{v}</div>
+                                <div className="text-[10px] text-gray-400">{l}</div>
+                              </div>
+                            ))}
+                          </div>
+                          {t.attempted && t.myScore !== undefined && (
+                            <div className="mb-3 px-3 py-2 bg-green-50 rounded-xl text-xs text-green-700 font-semibold">
+                              Your Score: {t.myScore}/{t.totalMarks} ({t.myPercentage}%)
+                            </div>
+                          )}
+                          <button onClick={() => handleStartTest(t)}
+                            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-colors ${t.attempted ? 'bg-gray-100 hover:bg-gray-200 text-gray-700' : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md'
+                              }`}>
+                            {t.attempted ? <><Eye className="w-4 h-4" /> View Result</> : <><ChevronRight className="w-4 h-4" /> Start Test</>}
+                          </button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
+          )}
 
-            {notifications.length === 0 ? (
-              <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
-                <Bell className="w-12 h-12 mx-auto mb-3 text-gray-200" />
-                <p className="text-gray-500 font-semibold">No notifications yet</p>
-                <p className="text-xs text-gray-400 mt-1">Notifications from admin and your branch will appear here</p>
+          {/* Admit Card Tab */}
+          {activeTab === 'admitcard' && (
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+              <div className="flex items-center gap-3">
+                <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                  <ChevronRight className="w-4 h-4 rotate-180" />
+                </button>
+                <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-xl flex items-center justify-center">
+                  <FileText className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-xl font-black text-gray-900">My Admit Card</h2>
               </div>
-            ) : (
-              <div className="space-y-3">
-                {notifications.map((n, i) => {
-                  const typeConfig = {
-                    exam:      { bg: 'bg-blue-100',   text: 'text-blue-700',   border: 'border-blue-200',   label: 'Exam' },
-                    result:    { bg: 'bg-green-100',  text: 'text-green-700',  border: 'border-green-200',  label: 'Result' },
-                    course:    { bg: 'bg-violet-100', text: 'text-violet-700', border: 'border-violet-200', label: 'Course' },
-                    fee:       { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200', label: 'Fee' },
-                    holiday:   { bg: 'bg-teal-100',   text: 'text-teal-700',   border: 'border-teal-200',   label: 'Holiday' },
-                    urgent:    { bg: 'bg-red-100',    text: 'text-red-700',    border: 'border-red-200',    label: 'Urgent' },
-                    admission: { bg: 'bg-indigo-100', text: 'text-indigo-700', border: 'border-indigo-200', label: 'Admission' },
-                    general:   { bg: 'bg-gray-100',   text: 'text-gray-600',   border: 'border-gray-200',   label: 'General' },
-                  };
-                  const tc = typeConfig[n.type] || typeConfig.general;
-                  const isFromBranch = !!n.branchId;
-                  const markRead = () => {
-                    if (!n.isRead) {
-                      api.put(`/notifications/${n._id}/read`).catch(() => {});
-                      setNotifications(p => p.map(x => x._id === n._id ? { ...x, isRead: true } : x));
-                      setUnreadCount(p => Math.max(0, p - 1));
-                    }
-                  };
-                  return (
-                    <motion.div key={n._id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
-                      onClick={markRead}
-                      className={`bg-white rounded-2xl border shadow-sm cursor-pointer transition-all hover:shadow-md ${
-                        !n.isRead ? 'border-l-4 border-l-blue-500 border-gray-100' : 'border-gray-100'
-                      }`}>
-                      <div className="flex items-start gap-4 p-4">
-                        <div className={`w-10 h-10 ${tc.bg} rounded-xl flex items-center justify-center shrink-0`}>
-                          <Bell className={`w-5 h-5 ${tc.text}`} />
-                        </div>
-                        <div className="flex-1 min-w-0">
+              {/* Workflow status messages */}
+              {!myExamForm && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-5 flex items-start gap-3">
+                  <div className="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center shrink-0"><FileText className="w-5 h-5 text-yellow-600" /></div>
+                  <div>
+                    <p className="font-black text-yellow-800">Exam Form Not Submitted</p>
+                    <p className="text-sm text-yellow-700 mt-1">Please submit your examination form first to get your Admit Card.</p>
+                    <button onClick={() => setActiveTab('examform')} className="mt-3 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl text-xs font-bold transition-colors">Submit Exam Form →</button>
+                  </div>
+                </div>
+              )}
+              {myExamForm && myExamForm.status === 'Pending' && (
+                <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 flex items-start gap-3">
+                  <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center shrink-0"><Clock className="w-5 h-5 text-orange-600" /></div>
+                  <div>
+                    <p className="font-black text-orange-800">Examination Form Pending Approval</p>
+                    <p className="text-sm text-orange-700 mt-1">Your examination form is under review. Admit Card will be available once approved by admin.</p>
+                  </div>
+                </div>
+              )}
+              {myExamForm && myExamForm.status === 'Rejected' && (
+                <div className="bg-red-50 border border-red-200 rounded-2xl p-5 flex items-start gap-3">
+                  <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center shrink-0"><XCircle className="w-5 h-5 text-red-600" /></div>
+                  <div>
+                    <p className="font-black text-red-800">Examination Form Rejected</p>
+                    <p className="text-sm text-red-700 mt-1">Your examination form was rejected. Please contact the institute administration.</p>
+                  </div>
+                </div>
+              )}
+              {myExamForm && myExamForm.status === 'Approved' && !admitCard && (
+                <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 flex items-start gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center shrink-0"><Clock className="w-5 h-5 text-blue-600" /></div>
+                  <div>
+                    <p className="font-black text-blue-800">Admit Card Not Released Yet</p>
+                    <p className="text-sm text-blue-700 mt-1">Your exam form is approved. Admit Card will be available once the admin publishes the exam schedule and releases admit cards.</p>
+                  </div>
+                </div>
+              )}
+              {admitCard && <AdmitCardComponent student={student} admitCard={admitCard} branch={branch} />}
+            </motion.div>
+          )}
+
+          {/* Study Material Tab */}
+          {activeTab === 'studymaterial' && (
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+              <div className="flex items-center gap-3">
+                <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                  <ChevronRight className="w-4 h-4 rotate-180" />
+                </button>
+                <div className="w-8 h-8 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center">
+                  <BookMarked className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-xl font-black text-gray-900">Study Material</h2>
+              </div>
+              {studyMaterials.length === 0 ? (
+                <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
+                  <BookMarked className="w-12 h-12 mx-auto mb-3 text-gray-200" />
+                  <p className="text-gray-500 font-semibold">No study material available yet</p>
+                </div>
+              ) : (
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {studyMaterials.map((m, i) => {
+                    const ytMatch = m.videoUrl && m.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^?&/]+)/);
+                    const ytThumb = ytMatch ? ('https://img.youtube.com/vi/' + ytMatch[1] + '/hqdefault.jpg') : null;
+                    const thumb = m.thumbnailUrl || ytThumb;
+                    const fixT = s => s ? s.replace(/-/g, '\u2013').replace(/-/g, '\u2014').replace(/ /g, ' ') : s;
+                    const dateStr = m.createdAt ? new Date(m.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+                    const handleDownloadPdf = async () => {
+                      const { default: jsPDF } = await import('jspdf');
+                      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                      const W = 210, M = 15;
+                      let logoUrl = null;
+                      try {
+                        const img = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = '/logo.png'; });
+                        const sz = 200, cv = document.createElement('canvas'); cv.width = sz; cv.height = sz;
+                        const cx = cv.getContext('2d'); cx.beginPath(); cx.arc(sz / 2, sz / 2, sz / 2, 0, Math.PI * 2); cx.closePath(); cx.clip(); cx.drawImage(img, 0, 0, sz, sz);
+                        logoUrl = cv.toDataURL('image/png');
+                      } catch (_) { }
+                      doc.setFillColor(8, 29, 91); doc.rect(0, 0, W, 40, 'F');
+                      doc.setFillColor(212, 175, 55); doc.rect(0, 40, W, 2, 'F');
+                      if (logoUrl) doc.addImage(logoUrl, 'PNG', M, 7, 24, 24);
+                      doc.setTextColor(255, 255, 255); doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+                      doc.text('KEERTI COMPUTER INSTITUTE', M + 30, 18);
+                      doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(180, 200, 255);
+                      doc.text('Govt. Recognised | ISO Certified | Ayodhya, U.P. | www.kci.org.in', M + 30, 26);
+                      doc.setFillColor(212, 175, 55); doc.roundedRect(M + 30, 30, 50, 8, 2, 2, 'F');
+                      doc.setTextColor(8, 29, 91); doc.setFontSize(8.5); doc.setFont('helvetica', 'bold');
+                      doc.text('STUDY MATERIAL', M + 55, 35.5, { align: 'center' });
+                      let y = 52;
+                      doc.setTextColor(8, 29, 91); doc.setFontSize(15); doc.setFont('helvetica', 'bold');
+                      doc.text(fixT(m.title) || 'Study Material', W / 2, y, { align: 'center', maxWidth: W - M * 2 });
+                      y += 8;
+                      doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
+                      doc.text('Category: ' + (m.category ? m.category.replace('_', ' ') : 'General') + '   |   Date: ' + (dateStr || 'N/A'), W / 2, y, { align: 'center' });
+                      y += 5;
+                      doc.setDrawColor(212, 175, 55); doc.setLineWidth(0.8); doc.line(M, y, W - M, y);
+                      y += 8;
+                      if (m.description) {
+                        doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(40, 40, 40);
+                        const lines = doc.splitTextToSize(m.description, W - M * 2);
+                        doc.text(lines, M, y); y += lines.length * 6 + 6;
+                      }
+                      if (thumb) {
+                        try {
+                          const imgEl = await new Promise((res, rej) => { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => res(im); im.onerror = rej; im.src = thumb; });
+                          const cvT = document.createElement('canvas'); cvT.width = imgEl.naturalWidth; cvT.height = imgEl.naturalHeight;
+                          cvT.getContext('2d').drawImage(imgEl, 0, 0);
+                          const imgH = Math.min(60, (imgEl.naturalHeight / imgEl.naturalWidth) * (W - M * 2));
+                          doc.addImage(cvT.toDataURL('image/jpeg', 0.9), 'JPEG', M, y, W - M * 2, imgH);
+                          y += imgH + 8;
+                        } catch (_) { }
+                      }
+                      if (m.fileUrl) {
+                        doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(8, 29, 91);
+                        doc.text('Document Link:', M, y); y += 6;
+                        doc.setFont('helvetica', 'normal'); doc.setTextColor(0, 0, 200);
+                        doc.textWithLink(m.fileUrl, M, y, { url: m.fileUrl }); y += 10;
+                      }
+                      if (m.videoUrl) {
+                        doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(8, 29, 91);
+                        doc.text('Video Link:', M, y); y += 6;
+                        doc.setFont('helvetica', 'normal'); doc.setTextColor(200, 0, 0);
+                        doc.textWithLink(m.videoUrl, M, y, { url: m.videoUrl }); y += 10;
+                      }
+                      doc.setFillColor(8, 29, 91); doc.rect(0, 275, W, 22, 'F');
+                      doc.setTextColor(180, 200, 255); doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+                      doc.text('Keerti Computer Institute | Civil Lines, Ayodhya, U.P. - 224001 | www.kci.org.in', W / 2, 284, { align: 'center' });
+                      doc.save((fixT(m.title) || 'StudyMaterial').replace(/[^a-zA-Z0-9]/g, '_') + '.pdf');
+                      toast.success('PDF downloaded!');
+                    };
+                    return (
+                      <motion.div key={m._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                        className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        {thumb ? (
+                          <div className="relative">
+                            <img src={thumb} alt={fixT(m.title)} className="w-full object-contain bg-white" style={{ maxHeight: '160px' }} />
+                            {m.videoUrl && (
+                              <a href={m.videoUrl} target="_blank" rel="noreferrer"
+                                className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/50 transition-colors">
+                                <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+                                  <svg className="w-5 h-5 text-red-600 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                                </div>
+                              </a>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="w-full h-36 bg-green-50 flex items-center justify-center">
+                            <BookMarked className="w-10 h-10 text-green-300" />
+                          </div>
+                        )}
+                        <div className="p-4">
                           <div className="flex items-start justify-between gap-2 mb-1">
-                            <div className="flex items-center gap-2 flex-wrap min-w-0">
-                              <span className="font-black text-gray-900 text-sm truncate">{n.title}</span>
-                              {!n.isRead && <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />}
-                            </div>
-                            <span className="text-[10px] text-gray-400 whitespace-nowrap shrink-0">
-                              {new Date(n.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}
-                            </span>
+                            <p className="font-black text-gray-900 leading-snug flex-1">{fixT(m.title)}</p>
+                            {dateStr && <span className="text-[10px] text-gray-400 whitespace-nowrap shrink-0 mt-0.5">{dateStr}</span>}
                           </div>
-                          <div className="flex items-center gap-2 mb-2 flex-wrap">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${tc.bg} ${tc.text} border ${tc.border}`}>
-                              {tc.label}
-                            </span>
-                            {isFromBranch ? (
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-200">
-                                Branch
-                              </span>
-                            ) : (
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200">
-                                Admin
-                              </span>
+                          <p className="text-xs text-gray-400 mb-3 capitalize">{m.category ? m.category.replace('_', ' ') : ''}</p>
+                          <div className="flex gap-2 flex-wrap">
+                            {m.fileUrl && (
+                              <a href={m.fileUrl} target="_blank" rel="noreferrer"
+                                className="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold">
+                                <Download className="w-3.5 h-3.5" /> Download
+                              </a>
                             )}
-                          </div>
-                          <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">{n.message}</p>
-                          <div className="flex items-center justify-between mt-2">
-                            {n.createdBy && (
-                              <p className="text-[10px] text-gray-400">
-                                From: {n.createdBy.branchName || n.createdBy.name || 'KCI Admin'}
-                              </p>
-                            )}
-                            <button
-                              onClick={e => { e.stopPropagation(); markRead(); setViewedNotification(n); }}
-                              className="ml-auto flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors shrink-0">
-                              <Eye className="w-3 h-3" /> View
+                            <button onClick={handleDownloadPdf}
+                              className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold">
+                              <Download className="w-3.5 h-3.5" /> PDF
                             </button>
+                            {m.videoUrl && (
+                              <a href={m.videoUrl} target="_blank" rel="noreferrer"
+                                className="flex items-center gap-1.5 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold">
+                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg> Watch
+                              </a>
+                            )}
                           </div>
                         </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* Change Password Tab */}
+          {activeTab === 'changepassword' && (
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-md mx-auto">
+              <div className="flex items-center gap-3 mb-4">
+                <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                  <ChevronRight className="w-4 h-4 rotate-180" />
+                </button>
+                <h2 className="text-xl font-black text-gray-900">Change Password</h2>
+              </div>
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="bg-gradient-to-r from-rose-600 to-red-600 px-5 py-4 flex items-center gap-3">
+                  <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Lock className="w-4 h-4 text-white" />
+                  </div>
+                  <h2 className="text-white font-black">Change Password</h2>
+                </div>
+                <form onSubmit={handleChangePassword} className="p-6 space-y-4">
+                  {[['Current Password', 'current', 'Enter current password'], ['New Password', 'newPw', 'Min 6 characters'], ['Confirm New Password', 'confirm', 'Re-enter new password']].map(([label, key, placeholder]) => (
+                    <div key={key}>
+                      <label className="text-xs font-bold text-gray-600 mb-1.5 block">{label}</label>
+                      <div className="relative">
+                        <input
+                          type={pwShow[key] ? 'text' : 'password'}
+                          value={pwForm[key]}
+                          onChange={e => setPwForm(p => ({ ...p, [key]: e.target.value }))}
+                          placeholder={placeholder} required
+                          className="w-full px-4 py-3 pr-11 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose-500 bg-gray-50 focus:bg-white transition-all"
+                        />
+                        <button type="button" onClick={() => setPwShow(p => ({ ...p, [key]: !p[key] }))}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                          {pwShow[key]
+                            ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+                            : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                          }
+                        </button>
                       </div>
-                    </motion.div>
-                  );
-                })}
+                    </div>
+                  ))}
+                  <button type="submit" disabled={pwLoading}
+                    className="w-full py-3 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 disabled:opacity-60 transition-all">
+                    {pwLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Lock className="w-4 h-4" />}
+                    {pwLoading ? 'Changing...' : 'Change Password'}
+                  </button>
+                </form>
               </div>
-            )}
-          </motion.div>
-        )}
+            </motion.div>
+          )}
 
-        {/* Exam Form Tab */}
-        {activeTab === 'examform' && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
-                <ChevronRight className="w-4 h-4 rotate-180" />
-              </button>
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                <FileText className="w-4 h-4 text-white" />
-              </div>
-              <h2 className="text-xl font-black text-gray-900">Exam Form</h2>
-            </div>
-          <ExamFormSection
-            student={student}
-            myExamForm={examFormData}
-            onSubmitted={(form) => {
-              setExamFormData(form);
-              setMyExamForm(form);
-            }}
-          />
-          </div>
-        )}
+          {/* Notification View Modal */}
+          {viewedNotification && (() => {
+            const typeConfig = {
+              exam: { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200', label: 'Exam' },
+              result: { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-200', label: 'Result' },
+              course: { bg: 'bg-violet-100', text: 'text-violet-700', border: 'border-violet-200', label: 'Course' },
+              fee: { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200', label: 'Fee' },
+              holiday: { bg: 'bg-teal-100', text: 'text-teal-700', border: 'border-teal-200', label: 'Holiday' },
+              urgent: { bg: 'bg-red-100', text: 'text-red-700', border: 'border-red-200', label: 'Urgent' },
+              admission: { bg: 'bg-indigo-100', text: 'text-indigo-700', border: 'border-indigo-200', label: 'Admission' },
+              general: { bg: 'bg-gray-100', text: 'text-gray-600', border: 'border-gray-200', label: 'General' },
+            };
+            const tc = typeConfig[viewedNotification.type] || typeConfig.general;
+            return (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setViewedNotification(null)}>
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                  onClick={e => e.stopPropagation()}
+                  className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
 
-        {/* Certificates Tab */}
-        {activeTab === 'certificates' && (() => {
-          const uploadedCerts = certificates.filter(c => c.certificateFile);
-          return (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
-                <ChevronRight className="w-4 h-4 rotate-180" />
-              </button>
-              <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
-                <Award className="w-4 h-4 text-white" />
-              </div>
-              <h2 className="text-xl font-black text-gray-900">My Certificates <span className="text-blue-600">({uploadedCerts.length})</span></h2>
-            </div>
-            {uploadedCerts.length === 0 ? (
-              <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
-                <Award className="w-12 h-12 mx-auto mb-3 text-gray-200" />
-                <p className="text-gray-500 font-semibold">Certificate abhi upload nahi hua hai.</p>
-                <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-700 font-semibold">☎️ 9936384736</div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {uploadedCerts.map((c, idx) => (
-                  <motion.div key={c._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
-                    className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center justify-between gap-4">
+                  {/* Modal Header */}
+                  <div className="bg-gradient-to-r from-[#081d5b] to-[#1a3a8f] px-5 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
-                        <Award className="w-5 h-5 text-amber-600" />
+                      <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+                        <Bell className="w-4 h-4 text-white" />
                       </div>
-                      <div className="min-w-0">
-                        <p className="font-black text-gray-900 text-sm truncate">{c.courseName}</p>
-                        <p className="text-xs text-gray-400 font-mono">{c.certificateNumber}</p>
-                        <p className="text-xs text-gray-400">{c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : ''}</p>
-                      </div>
+                      <span className="text-white font-black text-sm truncate">{viewedNotification.title}</span>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <a href={certDownloadUrl(c.certificateFile, c.studentName, c.certificateNumber)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black transition-all"><Download className="w-3.5 h-3.5" /> PDF</a>
-                      <button onClick={() => {
-                        const url = fileUrl(c.certificateFile);
-                        const win = window.open(url, '_blank', 'width=900,height=650');
-                        if (win) { win.onload = () => { win.focus(); win.print(); }; }
-                      }} className="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-black transition-all"><Printer className="w-3.5 h-3.5" /> Print</button>
+                    <button onClick={() => setViewedNotification(null)}
+                      className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 text-white font-black text-base transition-colors shrink-0 ml-2">
+                      ×
+                    </button>
+                  </div>
+
+                  {/* Image (if exists) */}
+                  {viewedNotification.image && (
+                    <div className="w-full bg-gray-100">
+                      <img
+                        src={viewedNotification.image}
+                        alt={viewedNotification.title}
+                        className="w-full max-h-56 object-cover"
+                      />
                     </div>
-                  </motion.div>
-                ))}
+                  )}
+
+                  {/* Modal Body */}
+                  <div className="p-5 space-y-4">
+                    <p className="text-gray-800 text-sm leading-relaxed">{viewedNotification.message}</p>
+
+                    {/* Meta row */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${tc.bg} ${tc.text} ${tc.border}`}>
+                        {tc.label}
+                      </span>
+                      <span className="text-[11px] text-gray-400 font-medium">
+                        {new Date(viewedNotification.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </span>
+                      {viewedNotification.createdBy && (
+                        <span className="text-[11px] text-gray-400">
+                          From: <span className="font-semibold text-gray-600">{viewedNotification.createdBy.branchName || viewedNotification.createdBy.name || 'KCI Admin'}</span>
+                        </span>
+                      )}
+                    </div>
+
+                    <button onClick={() => setViewedNotification(null)}
+                      className="w-full py-2.5 bg-gradient-to-r from-[#081d5b] to-[#1a3a8f] hover:opacity-90 text-white rounded-xl text-sm font-bold transition-all">
+                      Close
+                    </button>
+                  </div>
+                </motion.div>
               </div>
-            )}
-          </div>
-          );
-        })()}
-        </div>
+            );
+          })()}
+
+          {/* Notifications Tab */}
+          {activeTab === 'notifications' && (
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                    <ChevronRight className="w-4 h-4 rotate-180" />
+                  </button>
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <Bell className="w-4 h-4 text-white" />
+                  </div>
+                  <h2 className="text-xl font-black text-gray-900">
+                    Notifications {unreadCount > 0 && <span className="text-sm font-bold text-red-500 ml-1">({unreadCount} unread)</span>}
+                  </h2>
+                </div>
+                {unreadCount > 0 && (
+                  <button onClick={() => {
+                    api.put('/notifications/mark-all-read').catch(() => { });
+                    setNotifications(p => p.map(n => ({ ...n, isRead: true })));
+                    setUnreadCount(0);
+                  }} className="text-xs font-bold text-blue-600 hover:text-blue-800 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-all">
+                    Mark all read
+                  </button>
+                )}
+              </div>
+
+              {notifications.length === 0 ? (
+                <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
+                  <Bell className="w-12 h-12 mx-auto mb-3 text-gray-200" />
+                  <p className="text-gray-500 font-semibold">No notifications yet</p>
+                  <p className="text-xs text-gray-400 mt-1">Notifications from admin and your branch will appear here</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {notifications.map((n, i) => {
+                    const typeConfig = {
+                      exam: { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200', label: 'Exam' },
+                      result: { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-200', label: 'Result' },
+                      course: { bg: 'bg-violet-100', text: 'text-violet-700', border: 'border-violet-200', label: 'Course' },
+                      fee: { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200', label: 'Fee' },
+                      holiday: { bg: 'bg-teal-100', text: 'text-teal-700', border: 'border-teal-200', label: 'Holiday' },
+                      urgent: { bg: 'bg-red-100', text: 'text-red-700', border: 'border-red-200', label: 'Urgent' },
+                      admission: { bg: 'bg-indigo-100', text: 'text-indigo-700', border: 'border-indigo-200', label: 'Admission' },
+                      general: { bg: 'bg-gray-100', text: 'text-gray-600', border: 'border-gray-200', label: 'General' },
+                    };
+                    const tc = typeConfig[n.type] || typeConfig.general;
+                    const isFromBranch = !!n.branchId;
+                    const markRead = () => {
+                      if (!n.isRead) {
+                        api.put(`/notifications/${n._id}/read`).catch(() => { });
+                        setNotifications(p => p.map(x => x._id === n._id ? { ...x, isRead: true } : x));
+                        setUnreadCount(p => Math.max(0, p - 1));
+                      }
+                    };
+                    return (
+                      <motion.div key={n._id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                        onClick={markRead}
+                        className={`bg-white rounded-2xl border shadow-sm cursor-pointer transition-all hover:shadow-md ${!n.isRead ? 'border-l-4 border-l-blue-500 border-gray-100' : 'border-gray-100'
+                          }`}>
+                        <div className="flex items-start gap-4 p-4">
+                          <div className={`w-10 h-10 ${tc.bg} rounded-xl flex items-center justify-center shrink-0`}>
+                            <Bell className={`w-5 h-5 ${tc.text}`} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 mb-1">
+                              <div className="flex items-center gap-2 flex-wrap min-w-0">
+                                <span className="font-black text-gray-900 text-sm truncate">{n.title}</span>
+                                {!n.isRead && <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />}
+                              </div>
+                              <span className="text-[10px] text-gray-400 whitespace-nowrap shrink-0">
+                                {new Date(n.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${tc.bg} ${tc.text} border ${tc.border}`}>
+                                {tc.label}
+                              </span>
+                              {isFromBranch ? (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-200">
+                                  Branch
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200">
+                                  Admin
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">{n.message}</p>
+                            <div className="flex items-center justify-between mt-2">
+                              {n.createdBy && (
+                                <p className="text-[10px] text-gray-400">
+                                  From: {n.createdBy.branchName || n.createdBy.name || 'KCI Admin'}
+                                </p>
+                              )}
+                              <button
+                                onClick={e => { e.stopPropagation(); markRead(); setViewedNotification(n); }}
+                                className="ml-auto flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors shrink-0">
+                                <Eye className="w-3 h-3" /> View
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* Exam Form Tab */}
+          {activeTab === 'examform' && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                  <ChevronRight className="w-4 h-4 rotate-180" />
+                </button>
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <FileText className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-xl font-black text-gray-900">Exam Form</h2>
+              </div>
+              <ExamFormSection
+                student={student}
+                myExamForm={examFormData}
+                onSubmitted={(form) => {
+                  setExamFormData(form);
+                  setMyExamForm(form);
+                }}
+              />
+            </div>
+          )}
+
+          {/* Certificates Tab */}
+          {activeTab === 'certificates' && (() => {
+            const uploadedCerts = certificates.filter(c => c.certificateFile);
+            return (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
+                    <ChevronRight className="w-4 h-4 rotate-180" />
+                  </button>
+                  <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
+                    <Award className="w-4 h-4 text-white" />
+                  </div>
+                  <h2 className="text-xl font-black text-gray-900">My Certificates <span className="text-blue-600">({uploadedCerts.length})</span></h2>
+                </div>
+                {uploadedCerts.length === 0 ? (
+                  <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
+                    <Award className="w-12 h-12 mx-auto mb-3 text-gray-200" />
+                    <p className="text-gray-500 font-semibold">Certificate abhi upload nahi hua hai.</p>
+                    <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-700 font-semibold">☎️ 9936384736</div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {uploadedCerts.map((c, idx) => (
+                      <motion.div key={c._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
+                        className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+                            <Award className="w-5 h-5 text-amber-600" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-black text-gray-900 text-sm truncate">{c.courseName}</p>
+                            <p className="text-xs text-gray-400 font-mono">{c.certificateNumber}</p>
+                            <p className="text-xs text-gray-400">{c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <a href={certDownloadUrl(c.certificateFile, c.studentName, c.certificateNumber)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black transition-all"><Download className="w-3.5 h-3.5" /> PDF</a>
+                          <button onClick={() => {
+                            const url = fileUrl(c.certificateFile);
+                            const win = window.open(url, '_blank', 'width=900,height=650');
+                            if (win) { win.onload = () => { win.focus(); win.print(); }; }
+                          }} className="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-black transition-all"><Printer className="w-3.5 h-3.5" /> Print</button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </main>
 
         {/* BOTTOM NAVIGATION BAR — Mobile App Interface Only (< 768px / md:hidden) */}
         <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#151D2C]/95 backdrop-blur-xl border-t border-slate-800 text-slate-300 px-2 py-2 flex items-center justify-around pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl">
           {[
-            { id: 'profile',       icon: Home,          label: 'Home' },
-            { id: 'results',       icon: Award,         label: 'Results' },
-            { id: 'certificates',  icon: GraduationCap, label: 'Certs' },
-            { id: 'notifications', icon: Bell,          label: 'Alerts', badge: unreadCount },
-            { id: 'menu',          icon: Menu,          label: 'Menu', action: () => setSidebarOpen(true) },
+            { id: 'profile', icon: Home, label: 'Home' },
+            { id: 'results', icon: Award, label: 'Results' },
+            { id: 'certificates', icon: GraduationCap, label: 'Certs' },
+            { id: 'notifications', icon: Bell, label: 'Alerts', badge: unreadCount },
+            { id: 'menu', icon: Menu, label: 'Menu', action: () => setSidebarOpen(true) },
           ].map(({ id, icon: Icon, label, badge, action }) => {
             const isActive = activeTab === id && id !== 'menu';
             return (
@@ -2564,9 +2523,8 @@ export default function StudentDashboard() {
                 key={id}
                 type="button"
                 onClick={action || (() => setActiveTab(id))}
-                className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all relative min-w-[56px] cursor-pointer ${
-                  isActive ? 'text-blue-400 font-black' : 'text-slate-400 hover:text-slate-200 font-semibold'
-                }`}
+                className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all relative min-w-[56px] cursor-pointer ${isActive ? 'text-blue-400 font-black' : 'text-slate-400 hover:text-slate-200 font-semibold'
+                  }`}
               >
                 <div className={`w-8 h-8 flex items-center justify-center rounded-xl relative transition-colors ${isActive ? 'bg-blue-600/20 text-blue-400' : ''}`}>
                   <Icon className="w-5 h-5" />
