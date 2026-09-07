@@ -129,8 +129,8 @@ export default function Login() {
           {/* MOBILE TOP BRANDING (Design No. 5 Compact Mobile Layout) */}
           <div className="md:hidden text-center mb-6">
             <div className="kci-logo-wrap w-16 h-16 mx-auto mb-2 shadow-lg"><img src="/logo.png" alt="KCI Logo" /></div>
-            <h2 className="text-xl font-black text-[#0F172A]">KEERTI COMPUTER INSTITUTE</h2>
-            <p className="text-xs text-blue-700 font-extrabold mt-0.5">Learn • Grow • Succeed</p>
+            <h2 className="text-2xl font-black text-[#0F172A]">KEERTI COMPUTER INSTITUTE</h2>
+            <p className="text-sm text-blue-700 font-extrabold mt-0.5">Learn • Grow • Succeed</p>
           </div>
 
           {/* LOGIN CARD (Max-width 620px, Padding 40px, Radius 24px) */}
@@ -141,15 +141,15 @@ export default function Login() {
               <h2 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
                 Sign in to your account
               </h2>
-              <p className="text-slate-600 text-xs sm:text-sm font-extrabold mt-1">
+              <p className="text-slate-600 text-sm sm:text-base font-extrabold mt-1">
                 Select your role and continue to your dashboard
               </p>
             </div>
 
             {/* ROLE SELECTOR (Equal width 3 buttons, repeat 3, 1fr) */}
             <div className="mb-6">
-              <label className="block text-xs font-black text-slate-800 uppercase tracking-wider mb-2">Select Role</label>
-              <div className="grid grid-cols-3 gap-2 h-[48px] sm:h-[56px] p-1.5 bg-slate-100 rounded-[12px] items-center">
+              <label className="block text-sm font-black text-slate-800 uppercase tracking-wider mb-2">Select Role</label>
+              <div className="grid grid-cols-3 gap-2 h-[52px] sm:h-[56px] p-1.5 bg-slate-100 rounded-[12px] items-center">
                 {roles.map(({ id, label, icon: Icon }) => {
                   const isSelected = activeRole === id;
                   return (
@@ -157,7 +157,7 @@ export default function Login() {
                       key={id}
                       type="button"
                       onClick={() => setActiveRole(id)}
-                      className={`h-full flex items-center justify-center gap-1.5 px-2 rounded-[10px] text-xs sm:text-sm font-black transition-all duration-200 cursor-pointer ${isSelected
+                      className={`h-full flex items-center justify-center gap-1.5 px-2 rounded-[10px] text-sm font-black transition-all duration-200 cursor-pointer ${isSelected
                         ? 'bg-gradient-to-r from-[#2563EB] to-[#4338CA] text-white shadow-md shadow-blue-600/20 scale-[1.02]'
                         : 'text-slate-700 hover:bg-white hover:text-slate-900'
                         }`}
@@ -171,9 +171,9 @@ export default function Login() {
             </div>
 
             {/* Role Banner Info */}
-            <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl mb-6 bg-blue-50 border border-blue-200 text-blue-950">
+            <div className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl mb-6 bg-blue-50 border border-blue-200 text-blue-950">
               <roleConfig.icon className="w-4 h-4 text-[#2563EB] shrink-0" />
-              <span className="text-xs sm:text-sm font-black leading-snug">{roleConfig.desc}</span>
+              <span className="text-sm sm:text-base font-black leading-snug">{roleConfig.desc}</span>
             </div>
 
             {/* LOGIN FORM */}
@@ -181,7 +181,7 @@ export default function Login() {
 
               {/* FIELD 1 */}
               <div>
-                <label className="block text-xs font-black text-slate-900 mb-2 uppercase tracking-wider">
+                <label className="block text-sm font-black text-slate-900 mb-2 uppercase tracking-wider">
                   {activeRole === 'student' ? 'Form Number or Email' : 'Phone Number or Email'}
                 </label>
                 <div className="relative">
@@ -194,7 +194,7 @@ export default function Login() {
                     onFocus={() => setFocused('email')}
                     onBlur={() => setFocused('')}
                     placeholder="Enter phone number or email"
-                    className="w-full h-[52px] sm:h-[56px] pl-12 pr-4 text-xs sm:text-[15px] text-[#0F172A] placeholder-slate-400 outline-none transition-all bg-slate-50/80 focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 font-black border-2 border-slate-300 rounded-[10px] sm:rounded-[12px]"
+                    className="w-full h-[54px] sm:h-[56px] pl-12 pr-4 text-base text-[#0F172A] placeholder-slate-400 outline-none transition-all bg-slate-50/80 focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 font-black border-2 border-slate-300 rounded-[10px] sm:rounded-[12px]"
                   />
                 </div>
               </div>
@@ -202,9 +202,9 @@ export default function Login() {
               {/* FIELD 2 */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-xs font-black text-slate-900 uppercase tracking-wider">Password</label>
+                  <label className="block text-sm font-black text-slate-900 uppercase tracking-wider">Password</label>
                   <a href="#forgot" onClick={(e) => { e.preventDefault(); toast.error('Contact your center branch admin for password reset.'); }}
-                    className="text-xs text-[#2563EB] hover:underline font-black">
+                    className="text-sm text-[#2563EB] hover:underline font-black">
                     Forgot Password?
                   </a>
                 </div>
@@ -218,7 +218,7 @@ export default function Login() {
                     onFocus={() => setFocused('password')}
                     onBlur={() => setFocused('')}
                     placeholder="Enter password"
-                    className="w-full h-[52px] sm:h-[56px] pl-12 pr-12 text-xs sm:text-[15px] text-[#0F172A] placeholder-slate-400 outline-none transition-all bg-slate-50/80 focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 font-black border-2 border-slate-300 rounded-[10px] sm:rounded-[12px]"
+                    className="w-full h-[54px] sm:h-[56px] pl-12 pr-12 text-base text-[#0F172A] placeholder-slate-400 outline-none transition-all bg-slate-50/80 focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 font-black border-2 border-slate-300 rounded-[10px] sm:rounded-[12px]"
                   />
                   <button
                     type="button"
@@ -232,7 +232,7 @@ export default function Login() {
 
               {/* OPTIONS */}
               <div className="flex items-center justify-between pt-1">
-                <label className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-800 cursor-pointer select-none">
+                <label className="flex items-center gap-2 text-sm sm:text-base font-bold text-slate-800 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={rememberMe}
@@ -247,7 +247,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-[54px] sm:h-[56px] rounded-[12px] text-white font-black text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-blue-600/25 transition-all bg-gradient-to-r from-[#2563EB] to-[#4338CA] hover:from-[#1d4ed8] hover:to-[#3730a3] hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-70 cursor-pointer mt-3"
+                className="w-full h-[54px] sm:h-[56px] rounded-[12px] text-white font-black text-base sm:text-lg flex items-center justify-center gap-2 shadow-lg shadow-blue-600/25 transition-all bg-gradient-to-r from-[#2563EB] to-[#4338CA] hover:from-[#1d4ed8] hover:to-[#3730a3] hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-70 cursor-pointer mt-3"
               >
                 {loading ? (
                   <>
@@ -266,27 +266,27 @@ export default function Login() {
             {/* DEMO CREDENTIALS COLLAPSIBLE CARD */}
             <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50/80 p-3.5">
               <div className="flex items-center justify-between cursor-pointer" onClick={() => setShowDemo(!showDemo)}>
-                <div className="flex items-center gap-2 text-xs sm:text-sm font-black text-blue-950">
+                <div className="flex items-center gap-2 text-sm sm:text-base font-black text-blue-950">
                   <Key className="w-4 h-4 text-[#2563EB]" /> Demo Credentials
                 </div>
                 {showDemo ? <ChevronUp className="w-4 h-4 text-blue-600" /> : <ChevronDown className="w-4 h-4 text-blue-600" />}
               </div>
               {showDemo && (
-                <div className="mt-2 text-xs sm:text-sm text-blue-950 font-bold border-t border-blue-200/80 pt-2 space-y-1">
+                <div className="mt-2 text-sm sm:text-base text-blue-950 font-bold border-t border-blue-200/80 pt-2 space-y-1">
                   <p><strong>Admin:</strong> admin@kci.org.in / admin123</p>
                 </div>
               )}
             </div>
 
             {/* SECONDARY ACTION LINK */}
-            <div className="mt-5 text-center text-xs sm:text-sm">
+            <div className="mt-5 text-center text-sm sm:text-base">
               <Link to="/branch-apply" className="text-[#2563EB] hover:underline font-black inline-flex items-center gap-1.5">
                 <Building2 className="w-4 h-4 text-[#2563EB]" /> Apply for Branch Franchise
               </Link>
             </div>
 
             {/* SECURITY FOOTER */}
-            <div className="mt-5 pt-4 border-t border-slate-200 flex flex-wrap items-center justify-around gap-2 text-[11px] sm:text-xs font-black text-slate-600">
+            <div className="mt-5 pt-4 border-t border-slate-200 flex flex-wrap items-center justify-around gap-2 text-xs sm:text-sm font-black text-slate-600">
               <span className="flex items-center gap-1"><Shield className="w-3.5 h-3.5 text-emerald-600" /> 🔒 256-bit SSL Secured</span>
               <span>🔐 Privacy Protected</span>
               <span>🛡 Secure Authentication</span>
