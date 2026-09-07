@@ -1,51 +1,23 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { Mail, Lock, Eye, EyeOff, ShieldCheck, GraduationCap, Building2, ArrowRight, BookOpen, Users, Award, Key, Shield, Sparkles } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ShieldCheck, GraduationCap, Building2, ArrowRight, BookOpen, Users, Award, Key, Shield, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const roles = [
-  {
-    id: 'student',
-    label: 'Student',
-    icon: GraduationCap,
-    btnColor: 'bg-blue-600 hover:bg-blue-700 text-white',
-    selectedCard: 'bg-blue-600 text-white border-blue-600 shadow-md',
-    unselectedCard: 'bg-blue-50 text-blue-950 border-blue-200 hover:bg-blue-100',
-    descBox: 'bg-blue-50 text-blue-950 border-blue-300',
-    descIconBg: 'bg-blue-600 text-white',
-    desc: 'View results, certificates & study materials'
-  },
-  {
-    id: 'branch',
-    label: 'Branch',
-    icon: Building2,
-    btnColor: 'bg-purple-600 hover:bg-purple-700 text-white',
-    selectedCard: 'bg-purple-600 text-white border-purple-600 shadow-md',
-    unselectedCard: 'bg-purple-50 text-purple-950 border-purple-200 hover:bg-purple-100',
-    descBox: 'bg-purple-50 text-purple-950 border-purple-300',
-    descIconBg: 'bg-purple-600 text-white',
-    desc: 'Manage your branch center & students'
-  },
-  {
-    id: 'admin',
-    label: 'Admin',
-    icon: ShieldCheck,
-    btnColor: 'bg-amber-600 hover:bg-amber-700 text-white',
-    selectedCard: 'bg-amber-600 text-white border-amber-600 shadow-md',
-    unselectedCard: 'bg-amber-50 text-amber-950 border-amber-200 hover:bg-amber-100',
-    descBox: 'bg-amber-50 text-amber-950 border-amber-300',
-    descIconBg: 'bg-amber-600 text-white',
-    desc: 'Full administrative system control'
-  },
+  { id: 'student', label: 'Student', icon: GraduationCap, desc: 'View results, certificates & study materials' },
+  { id: 'branch', label: 'Brand / Branch', icon: Building2, desc: 'Manage your branch center & students' },
+  { id: 'admin', label: 'Admin', icon: ShieldCheck, desc: 'Full administrative system control' },
 ];
 
 export default function Login() {
   const [activeRole, setActiveRole] = useState('student');
   const [form, setForm] = useState({ email: '', password: '' });
+  const [rememberMe, setRememberMe] = useState(true);
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [focused, setFocused] = useState('');
+  const [showDemo, setShowDemo] = useState(true);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -70,119 +42,150 @@ export default function Login() {
   const roleConfig = roles.find(r => r.id === activeRole);
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#f8fafc] text-slate-900">
+    <div className="w-full min-h-[calc(100vh-80px)] grid grid-cols-1 md:grid-cols-[35%_65%] lg:grid-cols-[42%_58%] bg-[#F8FAFC] text-[#0F172A] font-sans overflow-x-hidden pt-20 sm:pt-24 pb-12">
 
-      {/* Left Panel: Institute Showcase */}
-      <div className="hidden lg:flex lg:w-1/2 relative flex-col items-center justify-center p-12 overflow-hidden bg-[#0b1f5b] text-white min-h-screen">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-400 via-transparent to-transparent" />
+      {/* ==================================================== */}
+      {/* DESKTOP LEFT SIDE — 42% (35% Tablet / Hidden Mobile) */}
+      {/* ==================================================== */}
+      <div
+        className="relative hidden md:flex flex-col justify-between p-8 lg:p-12 overflow-hidden text-white min-h-full"
+        style={{ background: 'linear-gradient(135deg, #071A52 0%, #102C7A 50%, #1D4ED8 100%)' }}
+      >
+        {/* Subtle Background Effects */}
+        <div className="absolute top-[-80px] left-[-80px] w-[400px] h-[400px] rounded-full pointer-events-none opacity-20"
+          style={{ background: 'radial-gradient(circle, #60A5FA 0%, transparent 70%)' }} />
+        <div className="absolute bottom-[-100px] right-[-100px] w-[450px] h-[450px] rounded-full pointer-events-none opacity-20"
+          style={{ background: 'radial-gradient(circle, #818CF8 0%, transparent 70%)' }} />
+        <div className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
 
-        <div className="relative z-10 text-center max-w-md">
-          <div className="kci-logo-wrap w-32 h-32 mx-auto mb-5 shadow-2xl border-4 border-white/20">
-            <img src="/logo.png" alt="KCI Logo" />
+        {/* TOP BRANDING */}
+        <div className="relative z-10">
+          <div className="flex items-center gap-3.5 mb-2">
+            <div className="kci-logo-wrap w-14 h-14 shadow-2xl border-2 border-white/20">
+              <img src="/logo.png" alt="KCI Logo" />
+            </div>
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-black text-white tracking-tight leading-none">KEERTI</h1>
+              <p className="text-amber-300 text-[10px] lg:text-xs font-black tracking-[0.2em] uppercase mt-0.5">COMPUTER INSTITUTE</p>
+              <p className="text-blue-200 text-[11px] font-extrabold italic mt-0.5">Learn • Grow • Succeed</p>
+            </div>
           </div>
+        </div>
 
-          <h1 className="text-4xl sm:text-5xl font-black text-white mb-1.5 tracking-tight">KEERTI</h1>
-          <p className="text-amber-300 text-xs font-black tracking-[0.25em] mb-3 uppercase">Computer Institute</p>
-          <div className="w-20 h-1 mx-auto mb-6 bg-amber-400 rounded-full" />
-          
-          <p className="text-slate-200 text-sm leading-relaxed font-semibold">
-            Government recognized computer education since 2005. Empowering 10,000+ students with career-ready digital skills.
+        {/* MAIN CONTENT */}
+        <div className="relative z-10 my-auto py-6">
+          <h2 className="text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight mb-3">
+            Welcome Back 👋
+          </h2>
+          <p className="text-slate-200 text-sm lg:text-base leading-relaxed font-semibold mb-8 max-w-md">
+            Access your learning dashboard, results, certificates and study materials.
           </p>
 
-          {/* Highlights */}
-          <div className="mt-8 space-y-3">
+          {/* 3 FEATURE CARDS */}
+          <div className="space-y-3.5 max-w-md mb-8">
             {[
-              { icon: BookOpen, label: '21+ Courses', value: 'Available', color: 'bg-blue-600' },
-              { icon: Users, label: 'Students Enrolled', value: '10,000+', color: 'bg-purple-600' },
-              { icon: Award, label: 'Affiliated Centers', value: '30+ Branches', color: 'bg-amber-600' }
-            ].map(({ icon: Icon, label, value, color }, i) => (
-              <div key={i} className="flex items-center gap-4 p-3.5 rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md shadow-md">
-                <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center shrink-0 shadow-sm`}>
+              { icon: BookOpen, title: '21+ Industry Courses', desc: 'DCA, ADCA, Tally GST & Web Tech', color: 'bg-blue-600' },
+              { icon: Users, title: '10,000+ Enrolled Students', desc: 'Trusted IT computer education since 2005', color: 'bg-indigo-600' },
+              { icon: Award, title: 'Government Recognized', desc: 'Nationally accepted certifications', color: 'bg-amber-600' },
+            ].map(({ icon: Icon, title, desc, color }, i) => (
+              <div key={i} className="flex items-center gap-3.5 p-3.5 rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md shadow-lg hover:translate-x-1 transition-transform">
+                <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center shrink-0 shadow-md`}>
                   <Icon className="w-5 h-5 text-white" />
                 </div>
-                <div className="text-left">
-                  <div className="text-white font-black text-sm">{value}</div>
-                  <div className="text-slate-200 text-xs font-semibold">{label}</div>
+                <div>
+                  <div className="text-white font-black text-sm">{title}</div>
+                  <div className="text-slate-300 text-xs font-semibold">{desc}</div>
                 </div>
               </div>
             ))}
           </div>
-        </div>
 
-        <p className="absolute bottom-6 text-slate-300 text-xs font-bold tracking-wide">
-          © {new Date().getFullYear()} Keerti Computer Institute • Official Portal
-        </p>
-      </div>
-
-      {/* Right Panel: Clean, High-Contrast Simple Login Card */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-start items-center p-5 sm:p-8 lg:p-12 pt-28 sm:pt-32 pb-16 bg-[#f8fafc] overflow-y-auto">
-        <div className="w-full max-w-md">
-
-          {/* Mobile Logo Header */}
-          <div className="lg:hidden text-center mb-6">
-            <div className="kci-logo-wrap w-16 h-16 mx-auto mb-2 shadow-lg"><img src="/logo.png" alt="KCI Logo" /></div>
-            <h2 className="text-xl font-black text-slate-900">Keerti Computer Institute</h2>
+          {/* BOTTOM TRUST FEATURES */}
+          <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-200 pt-4 border-t border-white/15 mb-4">
+            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> Secure Platform</div>
+            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> Verified Certificates</div>
+            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> 24/7 Access</div>
           </div>
 
-          {/* Main Clean Card Container */}
-          <div className="bg-white rounded-3xl shadow-xl border-2 border-slate-200 p-6 sm:p-8 text-slate-900">
-            
-            {/* Header Title */}
-            <div className="mb-6">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-blue-100 text-blue-950 border border-blue-200 mb-2">
-                <Sparkles className="w-3.5 h-3.5 text-blue-700" /> KCI Portal Access
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                Welcome Back 👋
+          {/* Motivational Quote */}
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/15 inline-block">
+            <p className="text-amber-300 font-black text-xs uppercase tracking-wider">A Brighter Future Awaits You!</p>
+          </div>
+        </div>
+
+        {/* BOTTOM BRAND FOOTER */}
+        <div className="relative z-10 text-xs font-semibold text-slate-400">
+          © {new Date().getFullYear()} Keerti Computer Institute. All rights reserved.
+        </div>
+      </div>
+
+      {/* ==================================================== */}
+      {/* RIGHT SIDE — 58% DESKTOP (65% Tablet / 100% Mobile)  */}
+      {/* ==================================================== */}
+      <div className="w-full flex justify-center items-center p-4 sm:p-8 lg:p-12 bg-[#F8FAFC] min-h-full">
+        <div className="w-full max-w-[620px]">
+
+          {/* MOBILE TOP BRANDING (Design No. 5 Compact Mobile Layout) */}
+          <div className="md:hidden text-center mb-6">
+            <div className="kci-logo-wrap w-16 h-16 mx-auto mb-2 shadow-lg"><img src="/logo.png" alt="KCI Logo" /></div>
+            <h2 className="text-xl font-black text-[#0F172A]">KEERTI COMPUTER INSTITUTE</h2>
+            <p className="text-xs text-blue-700 font-extrabold mt-0.5">Learn • Grow • Succeed</p>
+          </div>
+
+          {/* LOGIN CARD (Max-width 620px, Padding 40px, Radius 24px) */}
+          <div className="bg-white rounded-[24px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border border-[rgba(37,99,235,0.08)] p-6 sm:p-10 text-[#0F172A]">
+
+            {/* LOGIN HEADER */}
+            <div className="mb-6 sm:mb-8 text-left">
+              <h2 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
+                Sign in to your account
               </h2>
-              <p className="text-slate-800 text-xs sm:text-sm font-black mt-1">
-                Select your role and sign in to continue
+              <p className="text-slate-600 text-xs sm:text-sm font-extrabold mt-1">
+                Select your role and continue to your dashboard
               </p>
             </div>
 
-            {/* Role Selector Cards */}
-            <div className="grid grid-cols-3 gap-2.5 mb-6">
-              {roles.map(({ id, label, icon: Icon, selectedCard, unselectedCard }) => {
-                const isSelected = activeRole === id;
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => setActiveRole(id)}
-                    className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 transition-all duration-150 cursor-pointer ${
-                      isSelected ? selectedCard : unselectedCard
-                    }`}
-                  >
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
-                      isSelected ? 'bg-white/20 text-white' : 'bg-white text-slate-900 shadow-xs'
-                    }`}>
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <span className="text-xs font-black tracking-wide">{label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Role Description Badge */}
-            <div className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl mb-6 border-2 ${roleConfig.descBox}`}>
-              <div className={`w-8 h-8 rounded-xl ${roleConfig.descIconBg} flex items-center justify-center shrink-0 shadow-sm`}>
-                <roleConfig.icon className="w-4 h-4 text-white" />
+            {/* ROLE SELECTOR (Equal width 3 buttons, repeat 3, 1fr) */}
+            <div className="mb-6">
+              <label className="block text-xs font-black text-slate-800 uppercase tracking-wider mb-2">Select Role</label>
+              <div className="grid grid-cols-3 gap-2 h-[48px] sm:h-[56px] p-1.5 bg-slate-100 rounded-[12px] items-center">
+                {roles.map(({ id, label, icon: Icon }) => {
+                  const isSelected = activeRole === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setActiveRole(id)}
+                      className={`h-full flex items-center justify-center gap-1.5 px-2 rounded-[10px] text-xs sm:text-sm font-black transition-all duration-200 cursor-pointer ${isSelected
+                        ? 'bg-gradient-to-r from-[#2563EB] to-[#4338CA] text-white shadow-md shadow-blue-600/20 scale-[1.02]'
+                        : 'text-slate-700 hover:bg-white hover:text-slate-900'
+                        }`}
+                    >
+                      <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-white' : 'text-slate-600'}`} />
+                      <span className="truncate">{label}</span>
+                    </button>
+                  );
+                })}
               </div>
-              <span className="text-xs font-black leading-snug text-slate-950">{roleConfig.desc}</span>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              
-              {/* Field 1 */}
+            {/* Role Banner Info */}
+            <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl mb-6 bg-blue-50 border border-blue-200 text-blue-950">
+              <roleConfig.icon className="w-4 h-4 text-[#2563EB] shrink-0" />
+              <span className="text-xs sm:text-sm font-black leading-snug">{roleConfig.desc}</span>
+            </div>
+
+            {/* LOGIN FORM */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+
+              {/* FIELD 1 */}
               <div>
-                <label className="flex items-center gap-1.5 text-xs font-black text-slate-900 mb-1.5 uppercase tracking-wider">
-                  <Mail className="w-3.5 h-3.5 text-blue-600" />
-                  {activeRole === 'student' ? 'Form Number / Email' : 'Email Address'}
+                <label className="block text-xs font-black text-slate-900 mb-2 uppercase tracking-wider">
+                  {activeRole === 'student' ? 'Form Number or Email' : 'Phone Number or Email'}
                 </label>
                 <div className="relative">
-                  <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 ${focused === 'email' ? 'text-blue-600' : 'text-slate-400'}`} />
+                  <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focused === 'email' ? 'text-[#2563EB]' : 'text-slate-400'}`} />
                   <input
                     type="text"
                     required
@@ -190,20 +193,23 @@ export default function Login() {
                     onChange={e => setForm(p => ({ ...p, email: e.target.value.trim() }))}
                     onFocus={() => setFocused('email')}
                     onBlur={() => setFocused('')}
-                    placeholder={activeRole === 'admin' ? 'admin@kci.org.in' : activeRole === 'branch' ? 'branch@email.com' : 'KCI/FORM/2026/0001'}
-                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all bg-slate-50 focus:bg-white focus:border-blue-600 font-black border-slate-300"
+                    placeholder="Enter phone number or email"
+                    className="w-full h-[52px] sm:h-[56px] pl-12 pr-4 text-xs sm:text-[15px] text-[#0F172A] placeholder-slate-400 outline-none transition-all bg-slate-50/80 focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 font-black border-2 border-slate-300 rounded-[10px] sm:rounded-[12px]"
                   />
                 </div>
               </div>
 
-              {/* Field 2 */}
+              {/* FIELD 2 */}
               <div>
-                <label className="flex items-center gap-1.5 text-xs font-black text-slate-900 mb-1.5 uppercase tracking-wider">
-                  <Lock className="w-3.5 h-3.5 text-blue-600" />
-                  Password
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-black text-slate-900 uppercase tracking-wider">Password</label>
+                  <a href="#forgot" onClick={(e) => { e.preventDefault(); toast.error('Contact your center branch admin for password reset.'); }}
+                    className="text-xs text-[#2563EB] hover:underline font-black">
+                    Forgot Password?
+                  </a>
+                </div>
                 <div className="relative">
-                  <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 ${focused === 'password' ? 'text-blue-600' : 'text-slate-400'}`} />
+                  <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focused === 'password' ? 'text-[#2563EB]' : 'text-slate-400'}`} />
                   <input
                     type={showPass ? 'text' : 'password'}
                     required
@@ -211,61 +217,79 @@ export default function Login() {
                     onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
                     onFocus={() => setFocused('password')}
                     onBlur={() => setFocused('')}
-                    placeholder="Enter your password"
-                    className="w-full pl-11 pr-12 py-3.5 rounded-xl border-2 text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all bg-slate-50 focus:bg-white focus:border-blue-600 font-black border-slate-300"
+                    placeholder="Enter password"
+                    className="w-full h-[52px] sm:h-[56px] pl-12 pr-12 text-xs sm:text-[15px] text-[#0F172A] placeholder-slate-400 outline-none transition-all bg-slate-50/80 focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 font-black border-2 border-slate-300 rounded-[10px] sm:rounded-[12px]"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPass(!showPass)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors p-1"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#2563EB] transition-colors p-1"
                   >
-                    {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPass ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
               </div>
 
-              {/* Submit Button */}
+              {/* OPTIONS */}
+              <div className="flex items-center justify-between pt-1">
+                <label className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-800 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={e => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
+                  />
+                  <span>Remember me</span>
+                </label>
+              </div>
+
+              {/* LOGIN BUTTON */}
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-4 rounded-xl text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-md transition-all ${roleConfig.btnColor} disabled:opacity-70 cursor-pointer mt-2`}
+                className="w-full h-[54px] sm:h-[56px] rounded-[12px] text-white font-black text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-blue-600/25 transition-all bg-gradient-to-r from-[#2563EB] to-[#4338CA] hover:from-[#1d4ed8] hover:to-[#3730a3] hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-70 cursor-pointer mt-3"
               >
                 {loading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                    Logging in...
+                    <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                    Authenticating...
                   </>
                 ) : (
                   <>
-                    <roleConfig.icon className="w-4 h-4" />
-                    Login as {roleConfig.label}
-                    <ArrowRight className="w-4 h-4" />
+                    <span>Login Securely</span>
+                    <ArrowRight className="w-5 h-5" />
                   </>
                 )}
               </button>
             </form>
 
-            {/* Demo Credentials Box */}
-            <div className="mt-5 p-4 bg-blue-50 rounded-2xl border-2 border-blue-200">
-              <div className="flex items-center gap-1.5 text-xs font-black text-blue-950 mb-1">
-                <Key className="w-3.5 h-3.5 text-blue-700" /> Demo Credentials:
+            {/* DEMO CREDENTIALS COLLAPSIBLE CARD */}
+            <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50/80 p-3.5">
+              <div className="flex items-center justify-between cursor-pointer" onClick={() => setShowDemo(!showDemo)}>
+                <div className="flex items-center gap-2 text-xs sm:text-sm font-black text-blue-950">
+                  <Key className="w-4 h-4 text-[#2563EB]" /> Demo Credentials
+                </div>
+                {showDemo ? <ChevronUp className="w-4 h-4 text-blue-600" /> : <ChevronDown className="w-4 h-4 text-blue-600" />}
               </div>
-              <div className="space-y-1 text-xs text-blue-950 font-black">
-                <p><strong>Admin:</strong> admin@kci.org.in / admin123</p>
-              </div>
+              {showDemo && (
+                <div className="mt-2 text-xs sm:text-sm text-blue-950 font-bold border-t border-blue-200/80 pt-2 space-y-1">
+                  <p><strong>Admin:</strong> admin@kci.org.in / admin123</p>
+                </div>
+              )}
             </div>
 
-            {/* Apply Branch Link */}
-            <div className="mt-5 flex items-center justify-center text-xs">
-              <Link to="/branch-apply" className="text-blue-700 hover:underline font-black flex items-center gap-1">
-                <Building2 className="w-3.5 h-3.5 text-blue-600" /> Apply for Branch Franchise
+            {/* SECONDARY ACTION LINK */}
+            <div className="mt-5 text-center text-xs sm:text-sm">
+              <Link to="/branch-apply" className="text-[#2563EB] hover:underline font-black inline-flex items-center gap-1.5">
+                <Building2 className="w-4 h-4 text-[#2563EB]" /> Apply for Branch Franchise
               </Link>
             </div>
 
-            {/* Security Badge */}
-            <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-center gap-2">
-              <Shield className="w-3.5 h-3.5 text-emerald-600" />
-              <p className="text-xs text-slate-800 font-black">Secure 256-Bit Encrypted Connection</p>
+            {/* SECURITY FOOTER */}
+            <div className="mt-5 pt-4 border-t border-slate-200 flex flex-wrap items-center justify-around gap-2 text-[11px] sm:text-xs font-black text-slate-600">
+              <span className="flex items-center gap-1"><Shield className="w-3.5 h-3.5 text-emerald-600" /> 🔒 256-bit SSL Secured</span>
+              <span>🔐 Privacy Protected</span>
+              <span>🛡 Secure Authentication</span>
             </div>
 
           </div>
