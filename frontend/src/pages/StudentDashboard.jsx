@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -1064,6 +1064,92 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
   );
 }
 
+function StudentSidebarContent({ tabs, activeTab, setActiveTab, onCloseMobile, student, user, unreadCount, handleLogout }) {
+  return (
+    <div className="flex flex-col h-full bg-[#151D2C] text-white overflow-hidden select-none">
+      {/* Brand Header */}
+      <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/20 shrink-0 bg-white p-0.5 shadow-md">
+            <img src="/logo.png" alt="KCI Logo" className="w-full h-full object-cover rounded-lg" />
+          </div>
+          <div>
+            <div className="text-white font-black text-sm tracking-tight leading-tight">KEERTI COMPUTER</div>
+            <div className="text-amber-400 text-[10px] font-black tracking-widest uppercase">Student Portal</div>
+          </div>
+        </div>
+        {onCloseMobile && (
+          <button onClick={onCloseMobile} className="lg:hidden w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer">
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+
+      {/* Student Profile Strip */}
+      <div className="px-5 py-4 border-b border-slate-800 shrink-0 bg-slate-900/60">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-base shadow-md shrink-0 overflow-hidden border border-white/20">
+            {student?.photo ? <img src={student.photo} alt={student.name} className="w-full h-full object-cover" /> : ((student?.name?.[0] || user?.name?.[0] || 'S').toUpperCase())}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-black text-white truncate">{student?.name || user?.name}</div>
+            <div className="text-[11px] text-blue-300 font-mono truncate">{student?.rollNumber || student?.formNo || 'Student'}</div>
+            <div className="mt-1">
+              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${student?.isApproved ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'}`}>
+                {student?.isApproved ? '✓ Verified' : '⏳ Pending'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Nav Menu Items */}
+      <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1 scrollbar-hide">
+        {tabs.map(({ id, label, icon: Icon }) => {
+          const isActive = activeTab === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => {
+                setActiveTab(id);
+                if (onCloseMobile) onCloseMobile();
+              }}
+              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-bold transition-all duration-200 text-left cursor-pointer ${
+                isActive
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/25 font-black scale-[1.01]'
+                  : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+              }`}
+            >
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isActive ? 'bg-white/20' : 'bg-white/5'}`}>
+                <Icon className="w-4 h-4" />
+              </div>
+              <span className="flex-1 truncate">{label}</span>
+              {id === 'notifications' && unreadCount > 0 && (
+                <span className="bg-red-500 text-white text-[10px] font-black rounded-full px-2 py-0.5 shrink-0">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Footer & Logout */}
+      <div className="p-4 border-t border-slate-800 shrink-0 space-y-2 bg-slate-900/60">
+        <DevCredit popupDown />
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-all cursor-pointer"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function StudentDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -1337,135 +1423,118 @@ export default function StudentDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex student-portal">
+    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex student-portal font-sans overflow-x-hidden">
 
-      {/* Mobile overlay */}
+      {/* DESKTOP PERMANENT DARK SIDEBAR (Visible >= 1024px) */}
+      <aside className="hidden lg:flex w-[260px] shrink-0 border-r border-slate-800 h-screen sticky top-0 z-40">
+        <StudentSidebarContent
+          tabs={tabs}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          student={data.student}
+          user={user}
+          unreadCount={unreadCount}
+          handleLogout={handleLogout}
+        />
+      </aside>
+
+      {/* MOBILE SLIDE-OUT DRAWER OVERLAY & ASIDE (< 1024px) */}
       <AnimatePresence>
         {sidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+            <motion.aside
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'tween', duration: 0.25 }}
+              className="fixed inset-y-0 left-0 z-[60] w-[300px] max-w-[85vw] flex flex-col shadow-2xl lg:hidden"
+            >
+              <StudentSidebarContent
+                tabs={tabs}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                onCloseMobile={() => setSidebarOpen(false)}
+                student={data.student}
+                user={user}
+                unreadCount={unreadCount}
+                handleLogout={handleLogout}
+              />
+            </motion.aside>
+          </>
         )}
       </AnimatePresence>
 
-      {/* PREMIUM SIDEBAR DRAWER */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <motion.aside
-            initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }}
-            transition={{ type: 'tween', duration: 0.28 }}
-            className="fixed inset-y-0 left-0 z-50 w-72 flex flex-col shadow-2xl lg:relative lg:w-64 lg:shrink-0"
-            style={{ background: 'linear-gradient(160deg,#081d5b 0%,#0f2a8a 60%,#1a1a6e 100%)' }}
-          >
-            {/* Drawer Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl overflow-hidden border border-white/20 shrink-0">
-                  <img src="/logo.png" alt="KCI" className="w-full h-full object-cover" />
-                </div>
-                <div>
-                  <div className="text-white font-black text-sm leading-tight">KCI Student Portal</div>
-                  <div className="text-blue-300 text-[10px] font-mono">{student?.rollNumber || user?.rollNumber || ''}</div>
-                </div>
-              </div>
-              <button onClick={() => setSidebarOpen(false)}
-                className="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors lg:hidden">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Student Profile Strip */}
-            <div className="px-5 py-4 border-b border-white/10 shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white font-black text-lg shadow-lg shrink-0 overflow-hidden border-2 border-white/20">
-                  {student?.photo ? <img src={student.photo} alt="" className="w-full h-full object-cover" /> : (user?.name?.[0]?.toUpperCase() || 'S')}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-black text-white truncate">{student?.name || user?.name}</div>
-                  <div className="text-[10px] text-blue-300 truncate">{student?.courseName || user?.courseName || 'Student'}</div>
-                  <div className="mt-1">
-                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${
-                      student?.isApproved ? 'bg-green-500/30 text-green-300' : 'bg-yellow-500/30 text-yellow-300'
-                    }`}>{student?.isApproved ? '✓ Approved' : '⏳ Pending'}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Nav Menu */}
-            <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-0.5 scrollbar-hide">
-              {tabs.map(({ id, label, icon: Icon }) => (
-                <button key={id}
-                  onClick={() => { setActiveTab(id); setSidebarOpen(false); }}
-                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-bold transition-all duration-150 relative text-left ${
-                    activeTab === id
-                      ? 'bg-white/20 text-white shadow-sm'
-                      : 'text-blue-200 hover:bg-white/10 hover:text-white'
-                  }`}>
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                    activeTab === id ? 'bg-white/20' : 'bg-white/5'
-                  }`}>
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <span className="flex-1 truncate">{label}</span>
-                  {id === 'notifications' && unreadCount > 0 && (
-                    <span className="bg-red-500 text-white text-[9px] font-black rounded-full px-1.5 py-0.5 shrink-0 min-w-[18px] text-center">
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
-                  {activeTab === id && <div className="w-1 h-6 bg-blue-300 rounded-full shrink-0" />}
-                </button>
-              ))}
-            </nav>
-
-            {/* Footer */}
-            <div className="p-4 border-t border-white/10 shrink-0 space-y-2">
-              <DevCredit popupDown />
-              <button onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-all">
-                <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
-                  <LogOut className="w-4 h-4" />
-                </div>
-                Logout
-              </button>
-            </div>
-          </motion.aside>
-        )}
-      </AnimatePresence>
-
-      {/* MAIN AREA */}
+      {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
-        {/* PREMIUM STICKY HEADER */}
-        <header className="bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm sticky top-0 z-30 shrink-0">
-          <div className="px-4 h-14 flex items-center justify-between gap-3">
-            {/* Hamburger */}
-            <button onClick={() => setSidebarOpen(p => !p)}
-              className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors text-gray-600 shrink-0">
+
+        {/* STICKY HEADER */}
+        <header className="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 shrink-0 h-16 px-4 sm:px-6 flex items-center justify-between shadow-xs">
+          {/* Left Header Controls */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+            >
               <Menu className="w-5 h-5" />
             </button>
 
-            {/* Page Title */}
-            <div className="flex-1 min-w-0 text-center">
-              <span className="font-black text-gray-900 text-sm truncate">
-                {tabs.find(t => t.id === activeTab)?.label || 'Dashboard'}
-              </span>
+            <div className="flex items-center gap-2.5">
+              <div className="lg:hidden w-8 h-8 rounded-lg overflow-hidden border border-slate-200 shrink-0">
+                <img src="/logo.png" alt="KCI" className="w-full h-full object-cover" />
+              </div>
+              <div>
+                <h1 className="font-black text-slate-900 text-base sm:text-lg leading-tight">
+                  {tabs.find(t => t.id === activeTab)?.label || 'Student Portal'}
+                </h1>
+                <p className="hidden sm:block text-xs text-slate-500 font-semibold">
+                  Welcome back, {data.student?.name || user?.name || 'Student'}
+                </p>
+              </div>
             </div>
+          </div>
 
-            {/* Right: Bell */}
-            <button onClick={() => setActiveTab('notifications')}
-              className="relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 text-gray-600 transition-colors shrink-0">
+          {/* Right Header Controls */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setActiveTab('notifications')}
+              className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+            >
               <Bell className="w-5 h-5" />
               {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 bg-red-500 rounded-full text-white text-[9px] font-black flex items-center justify-center px-0.5">
+                <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] bg-red-500 rounded-full text-white text-[10px] font-black flex items-center justify-center px-1">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
             </button>
+
+            <button
+              onClick={() => setActiveTab('profile')}
+              className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
+            >
+              <div className="w-9 h-9 rounded-xl bg-blue-600 text-white font-black flex items-center justify-center overflow-hidden border border-slate-300 shadow-sm">
+                {data.student?.photo ? (
+                  <img src={data.student.photo} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  ((data.student?.name?.[0] || user?.name?.[0] || 'S').toUpperCase())
+                )}
+              </div>
+              <div className="hidden sm:block text-left">
+                <div className="text-xs font-black text-slate-900 leading-tight">{data.student?.name || user?.name}</div>
+                <div className="text-[10px] text-blue-600 font-bold font-mono">{data.student?.rollNumber || 'Student'}</div>
+              </div>
+            </button>
           </div>
         </header>
-        <div className="flex-1 p-3 sm:p-5 space-y-4 sm:space-y-6 overflow-y-auto pb-24 lg:pb-6">
+
+        {/* CONTENT SECTION */}
+        <div className="flex-1 p-4 sm:p-6 space-y-6 overflow-y-auto pb-24 lg:pb-8 max-w-7xl mx-auto w-full">
 
         {/* Profile Tab */}
         {activeTab === 'profile' && (
@@ -2480,37 +2549,39 @@ export default function StudentDashboard() {
         })()}
         </div>
 
-        {/* BOTTOM NAVIGATION — mobile only */}
-        <div className="fixed bottom-0 left-0 right-0 z-30 lg:hidden bottom-nav-glass" style={{paddingBottom:'env(safe-area-inset-bottom)'}}>
-          <div className="flex items-center justify-around px-1 py-1.5">
-            {[
-              { id: 'profile',       icon: Home,          label: 'Home' },
-              { id: 'results',       icon: Award,         label: 'Results' },
-              { id: 'certificates',  icon: GraduationCap, label: 'Certs' },
-              { id: 'notifications', icon: Bell,          label: 'Alerts' },
-              { id: 'menu',          icon: Menu,          label: 'Menu' },
-            ].map(({ id, icon: Icon, label }) => (
-              <button key={id}
-                onClick={() => id === 'menu' ? setSidebarOpen(true) : setActiveTab(id)}
-                className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all relative min-w-[52px] ${
-                  activeTab === id && id !== 'menu' ? 'text-blue-600' : 'text-gray-400'
-                }`}>
-                <div className={`w-8 h-8 flex items-center justify-center rounded-xl ${
-                  activeTab === id && id !== 'menu' ? 'bg-blue-50' : ''
-                }`}>
+        {/* BOTTOM NAVIGATION BAR — Mobile App Interface Only (< 768px / md:hidden) */}
+        <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#151D2C]/95 backdrop-blur-xl border-t border-slate-800 text-slate-300 px-2 py-2 flex items-center justify-around pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl">
+          {[
+            { id: 'profile',       icon: Home,          label: 'Home' },
+            { id: 'results',       icon: Award,         label: 'Results' },
+            { id: 'certificates',  icon: GraduationCap, label: 'Certs' },
+            { id: 'notifications', icon: Bell,          label: 'Alerts', badge: unreadCount },
+            { id: 'menu',          icon: Menu,          label: 'Menu', action: () => setSidebarOpen(true) },
+          ].map(({ id, icon: Icon, label, badge, action }) => {
+            const isActive = activeTab === id && id !== 'menu';
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={action || (() => setActiveTab(id))}
+                className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all relative min-w-[56px] cursor-pointer ${
+                  isActive ? 'text-blue-400 font-black' : 'text-slate-400 hover:text-slate-200 font-semibold'
+                }`}
+              >
+                <div className={`w-8 h-8 flex items-center justify-center rounded-xl relative transition-colors ${isActive ? 'bg-blue-600/20 text-blue-400' : ''}`}>
                   <Icon className="w-5 h-5" />
+                  {badge > 0 && (
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                  )}
                 </div>
-                {id === 'notifications' && unreadCount > 0 && (
-                  <span className="absolute top-1 right-2 w-2 h-2 bg-red-500 rounded-full" />
-                )}
-                <span className="text-[10px] font-bold">{label}</span>
-                {activeTab === id && id !== 'menu' && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-blue-600 rounded-full" />
+                <span className="text-[10px] tracking-tight">{label}</span>
+                {isActive && (
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-blue-500 rounded-full" />
                 )}
               </button>
-            ))}
-          </div>
-        </div>
+            );
+          })}
+        </nav>
       </div>
     </div>
   );
