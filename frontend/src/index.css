@@ -9,27 +9,29 @@
     padding: 0;
   }
 
-  html,
-  body,
-  #root {
+  html {
     width: 100%;
     min-height: 100%;
     overflow-x: hidden;
+    scroll-behavior: smooth;
   }
 
   body {
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
     font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
     background-color: #f1f5f9;
     color: #0f172a;
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
-    overscroll-behavior: none;
     font-size: 16px;
     line-height: 1.6;
   }
 
-  html {
-    scroll-behavior: smooth;
+  #root {
+    width: 100%;
+    min-height: 100vh;
   }
 
   img {
