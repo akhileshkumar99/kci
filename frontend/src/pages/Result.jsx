@@ -5,6 +5,10 @@ import api from '../utils/api';
 
 const COURSES = [
   'All Courses',
+  'ADCA (Advanced Diploma in Computer Applications)',
+  'DCA (Diploma in Computer Applications)',
+  'CCC (Course on Computer Concepts)',
+  'Tally Prime with GST',
   'Advance Diploma in Computer Application (ADCA)',
   'Diploma in Computer Application (DCA)',
   'Course On Computer Concept (CCC from NIELIT)',
@@ -20,6 +24,8 @@ const COURSES = [
   'JAVA, VB.net, ASP.net, PHP',
   'C, C++ Programming',
   'Graphic Design & Video Editing',
+  'Hardware & Networking',
+  'O Level',
   'Computer Typing (Hindi + English)',
   'Multimedia Animation Course (N-Mass)',
   'O Level (NIELIT)',
@@ -139,6 +145,7 @@ export default function Result() {
               {/* Course Selector */}
               <div className="relative">
                 <label className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1 flex items-center gap-1.5 px-1">
+                  <BookOpen className="w-3 h-3 text-blue-600" /> Select Course
                   <BookOpen className="w-3 h-3 text-blue-600" /> Select Course (All Courses)
                 </label>
                 <div className="relative">

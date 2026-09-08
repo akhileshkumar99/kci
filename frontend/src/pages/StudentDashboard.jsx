@@ -11,7 +11,8 @@ import {
   Building2, Calendar, BookOpen, CheckCircle, CreditCard, Download,
   TrendingUp, ClipboardCheck, Clock, ChevronRight, Eye, KeyRound, QrCode,
   Mail, Phone, Users, MapPin, BadgeCheck, Hash, Layers, ShieldCheck,
-  CalendarDays, MapPinned, Bell, XCircle, Printer, Home, Menu, X, Search, Sun, Moon
+  CalendarDays, MapPinned, Bell, XCircle, Printer, Home, Menu, X, Search, Sun, Moon,
+  ArrowRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
