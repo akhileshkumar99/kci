@@ -1068,34 +1068,34 @@ function StudentSidebarContent({ tabs, activeTab, setActiveTab, onCloseMobile, s
   return (
     <div className="flex flex-col h-full bg-[#151D2C] text-white overflow-hidden select-none">
       {/* Brand Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/20 shrink-0 bg-white p-0.5 shadow-md">
-            <img src="/logo.png" alt="KCI Logo" className="w-full h-full object-cover rounded-lg" />
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 shrink-0">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-lg overflow-hidden border border-white/20 shrink-0 bg-white p-0.5 shadow-md">
+            <img src="/logo.png" alt="KCI Logo" className="w-full h-full object-cover rounded-md" />
           </div>
-          <div>
-            <div className="text-white font-black text-sm tracking-tight leading-tight">KEERTI COMPUTER</div>
-            <div className="text-amber-400 text-[10px] font-black tracking-widest uppercase">Student Portal</div>
+          <div className="min-w-0">
+            <div className="text-white font-black text-xs tracking-tight leading-tight truncate">KEERTI COMPUTER</div>
+            <div className="text-amber-400 text-[9px] font-black tracking-widest uppercase truncate">Student Portal</div>
           </div>
         </div>
         {onCloseMobile && (
-          <button onClick={onCloseMobile} className="lg:hidden w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer">
+          <button onClick={onCloseMobile} className="lg:hidden w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer shrink-0 ml-1">
             <X className="w-4 h-4" />
           </button>
         )}
       </div>
 
       {/* Student Profile Strip */}
-      <div className="px-5 py-4 border-b border-slate-800 shrink-0 bg-slate-900/60">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-base shadow-md shrink-0 overflow-hidden border border-white/20">
+      <div className="px-4 py-3 border-b border-slate-800 shrink-0 bg-slate-900/60">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md shrink-0 overflow-hidden border border-white/20">
             {student?.photo ? <img src={student.photo} alt={student.name} className="w-full h-full object-cover" /> : ((student?.name?.[0] || user?.name?.[0] || 'S').toUpperCase())}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-black text-white truncate">{student?.name || user?.name}</div>
-            <div className="text-[11px] text-blue-300 font-mono truncate">{student?.rollNumber || student?.formNo || 'Student'}</div>
-            <div className="mt-1">
-              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${student?.isApproved ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'}`}>
+            <div className="text-xs font-black text-white truncate">{student?.name || user?.name}</div>
+            <div className="text-[10px] text-blue-300 font-mono truncate">{student?.rollNumber || student?.formNo || 'Student'}</div>
+            <div className="mt-0.5">
+              <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${student?.isApproved ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'}`}>
                 {student?.isApproved ? '✓ Verified' : '⏳ Pending'}
               </span>
             </div>
@@ -1104,7 +1104,7 @@ function StudentSidebarContent({ tabs, activeTab, setActiveTab, onCloseMobile, s
       </div>
 
       {/* Nav Menu Items */}
-      <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1 scrollbar-hide">
+      <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-1 scrollbar-hide">
         {tabs.map(({ id, label, icon: Icon }) => {
           const isActive = activeTab === id;
           return (
@@ -1115,17 +1115,17 @@ function StudentSidebarContent({ tabs, activeTab, setActiveTab, onCloseMobile, s
                 setActiveTab(id);
                 if (onCloseMobile) onCloseMobile();
               }}
-              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-bold transition-all duration-200 text-left cursor-pointer ${isActive
+              className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 text-left cursor-pointer ${isActive
                   ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/25 font-black scale-[1.01]'
                   : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
                 }`}
             >
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isActive ? 'bg-white/20' : 'bg-white/5'}`}>
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isActive ? 'bg-white/20' : 'bg-white/5'}`}>
                 <Icon className="w-4 h-4" />
               </div>
               <span className="flex-1 truncate">{label}</span>
               {id === 'notifications' && unreadCount > 0 && (
-                <span className="bg-red-500 text-white text-[10px] font-black rounded-full px-2 py-0.5 shrink-0">
+                <span className="bg-red-500 text-white text-[9px] font-black rounded-full px-1.5 py-0.5 shrink-0">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -1135,11 +1135,11 @@ function StudentSidebarContent({ tabs, activeTab, setActiveTab, onCloseMobile, s
       </nav>
 
       {/* Footer & Logout */}
-      <div className="p-4 border-t border-slate-800 shrink-0 space-y-2 bg-slate-900/60">
+      <div className="p-3 border-t border-slate-800 shrink-0 space-y-2 bg-slate-900/60">
         <DevCredit popupDown />
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-all cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-all cursor-pointer"
         >
           <LogOut className="w-4 h-4" />
           <span>Logout</span>
@@ -1421,11 +1421,14 @@ export default function StudentDashboard() {
     </div>
   );
 
+  const hr = new Date().getHours();
+  const greeting = hr < 12 ? 'Good Morning ☀️' : hr < 17 ? 'Good Afternoon 🌤️' : 'Good Evening 🌙';
+
   return (
-    <div className="min-h-screen bg-[#F5F7FB] text-[#0F172A] font-sans overflow-x-hidden w-full lg:grid lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)] 2xl:grid-cols-[260px_minmax(0,1fr)] student-portal">
+    <div className="min-h-screen bg-[#F4F7FC] text-[#172033] font-sans w-full lg:grid lg:grid-cols-[240px_minmax(0,1fr)] student-portal">
 
       {/* DESKTOP PERMANENT DARK SIDEBAR (Visible >= 1024px) */}
-      <aside className="hidden lg:flex flex-col h-screen sticky top-0 z-40 bg-[#151D2C] border-r border-slate-800 shrink-0 overflow-hidden">
+      <aside className="hidden lg:flex flex-col h-screen sticky top-0 z-40 bg-[#151D2C] border-r border-slate-800 shrink-0">
         <StudentSidebarContent
           tabs={tabs}
           activeTab={activeTab}
@@ -1453,7 +1456,7 @@ export default function StudentDashboard() {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.25 }}
-              className="fixed inset-y-0 left-0 z-[60] w-[300px] max-w-[85vw] flex flex-col shadow-2xl lg:hidden"
+              className="fixed inset-y-0 left-0 z-[60] w-[260px] max-w-[78vw] flex flex-col shadow-2xl lg:hidden"
             >
               <StudentSidebarContent
                 tabs={tabs}
@@ -1471,10 +1474,10 @@ export default function StudentDashboard() {
       </AnimatePresence>
 
       {/* MAIN AREA */}
-      <div className="min-w-0 w-full bg-[#F5F7FB] flex flex-col min-h-screen">
+      <div className="min-w-0 w-full bg-[#F4F7FC] flex flex-col min-h-screen">
 
         {/* TOP HEADER */}
-        <header className="bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 shrink-0 h-[72px] px-4 sm:px-6 flex items-center justify-between shadow-xs">
+        <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 shrink-0 h-[64px] sm:h-[72px] px-4 sm:px-6 flex items-center justify-between shadow-xs">
           {/* Left Header Controls */}
           <div className="flex items-center gap-3 min-w-0">
             <button
@@ -1517,7 +1520,7 @@ export default function StudentDashboard() {
               onClick={() => setActiveTab('profile')}
               className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
             >
-              <div className="w-9 h-9 rounded-xl bg-blue-600 text-white font-black flex items-center justify-center overflow-hidden border border-slate-300 shadow-sm shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-[#2563EB] text-white font-black flex items-center justify-center overflow-hidden border border-slate-300 shadow-sm shrink-0">
                 {data.student?.photo ? (
                   <img src={data.student.photo} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -1533,7 +1536,7 @@ export default function StudentDashboard() {
         </header>
 
         {/* MAIN CONTENT AREA */}
-        <main className="w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6 flex-1 box-border pb-24 lg:pb-8">
+        <main className="w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6 flex-1 box-border pb-28 lg:pb-8">
 
           {/* Profile Tab */}
           {activeTab === 'profile' && (
@@ -1541,87 +1544,117 @@ export default function StudentDashboard() {
 
               {/* Profile Hero Card */}
               <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-                className="relative rounded-[24px] overflow-hidden shadow-lg border border-slate-200/80 bg-slate-900 text-white p-6 sm:p-8">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0F172A] via-[#1E293B] to-[#1E1B4B] opacity-95" />
-                <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-blue-600/10 blur-3xl pointer-events-none" />
+                className="relative rounded-[22px] overflow-hidden shadow-[0_8px_30px_rgba(15,23,42,0.12)] border border-slate-700/50 text-white p-6 sm:p-8"
+                style={{ background: 'linear-gradient(135deg, #101C3D 0%, #172C63 50%, #10245A 100%)' }}>
+                <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
 
-                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[auto_minmax(0,1fr)_auto] gap-6 items-center">
-                  {/* Avatar */}
-                  <div className="relative mx-auto lg:mx-0 shrink-0">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-[20px] overflow-hidden border-2 border-white/20 shadow-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-3xl font-black text-white">
-                      {data.student?.photo ? (
-                        <img src={data.student.photo} alt={data.student.name} className="w-full h-full object-cover" />
-                      ) : (
-                        (data.student?.name?.[0] || user?.name?.[0] || 'S').toUpperCase()
-                      )}
-                    </div>
-                    <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center border-2 border-slate-900 shadow-md">
-                      <CheckCircle className="w-4 h-4" />
-                    </div>
-                  </div>
-
-                  {/* Name & Academic Tags */}
-                  <div className="text-center lg:text-left min-w-0">
-                    <div className="flex items-center justify-center lg:justify-start gap-2 mb-1.5 flex-wrap">
-                      <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">
-                        Student Profile
-                      </span>
-                      <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border ${data.student?.isApproved ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30'}`}>
-                        {data.student?.isApproved ? '✓ Verified Account' : '⏳ Pending Approval'}
-                      </span>
+                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left min-w-0">
+                    {/* Avatar */}
+                    <div className="relative shrink-0">
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-[20px] overflow-hidden border-2 border-white/20 shadow-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-3xl font-black text-white">
+                        {data.student?.photo ? (
+                          <img src={data.student.photo} alt={data.student.name} className="w-full h-full object-cover" />
+                        ) : (
+                          (data.student?.name?.[0] || user?.name?.[0] || 'S').toUpperCase()
+                        )}
+                      </div>
+                      <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center border-2 border-[#101C3D] shadow-md">
+                        <CheckCircle className="w-4 h-4" />
+                      </div>
                     </div>
 
-                    <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-3 truncate">
-                      {data.student?.name || user?.name}
-                    </h2>
-
-                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-xs">
-                      <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-slate-200 font-semibold">
-                        <GraduationCap className="w-4 h-4 text-violet-400 shrink-0" />
-                        <span className="truncate max-w-[180px]">{data.student?.courseName || 'N/A'}</span>
-                      </span>
-                      <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-400/30 text-amber-300 font-mono font-bold">
-                        <BookOpen className="w-4 h-4 text-amber-400 shrink-0" />
-                        <span>{data.student?.rollNumber || data.student?.formNo || 'N/A'}</span>
-                      </span>
-                      {data.student?.batch && (
-                        <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-slate-200 font-semibold">
-                          <Calendar className="w-4 h-4 text-blue-400 shrink-0" />
-                          <span>Batch {data.student.batch}</span>
+                    {/* Greetings & Info */}
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1.5">
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                          Student Portal
                         </span>
-                      )}
+                        <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border ${data.student?.isApproved ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30'}`}>
+                          {data.student?.isApproved ? '✓ Verified Account' : '⏳ Pending Approval'}
+                        </span>
+                      </div>
+
+                      <div className="text-xs font-bold text-blue-200 tracking-wide mb-0.5">{greeting}</div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-3 truncate">
+                        {data.student?.name || user?.name}
+                      </h2>
+
+                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-xs">
+                        <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-slate-200 font-semibold">
+                          <GraduationCap className="w-4 h-4 text-violet-400 shrink-0" />
+                          <span className="truncate max-w-[180px]">{data.student?.courseName || 'N/A'}</span>
+                        </span>
+                        <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-400/30 text-amber-300 font-mono font-bold">
+                          <BookOpen className="w-4 h-4 text-amber-400 shrink-0" />
+                          <span>{data.student?.rollNumber || data.student?.formNo || 'N/A'}</span>
+                        </span>
+                        {data.student?.batch && (
+                          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-slate-200 font-semibold">
+                            <Calendar className="w-4 h-4 text-blue-400 shrink-0" />
+                            <span>Batch {data.student.batch}</span>
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Quick Stats Column */}
-                  <div className="flex lg:flex-col items-center justify-center gap-4 border-t lg:border-t-0 lg:border-l border-white/10 pt-4 lg:pt-0 lg:pl-6 shrink-0">
-                    <div className="text-center min-w-[65px]">
-                      <div className="text-2xl font-black text-amber-400">{results.length}</div>
+                  {/* 3 Stats Column */}
+                  <div className="w-full md:w-auto flex items-center justify-around md:justify-end gap-6 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-8 shrink-0">
+                    <div className="text-center min-w-[70px]">
+                      <div className="text-2xl sm:text-3xl font-black text-amber-400">{results.length}</div>
                       <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Results</div>
                     </div>
-                    <div className="text-center min-w-[65px]">
-                      <div className="text-2xl font-black text-emerald-400">{certificates.filter(c => c.certificateFile).length}</div>
+                    <div className="text-center min-w-[70px]">
+                      <div className="text-2xl sm:text-3xl font-black text-emerald-400">{certificates.filter(c => c.certificateFile).length}</div>
                       <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Certs</div>
                     </div>
-                    <div className="text-center min-w-[65px]">
-                      <div className="text-2xl font-black text-indigo-400">{tests.length}</div>
+                    <div className="text-center min-w-[70px]">
+                      <div className="text-2xl sm:text-3xl font-black text-indigo-400">{tests.length}</div>
                       <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tests</div>
                     </div>
                   </div>
                 </div>
               </motion.div>
 
+              {/* 3 Primary Action Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {[
+                  { label: 'View Study Material', desc: 'Notes, PDF & Lectures', icon: BookMarked, grad: 'from-[#2563EB] to-[#1D4ED8]', tab: 'studymaterial' },
+                  { label: 'View Results', desc: 'Marksheets & Grades', icon: Award, grad: 'from-[#0284C7] to-[#0369A1]', tab: 'results' },
+                  { label: 'My Certificates', desc: 'Issued Certificates', icon: GraduationCap, grad: 'from-[#059669] to-[#047857]', tab: 'certificates' },
+                ].map(({ label, desc, icon: Icon, grad, tab }) => (
+                  <button key={label} onClick={() => setActiveTab(tab)}
+                    type="button"
+                    className={`min-h-[95px] p-4 rounded-[18px] bg-gradient-to-r ${grad} text-white flex items-center justify-between gap-3 shadow-[0_8px_30px_rgba(15,23,42,0.08)] hover:shadow-xl hover:-translate-y-1 transition-all duration-200 cursor-pointer text-left`}>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-black text-white leading-snug">{label}</div>
+                      <div className="text-xs text-white/80 font-medium truncate mt-0.5">{desc}</div>
+                    </div>
+                    <div className="w-11 h-11 rounded-[14px] bg-white/20 flex items-center justify-center shrink-0">
+                      <Icon className="w-5 h-5 text-white" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+
               {/* Info Cards Grid — 3 cols large desktop, 2-3 laptop, 1 mobile */}
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
 
                 {/* Personal Info */}
                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                  className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.06)] border border-slate-200/80 overflow-hidden hover:-translate-y-[3px] transition-all duration-200">
-                  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-3.5 flex items-center gap-2.5 text-white">
-                    <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
-                      <User className="w-4 h-4" />
+                  className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.08)] border border-slate-200/80 overflow-hidden hover:-translate-y-[3px] transition-all duration-200">
+                  <div className="bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] px-5 py-3.5 flex items-center justify-between text-white">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <span className="font-black text-sm tracking-wide">Personal Info</span>
                     </div>
-                    <span className="font-black text-sm tracking-wide">Personal Info</span>
+                    <button onClick={() => setActiveTab('profile')} className="text-xs font-bold text-blue-100 hover:text-white flex items-center gap-1 cursor-pointer">
+                      View All <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                   <div className="p-5 space-y-3">
                     {[
@@ -1636,7 +1669,7 @@ export default function StudentDashboard() {
                         <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-blue-500"><Icon className="w-4 h-4" /></div>
                         <div className="flex-1 min-w-0">
                           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</div>
-                          <div className="text-sm font-bold text-slate-800 truncate">{value || '-'}</div>
+                          <div className="text-sm font-bold text-[#172033] truncate">{value || '-'}</div>
                         </div>
                       </div>
                     ))}
@@ -1645,12 +1678,17 @@ export default function StudentDashboard() {
 
                 {/* Academic Info */}
                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-                  className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.06)] border border-slate-200/80 overflow-hidden hover:-translate-y-[3px] transition-all duration-200">
-                  <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3.5 flex items-center gap-2.5 text-white">
-                    <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
-                      <BookOpen className="w-4 h-4" />
+                  className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.08)] border border-slate-200/80 overflow-hidden hover:-translate-y-[3px] transition-all duration-200">
+                  <div className="bg-gradient-to-r from-[#4F46E5] to-[#3730A3] px-5 py-3.5 flex items-center justify-between text-white">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
+                        <BookOpen className="w-4 h-4" />
+                      </div>
+                      <span className="font-black text-sm tracking-wide">Academic Details</span>
                     </div>
-                    <span className="font-black text-sm tracking-wide">Academic Details</span>
+                    <button onClick={() => setActiveTab('profile')} className="text-xs font-bold text-indigo-100 hover:text-white flex items-center gap-1 cursor-pointer">
+                      View All <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                   <div className="p-5 space-y-3">
                     {[
@@ -1666,7 +1704,7 @@ export default function StudentDashboard() {
                         <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-indigo-500"><Icon className="w-4 h-4" /></div>
                         <div className="flex-1 min-w-0">
                           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</div>
-                          <div className={`text-sm font-bold truncate ${highlight ? 'font-mono text-blue-600 text-base' : mono ? 'font-mono text-blue-600' : 'text-slate-800'
+                          <div className={`text-sm font-bold truncate ${highlight ? 'font-mono text-blue-600 text-base' : mono ? 'font-mono text-blue-600' : 'text-[#172033]'
                             }`}>{value || '-'}</div>
                         </div>
                       </div>
@@ -1689,12 +1727,17 @@ export default function StudentDashboard() {
                 {/* Branch Info */}
                 {data.branch && (
                   <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                    className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.06)] border border-slate-200/80 overflow-hidden hover:-translate-y-[3px] transition-all duration-200">
-                    <div className="bg-gradient-to-r from-blue-700 to-indigo-800 px-5 py-3.5 flex items-center gap-2.5 text-white">
-                      <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
-                        <Building2 className="w-4 h-4" />
+                    className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.08)] border border-slate-200/80 overflow-hidden hover:-translate-y-[3px] transition-all duration-200">
+                    <div className="bg-gradient-to-r from-blue-700 to-indigo-800 px-5 py-3.5 flex items-center justify-between text-white">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
+                          <Building2 className="w-4 h-4" />
+                        </div>
+                        <span className="font-black text-sm tracking-wide">My Branch</span>
                       </div>
-                      <span className="font-black text-sm tracking-wide">My Branch</span>
+                      <button onClick={() => setActiveTab('profile')} className="text-xs font-bold text-blue-100 hover:text-white flex items-center gap-1 cursor-pointer">
+                        View All <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                     <div className="p-5 space-y-3">
                       {[
@@ -1707,19 +1750,22 @@ export default function StudentDashboard() {
                           <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-blue-500"><Icon className="w-4 h-4" /></div>
                           <div className="flex-1 min-w-0">
                             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</div>
-                            <div className="text-sm font-bold text-slate-800 truncate">{value || '-'}</div>
+                            <div className="text-sm font-bold text-[#172033] truncate">{value || '-'}</div>
                           </div>
                         </div>
                       ))}
                     </div>
-                    <div className="mx-5 mb-5 bg-blue-50/70 rounded-xl p-3 border border-blue-100 flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm text-white">
-                        <Building2 className="w-5 h-5" />
+                    <div className="mx-5 mb-5 bg-blue-50/70 rounded-xl p-3 border border-blue-100 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm text-white">
+                          <Building2 className="w-5 h-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-black text-blue-900 truncate">{data.branch?.branchName}</div>
+                          <div className="text-[10px] text-blue-600 font-bold truncate">{data.branch?.branchCity} | KCI Center</div>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <div className="text-xs font-black text-blue-900 truncate">{data.branch?.branchName}</div>
-                        <div className="text-[10px] text-blue-600 font-bold truncate">{data.branch?.branchCity} | KCI Center</div>
-                      </div>
+                      <ChevronRight className="w-5 h-5 text-blue-600 shrink-0" />
                     </div>
                   </motion.div>
                 )}
@@ -1727,8 +1773,11 @@ export default function StudentDashboard() {
 
               {/* Dashboard Status Cards — 6 cols desktop, 3 laptop, 2 mobile */}
               <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
-                className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.06)] border border-slate-200/80 p-5 sm:p-6">
-                <h3 className="font-black text-slate-900 mb-4 text-xs sm:text-sm uppercase tracking-wider">Status Overview</h3>
+                className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.08)] border border-slate-200/80 p-5 sm:p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-black text-[#172033] text-xs sm:text-sm uppercase tracking-wider">Status Overview</h3>
+                  <span className="text-xs font-bold text-slate-400">Live Statuses</span>
+                </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3.5">
                   {[
                     {
@@ -1798,8 +1847,11 @@ export default function StudentDashboard() {
 
               {/* Quick Actions Grid — 8 cols desktop, 4 laptop, 2 mobile */}
               <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-                className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.06)] border border-slate-200/80 p-5 sm:p-6">
-                <h3 className="font-black text-slate-900 mb-4 text-xs sm:text-sm uppercase tracking-wider">Quick Actions</h3>
+                className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.08)] border border-slate-200/80 p-5 sm:p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-black text-[#172033] text-xs sm:text-sm uppercase tracking-wider">Quick Actions</h3>
+                  <span className="text-xs font-bold text-slate-400">Shortcuts</span>
+                </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3.5">
                   {[
                     { label: 'Exam Form', icon: FileText, grad: 'from-[#2563EB] to-[#1D4ED8]', tab: 'examform' },
@@ -1813,7 +1865,7 @@ export default function StudentDashboard() {
                   ].map(({ label, icon: Icon, grad, tab }) => (
                     <button key={label} onClick={() => setActiveTab(tab)}
                       type="button"
-                      className={`min-h-[110px] p-4 rounded-[18px] bg-gradient-to-br ${grad} text-white flex flex-col items-center justify-center gap-2.5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer`}>
+                      className={`min-h-[100px] p-4 rounded-[18px] bg-gradient-to-br ${grad} text-white flex flex-col items-center justify-center gap-2.5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer`}>
                       <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
                         <Icon className="w-5 h-5" />
                       </div>
@@ -2509,7 +2561,7 @@ export default function StudentDashboard() {
         </main>
 
         {/* BOTTOM NAVIGATION BAR — Mobile App Interface Only (< 768px / md:hidden) */}
-        <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#151D2C]/95 backdrop-blur-xl border-t border-slate-800 text-slate-300 px-2 py-2 flex items-center justify-around pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl">
+        <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-xl border-t border-slate-200/80 text-slate-600 px-3 py-2 flex items-center justify-around pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-8px_30px_rgba(15,23,42,0.08)] rounded-t-[22px] h-[72px]">
           {[
             { id: 'profile', icon: Home, label: 'Home' },
             { id: 'results', icon: Award, label: 'Results' },
@@ -2523,10 +2575,10 @@ export default function StudentDashboard() {
                 key={id}
                 type="button"
                 onClick={action || (() => setActiveTab(id))}
-                className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all relative min-w-[56px] cursor-pointer ${isActive ? 'text-blue-400 font-black' : 'text-slate-400 hover:text-slate-200 font-semibold'
+                className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all relative min-w-[56px] cursor-pointer ${isActive ? 'text-[#2563EB] font-black' : 'text-slate-500 hover:text-slate-800 font-semibold'
                   }`}
               >
-                <div className={`w-8 h-8 flex items-center justify-center rounded-xl relative transition-colors ${isActive ? 'bg-blue-600/20 text-blue-400' : ''}`}>
+                <div className={`w-8 h-8 flex items-center justify-center rounded-xl relative transition-colors ${isActive ? 'bg-[#2563EB]/10 text-[#2563EB]' : ''}`}>
                   <Icon className="w-5 h-5" />
                   {badge > 0 && (
                     <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
@@ -2534,7 +2586,7 @@ export default function StudentDashboard() {
                 </div>
                 <span className="text-[10px] tracking-tight">{label}</span>
                 {isActive && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-blue-500 rounded-full" />
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-[#2563EB] rounded-full" />
                 )}
               </button>
             );
