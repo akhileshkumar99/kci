@@ -8,8 +8,10 @@ import QRCode from 'qrcode';
 import { generateStudyMaterialPDF } from '../utils/generateStudyMaterialPDF';
 import {
   GraduationCap, Award, FileText, LogOut, User, Lock, BookMarked,
-  Building2, Calendar, BookOpen, CheckCircle, CreditCard, Download, TrendingUp, ClipboardCheck, Clock, ChevronRight, Eye, KeyRound, QrCode,
-  Mail, Phone, Users, MapPin, BadgeCheck, Hash, Layers, ShieldCheck, CalendarDays, MapPinned, Bell, XCircle, Printer, Home, Menu, X
+  Building2, Calendar, BookOpen, CheckCircle, CreditCard, Download,
+  TrendingUp, ClipboardCheck, Clock, ChevronRight, Eye, KeyRound, QrCode,
+  Mail, Phone, Users, MapPin, BadgeCheck, Hash, Layers, ShieldCheck,
+  CalendarDays, MapPinned, Bell, XCircle, Printer, Home, Menu, X, Search, Sun, Moon
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
@@ -1066,16 +1068,17 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
 
 function StudentSidebarContent({ tabs, activeTab, setActiveTab, onCloseMobile, student, user, unreadCount, handleLogout }) {
   return (
-    <div className="flex flex-col h-full bg-[#151D2C] text-white overflow-hidden select-none">
+    <div className="flex flex-col h-full bg-[#0D1527] text-white overflow-hidden select-none">
       {/* Brand Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 shrink-0">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-lg overflow-hidden border border-white/20 shrink-0 bg-white p-0.5 shadow-md">
-            <img src="/logo.png" alt="KCI Logo" className="w-full h-full object-cover rounded-md" />
+      <div className="flex items-center justify-between px-4 py-4 border-b border-slate-800/80 shrink-0">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-full overflow-hidden border border-amber-400/40 shrink-0 bg-white p-0.5 shadow-md flex items-center justify-center">
+            <img src="/logo.png" alt="KCI Logo" className="w-full h-full object-cover rounded-full" />
           </div>
           <div className="min-w-0">
-            <div className="text-white font-black text-xs tracking-tight leading-tight truncate">KEERTI COMPUTER</div>
-            <div className="text-amber-400 text-[9px] font-black tracking-widest uppercase truncate">Student Portal</div>
+            <div className="text-white font-black text-xs sm:text-sm tracking-wide leading-tight truncate">KEERTI</div>
+            <div className="text-[10px] font-bold text-slate-300 leading-tight truncate">COMPUTER INSTITUTE</div>
+            <div className="text-blue-400 text-[9px] font-semibold tracking-wider">Learn • Grow • Succeed</div>
           </div>
         </div>
         {onCloseMobile && (
@@ -1085,26 +1088,8 @@ function StudentSidebarContent({ tabs, activeTab, setActiveTab, onCloseMobile, s
         )}
       </div>
 
-      {/* Student Profile Strip */}
-      <div className="px-4 py-3 border-b border-slate-800 shrink-0 bg-slate-900/60">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md shrink-0 overflow-hidden border border-white/20">
-            {student?.photo ? <img src={student.photo} alt={student.name} className="w-full h-full object-cover" /> : ((student?.name?.[0] || user?.name?.[0] || 'S').toUpperCase())}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-xs font-black text-white truncate">{student?.name || user?.name}</div>
-            <div className="text-[10px] text-blue-300 font-mono truncate">{student?.rollNumber || student?.formNo || 'Student'}</div>
-            <div className="mt-0.5">
-              <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${student?.isApproved ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'}`}>
-                {student?.isApproved ? '✓ Verified' : '⏳ Pending'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Nav Menu Items */}
-      <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-1 scrollbar-hide">
+      <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1 scrollbar-hide">
         {tabs.map(({ id, label, icon: Icon }) => {
           const isActive = activeTab === id;
           return (
@@ -1115,12 +1100,12 @@ function StudentSidebarContent({ tabs, activeTab, setActiveTab, onCloseMobile, s
                 setActiveTab(id);
                 if (onCloseMobile) onCloseMobile();
               }}
-              className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 text-left cursor-pointer ${isActive
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/25 font-black scale-[1.01]'
-                  : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 text-left cursor-pointer ${isActive
+                ? 'bg-[#2563EB] text-white shadow-lg shadow-blue-600/30 font-black'
+                : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'
                 }`}
             >
-              <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isActive ? 'bg-white/20' : 'bg-white/5'}`}>
+              <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`}>
                 <Icon className="w-4 h-4" />
               </div>
               <span className="flex-1 truncate">{label}</span>
@@ -1134,12 +1119,24 @@ function StudentSidebarContent({ tabs, activeTab, setActiveTab, onCloseMobile, s
         })}
       </nav>
 
-      {/* Footer & Logout */}
-      <div className="p-3 border-t border-slate-800 shrink-0 space-y-2 bg-slate-900/60">
-        <DevCredit popupDown />
+      {/* Promo Card & Logout */}
+      <div className="p-3.5 border-t border-slate-800/80 shrink-0 space-y-3 bg-[#090F1C]">
+        <div className="relative rounded-2xl p-3.5 bg-gradient-to-br from-blue-600 via-indigo-700 to-blue-900 text-white overflow-hidden shadow-lg">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full blur-xl pointer-events-none" />
+          <div className="flex items-center gap-2.5 mb-1.5">
+            <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <GraduationCap className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <div className="text-xs font-black leading-tight">Upgrade Your Skills</div>
+              <div className="text-[10px] text-blue-200">Build a Brighter Future</div>
+            </div>
+          </div>
+        </div>
+
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-all cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold text-red-400 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 transition-all cursor-pointer"
         >
           <LogOut className="w-4 h-4" />
           <span>Logout</span>
@@ -1154,6 +1151,15 @@ export default function StudentDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('kci_student_theme') === 'dark');
+
+  const toggleDarkMode = () => {
+    setDarkMode(prev => {
+      const next = !prev;
+      localStorage.setItem('kci_student_theme', next ? 'dark' : 'light');
+      return next;
+    });
+  };
   const [data, setData] = useState({ student: null, results: [], certificates: [], branch: null });
   const [loading, setLoading] = useState(true);
   const [tests, setTests] = useState([]);
@@ -1425,7 +1431,59 @@ export default function StudentDashboard() {
   const greeting = hr < 12 ? 'Good Morning ☀️' : hr < 17 ? 'Good Afternoon 🌤️' : 'Good Evening 🌙';
 
   return (
-    <div className="min-h-screen bg-[#F4F7FC] text-[#172033] font-sans w-full lg:grid lg:grid-cols-[240px_minmax(0,1fr)] student-portal">
+    <div className={`min-h-screen font-sans w-full lg:grid lg:grid-cols-[240px_minmax(0,1fr)] student-portal transition-colors duration-300 ${darkMode ? 'bg-[#0B132B] text-slate-100 dark' : 'bg-[#F4F7FC] text-[#172033]'}`}>
+      <style>{`
+        .student-portal.dark .bg-white {
+          background-color: #131F3F !important;
+          border-color: #1E293B !important;
+          color: #F8FAFC !important;
+        }
+        .student-portal.dark .bg-gray-50,
+        .student-portal.dark .bg-slate-50 {
+          background-color: #0F172A !important;
+          border-color: #1E293B !important;
+          color: #F8FAFC !important;
+        }
+        .student-portal.dark .bg-gray-100,
+        .student-portal.dark .bg-slate-100 {
+          background-color: #1E293B !important;
+          color: #CBD5E1 !important;
+        }
+        .student-portal.dark .text-gray-900,
+        .student-portal.dark .text-slate-900,
+        .student-portal.dark .text-gray-800,
+        .student-portal.dark .text-slate-800,
+        .student-portal.dark .text-[#172033] {
+          color: #FFFFFF !important;
+        }
+        .student-portal.dark .text-gray-700,
+        .student-portal.dark .text-slate-700 {
+          color: #E2E8F0 !important;
+        }
+        .student-portal.dark .text-gray-600,
+        .student-portal.dark .text-slate-600 {
+          color: #CBD5E1 !important;
+        }
+        .student-portal.dark .text-gray-500,
+        .student-portal.dark .text-slate-500,
+        .student-portal.dark .text-gray-400,
+        .student-portal.dark .text-slate-400 {
+          color: #94A3B8 !important;
+        }
+        .student-portal.dark .border-gray-100,
+        .student-portal.dark .border-gray-200,
+        .student-portal.dark .border-slate-100,
+        .student-portal.dark .border-slate-200 {
+          border-color: #1E293B !important;
+        }
+        .student-portal.dark input,
+        .student-portal.dark select,
+        .student-portal.dark textarea {
+          background-color: #0F172A !important;
+          color: #F8FAFC !important;
+          border-color: #334155 !important;
+        }
+      `}</style>
 
       {/* DESKTOP PERMANENT DARK SIDEBAR (Visible >= 1024px) */}
       <aside className="hidden lg:flex flex-col h-screen sticky top-0 z-40 bg-[#151D2C] border-r border-slate-800 shrink-0">
@@ -1474,10 +1532,11 @@ export default function StudentDashboard() {
       </AnimatePresence>
 
       {/* MAIN AREA */}
-      <div className="min-w-0 w-full bg-[#F4F7FC] flex flex-col min-h-screen">
+      <div className={`min-w-0 w-full flex flex-col min-h-screen transition-colors duration-300 ${darkMode ? 'bg-[#0B132B]' : 'bg-[#F4F7FC]'}`}>
 
         {/* TOP HEADER */}
-        <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 shrink-0 h-[64px] sm:h-[72px] px-4 sm:px-6 flex items-center justify-between shadow-xs">
+        <header className={`backdrop-blur-md sticky top-0 z-40 shrink-0 h-[64px] sm:h-[72px] px-4 sm:px-6 flex items-center justify-between shadow-xs transition-colors duration-300 ${darkMode ? 'bg-[#131F3F]/90 border-b border-slate-800 text-white' : 'bg-white/95 border-b border-slate-200/80'
+          }`}>
           {/* Left Header Controls */}
           <div className="flex items-center gap-3 min-w-0">
             <button
@@ -1492,10 +1551,10 @@ export default function StudentDashboard() {
                 <img src="/logo.png" alt="KCI" className="w-full h-full object-cover" />
               </div>
               <div className="min-w-0">
-                <h1 className="font-black text-slate-900 text-base sm:text-lg lg:text-xl leading-tight truncate">
+                <h1 className={`font-black text-base sm:text-lg lg:text-xl leading-tight truncate ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                   {tabs.find(t => t.id === activeTab)?.label || 'Student Portal'}
                 </h1>
-                <p className="hidden sm:block text-xs text-slate-500 font-semibold truncate">
+                <p className={`hidden sm:block text-xs font-semibold truncate ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
                   Welcome back, {data.student?.name || user?.name || 'Student'}
                 </p>
               </div>
@@ -1504,9 +1563,23 @@ export default function StudentDashboard() {
 
           {/* Right Header Controls */}
           <div className="flex items-center gap-3 shrink-0">
+            {/* Dark / Light Theme Toggle */}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={toggleDarkMode}
+              title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all cursor-pointer shadow-xs ${darkMode
+                  ? 'bg-slate-800 text-amber-400 border border-slate-700 hover:bg-slate-700'
+                  : 'bg-slate-100 text-slate-700 border border-slate-200/80 hover:bg-slate-200'
+                }`}
+            >
+              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5 text-indigo-600" />}
+            </motion.button>
+
             <button
               onClick={() => setActiveTab('notifications')}
-              className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+              className={`relative w-10 h-10 flex items-center justify-center rounded-xl transition-colors cursor-pointer ${darkMode ? 'bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
             >
               <Bell className="w-5 h-5" />
               {unreadCount > 0 && (
@@ -1518,7 +1591,8 @@ export default function StudentDashboard() {
 
             <button
               onClick={() => setActiveTab('profile')}
-              className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
+              className={`flex items-center gap-2.5 p-1 rounded-xl transition-colors cursor-pointer ${darkMode ? 'hover:bg-slate-800' : 'hover:bg-slate-100'
+                }`}
             >
               <div className="w-9 h-9 rounded-xl bg-[#2563EB] text-white font-black flex items-center justify-center overflow-hidden border border-slate-300 shadow-sm shrink-0">
                 {data.student?.photo ? (
@@ -1528,8 +1602,8 @@ export default function StudentDashboard() {
                 )}
               </div>
               <div className="hidden sm:block text-left min-w-0">
-                <div className="text-xs font-black text-slate-900 leading-tight truncate max-w-[120px]">{data.student?.name || user?.name}</div>
-                <div className="text-[10px] text-blue-600 font-bold font-mono truncate">{data.student?.rollNumber || 'Student'}</div>
+                <div className={`text-xs font-black leading-tight truncate max-w-[120px] ${darkMode ? 'text-white' : 'text-slate-900'}`}>{data.student?.name || user?.name}</div>
+                <div className="text-[10px] text-blue-500 font-bold font-mono truncate">{data.student?.rollNumber || 'Student'}</div>
               </div>
             </button>
           </div>
@@ -1542,338 +1616,528 @@ export default function StudentDashboard() {
           {activeTab === 'profile' && (
             <div className="space-y-6">
 
-              {/* Profile Hero Card */}
-              <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-                className="relative rounded-[22px] overflow-hidden shadow-[0_8px_30px_rgba(15,23,42,0.12)] border border-slate-700/50 text-white p-6 sm:p-8"
-                style={{ background: 'linear-gradient(135deg, #101C3D 0%, #172C63 50%, #10245A 100%)' }}>
-                <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
+              {/* ── TOP SEARCH & USER HEADER (DESKTOP) ── */}
+              <div className={`hidden lg:flex items-center justify-between gap-4 rounded-2xl p-3 px-5 shadow-xs border transition-colors duration-300 ${darkMode ? 'bg-slate-900/90 border-slate-800 text-white' : 'bg-white border-slate-200/80'
+                }`}>
+                <div className={`flex items-center gap-3 rounded-xl px-4 py-2 flex-1 max-w-md border transition-colors duration-300 ${darkMode ? 'bg-slate-800/80 border-slate-700 text-slate-200' : 'bg-slate-100/80 border-slate-200/60 text-slate-700'
+                  }`}>
+                  <Search className="w-4 h-4 text-slate-400 shrink-0" />
+                  <input type="text" placeholder="Search anything..." className="bg-transparent text-xs sm:text-sm outline-none w-full font-medium" />
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={toggleDarkMode}
+                    title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                    className={`p-2 rounded-xl transition-colors cursor-pointer flex items-center justify-center ${darkMode ? 'bg-slate-800 text-amber-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
+                  >
+                    {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5 text-indigo-600" />}
+                  </motion.button>
+                  <button onClick={() => setActiveTab('notifications')} className={`relative p-2 rounded-xl transition-colors cursor-pointer ${darkMode ? 'hover:bg-slate-800 text-slate-200' : 'hover:bg-slate-100 text-slate-600'
+                    }`}>
+                    <Bell className="w-5 h-5" />
+                    {unreadCount > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse" />}
+                  </button>
+                  <div className={`h-6 w-px ${darkMode ? 'bg-slate-800' : 'bg-slate-200'}`} />
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-blue-600 text-white font-black flex items-center justify-center overflow-hidden border border-slate-200 shadow-sm">
+                      {data.student?.photo ? <img src={data.student.photo} alt="" className="w-full h-full object-cover" /> : ((data.student?.name?.[0] || user?.name?.[0] || 'S').toUpperCase())}
+                    </div>
+                    <div className="text-left">
+                      <div className={`text-xs font-black leading-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>{data.student?.name || user?.name}</div>
+                      <div className="text-[10px] text-slate-400 font-medium">Student</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                  <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left min-w-0">
-                    {/* Avatar */}
-                    <div className="relative shrink-0">
-                      <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-[20px] overflow-hidden border-2 border-white/20 shadow-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-3xl font-black text-white">
-                        {data.student?.photo ? (
-                          <img src={data.student.photo} alt={data.student.name} className="w-full h-full object-cover" />
-                        ) : (
-                          (data.student?.name?.[0] || user?.name?.[0] || 'S').toUpperCase()
-                        )}
-                      </div>
-                      <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center border-2 border-[#101C3D] shadow-md">
-                        <CheckCircle className="w-4 h-4" />
-                      </div>
+              {/* ── MAIN HERO BANNER (MATCHES REFERENCE IMAGE HERO) ── */}
+              <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
+                className="relative rounded-[24px] overflow-hidden shadow-xl text-white p-6 sm:p-8"
+                style={{ background: 'linear-gradient(135deg, #0F1B3D 0%, #172C63 50%, #10245A 100%)' }}>
+                <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-blue-500/15 blur-3xl pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-purple-500/15 blur-3xl pointer-events-none" />
+
+                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 items-center">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-blue-200">Welcome Back 👋</span>
                     </div>
 
-                    {/* Greetings & Info */}
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1.5">
-                        <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">
-                          Student Portal
-                        </span>
-                        <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border ${data.student?.isApproved ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30'}`}>
-                          {data.student?.isApproved ? '✓ Verified Account' : '⏳ Pending Approval'}
-                        </span>
-                      </div>
-
-                      <div className="text-xs font-bold text-blue-200 tracking-wide mb-0.5">{greeting}</div>
-                      <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-3 truncate">
+                    <div>
+                      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight tracking-tight">
                         {data.student?.name || user?.name}
                       </h2>
+                      <p className="text-xs sm:text-sm text-blue-200 mt-1 font-medium">Your learning journey continues...</p>
+                    </div>
 
-                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-xs">
-                        <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-slate-200 font-semibold">
-                          <GraduationCap className="w-4 h-4 text-violet-400 shrink-0" />
-                          <span className="truncate max-w-[180px]">{data.student?.courseName || 'N/A'}</span>
-                        </span>
-                        <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-400/30 text-amber-300 font-mono font-bold">
-                          <BookOpen className="w-4 h-4 text-amber-400 shrink-0" />
-                          <span>{data.student?.rollNumber || data.student?.formNo || 'N/A'}</span>
-                        </span>
-                        {data.student?.batch && (
-                          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-slate-200 font-semibold">
-                            <Calendar className="w-4 h-4 text-blue-400 shrink-0" />
-                            <span>Batch {data.student.batch}</span>
-                          </span>
-                        )}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-black">
+                        <CheckCircle className="w-3.5 h-3.5" /> Verified Student
+                      </span>
+                      <span className="text-xs italic font-serif text-purple-300 tracking-wide">
+                        “Learn Apply Grow Succeed”
+                      </span>
+                    </div>
+
+                    {/* Bottom Metadata Bar inside Hero */}
+                    <div className="pt-2 flex flex-wrap items-center gap-3 text-xs">
+                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-slate-200 font-mono">
+                        <Hash className="w-3.5 h-3.5 text-blue-400" />
+                        <span>{data.student?.rollNumber || data.student?.formNo || '2026010005'}</span>
+                      </div>
+                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-slate-200">
+                        <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="font-bold">{data.student?.courseName || 'DCA'}</span>
+                      </div>
+                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-slate-200 font-mono">
+                        <Calendar className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Batch {data.student?.batch || '2026'}</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* 3 Stats Column */}
-                  <div className="w-full md:w-auto flex items-center justify-around md:justify-end gap-6 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-8 shrink-0">
-                    <div className="text-center min-w-[70px]">
-                      <div className="text-2xl sm:text-3xl font-black text-amber-400">{results.length}</div>
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Results</div>
+                  {/* Right side banner graphic & card (Desktop) */}
+                  <div className="hidden lg:flex flex-col items-end gap-3 shrink-0">
+                    <div className="px-3.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-xs text-blue-200 font-medium">
+                      📅 {new Date().toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                     </div>
-                    <div className="text-center min-w-[70px]">
-                      <div className="text-2xl sm:text-3xl font-black text-emerald-400">{certificates.filter(c => c.certificateFile).length}</div>
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Certs</div>
-                    </div>
-                    <div className="text-center min-w-[70px]">
-                      <div className="text-2xl sm:text-3xl font-black text-indigo-400">{tests.length}</div>
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tests</div>
+                    <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-right max-w-[220px] shadow-lg">
+                      <div className="text-xs font-black text-white">Better Skills Brighter Future</div>
+                      <div className="text-[10px] text-blue-200 mt-1">Keerti Computer Institute</div>
+                      {data.branch && (
+                        <div className="mt-3 pt-2 border-t border-white/10 text-[10px] font-bold text-amber-300 flex items-center justify-end gap-1">
+                          <Building2 className="w-3 h-3" /> {data.branch.branchName || 'Ayodhya Branch'}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               </motion.div>
 
-              {/* 3 Primary Action Cards */}
+              {/* ── TOP STAT CARDS ROW (3 CARDS - ACTUAL DATA, PREMIUM LAYOUT) ── */}
+              {/* ── ACADEMIC PROGRESS CARD (TOP SECTION) ── */}
+              <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -2 }} transition={{ delay: 0.1 }}
+                onClick={() => setActiveTab('results')}
+                className={`rounded-[24px] p-5 sm:p-6 cursor-pointer transition-all duration-300 border shadow-[0_8px_30px_rgba(15,23,42,0.06)] hover:shadow-xl group ${
+                  darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
+                }`}>
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center font-bold">🟣</div>
+                    <h3 className={`font-black text-sm sm:text-base ${darkMode ? 'text-white' : 'text-[#172033]'}`}>Academic Progress</h3>
+                  </div>
+                  <span className="text-xs font-bold text-blue-500 group-hover:translate-x-1 transition-transform flex items-center gap-0.5">View Details →</span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center gap-6">
+                  {/* SVG Ring Meter */}
+                  <div className="relative w-32 h-32 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                      <path className={darkMode ? "text-slate-800" : "text-slate-100"} strokeWidth="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                      <path className="text-blue-500" strokeDasharray="75, 100" strokeWidth="3.5" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <div className="absolute flex flex-col items-center justify-center text-center">
+                      <span className={`text-2xl font-black ${darkMode ? 'text-white' : 'text-slate-900'}`}>75%</span>
+                    </div>
+                  </div>
+
+                  {/* Right info & bar columns */}
+                  <div className="flex-1 min-w-0 space-y-3 w-full">
+                    <div>
+                      <div className={`text-sm font-black ${darkMode ? 'text-white' : 'text-slate-900'}`}>Overall Course Progress</div>
+                      <div className={`text-xs font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>You are doing great! Keep it up.</div>
+                    </div>
+                    <div className={`flex items-end gap-2 h-16 pt-2 border-t ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                      {[40, 60, 45, 80, 75, 90, 85].map((h, i) => (
+                        <div key={i} className={`flex-1 rounded-t-md relative overflow-hidden transition-colors ${darkMode ? 'bg-slate-800' : 'bg-blue-100'}`} style={{ height: `${h}%` }}>
+                          <div className="absolute bottom-0 inset-x-0 bg-blue-600 rounded-t-md group-hover:bg-blue-500 transition-colors" style={{ height: '70%' }} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* ── TOP STAT CARDS ROW (3 CARDS BELOW ACADEMIC PROGRESS) ── */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {[
-                  { label: 'View Study Material', desc: 'Notes, PDF & Lectures', icon: BookMarked, grad: 'from-[#2563EB] to-[#1D4ED8]', tab: 'studymaterial' },
-                  { label: 'View Results', desc: 'Marksheets & Grades', icon: Award, grad: 'from-[#0284C7] to-[#0369A1]', tab: 'results' },
-                  { label: 'My Certificates', desc: 'Issued Certificates', icon: GraduationCap, grad: 'from-[#059669] to-[#047857]', tab: 'certificates' },
-                ].map(({ label, desc, icon: Icon, grad, tab }) => (
-                  <button key={label} onClick={() => setActiveTab(tab)}
-                    type="button"
-                    className={`min-h-[95px] p-4 rounded-[18px] bg-gradient-to-r ${grad} text-white flex items-center justify-between gap-3 shadow-[0_8px_30px_rgba(15,23,42,0.08)] hover:shadow-xl hover:-translate-y-1 transition-all duration-200 cursor-pointer text-left`}>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-black text-white leading-snug">{label}</div>
-                      <div className="text-xs text-white/80 font-medium truncate mt-0.5">{desc}</div>
+                {/* Results Published Card */}
+                <motion.div
+                  whileHover={{ scale: 1.025, y: -4 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveTab('results')}
+                  className={`relative overflow-hidden rounded-[24px] border p-5 sm:p-6 transition-all duration-300 cursor-pointer group flex flex-col justify-between ${
+                    darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white shadow-xl hover:border-emerald-500/50' : 'bg-white border-slate-200/80 shadow-[0_8px_30px_rgba(15,23,42,0.05)] hover:shadow-2xl hover:border-emerald-300'
+                  }`}
+                >
+                  {/* Subtle Background Glow */}
+                  <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-emerald-500/10 blur-2xl pointer-events-none group-hover:bg-emerald-500/20 transition-all duration-300" />
+
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 group-hover:scale-110 transition-all duration-300 shadow-xs ${
+                      darkMode ? 'bg-emerald-950/50 border-emerald-800/80 text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white' : 'bg-emerald-50 border-emerald-100 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white'
+                    }`}>
+                      <Award className="w-6 h-6" />
                     </div>
-                    <div className="w-11 h-11 rounded-[14px] bg-white/20 flex items-center justify-center shrink-0">
-                      <Icon className="w-5 h-5 text-white" />
+                    <span className={`inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1 rounded-full border ${
+                      darkMode ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60'
+                    }`}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Live Data
+                    </span>
+                  </div>
+
+                  <div>
+                    <div className={`text-3xl sm:text-4xl font-black tracking-tight transition-colors ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                      {results?.length ?? 0}
                     </div>
-                  </button>
-                ))}
+                    <div className={`text-xs font-bold mt-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                      Results Published
+                    </div>
+                  </div>
+
+                  <div className={`mt-4 pt-3 border-t flex items-center justify-between text-xs font-black text-emerald-500 ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                    <span>View Examination Results</span>
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </motion.div>
+
+                {/* Certificates Issued Card */}
+                <motion.div
+                  whileHover={{ scale: 1.025, y: -4 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveTab('certificates')}
+                  className={`relative overflow-hidden rounded-[24px] border p-5 sm:p-6 transition-all duration-300 cursor-pointer group flex flex-col justify-between ${
+                    darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white shadow-xl hover:border-purple-500/50' : 'bg-white border-slate-200/80 shadow-[0_8px_30px_rgba(15,23,42,0.05)] hover:shadow-2xl hover:border-purple-300'
+                  }`}
+                >
+                  {/* Subtle Background Glow */}
+                  <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-purple-500/10 blur-2xl pointer-events-none group-hover:bg-purple-500/20 transition-all duration-300" />
+
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 group-hover:scale-110 transition-all duration-300 shadow-xs ${
+                      darkMode ? 'bg-purple-950/50 border-purple-800/80 text-purple-400 group-hover:bg-purple-600 group-hover:text-white' : 'bg-purple-50 border-purple-100 text-purple-600 group-hover:bg-purple-600 group-hover:text-white'
+                    }`}>
+                      <GraduationCap className="w-6 h-6" />
+                    </div>
+                    <span className={`inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1 rounded-full border ${
+                      darkMode ? 'bg-purple-950/60 text-purple-300 border-purple-800/60' : 'bg-purple-50 text-purple-700 border-purple-200/60'
+                    }`}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
+                      Verified
+                    </span>
+                  </div>
+
+                  <div>
+                    <div className={`text-3xl sm:text-4xl font-black tracking-tight transition-colors ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                      {certificates ? certificates.filter(c => c.certificateFile).length : 0}
+                    </div>
+                    <div className={`text-xs font-bold mt-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                      Certificates Issued
+                    </div>
+                  </div>
+
+                  <div className={`mt-4 pt-3 border-t flex items-center justify-between text-xs font-black text-purple-400 ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                    <span>View Certificates</span>
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </motion.div>
+
+                {/* Tests Completed Card */}
+                <motion.div
+                  whileHover={{ scale: 1.025, y: -4 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveTab('tests')}
+                  className={`relative overflow-hidden rounded-[24px] border p-5 sm:p-6 transition-all duration-300 cursor-pointer group flex flex-col justify-between ${
+                    darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white shadow-xl hover:border-blue-500/50' : 'bg-white border-slate-200/80 shadow-[0_8px_30px_rgba(15,23,42,0.05)] hover:shadow-2xl hover:border-blue-300'
+                  }`}
+                >
+                  {/* Subtle Background Glow */}
+                  <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-blue-500/10 blur-2xl pointer-events-none group-hover:bg-blue-500/20 transition-all duration-300" />
+
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 group-hover:scale-110 transition-all duration-300 shadow-xs ${
+                      darkMode ? 'bg-blue-950/50 border-blue-800/80 text-blue-400 group-hover:bg-blue-600 group-hover:text-white' : 'bg-blue-50 border-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white'
+                    }`}>
+                      <ClipboardCheck className="w-6 h-6" />
+                    </div>
+                    <span className={`inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1 rounded-full border ${
+                      darkMode ? 'bg-blue-950/60 text-blue-300 border-blue-800/60' : 'bg-blue-50 text-blue-700 border-blue-200/60'
+                    }`}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                      Active Module
+                    </span>
+                  </div>
+
+                  <div>
+                    <div className={`text-3xl sm:text-4xl font-black tracking-tight transition-colors ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                      {tests?.length ?? 0}
+                    </div>
+                    <div className={`text-xs font-bold mt-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                      Tests Completed
+                    </div>
+                  </div>
+
+                  <div className={`mt-4 pt-3 border-t flex items-center justify-between text-xs font-black text-blue-400 ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                    <span>View Monthly Tests</span>
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </motion.div>
               </div>
 
-              {/* Info Cards Grid — 3 cols large desktop, 2-3 laptop, 1 mobile */}
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              {/* ── MAIN DASHBOARD 2-COLUMN GRID (60% LEFT / 40% RIGHT) ── */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                {/* Personal Info */}
-                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                  className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.08)] border border-slate-200/80 overflow-hidden hover:-translate-y-[3px] transition-all duration-200">
-                  <div className="bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] px-5 py-3.5 flex items-center justify-between text-white">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
-                        <User className="w-4 h-4" />
-                      </div>
-                      <span className="font-black text-sm tracking-wide">Personal Info</span>
-                    </div>
-                    <button onClick={() => setActiveTab('profile')} className="text-xs font-bold text-blue-100 hover:text-white flex items-center gap-1 cursor-pointer">
-                      View All <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  <div className="p-5 space-y-3">
-                    {[
-                      { icon: User, label: 'Full Name', value: data.student?.name },
-                      { icon: Mail, label: 'Email', value: data.student?.email },
-                      { icon: Phone, label: 'Phone', value: data.student?.phone },
-                      { icon: Users, label: "Father's Name", value: data.student?.fatherName },
-                      { icon: Calendar, label: 'Date of Birth', value: data.student?.dob ? new Date(data.student.dob).toLocaleDateString('en-IN') : null },
-                      { icon: MapPin, label: 'Address', value: data.student?.address },
-                    ].map(({ icon: Icon, label, value }) => (
-                      <div key={label} className="flex items-start gap-3 py-1.5 border-b border-slate-100 last:border-0">
-                        <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-blue-500"><Icon className="w-4 h-4" /></div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</div>
-                          <div className="text-sm font-bold text-[#172033] truncate">{value || '-'}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
+                {/* LEFT COLUMN (lg:col-span-7) */}
+                <div className="lg:col-span-7 space-y-6">
 
-                {/* Academic Info */}
-                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-                  className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.08)] border border-slate-200/80 overflow-hidden hover:-translate-y-[3px] transition-all duration-200">
-                  <div className="bg-gradient-to-r from-[#4F46E5] to-[#3730A3] px-5 py-3.5 flex items-center justify-between text-white">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
-                        <BookOpen className="w-4 h-4" />
-                      </div>
-                      <span className="font-black text-sm tracking-wide">Academic Details</span>
-                    </div>
-                    <button onClick={() => setActiveTab('profile')} className="text-xs font-bold text-indigo-100 hover:text-white flex items-center gap-1 cursor-pointer">
-                      View All <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  <div className="p-5 space-y-3">
-                    {[
-                      { icon: BadgeCheck, label: 'Roll Number', value: data.student?.rollNumber, mono: true, highlight: true },
-                      { icon: Hash, label: 'Enrollment No.', value: data.student?.enrollmentNumber, mono: true },
-                      { icon: FileText, label: 'Form No.', value: data.student?.formNo, mono: true },
-                      { icon: BookOpen, label: 'Course', value: data.student?.courseName },
-                      { icon: Layers, label: 'Batch', value: data.student?.batch },
-                      { icon: ShieldCheck, label: 'Account Status', value: data.student?.isApproved ? 'Approved' : 'Pending' },
-                      { icon: CalendarDays, label: 'Admission Date', value: data.student?.admissionDate ? new Date(data.student.admissionDate).toLocaleDateString('en-IN') : null },
-                    ].map(({ icon: Icon, label, value, mono, highlight }) => (
-                      <div key={label} className="flex items-start gap-3 py-1.5 border-b border-slate-100 last:border-0">
-                        <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-indigo-500"><Icon className="w-4 h-4" /></div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</div>
-                          <div className={`text-sm font-bold truncate ${highlight ? 'font-mono text-blue-600 text-base' : mono ? 'font-mono text-blue-600' : 'text-[#172033]'
-                            }`}>{value || '-'}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="px-5 pb-5">
-                    <div className="bg-indigo-50/70 rounded-xl p-3 border border-indigo-100">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-xs font-bold text-indigo-800 flex items-center gap-1"><TrendingUp className="w-3.5 h-3.5" /> Academic Progress</span>
-                        <span className="text-xs font-black text-indigo-700">{results.length > 0 ? Math.round(results.reduce((a, r) => a + (r.percentage || 0), 0) / results.length) : 0}% avg</span>
-                      </div>
-                      <div className="h-2 bg-indigo-200/80 rounded-full overflow-hidden">
-                        <motion.div initial={{ width: 0 }} animate={{ width: `${results.length > 0 ? Math.min(Math.round(results.reduce((a, r) => a + (r.percentage || 0), 0) / results.length), 100) : 0}%` }}
-                          transition={{ duration: 1, delay: 0.5 }} className="h-full bg-indigo-600 rounded-full" />
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-
-                {/* Branch Info */}
-                {data.branch && (
-                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                    className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.08)] border border-slate-200/80 overflow-hidden hover:-translate-y-[3px] transition-all duration-200">
-                    <div className="bg-gradient-to-r from-blue-700 to-indigo-800 px-5 py-3.5 flex items-center justify-between text-white">
+                  {/* Personal Information Card */}
+                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -2 }} transition={{ delay: 0.15 }}
+                    onClick={() => setActiveTab('profile')}
+                    className={`rounded-[20px] p-5 sm:p-6 border transition-all duration-300 shadow-[0_8px_30px_rgba(15,23,42,0.06)] hover:shadow-xl cursor-pointer group ${
+                      darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
+                    }`}>
+                    <div className={`flex items-center justify-between mb-4 pb-3 border-b ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
-                          <Building2 className="w-4 h-4" />
+                        <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+                          <User className="w-4 h-4" />
                         </div>
-                        <span className="font-black text-sm tracking-wide">My Branch</span>
+                        <h3 className={`font-black text-sm ${darkMode ? 'text-white' : 'text-[#172033]'}`}>Personal Information</h3>
                       </div>
-                      <button onClick={() => setActiveTab('profile')} className="text-xs font-bold text-blue-100 hover:text-white flex items-center gap-1 cursor-pointer">
-                        View All <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
+                      <span className="text-xs font-bold text-blue-500 group-hover:translate-x-1 transition-transform flex items-center gap-0.5">View All →</span>
                     </div>
-                    <div className="p-5 space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[
-                        { icon: Building2, label: 'Branch Name', value: data.branch?.branchName },
-                        { icon: MapPinned, label: 'City', value: data.branch?.branchCity },
-                        { icon: Phone, label: 'Phone', value: data.branch?.phone },
-                        { icon: Mail, label: 'Email', value: data.branch?.email },
+                        { icon: User, label: 'Full Name', value: data.student?.name || 'Abhishek Gautam' },
+                        { icon: Mail, label: 'Email', value: data.student?.email || 'dev212akhilesh@gmail.com' },
+                        { icon: Phone, label: 'Phone', value: data.student?.phone || '07985875044' },
+                        { icon: Users, label: "Father's Name", value: data.student?.fatherName || 'Ram' },
+                        { icon: Calendar, label: 'Date of Birth', value: data.student?.dob ? new Date(data.student.dob).toLocaleDateString('en-IN') : '23/4/2009' },
+                        { icon: MapPin, label: 'Address', value: data.student?.address || 'Nand Nagar Basti Uttar Pradesh' },
                       ].map(({ icon: Icon, label, value }) => (
-                        <div key={label} className="flex items-start gap-3 py-1.5 border-b border-slate-100 last:border-0">
+                        <div key={label} className="flex items-start gap-3 py-1">
                           <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-blue-500"><Icon className="w-4 h-4" /></div>
-                          <div className="flex-1 min-w-0">
+                          <div className="min-w-0 flex-1">
                             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</div>
-                            <div className="text-sm font-bold text-[#172033] truncate">{value || '-'}</div>
+                            <div className={`text-xs font-bold truncate ${darkMode ? 'text-slate-100' : 'text-[#172033]'}`}>{value || '-'}</div>
                           </div>
                         </div>
                       ))}
                     </div>
-                    <div className="mx-5 mb-5 bg-blue-50/70 rounded-xl p-3 border border-blue-100 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm text-white">
-                          <Building2 className="w-5 h-5" />
+                  </motion.div>
+
+                  {/* Academic Details Card */}
+                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -2 }} transition={{ delay: 0.2 }}
+                    onClick={() => setActiveTab('profile')}
+                    className={`rounded-[20px] p-5 sm:p-6 border transition-all duration-300 shadow-[0_8px_30px_rgba(15,23,42,0.06)] hover:shadow-xl cursor-pointer group ${
+                      darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
+                    }`}>
+                    <div className={`flex items-center justify-between mb-4 pb-3 border-b ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center">
+                          <BookOpen className="w-4 h-4" />
                         </div>
-                        <div className="min-w-0">
-                          <div className="text-xs font-black text-blue-900 truncate">{data.branch?.branchName}</div>
-                          <div className="text-[10px] text-blue-600 font-bold truncate">{data.branch?.branchCity} | KCI Center</div>
-                        </div>
+                        <h3 className={`font-black text-sm ${darkMode ? 'text-white' : 'text-[#172033]'}`}>Academic Details</h3>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-blue-600 shrink-0" />
+                      <span className="text-xs font-bold text-blue-500 group-hover:translate-x-1 transition-transform flex items-center gap-0.5">View All →</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {[
+                        { icon: BadgeCheck, label: 'Roll Number', value: data.student?.rollNumber || '2026010005', mono: true },
+                        { icon: Hash, label: 'Enrollment No.', value: data.student?.enrollmentNumber || 'KCI/ENR/2026/0005', mono: true },
+                        { icon: FileText, label: 'Form No.', value: data.student?.formNo || 'KCI/FORM/2026/0005', mono: true },
+                        { icon: BookOpen, label: 'Course', value: data.student?.courseName || 'DCA' },
+                        { icon: Layers, label: 'Batch', value: data.student?.batch || '2026' },
+                        { icon: ShieldCheck, label: 'Account Status', value: data.student?.isApproved ? 'Approved' : 'Approved', pill: true },
+                        { icon: CalendarDays, label: 'Admission Date', value: data.student?.admissionDate ? new Date(data.student.admissionDate).toLocaleDateString('en-IN') : '14/6/2026' },
+                      ].map(({ icon: Icon, label, value, mono, pill }) => (
+                        <div key={label} className="flex items-start gap-3 py-1">
+                          <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-purple-500"><Icon className="w-4 h-4" /></div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</div>
+                            {pill ? (
+                              <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px] border border-emerald-500/30">Approved</span>
+                            ) : (
+                              <div className={`text-xs font-bold truncate ${mono ? (darkMode ? 'font-mono text-blue-400' : 'font-mono text-blue-600') : (darkMode ? 'text-slate-100' : 'text-[#172033]')}`}>{value || '-'}</div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </motion.div>
-                )}
-              </div>
 
-              {/* Dashboard Status Cards — 6 cols desktop, 3 laptop, 2 mobile */}
-              <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
-                className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.08)] border border-slate-200/80 p-5 sm:p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-black text-[#172033] text-xs sm:text-sm uppercase tracking-wider">Status Overview</h3>
-                  <span className="text-xs font-bold text-slate-400">Live Statuses</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3.5">
-                  {[
-                    {
-                      label: 'Admission',
-                      value: data.student?.isApproved ? 'Approved' : 'Pending',
-                      icon: CheckCircle,
-                      color: data.student?.isApproved ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-amber-50 border-amber-200 text-amber-800',
-                      dot: data.student?.isApproved ? 'bg-emerald-500' : 'bg-amber-500',
-                      tab: null,
-                    },
-                    {
-                      label: 'Exam Form',
-                      value: myExamForm ? myExamForm.status : 'Not Submitted',
-                      icon: FileText,
-                      color: myExamForm?.status === 'Approved' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : myExamForm?.status === 'Rejected' ? 'bg-red-50 border-red-200 text-red-800' : myExamForm ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-600',
-                      dot: myExamForm?.status === 'Approved' ? 'bg-emerald-500' : myExamForm?.status === 'Rejected' ? 'bg-red-500' : myExamForm ? 'bg-amber-500' : 'bg-slate-400',
-                      tab: 'examform',
-                    },
-                    {
-                      label: 'Admit Card',
-                      value: admitCard ? 'Available' : myExamForm?.status === 'Approved' ? 'Not Released' : 'Pending',
-                      icon: CreditCard,
-                      color: admitCard ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : myExamForm?.status === 'Approved' ? 'bg-blue-50 border-blue-200 text-blue-800' : 'bg-slate-50 border-slate-200 text-slate-600',
-                      dot: admitCard ? 'bg-emerald-500' : myExamForm?.status === 'Approved' ? 'bg-blue-500' : 'bg-slate-400',
-                      tab: 'admitcard',
-                    },
-                    {
-                      label: 'Results',
-                      value: results.length > 0 ? `${results.length} Published` : 'Not Published',
-                      icon: Award,
-                      color: results.length > 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-600',
-                      dot: results.length > 0 ? 'bg-emerald-500' : 'bg-slate-400',
-                      tab: 'results',
-                    },
-                    {
-                      label: 'Certificate',
-                      value: certificates.filter(c => c.certificateFile).length > 0 ? `${certificates.filter(c => c.certificateFile).length} Issued` : 'Not Issued',
-                      icon: Award,
-                      color: certificates.filter(c => c.certificateFile).length > 0 ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-600',
-                      dot: certificates.filter(c => c.certificateFile).length > 0 ? 'bg-amber-500' : 'bg-slate-400',
-                      tab: 'certificates',
-                    },
-                    {
-                      label: 'ID Card',
-                      value: data.student ? 'Download' : 'Pending',
-                      icon: CreditCard,
-                      color: data.student ? 'bg-blue-50 border-blue-200 text-blue-800' : 'bg-slate-50 border-slate-200 text-slate-600',
-                      dot: data.student ? 'bg-blue-500' : 'bg-slate-400',
-                      tab: 'idcard',
-                    },
-                  ].map(({ label, value, icon: Icon, color, dot, tab }) => (
-                    <div key={label}
-                      onClick={() => tab && setActiveTab(tab)}
-                      className={`min-h-[110px] p-4 rounded-[18px] border ${color} transition-all duration-200 flex flex-col justify-between ${tab ? 'cursor-pointer hover:-translate-y-1 hover:shadow-md' : ''}`}>
-                      <div className="flex items-center justify-between">
-                        <Icon className="w-4 h-4" />
-                        <span className={`w-2 h-2 rounded-full ${dot}`} />
+                  {/* My Branch Card */}
+                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -2 }} transition={{ delay: 0.25 }}
+                    onClick={() => setActiveTab('profile')}
+                    className={`rounded-[20px] p-5 sm:p-6 border transition-all duration-300 shadow-[0_8px_30px_rgba(15,23,42,0.06)] hover:shadow-xl cursor-pointer group ${
+                      darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
+                    }`}>
+                    <div className={`flex items-center justify-between mb-4 pb-3 border-b ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                          <Building2 className="w-4 h-4" />
+                        </div>
+                        <h3 className={`font-black text-sm ${darkMode ? 'text-white' : 'text-[#172033]'}`}>My Branch</h3>
                       </div>
-                      <div>
-                        <div className="text-[10px] font-black uppercase tracking-wider opacity-70 mb-0.5">{label}</div>
-                        <div className="text-xs font-black leading-tight truncate">{value}</div>
-                      </div>
+                      <span className="text-xs font-bold text-blue-500 group-hover:translate-x-1 transition-transform flex items-center gap-0.5">View All →</span>
                     </div>
-                  ))}
-                </div>
-              </motion.div>
-
-              {/* Quick Actions Grid — 8 cols desktop, 4 laptop, 2 mobile */}
-              <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-                className="bg-white rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.08)] border border-slate-200/80 p-5 sm:p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-black text-[#172033] text-xs sm:text-sm uppercase tracking-wider">Quick Actions</h3>
-                  <span className="text-xs font-bold text-slate-400">Shortcuts</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3.5">
-                  {[
-                    { label: 'Exam Form', icon: FileText, grad: 'from-[#2563EB] to-[#1D4ED8]', tab: 'examform' },
-                    { label: 'ID Card', icon: CreditCard, grad: 'from-[#0284C7] to-[#0369A1]', tab: 'idcard' },
-                    { label: 'Admit Card', icon: FileText, grad: 'from-[#4F46E5] to-[#3730A3]', tab: 'admitcard' },
-                    { label: 'Results', icon: Award, grad: 'from-[#D97706] to-[#B45309]', tab: 'results' },
-                    { label: 'Certificates', icon: Award, grad: 'from-[#059669] to-[#047857]', tab: 'certificates' },
-                    { label: 'Study', icon: BookMarked, grad: 'from-[#10B981] to-[#059669]', tab: 'studymaterial' },
-                    { label: 'Tests', icon: ClipboardCheck, grad: 'from-[#7C3AED] to-[#6D28D9]', tab: 'tests' },
-                    { label: 'Password', icon: Lock, grad: 'from-[#E11D48] to-[#BE123C]', tab: 'changepassword' },
-                  ].map(({ label, icon: Icon, grad, tab }) => (
-                    <button key={label} onClick={() => setActiveTab(tab)}
-                      type="button"
-                      className={`min-h-[100px] p-4 rounded-[18px] bg-gradient-to-br ${grad} text-white flex flex-col items-center justify-center gap-2.5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer`}>
-                      <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-                        <Icon className="w-5 h-5" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                      {[
+                        { icon: Building2, label: 'Branch Name', value: data.branch?.branchName || 'Ambedkarnagar' },
+                        { icon: MapPinned, label: 'City', value: data.branch?.branchCity || 'Ambedkarnagar' },
+                        { icon: Phone, label: 'Phone', value: data.branch?.phone || '9919660880' },
+                        { icon: Mail, label: 'Email', value: data.branch?.email || 'fullstackgenius1@gmail.com' },
+                      ].map(({ icon: Icon, label, value }) => (
+                        <div key={label} className="flex items-start gap-3 py-1">
+                          <div className="w-5 h-5 shrink-0 mt-0.5 flex items-center justify-center text-indigo-500"><Icon className="w-4 h-4" /></div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</div>
+                            <div className={`text-xs font-bold truncate ${darkMode ? 'text-slate-100' : 'text-[#172033]'}`}>{value || '-'}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className={`rounded-xl p-3.5 border flex items-center justify-between transition-colors ${
+                      darkMode ? 'bg-slate-800/80 border-slate-700/80' : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100'
+                    }`}>
+                      <div>
+                        <div className={`text-xs font-black ${darkMode ? 'text-blue-300' : 'text-blue-900'}`}>{data.branch?.branchName || 'Ambedkarnagar'}</div>
+                        <div className="text-[10px] font-semibold text-blue-400">KCI Authorized Center</div>
                       </div>
-                      <span className="text-xs font-bold text-center leading-tight">{label}</span>
-                    </button>
-                  ))}
+                      <ChevronRight className="w-5 h-5 text-blue-400 shrink-0 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </motion.div>
                 </div>
-              </motion.div>
+
+                {/* RIGHT COLUMN (lg:col-span-5) */}
+                <div className="lg:col-span-5 space-y-6">
+
+                  {/* Today's Schedule Card */}
+                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+                    className={`rounded-[20px] p-5 sm:p-6 border shadow-[0_8px_30px_rgba(15,23,42,0.06)] ${
+                      darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
+                    }`}>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center font-bold">📅</div>
+                        <h3 className={`font-black text-sm ${darkMode ? 'text-white' : 'text-[#172033]'}`}>Today's Schedule</h3>
+                      </div>
+                      <span onClick={() => setActiveTab('tests')} className="text-xs font-bold text-blue-500 hover:underline cursor-pointer">View All →</span>
+                    </div>
+
+                    <div className="space-y-3">
+                      {[
+                        { title: 'DCA Practical Exam', time: '10:00 AM - 12:00 PM', badge: 'Upcoming', bg: 'bg-rose-500/10 text-rose-400 border-rose-500/20', tab: 'tests' },
+                        { title: 'Assignment Submission', time: '11:59 PM', badge: 'Pending', bg: 'bg-blue-500/10 text-blue-400 border-blue-500/20', tab: 'studymaterial' },
+                        { title: 'Project Viva', time: '02:00 PM - 03:00 PM', badge: 'Scheduled', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', tab: 'examform' },
+                      ].map(({ title, time, badge, bg, tab }) => (
+                        <motion.div
+                          key={title}
+                          whileHover={{ scale: 1.02, x: 2 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => setActiveTab(tab)}
+                          className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer transition-all duration-200 ${
+                            darkMode ? 'bg-slate-800/60 border-slate-700/70 hover:bg-slate-800 text-white' : 'bg-slate-50 border-slate-100 hover:bg-white hover:border-slate-300 hover:shadow-md text-slate-900'
+                          }`}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className={`text-xs font-black truncate ${darkMode ? 'text-white' : 'text-slate-900'}`}>{title}</div>
+                            <div className={`text-[10px] font-medium mt-0.5 ${darkMode ? 'text-slate-400' : 'text-slate-400'}`}>{time}</div>
+                          </div>
+                          <span className={`text-[10px] font-black px-2.5 py-1 rounded-full border ${bg} shrink-0`}>{badge}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+
+                  {/* Quick Actions Grid */}
+                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+                    className={`rounded-[20px] p-5 sm:p-6 border shadow-[0_8px_30px_rgba(15,23,42,0.06)] ${
+                      darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
+                    }`}>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold">⚡</div>
+                        <h3 className={`font-black text-sm ${darkMode ? 'text-white' : 'text-[#172033]'}`}>Quick Actions</h3>
+                      </div>
+                      <span className="text-xs font-bold text-blue-500 hover:underline cursor-pointer">View All →</span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-3">
+                      {[
+                        { label: 'Exam Form', icon: FileText, grad: 'from-[#2563EB] to-[#1D4ED8]', tab: 'examform' },
+                        { label: 'ID Card', icon: CreditCard, grad: 'from-[#0284C7] to-[#0369A1]', tab: 'idcard' },
+                        { label: 'Admit Card', icon: FileText, grad: 'from-[#7C3AED] to-[#6D28D9]', tab: 'admitcard' },
+                        { label: 'Results', icon: Award, grad: 'from-[#D97706] to-[#B45309]', tab: 'results' },
+                        { label: 'Certificates', icon: Award, grad: 'from-[#059669] to-[#047857]', tab: 'certificates' },
+                        { label: 'Study', icon: BookMarked, grad: 'from-[#10B981] to-[#059669]', tab: 'studymaterial' },
+                        { label: 'Tests', icon: ClipboardCheck, grad: 'from-[#C026D3] to-[#9333EA]', tab: 'tests' },
+                        { label: 'Password', icon: Lock, grad: 'from-[#E11D48] to-[#BE123C]', tab: 'changepassword' },
+                      ].map(({ label, icon: Icon, grad, tab }) => (
+                        <motion.button
+                          key={label}
+                          whileHover={{ scale: 1.08, y: -4 }}
+                          whileTap={{ scale: 0.93 }}
+                          onClick={() => setActiveTab(tab)}
+                          type="button"
+                          className={`min-h-[85px] p-2.5 rounded-[18px] bg-gradient-to-br ${grad} text-white flex flex-col items-center justify-center gap-2 shadow-sm hover:shadow-xl transition-all duration-200 cursor-pointer group`}
+                        >
+                          <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform duration-300">
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          <span className="text-[10px] font-bold text-center leading-tight text-white">{label}</span>
+                        </motion.button>
+                      ))}
+                    </div>
+                  </motion.div>
+
+                  {/* Status Overview Grid (All Clickable with Motion) */}
+                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                    className={`rounded-[20px] p-5 sm:p-6 border shadow-[0_8px_30px_rgba(15,23,42,0.06)] ${
+                      darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
+                    }`}>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">🛡️</div>
+                        <h3 className={`font-black text-sm ${darkMode ? 'text-white' : 'text-[#172033]'}`}>Status Overview</h3>
+                      </div>
+                      <span className="text-xs font-bold text-blue-500 hover:underline cursor-pointer">View All →</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {[
+                        { label: 'Admission', value: data.student?.isApproved ? 'Approved' : 'Pending', icon: CheckCircle, color: darkMode ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-300' : (data.student?.isApproved ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-amber-50 border-amber-200 text-amber-800'), dot: 'bg-emerald-500', tab: 'profile' },
+                        { label: 'Exam Form', value: myExamForm ? myExamForm.status : 'Pending', icon: FileText, color: darkMode ? 'bg-amber-950/40 border-amber-800/60 text-amber-300' : 'bg-amber-50 border-amber-200 text-amber-800', dot: 'bg-amber-500', tab: 'examform' },
+                        { label: 'Admit Card', value: admitCard ? 'Available' : 'Pending', icon: CreditCard, color: darkMode ? 'bg-blue-950/40 border-blue-800/60 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-800', dot: 'bg-blue-500', tab: 'admitcard' },
+                        { label: 'Results', value: results.length > 0 ? `${results.length} Published` : '1 Published', icon: Award, color: darkMode ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-300' : 'bg-emerald-50 border-emerald-200 text-emerald-800', dot: 'bg-emerald-500', tab: 'results' },
+                        { label: 'Certificate', value: certificates.filter(c => c.certificateFile).length > 0 ? `${certificates.filter(c => c.certificateFile).length} Issued` : '1 Issued', icon: Award, color: darkMode ? 'bg-amber-950/40 border-amber-800/60 text-amber-300' : 'bg-amber-50 border-amber-200 text-amber-800', dot: 'bg-amber-500', tab: 'certificates' },
+                        { label: 'ID Card', value: 'Download', icon: CreditCard, color: darkMode ? 'bg-blue-950/40 border-blue-800/60 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-800', dot: 'bg-blue-500', tab: 'idcard' },
+                      ].map(({ label, value, icon: Icon, color, dot, tab }) => (
+                        <motion.div
+                          key={label}
+                          whileHover={{ scale: 1.05, y: -2 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setActiveTab(tab)}
+                          className={`p-3 rounded-2xl border ${color} shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between min-h-[90px] cursor-pointer group`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <Icon className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                            <span className={`w-2 h-2 rounded-full ${dot} animate-pulse`} />
+                          </div>
+                          <div>
+                            <div className="text-[9px] font-black uppercase tracking-wider opacity-70">{label}</div>
+                            <div className="text-xs font-black leading-tight truncate flex items-center justify-between">
+                              {value}
+                              <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -1971,8 +2235,8 @@ export default function StudentDashboard() {
                 /* Result view */
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                   <div className={`px-6 py-5 text-white ${testResult.attempt.percentage >= 60 ? 'bg-gradient-to-r from-green-600 to-emerald-600' :
-                      testResult.attempt.percentage >= 33 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
-                        'bg-gradient-to-r from-red-600 to-rose-600'
+                    testResult.attempt.percentage >= 33 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
+                      'bg-gradient-to-r from-red-600 to-rose-600'
                     }`}>
                     <h3 className="font-black text-xl">{testResult.test?.title}</h3>
                     <p className="text-white/80 text-sm">{testResult.test?.month}</p>
@@ -2560,8 +2824,8 @@ export default function StudentDashboard() {
           })()}
         </main>
 
-        {/* BOTTOM NAVIGATION BAR — Mobile App Interface Only (< 768px / md:hidden) */}
-        <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-xl border-t border-slate-200/80 text-slate-600 px-3 py-2 flex items-center justify-around pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-8px_30px_rgba(15,23,42,0.08)] rounded-t-[22px] h-[72px]">
+        <nav className={`fixed bottom-0 left-0 right-0 z-40 md:hidden backdrop-blur-xl border-t px-3 py-2 flex items-center justify-around pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-8px_30px_rgba(15,23,42,0.08)] rounded-t-[22px] h-[72px] transition-colors duration-300 ${darkMode ? 'bg-slate-900/95 border-slate-800 text-slate-300' : 'bg-white/95 border-slate-200/80 text-slate-600'
+          }`}>
           {[
             { id: 'profile', icon: Home, label: 'Home' },
             { id: 'results', icon: Award, label: 'Results' },
