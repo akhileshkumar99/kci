@@ -8,50 +8,65 @@ import Loader from './components/Loader';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
-// Lazy load all pages
-const Home = lazy(() => import('./pages/Home'));
-const About = lazy(() => import('./pages/About'));
-const Courses = lazy(() => import('./pages/Courses'));
-const CourseDetail = lazy(() => import('./pages/CourseDetail'));
-const Admission = lazy(() => import('./pages/Admission'));
-const Login = lazy(() => import('./pages/Login'));
-const Gallery = lazy(() => import('./pages/Gallery'));
-const Branches = lazy(() => import('./pages/Branches'));
-const Staff = lazy(() => import('./pages/Staff'));
-const Contact = lazy(() => import('./pages/Contact'));
-const Register = lazy(() => import('./pages/Register'));
-const CertificateVerify = lazy(() => import('./pages/CertificateVerify'));
-const Result = lazy(() => import('./pages/Result'));
-const StudyMaterial = lazy(() => import('./pages/StudyMaterial'));
-const IDCard = lazy(() => import('./pages/IDCard'));
-const Notifications = lazy(() => import('./pages/Notifications'));
-const ExaminationForm = lazy(() => import('./pages/ExaminationForm'));
-const AdmitCard = lazy(() => import('./pages/AdmitCard'));
-const BranchApply = lazy(() => import('./pages/BranchApply'));
-const BranchDashboard = lazy(() => import('./pages/BranchDashboard'));
-const StudentDashboard = lazy(() => import('./pages/StudentDashboard'));
-const FranchiseDashboard = lazy(() => import('./pages/franchise/FranchiseDashboard'));
-const FranchiseLayout = lazy(() => import('./pages/franchise/FranchiseLayout'));
-const FranchiseStudents = lazy(() => import('./pages/franchise/FranchiseStudents'));
-const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
-const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
-const AdminCourses = lazy(() => import('./pages/admin/AdminCourses'));
-const AdminStudents = lazy(() => import('./pages/admin/AdminStudents'));
-const AdminResults = lazy(() => import('./pages/admin/AdminResults'));
-const AdminCertificates = lazy(() => import('./pages/admin/AdminCertificates'));
-const AdminGallery = lazy(() => import('./pages/admin/AdminGallery'));
-const AdminAdmissions = lazy(() => import('./pages/admin/AdminAdmissions'));
-const AdminStaff = lazy(() => import('./pages/admin/AdminStaff'));
-const AdminContacts = lazy(() => import('./pages/admin/AdminContacts'));
-const AdminStudyMaterial = lazy(() => import('./pages/admin/AdminStudyMaterial'));
-const AdminNotifications = lazy(() => import('./pages/admin/AdminNotifications'));
-const AdminBranches = lazy(() => import('./pages/admin/AdminBranches'));
-const AdminExamForms = lazy(() => import('./pages/admin/AdminExamForms'));
-const AdminAdmitCard = lazy(() => import('./pages/admin/AdminAdmitCard'));
-const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
-const AdminAuditLogs = lazy(() => import('./pages/admin/AdminAuditLogs'));
-const AdminQuiz = lazy(() => import('./pages/admin/AdminQuiz'));
-const AdminFranchise = lazy(() => import('./pages/admin/AdminFranchise'));
+import StudentDashboard from './pages/StudentDashboard';
+import BranchDashboard from './pages/BranchDashboard';
+import Login from './pages/Login';
+
+// Helper for safe lazy loading to automatically handle Vercel deployment chunk updates
+const safeLazy = (importFn) =>
+  lazy(async () => {
+    try {
+      return await importFn();
+    } catch (error) {
+      if (typeof window !== 'undefined' && (error?.message?.includes('dynamically imported module') || error?.message?.includes('Failed to fetch'))) {
+        window.location.reload();
+        return new Promise(() => { });
+      }
+      throw error;
+    }
+  });
+
+// Lazy load remaining pages
+const Home = safeLazy(() => import('./pages/Home'));
+const About = safeLazy(() => import('./pages/About'));
+const Courses = safeLazy(() => import('./pages/Courses'));
+const CourseDetail = safeLazy(() => import('./pages/CourseDetail'));
+const Admission = safeLazy(() => import('./pages/Admission'));
+const Gallery = safeLazy(() => import('./pages/Gallery'));
+const Branches = safeLazy(() => import('./pages/Branches'));
+const Staff = safeLazy(() => import('./pages/Staff'));
+const Contact = safeLazy(() => import('./pages/Contact'));
+const Register = safeLazy(() => import('./pages/Register'));
+const CertificateVerify = safeLazy(() => import('./pages/CertificateVerify'));
+const Result = safeLazy(() => import('./pages/Result'));
+const StudyMaterial = safeLazy(() => import('./pages/StudyMaterial'));
+const IDCard = safeLazy(() => import('./pages/IDCard'));
+const Notifications = safeLazy(() => import('./pages/Notifications'));
+const ExaminationForm = safeLazy(() => import('./pages/ExaminationForm'));
+const AdmitCard = safeLazy(() => import('./pages/AdmitCard'));
+const BranchApply = safeLazy(() => import('./pages/BranchApply'));
+const FranchiseDashboard = safeLazy(() => import('./pages/franchise/FranchiseDashboard'));
+const FranchiseLayout = safeLazy(() => import('./pages/franchise/FranchiseLayout'));
+const FranchiseStudents = safeLazy(() => import('./pages/franchise/FranchiseStudents'));
+const AdminLayout = safeLazy(() => import('./pages/admin/AdminLayout'));
+const AdminDashboard = safeLazy(() => import('./pages/admin/AdminDashboard'));
+const AdminCourses = safeLazy(() => import('./pages/admin/AdminCourses'));
+const AdminStudents = safeLazy(() => import('./pages/admin/AdminStudents'));
+const AdminResults = safeLazy(() => import('./pages/admin/AdminResults'));
+const AdminCertificates = safeLazy(() => import('./pages/admin/AdminCertificates'));
+const AdminGallery = safeLazy(() => import('./pages/admin/AdminGallery'));
+const AdminAdmissions = safeLazy(() => import('./pages/admin/AdminAdmissions'));
+const AdminStaff = safeLazy(() => import('./pages/admin/AdminStaff'));
+const AdminContacts = safeLazy(() => import('./pages/admin/AdminContacts'));
+const AdminStudyMaterial = safeLazy(() => import('./pages/admin/AdminStudyMaterial'));
+const AdminNotifications = safeLazy(() => import('./pages/admin/AdminNotifications'));
+const AdminBranches = safeLazy(() => import('./pages/admin/AdminBranches'));
+const AdminExamForms = safeLazy(() => import('./pages/admin/AdminExamForms'));
+const AdminAdmitCard = safeLazy(() => import('./pages/admin/AdminAdmitCard'));
+const AdminAnalytics = safeLazy(() => import('./pages/admin/AdminAnalytics'));
+const AdminAuditLogs = safeLazy(() => import('./pages/admin/AdminAuditLogs'));
+const AdminQuiz = safeLazy(() => import('./pages/admin/AdminQuiz'));
+const AdminFranchise = safeLazy(() => import('./pages/admin/AdminFranchise'));
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -63,6 +78,9 @@ class ErrorBoundary extends Component {
   }
   componentDidCatch(error, errorInfo) {
     console.error("KCI App Error:", error, errorInfo);
+    if (error?.toString()?.includes('dynamically imported module') || error?.toString()?.includes('Failed to fetch')) {
+      window.location.reload();
+    }
   }
   render() {
     if (this.state.hasError) {
@@ -71,8 +89,8 @@ class ErrorBoundary extends Component {
           <div className="w-16 h-16 bg-red-500/20 text-red-400 rounded-full flex items-center justify-center mb-4 text-2xl font-bold">⚠️</div>
           <h1 className="text-2xl font-black mb-2">Something went wrong</h1>
           <p className="text-slate-400 text-xs sm:text-sm max-w-md mb-6">{this.state.error?.toString()}</p>
-          <button onClick={() => { this.setState({ hasError: false }); window.location.href = '/'; }} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs sm:text-sm transition-all">
-            Return to Homepage
+          <button onClick={() => { this.setState({ hasError: false }); window.location.reload(); }} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs sm:text-sm transition-all">
+            Refresh & Continue
           </button>
         </div>
       );

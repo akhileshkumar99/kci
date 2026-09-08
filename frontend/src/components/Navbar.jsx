@@ -419,7 +419,7 @@ export default function Navbar() {
                       </button>
                     </>
                   ) : (
-                    <Link to="/login" className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-md">
+                    <Link to="/login" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-md">
                       <LogIn className="w-4 h-4" /> Login
                     </Link>
                   )}
