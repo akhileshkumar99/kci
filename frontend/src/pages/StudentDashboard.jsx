@@ -757,308 +757,534 @@ function ExamFormSection({ student, myExamForm, onSubmitted }) {
   const [form, setForm] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [upiQr, setUpiQr] = useState('');
-  const [step, setStep] = useState('form'); // 'form' | 'pay' | 'utr'
+  const [step, setStep] = useState('form'); // 'form' | 'pay'
+  const [payMethod, setPayMethod] = useState('upi'); // 'upi' | 'card' | 'netbanking'
   const [errs, setErrs] = useState({});
 
+  // Payment form states
+  const [cardForm, setCardForm] = useState({ name: '', number: '', expiry: '', cvv: '' });
+  const [selectedBank, setSelectedBank] = useState('');
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpInput, setOtpInput] = useState('');
+
   const UPI_ID = 'akhileshkumar5044@ybl';
-  const AMOUNT = 1;
+  const AMOUNT = 500;
 
   // Generate UPI QR with student-specific txn note
   useEffect(() => {
     if (!student) return;
     const txnNote = `KCI-EXAM-${student.enrollmentNumber || student.rollNumber || Date.now()}`;
     const upiString = `upi://pay?pa=${UPI_ID}&pn=Keerti Computer Institute&am=${AMOUNT}&cu=INR&tn=${encodeURIComponent(txnNote)}`;
-    QRCode.toDataURL(upiString, { width: 200, margin: 1, color: { dark: '#081d5b', light: '#ffffff' } })
+    QRCode.toDataURL(upiString, { width: 220, margin: 1, color: { dark: '#081d5b', light: '#ffffff' } })
       .then(setUpiQr).catch(() => { });
   }, [student]);
 
   // Auto-fill when student data loads
   useEffect(() => {
-    if (myExamForm) return; // already submitted, don't overwrite
+    if (myExamForm) return; // already submitted
     if (!student) return;
     setForm(f => f ? f : {
       studentName: student.name || '',
       fatherName: student.fatherName || '',
-      motherName: '',
       dob: student.dob ? new Date(student.dob).toISOString().split('T')[0] : '',
-      gender: '',
+      gender: 'Male',
       category: 'General',
       enrollmentNumber: student.enrollmentNumber || student.rollNumber || '',
       course: student.courseName || '',
       batch: student.batch || '',
-      session: '',
-      qualification: '',
-      subjects: '',
+      examType: 'Regular',
       phone: student.phone || '',
       email: student.email || '',
       address: student.address || '',
       paymentUtr: '',
+      amount: AMOUNT,
     });
   }, [student, myExamForm]);
 
   const set = (k, v) => { setForm(f => ({ ...f, [k]: v })); setErrs(e => ({ ...e, [k]: '' })); };
 
-  const validate = (f) => {
+  const validateForm = (f) => {
     const e = {};
-    if (!f.studentName.trim()) e.studentName = 'Required';
-    if (!f.fatherName.trim()) e.fatherName = 'Required';
-    if (!f.dob) e.dob = 'Required';
-    if (!f.gender) e.gender = 'Required';
-    if (!f.enrollmentNumber.trim()) e.enrollmentNumber = 'Required';
-    if (!f.course) e.course = 'Required';
-    if (!f.batch.trim()) e.batch = 'Required';
-    if (!f.phone.trim()) e.phone = 'Required';
-    else if (!/^[6-9]\d{9}$/.test(f.phone.trim())) e.phone = 'Enter valid 10-digit number';
-    if (!f.email.trim()) e.email = 'Required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email.trim())) e.email = 'Invalid email';
+    if (!f.studentName.trim()) e.studentName = 'Student name is required';
+    if (!f.fatherName.trim()) e.fatherName = "Father's name is required";
+    if (!f.dob) e.dob = 'Date of Birth is required';
+    if (!f.gender) e.gender = 'Gender is required';
+    if (!f.enrollmentNumber.trim()) e.enrollmentNumber = 'Enrollment Number is required';
+    if (!f.course) e.course = 'Course selection is required';
+    if (!f.batch.trim()) e.batch = 'Batch/Year is required';
+    if (!f.phone.trim()) e.phone = 'Mobile Number is required';
+    else if (!/^[6-9]\d{9}$/.test(f.phone.trim())) e.phone = 'Enter valid 10-digit mobile number';
+    if (!f.email.trim()) e.email = 'Email address is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email.trim())) e.email = 'Enter valid email address';
+    if (!f.address.trim()) e.address = 'Address is required';
     return e;
   };
 
-  const statusColor = {
-    Pending: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    Approved: 'bg-green-100 text-green-700 border-green-200',
-    Rejected: 'bg-red-100 text-red-700 border-red-200',
+  const handleFinalSubmit = async (utrCode) => {
+    if (!utrCode || utrCode.trim().length < 6) return toast.error('Enter a valid 12-digit UTR / Transaction ID');
+    setSubmitting(true);
+    try {
+      const payload = { ...form, paymentUtr: utrCode.trim(), amount: AMOUNT, paymentStatus: 'Paid' };
+      const { data } = await api.post('/exam-forms', payload);
+      toast.success('🎉 Exam Form Submitted & Fee Paid Successfully!');
+      onSubmitted(data.form);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Submission failed. Please check payment UTR.');
+    }
+    setSubmitting(false);
   };
 
-  const inp = 'w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white';
+  const statusColor = {
+    Pending: 'bg-amber-100 text-amber-800 border-amber-300',
+    Approved: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    Rejected: 'bg-rose-100 text-rose-800 border-rose-300',
+  };
+
+  const inp = 'w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white font-medium text-slate-800';
   const sel = inp + ' cursor-pointer';
 
+  // ── 1. ALREADY SUBMITTED RECEIPT VIEW ──
   if (myExamForm) return (
     <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto space-y-4">
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl p-5 text-white">
+      <div className="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-5 text-white shadow-lg">
         <div className="flex items-center gap-3 mb-1">
-          <CheckCircle className="w-6 h-6" />
-          <h2 className="text-lg font-black">Exam Form Submitted</h2>
+          <CheckCircle className="w-6 h-6 text-amber-300" />
+          <h2 className="text-lg font-black tracking-wide">Exam Registration Active & Paid</h2>
         </div>
-        <p className="text-green-100 text-sm">Your examination registration form has been submitted.</p>
+        <p className="text-emerald-100 text-xs sm:text-sm">Your examination form and fee payment (₹{myExamForm.amount || AMOUNT}) are verified.</p>
       </div>
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-3">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-black text-gray-900">Form Details</h3>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div>
+            <h3 className="font-black text-slate-900 text-base">Registration Details</h3>
+            <p className="text-xs text-slate-400">Transaction Ref: KCI-EXAM-{myExamForm.enrollmentNumber}</p>
+          </div>
           <div className="flex items-center gap-2">
             <span className={`text-xs font-black px-3 py-1 rounded-full border ${statusColor[myExamForm.status] || statusColor.Pending}`}>
-              {myExamForm.status}
+              {myExamForm.status || 'Approved'}
             </span>
             <button
+              type="button"
               onClick={() => downloadReceiptPDF(myExamForm)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black transition-all shadow-sm">
-              <Download className="w-3.5 h-3.5" /> Receipt
+              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-black transition-all shadow-md active:scale-95 cursor-pointer">
+              <Download className="w-4 h-4" /> Download PDF Receipt
             </button>
           </div>
         </div>
-        {[
-          ['Student Name', myExamForm.studentName],
-          ['Enrollment No.', myExamForm.enrollmentNumber],
-          ['Course', myExamForm.course],
-          ['Batch', myExamForm.batch],
-          ['Phone', myExamForm.phone],
-          ['Email', myExamForm.email],
-          ['Payment UTR', myExamForm.paymentUtr || '—'],
-          ['Submitted', new Date(myExamForm.createdAt).toLocaleDateString('en-IN')],
-        ].map(([l, v]) => (
-          <div key={l} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
-            <span className="text-xs font-bold text-gray-500">{l}</span>
-            <span className="text-sm font-bold text-gray-800">{v}</span>
-          </div>
-        ))}
-      </div>
-    </motion.div>
-  );
 
-  if (!form) return <div className="flex justify-center py-12"><div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin" /></div>;
-
-  // ── STEP: PAY ──
-  if (step === 'pay') return (
-    <PayStep
-      upiQr={upiQr}
-      upiId={UPI_ID}
-      amount={AMOUNT}
-      enrollmentNumber={form.enrollmentNumber}
-      onPaid={() => setStep('utr')}
-      onBack={() => setStep('form')}
-    />
-  );
-
-  // ── STEP: UTR ──
-  if (step === 'utr') return (
-    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-sm mx-auto">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 text-center">
-          <div className="text-white font-black text-lg">🔐 Verify Payment</div>
-          <div className="text-blue-100 text-xs mt-1">Enter your UTR / Transaction ID</div>
-        </div>
-        <div className="p-6 space-y-4">
-          <div className="bg-blue-50 rounded-xl p-3 border border-blue-100 text-xs text-blue-700 font-semibold text-center">
-            ₹{AMOUNT} paid to <span className="font-mono font-black">{UPI_ID}</span>
-          </div>
-          <div>
-            <label className="text-xs font-black text-gray-700 mb-2 block">UTR / Transaction ID <span className="text-red-500">*</span></label>
-            <input
-              autoFocus
-              value={form.paymentUtr}
-              onChange={e => set('paymentUtr', e.target.value)}
-              placeholder="e.g. 426112345678"
-              className="w-full px-4 py-3 border-2 border-blue-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-mono text-center tracking-widest text-lg"
-            />
-            <p className="text-[10px] text-gray-400 mt-1.5 text-center">Find UTR in your UPI app under transaction history. Each UTR can only be used once.</p>
-          </div>
-          <button
-            onClick={async () => {
-              if (!form.paymentUtr || form.paymentUtr.trim().length < 6)
-                return toast.error('Enter valid UTR / Transaction ID');
-              setSubmitting(true);
-              try {
-                const { data } = await api.post('/exam-forms', form);
-                toast.success('Exam form submitted successfully!');
-                onSubmitted(data.form);
-              } catch (err) {
-                toast.error(err.response?.data?.message || 'Submission failed');
-              }
-              setSubmitting(false);
-            }}
-            disabled={submitting || !form.paymentUtr}
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 disabled:opacity-60 transition-all shadow-md">
-            {submitting ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <FileText className="w-4 h-4" />}
-            {submitting ? 'Submitting...' : 'Submit Examination Form'}
-          </button>
-          <button onClick={() => setStep('pay')} className="w-full text-xs text-gray-400 hover:text-gray-600 transition-colors py-1">
-            Back to Tests� Back to Payment
-          </button>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+          {[
+            ['Student Name', myExamForm.studentName],
+            ['Enrollment No.', myExamForm.enrollmentNumber],
+            ['Father\'s Name', myExamForm.fatherName],
+            ['Course', myExamForm.course],
+            ['Batch', myExamForm.batch],
+            ['Exam Type', myExamForm.examType || 'Regular'],
+            ['Phone Number', myExamForm.phone],
+            ['Email Address', myExamForm.email],
+            ['Payment Amount', `₹${myExamForm.amount || AMOUNT} (Paid)`],
+            ['Payment UTR', myExamForm.paymentUtr || 'VERIFIED-ONLINE'],
+            ['Submission Date', new Date(myExamForm.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })],
+          ].map(([l, v]) => (
+            <div key={l} className="p-2.5 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center">
+              <span className="font-bold text-slate-500 text-xs">{l}</span>
+              <span className="font-extrabold text-slate-900 text-xs">{v || '—'}</span>
+            </div>
+          ))}
         </div>
       </div>
     </motion.div>
   );
 
-  // ── STEP: FORM ──
+  if (!form) return <div className="flex justify-center py-12"><div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" /></div>;
+
+  // ── 2. PAYMENT GATEWAY STEP ──
+  if (step === 'pay') {
+    return (
+      <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-xl mx-auto">
+        <div className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+
+          {/* HEADER */}
+          <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-950 p-6 text-white text-center relative">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-bold mb-2 border border-amber-400/30">
+              <ShieldCheck className="w-3.5 h-3.5" /> 256-bit SSL Secure Payment
+            </div>
+            <h2 className="text-2xl font-black tracking-tight">KCI Examination Fee Payment</h2>
+            <p className="text-blue-200 text-xs mt-1">Student: <span className="text-white font-bold">{form.studentName}</span> | Roll: <span className="font-mono text-amber-300 font-bold">{form.enrollmentNumber}</span></p>
+            <div className="mt-4 pt-3 border-t border-white/10 flex justify-around items-center">
+              <div>
+                <div className="text-[10px] text-blue-300 uppercase tracking-wider font-bold">Total Fee</div>
+                <div className="text-2xl font-black text-amber-400">₹{AMOUNT}</div>
+              </div>
+              <div className="h-8 w-[1px] bg-white/20" />
+              <div>
+                <div className="text-[10px] text-blue-300 uppercase tracking-wider font-bold">Course</div>
+                <div className="text-xs font-bold text-white max-w-[150px] truncate">{form.course}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* PAYMENT METHOD TABS */}
+          <div className="p-6 space-y-5">
+            <div className="grid grid-cols-3 gap-2 bg-slate-100 p-1.5 rounded-2xl">
+              <button
+                type="button"
+                onClick={() => setPayMethod('upi')}
+                className={`py-2.5 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${payMethod === 'upi' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+              >
+                <span>📱 UPI / QR</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPayMethod('card')}
+                className={`py-2.5 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${payMethod === 'card' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+              >
+                <span>💳 Card</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPayMethod('netbanking')}
+                className={`py-2.5 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${payMethod === 'netbanking' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+              >
+                <span>🏦 Net Banking</span>
+              </button>
+            </div>
+
+            {/* TAB 1: UPI / QR */}
+            {payMethod === 'upi' && (
+              <div className="space-y-4 text-center">
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 inline-block shadow-inner">
+                  {upiQr ? (
+                    <img src={upiQr} alt="UPI QR" className="w-48 h-48 mx-auto rounded-xl border border-slate-200 shadow-sm" />
+                  ) : (
+                    <div className="w-48 h-48 flex items-center justify-center text-xs text-slate-400">Loading QR...</div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-blue-50/80 rounded-xl border border-blue-200 text-xs">
+                  <div className="text-left">
+                    <div className="text-[10px] text-slate-500 font-bold uppercase">Official UPI ID</div>
+                    <div className="font-mono font-bold text-blue-900 text-sm select-all">{UPI_ID}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { navigator.clipboard.writeText(UPI_ID); toast.success('UPI ID copied!'); }}
+                    className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-[11px] font-bold hover:bg-blue-700"
+                  >
+                    Copy UPI
+                  </button>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black text-slate-800 text-left mb-1.5">
+                    Enter UTR / Transaction Ref ID <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={form.paymentUtr}
+                    onChange={e => set('paymentUtr', e.target.value.toUpperCase())}
+                    placeholder="e.g. 426112345678"
+                    className="w-full px-4 py-3 border-2 border-blue-300 rounded-xl text-center font-mono text-base tracking-widest text-slate-900 focus:border-blue-600 outline-none"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1 text-left">
+                    Find the 12-digit UTR number in your PhonePe / Google Pay / Paytm transaction history.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleFinalSubmit(form.paymentUtr)}
+                  disabled={submitting || !form.paymentUtr}
+                  className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm disabled:opacity-60 cursor-pointer"
+                >
+                  {submitting ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+                  <span>{submitting ? 'Verifying & Submitting...' : 'Verify UTR & Submit Form'}</span>
+                </button>
+              </div>
+            )}
+
+            {/* TAB 2: DEBIT / CREDIT CARD */}
+            {payMethod === 'card' && (
+              <div className="space-y-3 text-left">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Cardholder Name</label>
+                  <input
+                    type="text"
+                    value={cardForm.name}
+                    onChange={e => setCardForm(p => ({ ...p, name: e.target.value }))}
+                    placeholder="Name as on Card"
+                    className={inp}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Card Number</label>
+                  <input
+                    type="text"
+                    maxLength={19}
+                    value={cardForm.number}
+                    onChange={e => setCardForm(p => ({ ...p, number: e.target.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim() }))}
+                    placeholder="4532 •••• •••• 8910"
+                    className={inp}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Expiry Date</label>
+                    <input
+                      type="text"
+                      maxLength={5}
+                      value={cardForm.expiry}
+                      onChange={e => setCardForm(p => ({ ...p, expiry: e.target.value }))}
+                      placeholder="MM/YY"
+                      className={inp}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">CVV Code</label>
+                    <input
+                      type="password"
+                      maxLength={4}
+                      value={cardForm.cvv}
+                      onChange={e => setCardForm(p => ({ ...p, cvv: e.target.value }))}
+                      placeholder="•••"
+                      className={inp}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!cardForm.name || !cardForm.number || !cardForm.expiry || !cardForm.cvv) {
+                      return toast.error('Please enter all card details');
+                    }
+                    setShowOtpModal(true);
+                  }}
+                  className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm cursor-pointer mt-2"
+                >
+                  <Lock className="w-4 h-4" /> Pay ₹{AMOUNT} via Card
+                </button>
+              </div>
+            )}
+
+            {/* TAB 3: NET BANKING */}
+            {payMethod === 'netbanking' && (
+              <div className="space-y-4 text-left">
+                <label className="block text-xs font-bold text-slate-700">Select Bank</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {['State Bank of India', 'HDFC Bank', 'ICICI Bank', 'Axis Bank', 'Punjab National Bank', 'Bank of Baroda'].map(bank => (
+                    <button
+                      key={bank}
+                      type="button"
+                      onClick={() => setSelectedBank(bank)}
+                      className={`p-3 rounded-xl border text-xs font-bold text-left transition-all ${selectedBank === bank ? 'border-blue-600 bg-blue-50 text-blue-900 ring-2 ring-blue-500/20' : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                        }`}
+                    >
+                      🏦 {bank}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!selectedBank) return toast.error('Please select a bank');
+                    const simulatedUtr = `NB-${selectedBank.slice(0, 3).toUpperCase()}-${Date.now().toString().slice(-8)}`;
+                    handleFinalSubmit(simulatedUtr);
+                  }}
+                  disabled={submitting || !selectedBank}
+                  className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm disabled:opacity-60 cursor-pointer mt-2"
+                >
+                  {submitting ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Lock className="w-4 h-4" />}
+                  <span>Proceed to {selectedBank || 'Net Banking'}</span>
+                </button>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setStep('form')}
+              className="w-full text-xs text-slate-500 hover:text-slate-800 font-bold py-1 transition-colors"
+            >
+              ← Edit Examination Form Details
+            </button>
+          </div>
+        </div>
+
+        {/* SIMULATED 3D SECURE CARD OTP MODAL */}
+        {showOtpModal && (
+          <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="bg-white rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl">
+              <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto">
+                <Lock className="w-6 h-6" />
+              </div>
+              <h3 className="font-black text-slate-900 text-lg">3D Secure OTP Verification</h3>
+              <p className="text-xs text-slate-500">Enter 6-digit OTP sent to your registered mobile number for payment of ₹{AMOUNT}</p>
+              <div className="p-2 bg-blue-50 rounded-xl text-xs font-mono font-bold text-blue-800">Demo OTP Code: 123456</div>
+              <input
+                type="text"
+                maxLength={6}
+                value={otpInput}
+                onChange={e => setOtpInput(e.target.value)}
+                placeholder="Enter 6-digit OTP"
+                className="w-full px-4 py-3 border-2 border-blue-300 rounded-xl text-center font-mono text-lg tracking-widest outline-none"
+              />
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowOtpModal(false)}
+                  className="flex-1 py-2.5 border border-slate-200 text-slate-600 rounded-xl text-xs font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (otpInput.trim() !== '123456' && otpInput.trim().length !== 6) return toast.error('Enter valid 6-digit OTP (123456)');
+                    setShowOtpModal(false);
+                    const simulatedUtr = `CARD-PAY-${Date.now().toString().slice(-10)}`;
+                    handleFinalSubmit(simulatedUtr);
+                  }}
+                  className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700"
+                >
+                  Confirm & Pay
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </motion.div>
+    );
+  }
+
+  // ── 3. EXAMINATION REGISTRATION FORM ──
   return (
-    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4">
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto">
+      <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+
+        {/* HEADER */}
+        <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-950 px-6 py-5">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
-              <FileText className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-white border border-white/20">
+              <FileText className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-white font-black text-lg">Examination Registration Form</h2>
-              <p className="text-blue-200 text-xs">Fields are auto-filled from your profile</p>
+              <h2 className="text-white font-black text-xl">Student Examination Registration</h2>
+              <p className="text-blue-200 text-xs">Fill out the required examination details to proceed to fee payment</p>
             </div>
           </div>
         </div>
 
         <form onSubmit={e => {
           e.preventDefault();
-          const e2 = validate(form);
-          if (Object.keys(e2).length) { setErrs(e2); return; }
+          const e2 = validateForm(form);
+          if (Object.keys(e2).length) { setErrs(e2); toast.error('Please fill all required fields correctly'); return; }
           setStep('pay');
-        }} className="p-6 space-y-5">
-          {/* Personal Info */}
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }} className="p-6 sm:p-8 space-y-6">
+
+          {/* SECTION 1: PERSONAL DETAILS */}
           <div>
-            <h3 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-              <User className="w-3.5 h-3.5" /> Personal Information
+            <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3.5 flex items-center gap-2 border-b border-slate-100 pb-2">
+              <User className="w-4 h-4 text-blue-600" /> Personal Details (Required)
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-gray-600 mb-1 block">Student Name *</label>
-                <input value={form.studentName} onChange={e => set('studentName', e.target.value)} className={`${inp} ${errs.studentName ? 'border-red-400' : ''}`} />
-                {errs.studentName && <p className="text-red-500 text-[10px] mt-0.5">{errs.studentName}</p>}
+                <label className="text-xs font-bold text-slate-700 mb-1 block">Student Full Name *</label>
+                <input value={form.studentName} onChange={e => set('studentName', e.target.value)} className={`${inp} ${errs.studentName ? 'border-red-500' : ''}`} placeholder="Full Name" />
+                {errs.studentName && <p className="text-red-500 text-[10px] mt-1 font-bold">{errs.studentName}</p>}
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-600 mb-1 block">Father's Name *</label>
-                <input value={form.fatherName} onChange={e => set('fatherName', e.target.value)} className={`${inp} ${errs.fatherName ? 'border-red-400' : ''}`} />
-                {errs.fatherName && <p className="text-red-500 text-[10px] mt-0.5">{errs.fatherName}</p>}
+                <label className="text-xs font-bold text-slate-700 mb-1 block">Father's Name *</label>
+                <input value={form.fatherName} onChange={e => set('fatherName', e.target.value)} className={`${inp} ${errs.fatherName ? 'border-red-500' : ''}`} placeholder="Father's Name" />
+                {errs.fatherName && <p className="text-red-500 text-[10px] mt-1 font-bold">{errs.fatherName}</p>}
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-600 mb-1 block">Mother's Name</label>
-                <input value={form.motherName} onChange={e => set('motherName', e.target.value)} className={inp} />
+                <label className="text-xs font-bold text-slate-700 mb-1 block">Date of Birth *</label>
+                <input type="date" value={form.dob} onChange={e => set('dob', e.target.value)} className={`${inp} ${errs.dob ? 'border-red-500' : ''}`} />
+                {errs.dob && <p className="text-red-500 text-[10px] mt-1 font-bold">{errs.dob}</p>}
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-600 mb-1 block">Date of Birth *</label>
-                <input type="date" value={form.dob} onChange={e => set('dob', e.target.value)} className={`${inp} ${errs.dob ? 'border-red-400' : ''}`} />
-                {errs.dob && <p className="text-red-500 text-[10px] mt-0.5">{errs.dob}</p>}
-              </div>
-              <div>
-                <label className="text-xs font-bold text-gray-600 mb-1 block">Gender *</label>
-                <select value={form.gender} onChange={e => set('gender', e.target.value)} className={`${sel} ${errs.gender ? 'border-red-400' : ''}`}>
-                  <option value="">-- Select --</option>
-                  <option>Male</option><option>Female</option><option>Other</option>
-                </select>
-                {errs.gender && <p className="text-red-500 text-[10px] mt-0.5">{errs.gender}</p>}
-              </div>
-              <div>
-                <label className="text-xs font-bold text-gray-600 mb-1 block">Category</label>
-                <select value={form.category} onChange={e => set('category', e.target.value)} className={sel}>
-                  <option>General</option><option>OBC</option><option>SC</option><option>ST</option>
+                <label className="text-xs font-bold text-slate-700 mb-1 block">Gender *</label>
+                <select value={form.gender} onChange={e => set('gender', e.target.value)} className={`${sel} ${errs.gender ? 'border-red-500' : ''}`}>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
             </div>
           </div>
 
-          {/* Academic Info */}
+          {/* SECTION 2: ACADEMIC & EXAM DETAILS */}
           <div>
-            <h3 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-              <BookOpen className="w-3.5 h-3.5" /> Academic Information
+            <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3.5 flex items-center gap-2 border-b border-slate-100 pb-2">
+              <BookOpen className="w-4 h-4 text-blue-600" /> Academic & Exam Details (Required)
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-gray-600 mb-1 block">Enrollment Number *</label>
-                <input value={form.enrollmentNumber} onChange={e => set('enrollmentNumber', e.target.value)} className={`${inp} ${errs.enrollmentNumber ? 'border-red-400' : ''}`} />
-                {errs.enrollmentNumber && <p className="text-red-500 text-[10px] mt-0.5">{errs.enrollmentNumber}</p>}
+                <label className="text-xs font-bold text-slate-700 mb-1 block">Enrollment / Roll Number *</label>
+                <input value={form.enrollmentNumber} onChange={e => set('enrollmentNumber', e.target.value)} className={`${inp} ${errs.enrollmentNumber ? 'border-red-500' : ''}`} placeholder="e.g. KCI-2024-001" />
+                {errs.enrollmentNumber && <p className="text-red-500 text-[10px] mt-1 font-bold">{errs.enrollmentNumber}</p>}
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-600 mb-1 block">Course *</label>
-                <select value={form.course} onChange={e => set('course', e.target.value)} className={`${sel} ${errs.course ? 'border-red-400' : ''}`}>
+                <label className="text-xs font-bold text-slate-700 mb-1 block">Select Course *</label>
+                <select value={form.course} onChange={e => set('course', e.target.value)} className={`${sel} ${errs.course ? 'border-red-500' : ''}`}>
                   <option value="">-- Select Course --</option>
                   {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
-                {errs.course && <p className="text-red-500 text-[10px] mt-0.5">{errs.course}</p>}
+                {errs.course && <p className="text-red-500 text-[10px] mt-1 font-bold">{errs.course}</p>}
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-600 mb-1 block">Batch *</label>
-                <input value={form.batch} onChange={e => set('batch', e.target.value)} className={`${inp} ${errs.batch ? 'border-red-400' : ''}`} />
-                {errs.batch && <p className="text-red-500 text-[10px] mt-0.5">{errs.batch}</p>}
+                <label className="text-xs font-bold text-slate-700 mb-1 block">Batch / Year *</label>
+                <input value={form.batch} onChange={e => set('batch', e.target.value)} className={`${inp} ${errs.batch ? 'border-red-500' : ''}`} placeholder="e.g. 2024 Morning Batch" />
+                {errs.batch && <p className="text-red-500 text-[10px] mt-1 font-bold">{errs.batch}</p>}
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-600 mb-1 block">Session</label>
-                <input value={form.session} onChange={e => set('session', e.target.value)} placeholder="e.g. 2024-25" className={inp} />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-gray-600 mb-1 block">Qualification</label>
-                <input value={form.qualification} onChange={e => set('qualification', e.target.value)} placeholder="e.g. 12th Pass" className={inp} />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-gray-600 mb-1 block">Subjects</label>
-                <input value={form.subjects} onChange={e => set('subjects', e.target.value)} placeholder="e.g. All" className={inp} />
+                <label className="text-xs font-bold text-slate-700 mb-1 block">Exam Type *</label>
+                <select value={form.examType} onChange={e => set('examType', e.target.value)} className={sel}>
+                  <option value="Regular">Regular Examination</option>
+                  <option value="Ex-Student">Ex-Student Examination</option>
+                  <option value="Improvement">Improvement / Back</option>
+                </select>
               </div>
             </div>
           </div>
 
-          {/* Contact Info */}
+          {/* SECTION 3: CONTACT INFORMATION */}
           <div>
-            <h3 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-              <Phone className="w-3.5 h-3.5" /> Contact Information
+            <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3.5 flex items-center gap-2 border-b border-slate-100 pb-2">
+              <Phone className="w-4 h-4 text-blue-600" /> Contact Details (Required)
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-gray-600 mb-1 block">Phone *</label>
-                <input value={form.phone} onChange={e => set('phone', e.target.value)} maxLength={10} className={`${inp} ${errs.phone ? 'border-red-400' : ''}`} />
-                {errs.phone && <p className="text-red-500 text-[10px] mt-0.5">{errs.phone}</p>}
+                <label className="text-xs font-bold text-slate-700 mb-1 block">Mobile Number *</label>
+                <input value={form.phone} onChange={e => set('phone', e.target.value)} maxLength={10} className={`${inp} ${errs.phone ? 'border-red-500' : ''}`} placeholder="10-digit Mobile Number" />
+                {errs.phone && <p className="text-red-500 text-[10px] mt-1 font-bold">{errs.phone}</p>}
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-600 mb-1 block">Email *</label>
-                <input value={form.email} onChange={e => set('email', e.target.value)} className={`${inp} ${errs.email ? 'border-red-400' : ''}`} />
-                {errs.email && <p className="text-red-500 text-[10px] mt-0.5">{errs.email}</p>}
+                <label className="text-xs font-bold text-slate-700 mb-1 block">Email Address *</label>
+                <input value={form.email} onChange={e => set('email', e.target.value)} className={`${inp} ${errs.email ? 'border-red-500' : ''}`} placeholder="Email Address" />
+                {errs.email && <p className="text-red-500 text-[10px] mt-1 font-bold">{errs.email}</p>}
               </div>
               <div className="sm:col-span-2">
-                <label className="text-xs font-bold text-gray-600 mb-1 block">Address</label>
-                <input value={form.address} onChange={e => set('address', e.target.value)} className={inp} />
+                <label className="text-xs font-bold text-slate-700 mb-1 block">Permanent Address *</label>
+                <input value={form.address} onChange={e => set('address', e.target.value)} className={`${inp} ${errs.address ? 'border-red-500' : ''}`} placeholder="Complete Residential Address" />
+                {errs.address && <p className="text-red-500 text-[10px] mt-1 font-bold">{errs.address}</p>}
               </div>
             </div>
           </div>
 
-          {/* Proceed to Pay */}
-          <button type="submit"
-            className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md">
-            💳 Proceed to Pay ₹{AMOUNT}
+          {/* SUBMIT BUTTON */}
+          <button
+            type="submit"
+            className="w-full h-12 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-sm rounded-xl shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 transition-all hover:shadow-xl active:scale-[0.99] cursor-pointer"
+          >
+            <span>Proceed to Pay Exam Fee (₹{AMOUNT})</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
         </form>
       </div>
@@ -1569,8 +1795,8 @@ export default function StudentDashboard() {
               onClick={toggleDarkMode}
               title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
               className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all cursor-pointer shadow-xs ${darkMode
-                  ? 'bg-slate-800 text-amber-400 border border-slate-700 hover:bg-slate-700'
-                  : 'bg-slate-100 text-slate-700 border border-slate-200/80 hover:bg-slate-200'
+                ? 'bg-slate-800 text-amber-400 border border-slate-700 hover:bg-slate-700'
+                : 'bg-slate-100 text-slate-700 border border-slate-200/80 hover:bg-slate-200'
                 }`}
             >
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5 text-indigo-600" />}
@@ -1720,9 +1946,8 @@ export default function StudentDashboard() {
               {/* ── ACADEMIC PROGRESS CARD (TOP SECTION) ── */}
               <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -2 }} transition={{ delay: 0.1 }}
                 onClick={() => setActiveTab('results')}
-                className={`rounded-[24px] p-5 sm:p-6 cursor-pointer transition-all duration-300 border shadow-[0_8px_30px_rgba(15,23,42,0.06)] hover:shadow-xl group ${
-                  darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
-                }`}>
+                className={`rounded-[24px] p-5 sm:p-6 cursor-pointer transition-all duration-300 border shadow-[0_8px_30px_rgba(15,23,42,0.06)] hover:shadow-xl group ${darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
+                  }`}>
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center font-bold">🟣</div>
@@ -1767,22 +1992,19 @@ export default function StudentDashboard() {
                   whileHover={{ scale: 1.025, y: -4 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setActiveTab('results')}
-                  className={`relative overflow-hidden rounded-[24px] border p-5 sm:p-6 transition-all duration-300 cursor-pointer group flex flex-col justify-between ${
-                    darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white shadow-xl hover:border-emerald-500/50' : 'bg-white border-slate-200/80 shadow-[0_8px_30px_rgba(15,23,42,0.05)] hover:shadow-2xl hover:border-emerald-300'
-                  }`}
+                  className={`relative overflow-hidden rounded-[24px] border p-5 sm:p-6 transition-all duration-300 cursor-pointer group flex flex-col justify-between ${darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white shadow-xl hover:border-emerald-500/50' : 'bg-white border-slate-200/80 shadow-[0_8px_30px_rgba(15,23,42,0.05)] hover:shadow-2xl hover:border-emerald-300'
+                    }`}
                 >
                   {/* Subtle Background Glow */}
                   <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-emerald-500/10 blur-2xl pointer-events-none group-hover:bg-emerald-500/20 transition-all duration-300" />
 
                   <div className="flex items-center justify-between gap-3 mb-4">
-                    <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 group-hover:scale-110 transition-all duration-300 shadow-xs ${
-                      darkMode ? 'bg-emerald-950/50 border-emerald-800/80 text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white' : 'bg-emerald-50 border-emerald-100 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white'
-                    }`}>
+                    <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 group-hover:scale-110 transition-all duration-300 shadow-xs ${darkMode ? 'bg-emerald-950/50 border-emerald-800/80 text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white' : 'bg-emerald-50 border-emerald-100 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white'
+                      }`}>
                       <Award className="w-6 h-6" />
                     </div>
-                    <span className={`inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1 rounded-full border ${
-                      darkMode ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60'
-                    }`}>
+                    <span className={`inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1 rounded-full border ${darkMode ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60'
+                      }`}>
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       Live Data
                     </span>
@@ -1808,22 +2030,19 @@ export default function StudentDashboard() {
                   whileHover={{ scale: 1.025, y: -4 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setActiveTab('certificates')}
-                  className={`relative overflow-hidden rounded-[24px] border p-5 sm:p-6 transition-all duration-300 cursor-pointer group flex flex-col justify-between ${
-                    darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white shadow-xl hover:border-purple-500/50' : 'bg-white border-slate-200/80 shadow-[0_8px_30px_rgba(15,23,42,0.05)] hover:shadow-2xl hover:border-purple-300'
-                  }`}
+                  className={`relative overflow-hidden rounded-[24px] border p-5 sm:p-6 transition-all duration-300 cursor-pointer group flex flex-col justify-between ${darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white shadow-xl hover:border-purple-500/50' : 'bg-white border-slate-200/80 shadow-[0_8px_30px_rgba(15,23,42,0.05)] hover:shadow-2xl hover:border-purple-300'
+                    }`}
                 >
                   {/* Subtle Background Glow */}
                   <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-purple-500/10 blur-2xl pointer-events-none group-hover:bg-purple-500/20 transition-all duration-300" />
 
                   <div className="flex items-center justify-between gap-3 mb-4">
-                    <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 group-hover:scale-110 transition-all duration-300 shadow-xs ${
-                      darkMode ? 'bg-purple-950/50 border-purple-800/80 text-purple-400 group-hover:bg-purple-600 group-hover:text-white' : 'bg-purple-50 border-purple-100 text-purple-600 group-hover:bg-purple-600 group-hover:text-white'
-                    }`}>
+                    <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 group-hover:scale-110 transition-all duration-300 shadow-xs ${darkMode ? 'bg-purple-950/50 border-purple-800/80 text-purple-400 group-hover:bg-purple-600 group-hover:text-white' : 'bg-purple-50 border-purple-100 text-purple-600 group-hover:bg-purple-600 group-hover:text-white'
+                      }`}>
                       <GraduationCap className="w-6 h-6" />
                     </div>
-                    <span className={`inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1 rounded-full border ${
-                      darkMode ? 'bg-purple-950/60 text-purple-300 border-purple-800/60' : 'bg-purple-50 text-purple-700 border-purple-200/60'
-                    }`}>
+                    <span className={`inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1 rounded-full border ${darkMode ? 'bg-purple-950/60 text-purple-300 border-purple-800/60' : 'bg-purple-50 text-purple-700 border-purple-200/60'
+                      }`}>
                       <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
                       Verified
                     </span>
@@ -1849,22 +2068,19 @@ export default function StudentDashboard() {
                   whileHover={{ scale: 1.025, y: -4 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setActiveTab('tests')}
-                  className={`relative overflow-hidden rounded-[24px] border p-5 sm:p-6 transition-all duration-300 cursor-pointer group flex flex-col justify-between ${
-                    darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white shadow-xl hover:border-blue-500/50' : 'bg-white border-slate-200/80 shadow-[0_8px_30px_rgba(15,23,42,0.05)] hover:shadow-2xl hover:border-blue-300'
-                  }`}
+                  className={`relative overflow-hidden rounded-[24px] border p-5 sm:p-6 transition-all duration-300 cursor-pointer group flex flex-col justify-between ${darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white shadow-xl hover:border-blue-500/50' : 'bg-white border-slate-200/80 shadow-[0_8px_30px_rgba(15,23,42,0.05)] hover:shadow-2xl hover:border-blue-300'
+                    }`}
                 >
                   {/* Subtle Background Glow */}
                   <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-blue-500/10 blur-2xl pointer-events-none group-hover:bg-blue-500/20 transition-all duration-300" />
 
                   <div className="flex items-center justify-between gap-3 mb-4">
-                    <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 group-hover:scale-110 transition-all duration-300 shadow-xs ${
-                      darkMode ? 'bg-blue-950/50 border-blue-800/80 text-blue-400 group-hover:bg-blue-600 group-hover:text-white' : 'bg-blue-50 border-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white'
-                    }`}>
+                    <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 group-hover:scale-110 transition-all duration-300 shadow-xs ${darkMode ? 'bg-blue-950/50 border-blue-800/80 text-blue-400 group-hover:bg-blue-600 group-hover:text-white' : 'bg-blue-50 border-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white'
+                      }`}>
                       <ClipboardCheck className="w-6 h-6" />
                     </div>
-                    <span className={`inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1 rounded-full border ${
-                      darkMode ? 'bg-blue-950/60 text-blue-300 border-blue-800/60' : 'bg-blue-50 text-blue-700 border-blue-200/60'
-                    }`}>
+                    <span className={`inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1 rounded-full border ${darkMode ? 'bg-blue-950/60 text-blue-300 border-blue-800/60' : 'bg-blue-50 text-blue-700 border-blue-200/60'
+                      }`}>
                       <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
                       Active Module
                     </span>
@@ -1895,9 +2111,8 @@ export default function StudentDashboard() {
                   {/* Personal Information Card */}
                   <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -2 }} transition={{ delay: 0.15 }}
                     onClick={() => setActiveTab('profile')}
-                    className={`rounded-[20px] p-5 sm:p-6 border transition-all duration-300 shadow-[0_8px_30px_rgba(15,23,42,0.06)] hover:shadow-xl cursor-pointer group ${
-                      darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
-                    }`}>
+                    className={`rounded-[20px] p-5 sm:p-6 border transition-all duration-300 shadow-[0_8px_30px_rgba(15,23,42,0.06)] hover:shadow-xl cursor-pointer group ${darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
+                      }`}>
                     <div className={`flex items-center justify-between mb-4 pb-3 border-b ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                       <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
@@ -1930,9 +2145,8 @@ export default function StudentDashboard() {
                   {/* Academic Details Card */}
                   <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -2 }} transition={{ delay: 0.2 }}
                     onClick={() => setActiveTab('profile')}
-                    className={`rounded-[20px] p-5 sm:p-6 border transition-all duration-300 shadow-[0_8px_30px_rgba(15,23,42,0.06)] hover:shadow-xl cursor-pointer group ${
-                      darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
-                    }`}>
+                    className={`rounded-[20px] p-5 sm:p-6 border transition-all duration-300 shadow-[0_8px_30px_rgba(15,23,42,0.06)] hover:shadow-xl cursor-pointer group ${darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
+                      }`}>
                     <div className={`flex items-center justify-between mb-4 pb-3 border-b ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                       <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center">
@@ -1970,9 +2184,8 @@ export default function StudentDashboard() {
                   {/* My Branch Card */}
                   <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -2 }} transition={{ delay: 0.25 }}
                     onClick={() => setActiveTab('profile')}
-                    className={`rounded-[20px] p-5 sm:p-6 border transition-all duration-300 shadow-[0_8px_30px_rgba(15,23,42,0.06)] hover:shadow-xl cursor-pointer group ${
-                      darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
-                    }`}>
+                    className={`rounded-[20px] p-5 sm:p-6 border transition-all duration-300 shadow-[0_8px_30px_rgba(15,23,42,0.06)] hover:shadow-xl cursor-pointer group ${darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
+                      }`}>
                     <div className={`flex items-center justify-between mb-4 pb-3 border-b ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                       <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
@@ -1998,9 +2211,8 @@ export default function StudentDashboard() {
                         </div>
                       ))}
                     </div>
-                    <div className={`rounded-xl p-3.5 border flex items-center justify-between transition-colors ${
-                      darkMode ? 'bg-slate-800/80 border-slate-700/80' : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100'
-                    }`}>
+                    <div className={`rounded-xl p-3.5 border flex items-center justify-between transition-colors ${darkMode ? 'bg-slate-800/80 border-slate-700/80' : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100'
+                      }`}>
                       <div>
                         <div className={`text-xs font-black ${darkMode ? 'text-blue-300' : 'text-blue-900'}`}>{data.branch?.branchName || 'Ambedkarnagar'}</div>
                         <div className="text-[10px] font-semibold text-blue-400">KCI Authorized Center</div>
@@ -2015,9 +2227,8 @@ export default function StudentDashboard() {
 
                   {/* Today's Schedule Card */}
                   <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                    className={`rounded-[20px] p-5 sm:p-6 border shadow-[0_8px_30px_rgba(15,23,42,0.06)] ${
-                      darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
-                    }`}>
+                    className={`rounded-[20px] p-5 sm:p-6 border shadow-[0_8px_30px_rgba(15,23,42,0.06)] ${darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
+                      }`}>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center font-bold">📅</div>
@@ -2037,9 +2248,8 @@ export default function StudentDashboard() {
                           whileHover={{ scale: 1.02, x: 2 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => setActiveTab(tab)}
-                          className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer transition-all duration-200 ${
-                            darkMode ? 'bg-slate-800/60 border-slate-700/70 hover:bg-slate-800 text-white' : 'bg-slate-50 border-slate-100 hover:bg-white hover:border-slate-300 hover:shadow-md text-slate-900'
-                          }`}
+                          className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer transition-all duration-200 ${darkMode ? 'bg-slate-800/60 border-slate-700/70 hover:bg-slate-800 text-white' : 'bg-slate-50 border-slate-100 hover:bg-white hover:border-slate-300 hover:shadow-md text-slate-900'
+                            }`}
                         >
                           <div className="min-w-0 flex-1">
                             <div className={`text-xs font-black truncate ${darkMode ? 'text-white' : 'text-slate-900'}`}>{title}</div>
@@ -2053,9 +2263,8 @@ export default function StudentDashboard() {
 
                   {/* Quick Actions Grid */}
                   <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-                    className={`rounded-[20px] p-5 sm:p-6 border shadow-[0_8px_30px_rgba(15,23,42,0.06)] ${
-                      darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
-                    }`}>
+                    className={`rounded-[20px] p-5 sm:p-6 border shadow-[0_8px_30px_rgba(15,23,42,0.06)] ${darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
+                      }`}>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold">⚡</div>
@@ -2094,9 +2303,8 @@ export default function StudentDashboard() {
 
                   {/* Status Overview Grid (All Clickable with Motion) */}
                   <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                    className={`rounded-[20px] p-5 sm:p-6 border shadow-[0_8px_30px_rgba(15,23,42,0.06)] ${
-                      darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
-                    }`}>
+                    className={`rounded-[20px] p-5 sm:p-6 border shadow-[0_8px_30px_rgba(15,23,42,0.06)] ${darkMode ? 'bg-[#131F3F]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-slate-900'
+                      }`}>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">🛡️</div>
