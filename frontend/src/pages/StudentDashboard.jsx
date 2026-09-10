@@ -43,7 +43,7 @@ function InfoRow({ label, value }) {
 
 // €€€ Grade color helper €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
 function IDCard({ student, branch }) {
-  const cardRef = useRef(null);
+  const printCardRef = useRef(null);
   const [settings, setSettings] = useState({});
   const [downloading, setDownloading] = useState(false);
   const [printing, setPrinting] = useState(false);
@@ -56,11 +56,11 @@ function IDCard({ student, branch }) {
   }, []);
 
   const handleDownloadPDF = async () => {
-    if (!cardRef.current) return;
+    if (!printCardRef.current) return;
     setDownloading(true);
     try {
       const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(cardRef.current, {
+      const canvas = await html2canvas(printCardRef.current, {
         scale: 3,
         useCORS: true,
         allowTaint: true,
@@ -82,11 +82,11 @@ function IDCard({ student, branch }) {
   };
 
   const handlePrint = async () => {
-    if (!cardRef.current) return;
+    if (!printCardRef.current) return;
     setPrinting(true);
     try {
       const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(cardRef.current, {
+      const canvas = await html2canvas(printCardRef.current, {
         scale: 3,
         useCORS: true,
         allowTaint: true,
@@ -121,6 +121,13 @@ function IDCard({ student, branch }) {
 
   return (
     <div className="flex flex-col items-center gap-5 w-full">
+      {/* Off-screen unscaled 1:1 card for PDF and Print capture */}
+      <div style={{ position: 'fixed', top: 0, left: '-9999px', zIndex: -9999, pointerEvents: 'none' }}>
+        <div ref={printCardRef}>
+          <KCIIDCard student={student} settings={settings} forPrint={true} />
+        </div>
+      </div>
+
       <div className="flex items-center gap-3 flex-wrap justify-center">
         <button
           onClick={handleDownloadPDF}
@@ -142,9 +149,7 @@ function IDCard({ student, branch }) {
 
       <div className="w-full flex justify-center items-center overflow-hidden my-4" style={{ minHeight: 650 }}>
         <div style={{ transform: 'scale(0.62)', transformOrigin: 'top center', width: 638, height: 1016, marginBottom: -380 }}>
-          <div ref={cardRef}>
-            <KCIIDCard student={student} settings={settings} />
-          </div>
+          <KCIIDCard student={student} settings={settings} />
         </div>
       </div>
       <p className="text-center text-xs text-gray-400 mt-2">* Official Computer Institute Digital PVC ID Card.</p>

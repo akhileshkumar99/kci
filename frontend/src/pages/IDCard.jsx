@@ -100,7 +100,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           <path d="M 0 0 L 638 0 L 638 90 L 0 240 Z" fill="url(#blueGradient)" />
           {/* Red Accent Stripe */}
           <path d="M 0 240 L 638 90 L 638 102 L 0 252 Z" fill="#D32F2F" />
-          
+
           <defs>
             <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#0052CC" />
@@ -138,12 +138,12 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
             <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0052CC', fontWeight: 'bold', fontSize: 13, border: '1.5px solid #FFCC00' }}>
               🌐
             </div>
-            <span style={{ color: '#FFFFFF', fontSize: 20, fontWeight: 950, letterSpacing: 1, textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>NIELIT</span>
+            <span style={{ color: '#FFFFFF', fontSize: 20, fontWeight: 950, letterSpacing: 1 }}>NIELIT</span>
           </div>
-          <div style={{ color: '#FFFFFF', fontSize: 13, fontWeight: 900, lineHeight: 1.3, textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
+          <div style={{ color: '#FFFFFF', fontSize: 13, fontWeight: 900, lineHeight: 1.3 }}>
             Office-{officePhone}
           </div>
-          <div style={{ color: '#FFFFFF', fontSize: 13, fontWeight: 900, lineHeight: 1.3, textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
+          <div style={{ color: '#FFFFFF', fontSize: 13, fontWeight: 900, lineHeight: 1.3 }}>
             Mobile-{mobilePhone}
           </div>
         </div>
@@ -305,7 +305,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
 // ── Main Page Component ──────────────────────────────────────────
 export default function IDCardPage() {
   const { user, refreshUser } = useAuth();
-  const cardRef = useRef();
+  const printCardRef = useRef();
   const [downloading, setDownloading] = useState(false);
   const [printing, setPrinting] = useState(false);
   const [settings, setSettings] = useState({});
@@ -315,11 +315,11 @@ export default function IDCardPage() {
     api
       .get('/certificates/idcard-settings')
       .then((r) => setSettings(r.data.settings || {}))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const captureCard = useCallback(async () => {
-    const el = cardRef.current;
+    const el = printCardRef.current;
     if (!el) return null;
     return html2canvas(el, {
       scale: 3,
@@ -395,6 +395,13 @@ export default function IDCardPage() {
 
   return (
     <div className="pt-20 min-h-screen bg-gray-50">
+      {/* Off-screen unscaled 1:1 card for PDF and Print capture */}
+      <div style={{ position: 'fixed', top: 0, left: '-9999px', zIndex: -9999, pointerEvents: 'none' }}>
+        <div ref={printCardRef}>
+          <KCIIDCard student={user} settings={settings} forPrint={true} />
+        </div>
+      </div>
+
       <section className="relative bg-gradient-to-br from-[#003399] to-[#0052CC] py-10 text-white text-center overflow-hidden">
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 40" className="w-full" preserveAspectRatio="none">
@@ -413,9 +420,7 @@ export default function IDCardPage() {
         {/* Card preview wrapper — scaled to fit screen perfectly */}
         <div className="w-full flex justify-center items-center overflow-hidden my-4" style={{ minHeight: 650 }}>
           <div style={{ transform: 'scale(0.62)', transformOrigin: 'top center', width: 638, height: 1016, marginBottom: -380 }}>
-            <div ref={cardRef}>
-              <KCIIDCard student={user} settings={settings} />
-            </div>
+            <KCIIDCard student={user} settings={settings} />
           </div>
         </div>
 
