@@ -68,9 +68,6 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
   const currentYear = new Date().getFullYear();
   const validFromYear = settings?.validFrom || student?.batch?.split('-')[0] || currentYear;
   const validToYear = settings?.validTo || (parseInt(validFromYear, 10) + 1) || (currentYear + 1);
-
-  const scale = forPrint ? 1 : 0.52;
-
   const courseVal = student?.courseName || student?.course?.title || student?.course || '';
   const formNoVal = student?.formNo || student?.enrollmentNumber || student?.rollNumber || '';
   const fatherVal = student?.fatherName || '';
@@ -84,8 +81,6 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       style={{
         width: CARD_W,
         height: CARD_H,
-        transform: `scale(${scale})`,
-        transformOrigin: 'top left',
         fontFamily: "'Inter', 'Arial', sans-serif",
         background: '#FFFFFF',
         borderRadius: 24,
@@ -114,41 +109,41 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           </defs>
         </svg>
 
-        {/* Top Left: Official Website Logo Badge */}
-        <div style={{ position: 'absolute', top: 16, left: 20, display: 'flex', alignItems: 'center', gap: 6, zIndex: 10 }}>
+        {/* Top Left: Official Website Logo Badge (ZOOMED IN) */}
+        <div style={{ position: 'absolute', top: 12, left: 16, display: 'flex', alignItems: 'center', gap: 6, zIndex: 10 }}>
           <div
             style={{
-              width: 84,
-              height: 84,
+              width: 106,
+              height: 106,
               borderRadius: '50%',
-              border: '3.5px solid #FFCC00',
+              border: '4px solid #FFCC00',
               background: '#FFFFFF',
               overflow: 'hidden',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
               padding: 4,
             }}
           >
             <img src={logoUrl} alt="Website Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
-          <span style={{ color: '#FFCC00', fontSize: 13, fontWeight: 900, marginTop: -35, marginLeft: 2 }}>TM</span>
+          <span style={{ color: '#FFCC00', fontSize: 14, fontWeight: 900, marginTop: -45, marginLeft: 2 }}>TM</span>
         </div>
 
         {/* Top Right: NIELIT Authorization Badge & Contact Phones */}
-        <div style={{ position: 'absolute', top: 12, right: 18, textCenter: 'right', zIndex: 10, textAlign: 'right' }}>
+        <div style={{ position: 'absolute', top: 12, right: 18, zIndex: 10, textAlign: 'right' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, marginBottom: 4 }}>
             {/* NIELIT Icon Badge */}
-            <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#0052CC', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', fontWeight: 'bold', fontSize: 12 }}>
+            <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0052CC', fontWeight: 'bold', fontSize: 13, border: '1.5px solid #FFCC00' }}>
               🌐
             </div>
-            <span style={{ color: '#003399', fontSize: 20, fontWeight: 950, letterSpacing: 1 }}>NIELIT</span>
+            <span style={{ color: '#FFFFFF', fontSize: 20, fontWeight: 950, letterSpacing: 1, textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>NIELIT</span>
           </div>
-          <div style={{ color: '#1E293B', fontSize: 12.5, fontWeight: 800, lineHeight: 1.3 }}>
+          <div style={{ color: '#FFFFFF', fontSize: 13, fontWeight: 900, lineHeight: 1.3, textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
             Office-{officePhone}
           </div>
-          <div style={{ color: '#1E293B', fontSize: 12.5, fontWeight: 800, lineHeight: 1.3 }}>
+          <div style={{ color: '#FFFFFF', fontSize: 13, fontWeight: 900, lineHeight: 1.3, textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
             Mobile-{mobilePhone}
           </div>
         </div>
@@ -326,7 +321,15 @@ export default function IDCardPage() {
   const captureCard = useCallback(async () => {
     const el = cardRef.current;
     if (!el) return null;
-    return html2canvas(el, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' });
+    return html2canvas(el, {
+      scale: 3,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      width: 638,
+      height: 1016,
+    });
   }, []);
 
   const handleDownload = async () => {
@@ -335,11 +338,11 @@ export default function IDCardPage() {
     try {
       const canvas = await captureCard();
       if (!canvas) throw new Error('Capture failed');
-      const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/png', 1.0);
       // Portrait PVC PDF: 54mm × 86mm
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 86] });
       doc.addImage(imgData, 'PNG', 0, 0, 54, 86);
-      doc.save(`KCI_IDCard_${user.rollNumber || user.enrollmentNumber || 'student'}.pdf`);
+      doc.save(`KCI_IDCard_${(user.rollNumber || user.enrollmentNumber || 'student').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
       toast.success('ID Card downloaded in high resolution PDF format!');
     } catch (err) {
       console.error(err);
@@ -354,15 +357,15 @@ export default function IDCardPage() {
     try {
       const canvas = await captureCard();
       if (!canvas) throw new Error('Capture failed');
-      const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/png', 1.0);
       const win = window.open('', '_blank');
       win.document.write(`
         <!DOCTYPE html>
         <html><head><title>KCI Student ID Card</title>
         <style>
           @page { size: 54mm 86mm; margin: 0; }
-          body { margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; background: #ffffff; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          img { width: 54mm; height: 86mm; display: block; }
+          html, body { margin: 0; padding: 0; width: 54mm; height: 86mm; background: #ffffff; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          img { width: 54mm; height: 86mm; display: block; object-fit: fill; }
         </style></head>
         <body><img src="${imgData}" /></body></html>
       `);
@@ -406,18 +409,15 @@ export default function IDCardPage() {
         </motion.div>
       </section>
 
-      <div className="max-w-xl mx-auto px-4 py-10">
-        {/* Card preview wrapper — scales the 638×1016 card */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="mx-auto mb-8 flex justify-center"
-          style={{ height: Math.round(CARD_H * 0.52), overflow: 'visible' }}
-        >
-          <div ref={cardRef} style={{ display: 'inline-block' }}>
-            <KCIIDCard student={user} settings={settings} />
+      <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col items-center">
+        {/* Card preview wrapper — scaled to fit screen perfectly */}
+        <div className="w-full flex justify-center items-center overflow-hidden my-4" style={{ minHeight: 650 }}>
+          <div style={{ transform: 'scale(0.62)', transformOrigin: 'top center', width: 638, height: 1016, marginBottom: -380 }}>
+            <div ref={cardRef}>
+              <KCIIDCard student={user} settings={settings} />
+            </div>
           </div>
-        </motion.div>
+        </div>
 
         <div className="flex gap-3">
           <motion.button

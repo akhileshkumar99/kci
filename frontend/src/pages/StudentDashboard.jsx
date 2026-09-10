@@ -67,11 +67,12 @@ function IDCard({ student, branch }) {
         backgroundColor: '#ffffff',
         logging: false,
         width: 638,
+        height: 1016,
       });
-      const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/png', 1.0);
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 86] });
       doc.addImage(imgData, 'PNG', 0, 0, 54, 86);
-      doc.save(`KCI_IDCard_${student?.rollNumber || student?.enrollmentNumber || 'student'}.pdf`);
+      doc.save(`KCI_IDCard_${(student?.rollNumber || student?.enrollmentNumber || 'student').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
       toast.success('ID Card downloaded!');
     } catch (err) {
       console.error(err);
@@ -92,16 +93,17 @@ function IDCard({ student, branch }) {
         backgroundColor: '#ffffff',
         logging: false,
         width: 638,
+        height: 1016,
       });
-      const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/png', 1.0);
       const win = window.open('', '_blank');
       win.document.write(`
         <!DOCTYPE html>
         <html><head><title>KCI Student ID Card</title>
         <style>
           @page { size: 54mm 86mm; margin: 0; }
-          body { margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; background: #ffffff; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          img { width: 54mm; height: 86mm; display: block; }
+          html, body { margin: 0; padding: 0; width: 54mm; height: 86mm; background: #ffffff; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          img { width: 54mm; height: 86mm; display: block; object-fit: fill; }
         </style></head>
         <body><img src="${imgData}" /></body></html>
       `);
@@ -116,8 +118,6 @@ function IDCard({ student, branch }) {
     }
     setPrinting(false);
   };
-
-  const CARD_H = 1016;
 
   return (
     <div className="flex flex-col items-center gap-5 w-full">
@@ -140,9 +140,11 @@ function IDCard({ student, branch }) {
         </button>
       </div>
 
-      <div className="mx-auto flex justify-center overflow-visible" style={{ height: Math.round(CARD_H * 0.52) }}>
-        <div ref={cardRef} style={{ display: 'inline-block' }}>
-          <KCIIDCard student={student} settings={settings} />
+      <div className="w-full flex justify-center items-center overflow-hidden my-4" style={{ minHeight: 650 }}>
+        <div style={{ transform: 'scale(0.62)', transformOrigin: 'top center', width: 638, height: 1016, marginBottom: -380 }}>
+          <div ref={cardRef}>
+            <KCIIDCard student={student} settings={settings} />
+          </div>
         </div>
       </div>
       <p className="text-center text-xs text-gray-400 mt-2">* Official Computer Institute Digital PVC ID Card.</p>
