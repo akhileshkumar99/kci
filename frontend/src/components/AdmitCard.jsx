@@ -1,461 +1,574 @@
 import { useRef, useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
-import { Download, Printer, User } from 'lucide-react';
+import { Download, Printer, User, Camera, Calendar, MapPin, Clock, BookOpen, FileText, Shield, CheckCircle, Award, Hash } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
-const mmn = v => v * 3.7795;
+// Convert mm to pixels at 96 DPI
+const mmToPx = (mm) => mm * 3.7795;
 
-function CardContent({ student, admitCard, branch, qrUrl, scale = 1 }) {
-  const s = v => v * scale;
-  const p = v => `${mmn(v) * scale}px`;
-  const pn = v => mmn(v) * scale;
+function VerticalAdmitCardContent({ student, admitCard, branch, qrUrl, scale = 1 }) {
+  const s = (val) => val * scale;
+  const px = (mm) => `${mmToPx(mm) * scale}px`;
 
-  const dob = student?.dob ? new Date(student.dob).toLocaleDateString('en-IN') : '-';
-  const examDateFmt = admitCard?.examDate
+  const rollNumber = admitCard?.rollNumber || student?.rollNumber || student?.enrollmentNumber || 'KCI20260001';
+  const formNumber = admitCard?.formNo || admitCard?.formNumber || student?.formNo || `KCI-FORM-${admitCard?._id?.toString()?.slice(-6)?.toUpperCase() || '898192'}`;
+  const enrollmentNumber = admitCard?.enrollmentNumber || student?.enrollmentNumber || rollNumber;
+  const session = admitCard?.session || admitCard?.batch || student?.batch || '2026';
+  const studentName = admitCard?.studentName || student?.name || student?.studentName || '—';
+  const fatherName = admitCard?.fatherName || student?.fatherName || '—';
+  const motherName = admitCard?.motherName || student?.motherName || '—';
+  const dob = admitCard?.dob || (student?.dob ? new Date(student.dob).toLocaleDateString('en-IN') : '—');
+  const gender = admitCard?.gender || student?.gender || '—';
+  const category = admitCard?.category || student?.category || 'General';
+  const courseName = admitCard?.courseName || admitCard?.course || student?.courseName || student?.course || '—';
+  const examType = admitCard?.examType || 'Regular (Theory + Practical)';
+  const address = admitCard?.address || student?.address || '—';
+  
+  const examDate = admitCard?.examDate
     ? new Date(admitCard.examDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
-    : '-';
-  const issueDateFmt = new Date().toLocaleDateString('en-IN');
+    : (admitCard?.schedule?.examDate ? new Date(admitCard.schedule.examDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : 'As Per Schedule');
+  
+  const examCenter = admitCard?.examCenter || admitCard?.schedule?.examCenter || branch?.branchName || 'Keerti Computer Institute, Main Campus, Ayodhya';
+  const reportingTime = admitCard?.reportingTime || admitCard?.schedule?.reportingTime || '9:15 AM';
+  const issueDate = admitCard?.updatedAt ? new Date(admitCard.updatedAt).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN');
+  const serialNo = admitCard?.serialNumber || admitCard?.admitCardSerial || 'KCI-0001';
+  const studentPhoto = admitCard?.studentPhoto || student?.photo || null;
+  const studentSignature = admitCard?.studentSignature || student?.signature || null;
 
-  const leftFields = [
-    ['Candidate Name',  admitCard?.studentName  || student?.name],
-    ['Form No',         admitCard?.formNo        || student?.formNo],
-    ['Enrollment No',   admitCard?.enrollmentNumber || student?.enrollmentNumber],
-    ['Roll Number',     admitCard?.rollNumber    || student?.rollNumber],
-    ['Course',          admitCard?.courseName    || student?.courseName],
-    ["Father's Name",   admitCard?.fatherName    || student?.fatherName],
-    ["Mother's Name",   admitCard?.motherName    || student?.motherName],
-    ['Date Of Birth',   admitCard?.dob           || dob],
-    ['Gender',          admitCard?.gender        || student?.gender],
-    ['Category',        admitCard?.category      || student?.category || 'General'],
-    ['Batch / Session', admitCard?.session       || admitCard?.batch  || student?.batch],
-    ['Exam Type',       admitCard?.examType      || 'Theory'],
-    ['Address',         admitCard?.address       || student?.address],
-  ];
-
-  const examDetails = [
-    ['Exam Date',      examDateFmt],
-    ['Exam Center',    admitCard?.examCenter    || branch?.branchName || '-'],
-    ['Reporting Time', admitCard?.reportingTime || '9:00 AM'],
-    ['Exam Type',      admitCard?.examType      || 'Theory'],
+  const candidateFields = [
+    ['Candidate Name', studentName],
+    ['Form No', formNumber],
+    ['Enrollment No', enrollmentNumber],
+    ['Roll Number', rollNumber],
+    ['Course Enrolled', courseName],
+    ["Father's Name", fatherName],
+    ["Mother's Name", motherName],
+    ['Date Of Birth', dob],
+    ['Gender', gender],
+    ['Category', category],
+    ['Batch / Session', session],
+    ['Exam Type', examType],
+    ['Full Address', address],
   ];
 
   return (
-    <div style={{
-      width: `${mmn(210) * scale}px`,
-      minHeight: `${mmn(297) * scale}px`,
-      fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif",
-      background: '#f8f9fc',
-      border: `${s(3)}px solid #d4af37`,
-      borderRadius: s(18),
-      boxSizing: 'border-box',
-      overflow: 'visible',
-      display: 'flex',
-      flexDirection: 'column',
-    }}>
-
-      {/* ── OFFICIAL HEADER ── */}
-      <div style={{
-        background: '#081d5b',
+    <div 
+      className="admit-card-vertical-container"
+      style={{
+        width: px(210),            // 210mm (A4 Portrait Width)
+        fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif",
+        background: '#F8FAFC',
+        border: `${s(3)}px solid #F4C542`,
+        borderRadius: `${s(14)}px`,
+        boxSizing: 'border-box',
+        overflow: 'hidden',
         display: 'flex',
-        alignItems: 'center',
-        padding: `${s(10)}px ${s(14)}px`,
-        gap: s(12),
-        borderBottom: `${s(3)}px solid #d4af37`,
-        flexShrink: 0,
-        borderRadius: `${s(15)}px ${s(15)}px 0 0`,
-      }}>
-        {/* Logo */}
+        flexDirection: 'column',
+        position: 'relative',
+        boxShadow: `0 ${s(10)}px ${s(25)}px rgba(11,45,92,0.15)`,
+      }}
+    >
+
+      {/* ── 1. HEADER SECTION (DARK NAVY BANNER) ── */}
+      <div 
+        style={{
+          background: 'linear-gradient(135deg, #0B2D5C 0%, #163F73 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          padding: `${s(10)}px ${s(14)}px`,
+          gap: `${s(12)}px`,
+          borderBottom: `${s(3)}px solid #F4C542`,
+          flexShrink: 0,
+        }}
+      >
+        {/* Left: Institute Logo */}
         <div style={{
-          width: p(22), height: p(22), borderRadius: '50%',
-          background: 'transparent', border: `${s(2)}px solid #d4af37`,
+          width: px(22), height: px(22), borderRadius: '50%',
+          background: '#ffffff', border: `${s(2)}px solid #F4C542`,
           overflow: 'hidden', flexShrink: 0,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: `0 0 ${s(8)}px rgba(244,197,66,0.5)`,
         }}>
-          <img src="/logo.png" alt="KCI" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
+          <img src="/logo.png" alt="KCI Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
 
-        {/* Center text */}
+        {/* Center: Institute Details */}
         <div style={{ flex: 1, textAlign: 'center', minWidth: 0 }}>
-          <div style={{ color: '#ffffff', fontWeight: 900, fontSize: s(20), letterSpacing: s(0.5), lineHeight: 1.2 }}>
+          <div style={{ color: '#FFFFFF', fontWeight: 950, fontSize: `${s(16)}px`, letterSpacing: `${s(0.5)}px`, lineHeight: 1.2 }}>
             KEERTI COMPUTER INSTITUTE
           </div>
-          <div style={{ color: '#d4af37', fontSize: s(11), fontWeight: 700, marginTop: s(2) }}>
+          <div style={{ color: '#F4C542', fontSize: `${s(10)}px`, fontWeight: 800, marginTop: `${s(1)}px` }}>
             The College of IT
           </div>
-          <div style={{ color: '#b4c8f0', fontSize: s(9.5), marginTop: s(3), lineHeight: 1.6 }}>
-            ISO Reg. No.: UAS/2017/155491 &nbsp;|&nbsp; MHRD Regd. &nbsp;|&nbsp; Society Reg. No.: 1373/2005
+          <div style={{ color: '#CBD5E1', fontSize: `${s(7.5)}px`, marginTop: `${s(2)}px`, lineHeight: 1.4 }}>
+            ISO Reg.: UAS/2017/155491 &nbsp;|&nbsp; MHRD Regd. &nbsp;|&nbsp; Society Reg.: 1373/2005
           </div>
-          <div style={{ color: '#93b4e8', fontSize: s(9.5), lineHeight: 1.6 }}>
+          <div style={{ color: '#94A3B8', fontSize: `${s(7.5)}px`, lineHeight: 1.4 }}>
             info@kci.org.in &nbsp;|&nbsp; Mob: 9936384736 / 9919660880 &nbsp;|&nbsp; www.kci.org.in
           </div>
         </div>
 
-        {/* Badge */}
+        {/* Right: Gold Badge Header */}
         <div style={{
-          background: '#d4af37', borderRadius: s(10),
-          padding: `${s(8)}px ${s(10)}px`,
+          background: 'linear-gradient(135deg, #F4C542 0%, #D4A325 100%)',
+          borderRadius: `${s(8)}px`,
+          padding: `${s(6)}px ${s(10)}px`,
           flexShrink: 0, textAlign: 'center',
-          border: `1.5px solid #f0d060`,
+          border: `${s(1)}px solid #FFE485`,
+          boxShadow: `0 ${s(2)}px ${s(6)}px rgba(0,0,0,0.2)`,
         }}>
-          <div style={{ color: '#081d5b', fontWeight: 900, fontSize: s(13), lineHeight: 1.4, whiteSpace: 'nowrap' }}>EXAMINATION</div>
-          <div style={{ color: '#081d5b', fontWeight: 900, fontSize: s(13), lineHeight: 1.4, whiteSpace: 'nowrap' }}>ADMIT CARD</div>
-          <div style={{ color: '#2a4080', fontSize: s(10), fontWeight: 700 }}>{new Date().getFullYear()}</div>
+          <div style={{ color: '#0B2D5C', fontWeight: 950, fontSize: `${s(11)}px`, lineHeight: 1.2, whiteSpace: 'nowrap' }}>EXAMINATION</div>
+          <div style={{ color: '#0B2D5C', fontWeight: 950, fontSize: `${s(11)}px`, lineHeight: 1.2, whiteSpace: 'nowrap' }}>ADMIT CARD</div>
+          <div style={{ color: '#163F73', fontSize: `${s(9)}px`, fontWeight: 800, marginTop: `${s(1)}px` }}>{new Date().getFullYear()}</div>
         </div>
       </div>
 
-      {/* ── TOP INFO ROW ── */}
+      {/* ── 2. QUICK INFO BAR (3 EQUAL CARDS) ── */}
       <div style={{
         display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
-        height: p(20), borderBottom: `${s(1)}px solid #d0d8f0`, flexShrink: 0,
+        background: '#FFFFFF', borderBottom: `${s(1.5)}px solid #CBD5E1`, flexShrink: 0,
       }}>
         {[
-          ['ROLL NUMBER',   admitCard?.rollNumber    || student?.rollNumber    || '-'],
-          ['FORM NO',       admitCard?.formNo        || student?.formNo        || '-'],
-          ['SESSION',       admitCard?.session       || student?.batch         || '-'],
-        ].map(([lbl, val], i) => (
-          <div key={lbl} style={{
-            background: i % 2 === 0 ? '#f5f8ff' : '#f0f5ff',
-            borderRight: i < 2 ? `${s(1)}px solid #d0d8f0` : 'none',
-            display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center', gap: s(2),
+          { icon: '👤', label: 'ROLL NUMBER', value: rollNumber, color: '#0B2D5C' },
+          { icon: '📄', label: 'FORM NO', value: formNumber, color: '#163F73' },
+          { icon: '📅', label: 'SESSION', value: session, color: '#0B2D5C' },
+        ].map((card, i) => (
+          <div key={card.label} style={{
+            background: i % 2 === 0 ? '#F8FAFC' : '#F1F5F9',
+            borderRight: i < 2 ? `${s(1.5)}px solid #CBD5E1` : 'none',
+            padding: `${s(6)}px ${s(8)}px`,
+            display: 'flex', alignItems: 'center', gap: `${s(8)}px`,
+            justifyContent: 'center',
           }}>
-            <div style={{ color: '#5064a0', fontSize: s(9), fontWeight: 700, letterSpacing: s(0.8) }}>{lbl}</div>
-            <div style={{ color: '#081d5b', fontSize: s(16), fontWeight: 900, fontFamily: 'monospace' }}>{val}</div>
+            <div style={{ fontSize: `${s(12)}px` }}>{card.icon}</div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ color: '#64748B', fontSize: `${s(7.5)}px`, fontWeight: 800, letterSpacing: `${s(0.5)}px` }}>{card.label}</span>
+              <span style={{ color: card.color, fontSize: `${s(11.5)}px`, fontWeight: 950, fontFamily: 'monospace' }}>{card.value}</span>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* ── BODY ── */}
+      {/* ── 3. MAIN CONTENT SECTION (LEFT 68% / RIGHT 32%) ── */}
       <div style={{
-        display: 'flex', minHeight: p(148),
-        position: 'relative', background: '#fafbff',
-        borderBottom: `${s(1)}px solid #d0d8f0`, flexShrink: 0,
+        display: 'flex',
+        position: 'relative', background: '#FFFFFF',
+        borderBottom: `${s(1.5)}px solid #CBD5E1`, flexShrink: 0,
       }}>
-        {/* Watermark */}
+
+        {/* Dynamic Website Logo Center Watermark */}
         <div style={{
-          position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%,-50%)',
-          width: p(110), height: p(110),
-          opacity: 0.05, pointerEvents: 'none', zIndex: 0,
+          position: 'absolute', top: '50%', left: '34%',
+          transform: 'translate(-50%, -50%)',
+          width: px(85), height: px(85),
+          opacity: 0.06, pointerEvents: 'none', zIndex: 0,
         }}>
-          <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block', borderRadius: '50%' }} />
+          <img src="/logo.png" alt="Watermark" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
 
-        {/* LEFT 70% */}
+        {/* LEFT 68%: CANDIDATE DETAILS */}
         <div style={{
-          flex: '0 0 70%',
-          padding: `${s(5)}px ${s(10)}px`,
-          zIndex: 1, display: 'flex', flexDirection: 'column', gap: `${s(3)}px`,
+          flex: '0 0 68%',
+          padding: `${s(8)}px ${s(10)}px`,
+          zIndex: 1, display: 'flex', flexDirection: 'column', gap: `${s(2)}px`,
+          borderRight: `${s(1.5)}px solid #CBD5E1`,
         }}>
-          {leftFields.map(([lbl, val], i) => (
-            <div key={lbl} style={{
-              display: 'grid',
-              gridTemplateColumns: `${s(130)}px ${s(18)}px 1fr`,
-              alignItems: 'start',
-              minHeight: s(30),
-              background: i % 2 === 0 ? 'rgba(245,248,255,0.9)' : 'rgba(240,245,255,0.7)',
-              borderBottom: i < leftFields.length - 1 ? `${s(1)}px solid #e0e8f5` : 'none',
-              padding: `${s(4)}px ${s(6)}px`,
-              boxSizing: 'border-box',
+          {/* Section Header */}
+          <div style={{
+            background: '#0B2D5C', color: '#FFFFFF',
+            padding: `${s(4)}px ${s(8)}px`, borderRadius: `${s(5)}px`,
+            fontSize: `${s(9)}px`, fontWeight: 900, letterSpacing: `${s(0.8)}px`,
+            display: 'flex', alignItems: 'center', gap: `${s(5)}px`, marginBottom: `${s(4)}px`,
+          }}>
+            <span>👤 CANDIDATE DETAILS</span>
+          </div>
+
+          {/* Structured Field Rows - Comfortable Line Heights (NO OVERLAP) */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: `${s(3.5)}px` }}>
+            {candidateFields.map(([label, value], i) => (
+              <div key={label} style={{
+                display: 'flex', alignItems: 'center',
+                minHeight: `${s(17)}px`,
+                background: i % 2 === 0 ? '#F8FAFC' : '#F1F5F9',
+                borderBottom: `${s(1)}px solid #E2E8F0`,
+                padding: `${s(2.5)}px ${s(6)}px`,
+                borderRadius: `${s(4)}px`,
+              }}>
+                <span style={{ color: '#0B2D5C', fontWeight: 800, fontSize: `${s(9.5)}px`, width: `${s(105)}px`, shrink: 0 }}>{label}</span>
+                <span style={{ color: '#0B2D5C', fontWeight: 900, fontSize: `${s(9.5)}px`, margin: `0 ${s(4)}px` }}>:</span>
+                <span style={{ color: '#1E293B', fontWeight: 700, fontSize: `${s(9.5)}px`, lineHeight: 1.3, wordBreak: 'break-word', flex: 1 }}>
+                  {value || '—'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* RIGHT 32%: CANDIDATE PHOTO + QR + SIGNATURE */}
+        <div style={{
+          flex: '0 0 32%',
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          padding: `${s(8)}px ${s(8)}px`, zIndex: 1, background: '#F8FAFC',
+          gap: `${s(10)}px`,
+        }}>
+          
+          {/* Candidate Photo Card */}
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{
+              background: '#0B2D5C', color: '#FFFFFF', width: '100%',
+              padding: `${s(3)}px 0`, borderRadius: `${s(4)}px`, textAlign: 'center',
+              fontSize: `${s(8)}px`, fontWeight: 900, marginBottom: `${s(6)}px`,
             }}>
-              <span style={{ color: '#081d5b', fontWeight: 700, fontSize: s(13), lineHeight: 1.5, whiteSpace: 'nowrap' }}>{lbl}</span>
-              <span style={{ color: '#081d5b', fontWeight: 700, fontSize: s(13), lineHeight: 1.5, textAlign: 'center' }}>:</span>
-              <span style={{ color: '#111', fontWeight: 600, fontSize: s(13), lineHeight: 1.5, wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
-                {val || '-'}
+              📷 CANDIDATE PHOTO
+            </div>
+
+            <div style={{
+              width: px(30), height: px(40), // 3:4 portrait aspect ratio
+              border: `${s(2)}px solid #F4C542`, borderRadius: `${s(6)}px`,
+              overflow: 'hidden', background: '#E2E8F0',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: `0 ${s(2)}px ${s(6)}px rgba(0,0,0,0.1)`,
+            }}>
+              {studentPhoto ? (
+                <img src={studentPhoto} alt="Student" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <div style={{ textAlign: 'center', color: '#94A3B8' }}>
+                  <User size={s(20)} style={{ margin: '0 auto' }} />
+                  <span style={{ fontSize: `${s(7.5)}px`, fontWeight: 800, display: 'block' }}>PHOTO</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Real Dynamic QR Verification Code */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: `${s(3)}px` }}>
+            <div style={{
+              width: px(30), height: px(30),
+              border: `${s(1.5)}px solid #F4C542`, borderRadius: `${s(6)}px`,
+              background: '#FFFFFF', padding: `${s(2)}px`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: `0 ${s(2)}px ${s(6)}px rgba(0,0,0,0.08)`,
+            }}>
+              {qrUrl ? (
+                <img src={qrUrl} alt="Verification QR Code" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              ) : (
+                <span style={{ fontSize: `${s(7.5)}px`, color: '#94A3B8' }}>QR Code</span>
+              )}
+            </div>
+            <span style={{ color: '#0B2D5C', fontSize: `${s(7)}px`, fontWeight: 900, letterSpacing: `${s(0.5)}px` }}>
+              🔒 SCAN TO VERIFY
+            </span>
+          </div>
+
+          {/* Candidate Signature Box */}
+          <div style={{
+            width: '92%', border: `${s(1)}px solid #F4C542`,
+            borderRadius: `${s(5)}px`, background: '#FFFDF5',
+            padding: `${s(4)}px ${s(4)}px`, textAlign: 'center',
+          }}>
+            {studentSignature ? (
+              <img src={studentSignature} alt="Signature" style={{ height: px(9), objectFit: 'contain', margin: '0 auto' }} />
+            ) : (
+              <div style={{ height: px(9), borderBottom: `${s(1)}px dashed #CBD5E1`, marginBottom: `${s(2)}px` }} />
+            )}
+            <span style={{ color: '#0B2D5C', fontSize: `${s(7.5)}px`, fontWeight: 800 }}>CANDIDATE SIGNATURE</span>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ── 4. EXAMINATION DETAILS SECTION (4 CARDS) ── */}
+      <div style={{ borderBottom: `${s(1.5)}px solid #CBD5E1`, flexShrink: 0 }}>
+        <div style={{ background: '#0B2D5C', padding: `${s(3)}px 0`, textAlign: 'center' }}>
+          <span style={{ color: '#F4C542', fontSize: `${s(9)}px`, fontWeight: 950, letterSpacing: `${s(1)}px` }}>
+            📋 EXAMINATION DETAILS
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', background: '#FFFFFF' }}>
+          {[
+            { icon: '📅', label: 'EXAM DATE', value: examDate },
+            { icon: '🏢', label: 'EXAM CENTER', value: examCenter },
+            { icon: '⏰', label: 'REPORTING TIME', value: reportingTime },
+            { icon: '📄', label: 'EXAM TYPE', value: examType },
+          ].map((item, i) => (
+            <div key={item.label} style={{
+              borderRight: i < 3 ? `${s(1.5)}px solid #CBD5E1` : 'none',
+              background: i % 2 === 0 ? '#F8FAFC' : '#F1F5F9',
+              padding: `${s(6)}px ${s(6)}px`,
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center', textCenter: 'center',
+            }}>
+              <span style={{ color: '#64748B', fontSize: `${s(7.5)}px`, fontWeight: 800, letterSpacing: `${s(0.5)}px` }}>{item.icon} {item.label}</span>
+              <span style={{ color: '#0B2D5C', fontSize: `${s(9.5)}px`, fontWeight: 950, marginTop: `${s(2)}px`, textAlign: 'center', lineHeight: 1.2, wordBreak: 'break-word' }}>
+                {item.value || '—'}
               </span>
             </div>
           ))}
         </div>
-
-        {/* RIGHT 30% */}
-        <div style={{
-          flex: '0 0 30%', borderLeft: `${s(1)}px solid #d0d8f0`,
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
-          gap: p(6), padding: p(4), zIndex: 1,
-        }}>
-          {/* Photo */}
-          <div style={{
-            width: p(44), height: p(54),
-            border: `${s(2)}px solid #d4af37`, borderRadius: p(5),
-            overflow: 'hidden', background: '#dce7f8',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          }}>
-            {student?.photo
-              ? <img src={student.photo} alt="photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: s(4) }}>
-                  <User size={s(26)} color="#8aaad8" />
-                  <span style={{ color: '#8aaad8', fontSize: s(9), fontWeight: 700 }}>PHOTO</span>
-                </div>
-            }
-          </div>
-
-          {/* QR */}
-          <div style={{
-            width: p(40), height: p(40),
-            border: `${s(2)}px solid #d4af37`, borderRadius: p(4),
-            background: '#fff', display: 'flex',
-            alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0, padding: s(3),
-          }}>
-            {qrUrl
-              ? <img src={qrUrl} alt="QR" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-              : <span style={{ color: '#8aaad8', fontSize: s(9) }}>QR...</span>
-            }
-          </div>
-          <span style={{ color: '#6080c0', fontSize: s(9), fontWeight: 600, textAlign: 'center' }}>Scan to Verify</span>
-
-          {/* Candidate Signature box */}
-          <div style={{
-            width: p(44), border: `${s(1)}px solid #d4af37`,
-            borderRadius: p(3), background: '#fff8e7',
-            padding: `${s(4)}px ${s(6)}px`, textAlign: 'center',
-          }}>
-            <div style={{ borderTop: `${s(1)}px solid #aaa`, marginTop: p(8), marginBottom: p(1) }} />
-            <div style={{ color: '#5c3a00', fontSize: s(8.5), fontWeight: 700 }}>Candidate Signature</div>
-          </div>
-        </div>
       </div>
 
-      {/* ── EXAM DETAILS ── */}
-      <div style={{ borderBottom: `${s(1)}px solid #d0d8f0`, flexShrink: 0 }}>
-        <div style={{ background: '#081d5b', padding: `${p(1.5)} 0`, textAlign: 'center' }}>
-          <span style={{ color: '#d4af37', fontSize: s(10), fontWeight: 900, letterSpacing: s(1) }}>
-            EXAMINATION DETAILS
-          </span>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', height: p(22) }}>
-          {examDetails.map(([lbl, val], i) => (
-            <div key={lbl} style={{
-              borderRight: i < 3 ? `${s(1)}px solid #d0d8f0` : 'none',
-              background: i % 2 === 0 ? '#f5f8ff' : '#f0f5ff',
-              display: 'flex', flexDirection: 'column',
-              alignItems: 'center', justifyContent: 'center', gap: s(2),
-            }}>
-              <div style={{ color: '#5064a0', fontSize: s(9), fontWeight: 700, letterSpacing: s(0.5) }}>{lbl}</div>
-              <div style={{ color: '#081d5b', fontSize: s(12), fontWeight: 900 }}>{val || '-'}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── INSTRUCTIONS + CONTROLLER SIGNATURE ── */}
+      {/* ── 5. IMPORTANT INSTRUCTIONS & CONTROLLER SECTION ── */}
       <div style={{
-        border: `${s(2)}px solid #eab308`,
-        margin: p(2), borderRadius: p(3),
-        background: '#fffbeb', flexShrink: 0,
-        display: 'flex', overflow: 'visible',
+        display: 'flex',
+        border: `${s(1.5)}px solid #F4C542`,
+        margin: `${s(4)}px ${s(6)}px`,
+        borderRadius: `${s(8)}px`,
+        background: '#FFFDF5',
+        flexShrink: 0,
       }}>
-        <div style={{ flex: 1, padding: p(3) }}>
+        {/* Left: 5 Numbered Instructions */}
+        <div style={{ flex: 1, padding: `${s(6)}px ${s(8)}px` }}>
           <div style={{
-            background: '#d97706', borderRadius: p(2),
-            padding: `${p(1)} ${p(2)}`, marginBottom: p(2), display: 'inline-block',
+            background: '#F4C542', color: '#0B2D5C',
+            borderRadius: `${s(4)}px`, padding: `${s(2)}px ${s(6)}px`,
+            display: 'inline-block', marginBottom: `${s(3)}px`,
           }}>
-            <span style={{ color: '#fff', fontSize: s(9.5), fontWeight: 900, letterSpacing: s(1) }}>
+            <span style={{ fontSize: `${s(8)}px`, fontWeight: 950, letterSpacing: `${s(0.5)}px` }}>
               IMPORTANT INSTRUCTIONS
             </span>
           </div>
           {[
-            '1. Candidate must carry this Admit Card and a valid Photo ID proof.',
-            '2. Report at least 30 minutes before the scheduled exam time.',
-            '3. Mobile phones and electronic devices are strictly prohibited.',
-            '4. This card is non-transferable. Impersonation is punishable.',
-            '5. Candidates without this card will not be permitted to appear.',
-          ].map((t, i) => (
-            <div key={i} style={{ color: '#5c3a00', fontSize: s(10), lineHeight: 1.7 }}>{t}</div>
+            '1. Candidate must carry this Admit Card and a valid original Photo ID proof.',
+            '2. Report at least 30 minutes before the scheduled examination time.',
+            '3. Mobile phones, smartwatches, and electronic devices are strictly prohibited.',
+            '4. This Admit Card is non-transferable. Impersonation is a punishable offense.',
+            '5. Candidates without this Admit Card will not be permitted to enter the exam hall.',
+          ].map((inst, idx) => (
+            <div key={idx} style={{ color: '#1E293B', fontSize: `${s(7.5)}px`, lineHeight: 1.35, fontWeight: 600 }}>
+              {inst}
+            </div>
           ))}
         </div>
 
-        {/* Controller of Examination Signature */}
+        {/* Right: Controller of Examination Area */}
         <div style={{
-          width: p(52), borderLeft: `${s(1)}px solid #fbbf24`,
+          width: px(45),
+          borderLeft: `${s(1.5)}px solid #F4C542`,
           display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', padding: p(3), gap: p(2),
+          alignItems: 'center', justifyContent: 'center',
+          padding: `${s(4)}px`, background: '#FFFFFF',
+          borderRadius: `0 ${s(7)}px ${s(7)}px 0`,
         }}>
           <div style={{
-            border: `${s(1)}px solid #d4af37`, borderRadius: p(2),
-            width: p(44), height: p(18),
+            width: px(34), height: px(12),
+            border: `${s(1)}px solid #CBD5E1`, borderRadius: `${s(4)}px`,
             display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'flex-end',
-            padding: p(2), background: '#fff8e7',
+            alignItems: 'center', justifyContent: 'center',
+            background: '#FFFDF5', position: 'relative',
           }}>
-            <img src="/logo.png" alt="seal" style={{
-              width: p(11), height: p(11), borderRadius: '50%',
-              objectFit: 'cover', objectPosition: 'center', display: 'block', marginBottom: p(1),
-              border: `${s(1)}px solid #d4af37`,
-            }} />
-            <div style={{ borderTop: `${s(1)}px solid #888`, width: '90%' }} />
+            <img src="/logo.png" alt="Seal" style={{ width: px(7), height: px(7), opacity: 0.8 }} />
+            <div style={{ width: '85%', borderTop: `${s(1)}px solid #64748B`, marginTop: `${s(2)}px` }} />
           </div>
-          <div style={{ color: '#5c3a00', fontSize: s(9), fontWeight: 700, textAlign: 'center', lineHeight: 1.4 }}>
-            Controller of<br />Examination
-          </div>
+          <span style={{ color: '#0B2D5C', fontSize: `${s(7.5)}px`, fontWeight: 900, textAlign: 'center', marginTop: `${s(2)}px`, lineHeight: 1.2 }}>
+            CONTROLLER OF<br />EXAMINATION
+          </span>
         </div>
       </div>
 
-      {/* ── FOOTER ── */}
+      {/* ── 6. PREMIUM FOOTER ── */}
       <div style={{
-        background: '#081d5b',
-        margin: `0 ${p(2)} ${p(2)}`,
-        borderRadius: `0 0 ${p(14)} ${p(14)}`,
-        height: p(16), flexShrink: 0,
-        display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: `0 ${p(5)}`,
-        borderTop: `${s(2)}px solid #d4af37`,
+        background: '#0B2D5C',
+        margin: `0 ${s(6)}px ${s(5)}px`,
+        borderRadius: `0 0 ${s(8)}px ${s(8)}px`,
+        padding: `${s(4)}px ${s(10)}px`,
+        display: 'flex', alignItems: 'center', justifyBetween: 'space-between',
+        borderTop: `${s(2)}px solid #F4C542`, flexShrink: 0,
       }}>
-        <div>
-          <div style={{ color: '#93b4e8', fontSize: s(8) }}>Issue Date</div>
-          <div style={{ color: '#fff', fontSize: s(10), fontWeight: 900, fontFamily: 'monospace' }}>{issueDateFmt}</div>
-        </div>
-        <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: s(2) }}>
-          <img src="/logo.png" alt="seal" style={{
-            width: p(9), height: p(9), borderRadius: '50%',
-            objectFit: 'cover', objectPosition: 'center', display: 'block', border: `${s(1)}px solid #d4af37`,
-          }} />
-          <div style={{ color: '#d4af37', fontSize: s(8), fontWeight: 700 }}>www.kci.org.in</div>
-          <div style={{ color: '#6080c0', fontSize: s(7.5) }}>Computer Generated Document</div>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ color: '#93b4e8', fontSize: s(8) }}>Serial No</div>
-          <div style={{ color: '#fff', fontSize: s(10), fontWeight: 900, fontFamily: 'monospace' }}>
-            {admitCard?.serialNumber || student?.formNo || '-'}
+        <div style={{ display: 'flex', alignItems: 'center', gap: `${s(3)}px` }}>
+          <span style={{ color: '#F4C542', fontSize: `${s(7.5)}px` }}>📅</span>
+          <div>
+            <span style={{ color: '#94A3B8', fontSize: `${s(7)}px`, display: 'block' }}>ISSUE DATE</span>
+            <span style={{ color: '#FFFFFF', fontSize: `${s(8.5)}px`, fontWeight: 900, fontFamily: 'monospace' }}>{issueDate}</span>
           </div>
         </div>
+
+        <div style={{ textAlign: 'center' }}>
+          <span style={{ color: '#F4C542', fontSize: `${s(8)}px`, fontWeight: 900, letterSpacing: `${s(0.5)}px`, display: 'block' }}>
+            Skills Today, Better Tomorrow
+          </span>
+          <span style={{ color: '#CBD5E1', fontSize: `${s(7)}px` }}>www.kci.org.in</span>
+        </div>
+
+        <div style={{ textAlign: 'right' }}>
+          <span style={{ color: '#94A3B8', fontSize: `${s(7)}px`, display: 'block' }}>SERIAL NO</span>
+          <span style={{ color: '#FFFFFF', fontSize: `${s(8.5)}px`, fontWeight: 900, fontFamily: 'monospace' }}>{serialNo}</span>
+        </div>
       </div>
+
     </div>
   );
 }
 
 export default function AdmitCard({ student, admitCard, branch }) {
-  const pdfRef  = useRef(null);
+  const pdfRef = useRef(null);
   const printRef = useRef(null);
-  const [qrUrl, setQrUrl]       = useState('');
+  const [qrUrl, setQrUrl] = useState('');
   const [exporting, setExporting] = useState(false);
 
+  // Generate dynamic QR code targeting real verification URL
   useEffect(() => {
-    QRCode.toDataURL(
-      JSON.stringify({
-        name:   student?.name,
-        formNo: admitCard?.formNo || student?.formNo,
-        roll:   student?.rollNumber,
-        course: student?.courseName,
-        center: admitCard?.examCenter,
-      }),
-      { width: 300, margin: 1, color: { dark: '#081d5b', light: '#ffffff' } }
-    ).then(setQrUrl).catch(() => {});
+    const token = admitCard?.verificationToken || student?.verificationToken || admitCard?.enrollmentNumber || student?.rollNumber || 'kci-verify-token';
+    const verifyUrl = `${window.location.origin}/verify-admit-card/${encodeURIComponent(token)}`;
+
+    QRCode.toDataURL(verifyUrl, {
+      width: 300,
+      margin: 1,
+      color: { dark: '#0B2D5C', light: '#FFFFFF' },
+    })
+      .then(setQrUrl)
+      .catch(() => {});
   }, [student, admitCard]);
 
+  // High-Quality A4 Portrait PDF Export
   const handleDownload = async () => {
     if (!pdfRef.current) return;
     setExporting(true);
     try {
       const el = pdfRef.current;
       el.style.display = 'block';
-      await new Promise(r => setTimeout(r, 80));
+      await new Promise(r => setTimeout(r, 100));
+
       const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(el, {
-        scale: 4, useCORS: true, allowTaint: true,
-        backgroundColor: '#ffffff', logging: false,
-        width: mmn(210), windowWidth: mmn(210),
+        scale: 3,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#FFFFFF',
+        logging: false,
+        width: mmToPx(210),
+        windowWidth: mmToPx(210),
       });
+
       el.style.display = 'none';
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+
+      // Create A4 Portrait PDF with natural content height
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height / canvas.width) * 210);
-      pdf.save(`AdmitCard_${admitCard?.formNo || student?.rollNumber || 'KCI'}.pdf`);
-      toast.success('Admit Card downloaded!');
-    } catch { toast.error('Download failed'); }
-    setExporting(false);
+      const imgHeightMm = (canvas.height / canvas.width) * 210;
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, Math.min(imgHeightMm, 297));
+      
+      const fileName = `AdmitCard_${(admitCard?.enrollmentNumber || student?.rollNumber || 'KCI').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+      pdf.save(fileName);
+      toast.success('Admit Card downloaded in clean A4 Portrait PDF format!');
+    } catch (err) {
+      console.error(err);
+      toast.error('PDF download failed. Please try printing to PDF.');
+    } finally {
+      setExporting(false);
+    }
   };
 
+  // Dedicated Print Function
   const handlePrint = async () => {
     if (!printRef.current) return;
     const el = printRef.current;
     el.style.display = 'block';
-    await new Promise(r => setTimeout(r, 80));
-    const win = window.open('', '_blank', 'width=900,height=700');
+    await new Promise(r => setTimeout(r, 100));
+
+    const win = window.open('', '_blank', 'width=900,height=1100');
     win.document.write(`
-      <html><head><title>Admit Card — KCI</title>
-      <style>
-        body { margin: 0; padding: 0; background: #fff; }
-        @media print { body { margin: 0; } @page { size: A4; margin: 0; } }
-      </style></head>
-      <body>${el.innerHTML}</body></html>
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Admit Card — Keerti Computer Institute</title>
+          <style>
+            @page { size: A4 portrait; margin: 0; }
+            body { margin: 0; padding: 0; background: #ffffff; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .admit-card-vertical-container { margin: 0 auto; box-shadow: none !important; }
+          </style>
+        </head>
+        <body>
+          ${el.innerHTML}
+        </body>
+      </html>
     `);
     win.document.close();
     win.focus();
-    setTimeout(() => { win.print(); win.close(); }, 400);
-    el.style.display = 'none';
+    setTimeout(() => {
+      win.print();
+      win.close();
+      el.style.display = 'none';
+    }, 500);
   };
 
-  // Responsive scale for preview
+  // Preview Scale Factor for Screen
   const previewScale = typeof window !== 'undefined'
-    ? (window.innerWidth < 480 ? 0.36 : window.innerWidth < 768 ? 0.46 : 0.72)
-    : 0.72;
-  const previewH = mmn(297) * previewScale;
+    ? (window.innerWidth < 480 ? 0.38 : window.innerWidth < 768 ? 0.55 : 0.85)
+    : 0.85;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+    <div className="flex flex-col items-center gap-5 w-full">
 
-      {/* Buttons */}
-      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <button onClick={handleDownload} disabled={exporting} style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          padding: '10px 22px',
-          background: 'linear-gradient(135deg,#081d5b,#1a3a8f)',
-          color: '#fff', border: 'none', borderRadius: 12,
-          fontSize: 14, fontWeight: 900,
-          cursor: exporting ? 'not-allowed' : 'pointer',
-          opacity: exporting ? 0.6 : 1,
-          boxShadow: '0 4px 14px rgba(8,29,91,0.4)',
-        }}>
-          <Download size={16} />
-          {exporting ? 'Generating...' : 'Download PDF'}
+      {/* Action Buttons */}
+      <div className="flex items-center gap-3 flex-wrap justify-center">
+        <button
+          onClick={handleDownload}
+          disabled={exporting}
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white rounded-2xl text-xs sm:text-sm font-black shadow-lg shadow-blue-900/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer"
+        >
+          <Download className="w-4 h-4" />
+          <span>{exporting ? 'Generating PDF...' : 'Download PDF (A4 Portrait)'}</span>
         </button>
 
-        <button onClick={handlePrint} style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          padding: '10px 22px',
-          background: 'linear-gradient(135deg,#065f46,#047857)',
-          color: '#fff', border: 'none', borderRadius: 12,
-          fontSize: 14, fontWeight: 900, cursor: 'pointer',
-          boxShadow: '0 4px 14px rgba(6,95,70,0.4)',
-        }}>
-          <Printer size={16} /> Print
+        <button
+          onClick={handlePrint}
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-700 to-teal-800 text-white rounded-2xl text-xs sm:text-sm font-black shadow-lg shadow-emerald-700/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+        >
+          <Printer className="w-4 h-4" />
+          <span>Print Admit Card</span>
         </button>
       </div>
 
-      {/* Screen Preview */}
-      <div style={{ width: '100%', overflowX: 'hidden', display: 'flex', justifyContent: 'center' }}>
-        <div style={{
-          transform: `scale(${previewScale})`,
-          transformOrigin: 'top center',
-          width: mmn(210),
-          marginBottom: -(mmn(297) * (1 - previewScale)),
-        }}>
-          <CardContent student={student} admitCard={admitCard} branch={branch} qrUrl={qrUrl} scale={1} />
+      {/* Screen Preview Container */}
+      <div className="w-full overflow-hidden flex justify-center py-2">
+        <div 
+          style={{
+            transform: `scale(${previewScale})`,
+            transformOrigin: 'top center',
+            width: mmToPx(210),
+            marginBottom: `-${mmToPx(297) * (1 - previewScale)}px`,
+          }}
+        >
+          <VerticalAdmitCardContent student={student} admitCard={admitCard} branch={branch} qrUrl={qrUrl} scale={1} />
         </div>
       </div>
-      <p style={{ color: '#9ca3af', fontSize: 11, marginTop: 4 }}>
-        Preview — Download PDF or Print for official A4 admit card
+      <p className="text-xs text-slate-400 font-bold -mt-2">
+        A4 Official Admit Card Preview — Zero text overlap. Scan QR code to verify.
       </p>
 
-      {/* Hidden PDF container */}
-      <div ref={pdfRef} style={{
-        display: 'none', position: 'fixed', top: 0, left: '-9999px',
-        width: mmn(210), boxSizing: 'border-box', zIndex: -1,
-      }}>
-        <CardContent student={student} admitCard={admitCard} branch={branch} qrUrl={qrUrl} scale={1} />
+      {/* Hidden Container for High Resolution PDF Capture */}
+      <div 
+        ref={pdfRef} 
+        style={{
+          display: 'none',
+          position: 'fixed',
+          top: 0,
+          left: '-9999px',
+          width: mmToPx(210),
+          zIndex: -1,
+        }}
+      >
+        <VerticalAdmitCardContent student={student} admitCard={admitCard} branch={branch} qrUrl={qrUrl} scale={1} />
       </div>
 
-      {/* Hidden Print container */}
-      <div ref={printRef} style={{
-        display: 'none', position: 'fixed', top: 0, left: '-9999px',
-        width: mmn(210), boxSizing: 'border-box', zIndex: -1,
-      }}>
-        <CardContent student={student} admitCard={admitCard} branch={branch} qrUrl={qrUrl} scale={1} />
+      {/* Hidden Container for Print Execution */}
+      <div 
+        ref={printRef} 
+        style={{
+          display: 'none',
+          position: 'fixed',
+          top: 0,
+          left: '-9999px',
+          width: mmToPx(210),
+          zIndex: -1,
+        }}
+      >
+        <VerticalAdmitCardContent student={student} admitCard={admitCard} branch={branch} qrUrl={qrUrl} scale={1} />
       </div>
+
     </div>
   );
 }

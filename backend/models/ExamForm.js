@@ -11,6 +11,7 @@ const examFormSchema = new mongoose.Schema({
 
   // Academic Info
   enrollmentNumber: { type: String, required: true },
+  formNo:           { type: String },
   course:           { type: String, required: true },
   batch:            { type: String, required: true },
   session:          { type: String },
@@ -22,10 +23,19 @@ const examFormSchema = new mongoose.Schema({
   email:            { type: String, required: true },
   address:          { type: String },
 
+  // Photos & Signatures
+  studentPhoto:     { type: String },
+  studentSignature: { type: String },
+
   // Exam Info
   examCenter:       { type: String },
   examDate:         { type: String },
-  examType:         { type: String, enum: ['Regular', 'Ex-Student', 'Improvement'], default: 'Regular' },
+  reportingTime:    { type: String },
+  examType:         { type: String, default: 'Regular' },
+
+  // QR Security & Serial
+  verificationToken:{ type: String, unique: true, sparse: true },
+  admitCardSerial:  { type: String },
 
   // Payment
   paymentUtr:       { type: String, unique: true, sparse: true },
@@ -35,7 +45,7 @@ const examFormSchema = new mongoose.Schema({
   status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
 
   // Linked student
-  userId: { type: require('mongoose').Schema.Types.ObjectId, ref: 'User', default: null },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
 }, { timestamps: true });
 
 module.exports = mongoose.model('ExamForm', examFormSchema);

@@ -10,6 +10,7 @@ import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
 const EXAM_TYPES = ['Theory', 'Practical', 'Theory + Practical', 'Online', 'Viva'];
+const EMPTY_ROW  = () => ({ course: '', examDate: '', reportingTime: '', examType: '' });
 
 const DEFAULT_COURSES = [
   'Advance Diploma in Computer Application (ADCA)',
@@ -32,8 +33,6 @@ const DEFAULT_COURSES = [
   'O Level (NIELIT)',
   'BCA / BBA / MCA / MBA / PGDCA & More',
 ];
-
-const EMPTY_ROW = () => ({ course: '', examDate: '', reportingTime: '', examType: '' });
 
 export default function AdminAdmitCard() {
   const [enabled,      setEnabled]      = useState(false);
@@ -71,6 +70,9 @@ export default function AdminAdmitCard() {
       if (s) {
         setSaved(s);
         setExamCenter(s.examCenter    || '');
+        setReportingTime(s.reportingTime || '9:00 AM');
+        setExamType(s.examType        || 'Theory');
+        setInstructions(s.instructions || '');
         setReportingTime(s.reportingTime || '9:15 AM');
         setExamType(s.examType        || 'Theory + Practical');
         setInstructions(s.instructions || 'Please arrive 15 minutes early and carry a valid ID card. Late arrivals may not be permitted.');
@@ -118,6 +120,7 @@ export default function AdminAdmitCard() {
   const handleSave = async (e) => {
     e.preventDefault();
     const validRows = rows.filter(r => r.course && r.examDate);
+    if (!validRows.length) return toast.error('Add at least one course with a date.');
     if (!validRows.length) return toast.error('Add at least one course with an exam date.');
     setSaving(true);
     try {
@@ -132,6 +135,7 @@ export default function AdminAdmitCard() {
         })),
       });
       setSaved(data.schedule);
+      toast.success('Exam schedule saved!');
       toast.success('Exam schedule saved successfully!');
     } catch (err) { toast.error(err.response?.data?.message || 'Save failed'); }
     setSaving(false);
@@ -140,11 +144,13 @@ export default function AdminAdmitCard() {
   // ── Notify ──
   const handleNotify = async () => {
     if (!saved) return toast.error('Save a schedule first.');
+    if (!window.confirm('Send exam schedule emails to ALL approved students now?')) return;
     if (!window.confirm('Send exam schedule email notification to ALL students now?')) return;
     setNotifying(true); setNotifyResult(null);
     try {
       const { data } = await api.post('/admit-card/notify');
       setNotifyResult(data);
+      toast.success(data.message);
       toast.success(data.message || 'Notifications dispatched!');
     } catch (err) { toast.error(err.response?.data?.message || 'Notification failed'); }
     setNotifying(false);
@@ -204,6 +210,7 @@ export default function AdminAdmitCard() {
           <h2 className="text-white font-black">Set Exam Schedule</h2>
           {saved && (
             <span className="ml-auto text-xs bg-white/20 text-white px-3 py-1 rounded-full">
+              Last saved: {new Date(saved.updatedAt).toLocaleDateString('en-IN')}
               Last saved: {new Date(saved.updatedAt || Date.now()).toLocaleDateString('en-IN')}
             </span>
           )}

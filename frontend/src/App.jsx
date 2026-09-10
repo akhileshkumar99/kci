@@ -44,6 +44,7 @@ const IDCard = safeLazy(() => import('./pages/IDCard'));
 const Notifications = safeLazy(() => import('./pages/Notifications'));
 const ExaminationForm = safeLazy(() => import('./pages/ExaminationForm'));
 const AdmitCard = safeLazy(() => import('./pages/AdmitCard'));
+const VerifyAdmitCard = safeLazy(() => import('./pages/VerifyAdmitCard'));
 const BranchApply = safeLazy(() => import('./pages/BranchApply'));
 const FranchiseDashboard = safeLazy(() => import('./pages/franchise/FranchiseDashboard'));
 const FranchiseLayout = safeLazy(() => import('./pages/franchise/FranchiseLayout'));
@@ -365,6 +366,8 @@ export default function App() {
                 <Route path="/notifications" element={<PublicLayout><Notifications /></PublicLayout>} />
                 <Route path="/branch-apply" element={<PublicLayout><BranchApply /></PublicLayout>} />
                 <Route path="/exam-form" element={<PublicLayout><ExaminationForm /></PublicLayout>} />
+                <Route path="/verify-admit-card/:token" element={<PublicLayout><VerifyAdmitCard /></PublicLayout>} />
+                <Route path="/admit-card/verify/:token" element={<PublicLayout><VerifyAdmitCard /></PublicLayout>} />
                 <Route path="/branch-dashboard" element={<BranchDashboard />} />
                 <Route path="/student-dashboard" element={<StudentDashboard />} />
                 <Route path="/franchise-dashboard" element={<FranchiseDashboard />} />
