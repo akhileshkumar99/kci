@@ -268,14 +268,17 @@ export default function AdminLayout() {
                       <div className={`font-bold text-sm ${text}`}>Admin User</div>
                       <div className="text-xs text-gray-400">admin@kci.org.in</div>
                     </div>
-                    <div className="p-2">
+                    <div className="p-2 space-y-0.5">
                       <Link to="/" className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-colors ${dark ? 'text-gray-300 hover:bg-gray-800' : 'text-gray-600 hover:bg-gray-50'}`}>
                         🌐 View Website
                       </Link>
-                      <button onClick={() => setDark(!dark)} className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm w-full transition-colors ${dark ? 'text-gray-300 hover:bg-gray-800' : 'text-gray-600 hover:bg-gray-50'}`}>
+                      <button onClick={() => { setProfileOpen(false); navigate('/admin'); setTimeout(() => { const el = document.getElementById('admin-change-password-section'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 100); }} className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm w-full text-left transition-colors ${dark ? 'text-gray-300 hover:bg-gray-800' : 'text-gray-600 hover:bg-gray-50'}`}>
+                        🔑 Change Password
+                      </button>
+                      <button onClick={() => setDark(!dark)} className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm w-full text-left transition-colors ${dark ? 'text-gray-300 hover:bg-gray-800' : 'text-gray-600 hover:bg-gray-50'}`}>
                         {dark ? '☀️ Light Mode' : '🌙 Dark Mode'}
                       </button>
-                      <button onClick={handleLogout} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm w-full text-red-500 hover:bg-red-50 transition-colors">
+                      <button onClick={handleLogout} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm w-full text-red-500 hover:bg-red-50 transition-colors text-left">
                         <LogOut className="w-4 h-4" /> Logout
                       </button>
                     </div>
