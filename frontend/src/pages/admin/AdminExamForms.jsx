@@ -5,7 +5,7 @@ import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
 const statusColor = {
-  Pending:  'bg-yellow-100 text-yellow-700 border border-yellow-200',
+  Pending: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
   Approved: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
   Rejected: 'bg-red-100 text-red-700 border border-red-200',
 };
@@ -13,13 +13,13 @@ const statusColor = {
 const inputCls = 'w-full px-3 py-2 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 text-sm transition-all';
 
 export default function AdminExamForms() {
-  const [forms, setForms]       = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [search, setSearch]     = useState('');
+  const [forms, setForms] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
   const [viewForm, setViewForm] = useState(null);
   const [editForm, setEditForm] = useState(null);
   const [editData, setEditData] = useState({});
-  const [saving, setSaving]     = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const fetchForms = async () => {
     try {
@@ -121,14 +121,14 @@ export default function AdminExamForms() {
 
                 {/* Actions Bar */}
                 <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                  
+
                   {/* Approve / Approved Button */}
                   {f.status === 'Approved' ? (
                     <span className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-extrabold cursor-default">
                       <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> Approved
                     </span>
                   ) : (
-                    <button 
+                    <button
                       onClick={() => updateStatus(f._id, 'Approved')}
                       className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black shadow-md shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
                     >
@@ -140,7 +140,7 @@ export default function AdminExamForms() {
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl text-xs font-bold transition-colors">
                     <Eye className="w-3.5 h-3.5" /> View
                   </button>
-                  
+
                   <button onClick={() => openEdit(f)}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl text-xs font-bold transition-colors">
                     <Pencil className="w-3.5 h-3.5" /> Edit
@@ -217,16 +217,16 @@ export default function AdminExamForms() {
             <div className="grid sm:grid-cols-2 gap-4">
               {[
                 { key: 'studentName', label: 'Student Name' },
-                { key: 'fatherName',  label: "Father's Name" },
-                { key: 'motherName',  label: "Mother's Name" },
-                { key: 'dob',         label: 'Date of Birth', type: 'date' },
+                { key: 'fatherName', label: "Father's Name" },
+                { key: 'motherName', label: "Mother's Name" },
+                { key: 'dob', label: 'Date of Birth', type: 'date' },
                 { key: 'enrollmentNumber', label: 'Enrollment Number' },
-                { key: 'course',      label: 'Course' },
-                { key: 'batch',       label: 'Batch' },
-                { key: 'session',     label: 'Session' },
+                { key: 'course', label: 'Course' },
+                { key: 'batch', label: 'Batch' },
+                { key: 'session', label: 'Session' },
                 { key: 'qualification', label: 'Qualification' },
-                { key: 'phone',       label: 'Phone', type: 'tel' },
-                { key: 'email',       label: 'Email', type: 'email' },
+                { key: 'phone', label: 'Phone', type: 'tel' },
+                { key: 'email', label: 'Email', type: 'email' },
               ].map(({ key, label, type = 'text' }) => (
                 <div key={key}>
                   <label className="block text-xs font-semibold text-gray-600 mb-1">{label}</label>

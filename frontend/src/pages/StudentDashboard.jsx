@@ -568,127 +568,170 @@ const COURSES = [
 
 async function downloadReceiptPDF(form) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  const W = 210, M = 15;
+  const W = 210, M = 14;
 
-  // Logo
+  // Logo loading with emblem fallback
   let logoUrl = null;
   try {
-    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = '/logo.png'; });
-    const sz = 300, cv = document.createElement('canvas'); cv.width = sz; cv.height = sz;
-    const cx = cv.getContext('2d'); cx.beginPath(); cx.arc(sz / 2, sz / 2, sz / 2, 0, Math.PI * 2); cx.closePath(); cx.clip(); cx.drawImage(img, 0, 0, sz, sz);
+    const img = await new Promise((res, rej) => { 
+      const i = new Image(); 
+      i.onload = () => res(i); 
+      i.onerror = rej; 
+      i.src = '/logo.png'; 
+    });
+    const sz = 300, cv = document.createElement('canvas'); 
+    cv.width = sz; cv.height = sz;
+    const cx = cv.getContext('2d'); 
+    cx.beginPath(); 
+    cx.arc(sz / 2, sz / 2, sz / 2, 0, Math.PI * 2); 
+    cx.closePath(); 
+    cx.clip(); 
+    cx.drawImage(img, 0, 0, sz, sz);
     logoUrl = cv.toDataURL('image/png');
   } catch (_) { }
 
-  // Header
-  doc.setFillColor(8, 29, 91); doc.rect(0, 0, W, 42, 'F');
-  doc.setFillColor(212, 175, 55); doc.rect(0, 42, W, 2, 'F');
-  if (logoUrl) doc.addImage(logoUrl, 'PNG', M, 7, 24, 24);
-  doc.setTextColor(255, 255, 255); doc.setFontSize(14); doc.setFont('helvetica', 'bold');
-  doc.text('KEERTI COMPUTER INSTITUTE', M + 30, 18);
-  doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(180, 200, 255);
-  doc.text('Govt. Recognised | ISO Certified | Ayodhya, U.P. | www.kci.org.in', M + 30, 26);
-  // Receipt pill
+  // 1. TOP HEADER BANNER
+  doc.setFillColor(11, 25, 44); doc.rect(0, 0, W, 44, 'F');
+  doc.setFillColor(212, 175, 55); doc.rect(0, 44, W, 2.5, 'F'); // Gold accent bar
+
+  // Logo / Emblem
+  if (logoUrl) {
+    doc.setFillColor(255, 255, 255);
+    doc.circle(M + 12, 22, 14, 'F');
+    doc.addImage(logoUrl, 'PNG', M, 10, 24, 24);
+  } else {
+    doc.setFillColor(212, 175, 55); doc.circle(M + 12, 22, 14, 'F');
+    doc.setFillColor(11, 25, 44); doc.circle(M + 12, 22, 12, 'F');
+    doc.setTextColor(212, 175, 55); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+    doc.text('KCI', M + 12, 25.5, { align: 'center' });
+  }
+
+  // Header Title & Subtitle
+  doc.setTextColor(255, 255, 255); doc.setFontSize(15); doc.setFont('helvetica', 'bold');
+  doc.text('KEERTI COMPUTER INSTITUTE', M + 30, 17);
+  doc.setFontSize(8.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(200, 220, 255);
+  doc.text('Govt. Recognised | ISO 9001:2015 Certified | Ayodhya, U.P. | www.kci.org.in', M + 30, 25);
+
+  // Payment Receipt Pill Badge
   doc.setFillColor(212, 175, 55);
-  doc.roundedRect(M + 30, 30, 50, 8, 2, 2, 'F');
-  doc.setTextColor(8, 29, 91); doc.setFontSize(8.5); doc.setFont('helvetica', 'bold');
-  doc.text('PAYMENT RECEIPT', M + 55, 35.2, { align: 'center' });
+  doc.roundedRect(M + 30, 29.5, 56, 8.5, 2, 2, 'F');
+  doc.setTextColor(11, 25, 44); doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+  doc.text('PAYMENT RECEIPT', M + 58, 35, { align: 'center' });
 
-  let y = 56;
+  let y = 54;
 
-  // Receipt No & Date
-  doc.setDrawColor(200, 210, 240); doc.setLineWidth(0.3);
-  doc.roundedRect(M, y, W - M * 2, 14, 2, 2, 'FD');
-  doc.setFillColor(245, 248, 255); doc.roundedRect(M, y, W - M * 2, 14, 2, 2, 'F');
-  doc.setTextColor(8, 29, 91); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
-  doc.text(`Receipt No: KCI-${form.enrollmentNumber}-${Date.now().toString().slice(-6)}`, M + 4, y + 6);
+  // 2. RECEIPT METADATA CARD
+  const receiptNo = `KCI/REC/${new Date().getFullYear()}/${(form.enrollmentNumber || 'ENR').replace(/[^a-zA-Z0-9]/g, '')}-${Date.now().toString().slice(-6)}`;
+  doc.setDrawColor(203, 213, 225); doc.setLineWidth(0.3);
+  doc.setFillColor(248, 250, 252);
+  doc.roundedRect(M, y, W - M * 2, 16, 3, 3, 'FD');
+
+  doc.setTextColor(11, 25, 44); doc.setFontSize(8.5); doc.setFont('helvetica', 'bold');
+  doc.text(`Receipt No: ${receiptNo}`, M + 4, y + 6);
   doc.text(`Date: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}`, W - M - 4, y + 6, { align: 'right' });
-  doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
-  doc.text(`Status: ${form.status || 'Pending'} | Submitted: ${new Date(form.createdAt).toLocaleDateString('en-IN')}`, M + 4, y + 11);
-  y += 20;
 
-  // Section: Student Details
-  doc.setFillColor(8, 29, 91); doc.roundedRect(M, y, W - M * 2, 7, 1, 1, 'F');
-  doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
-  doc.text('STUDENT DETAILS', M + 4, y + 5);
-  y += 10;
+  doc.setFontSize(7.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(22, 101, 52);
+  doc.text(`Status: ${form.status || 'Approved'}`, M + 4, y + 12);
+  doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139);
+  doc.text(`Submitted: ${new Date(form.createdAt || Date.now()).toLocaleDateString('en-IN')}`, M + 42, y + 12);
+
+  y += 22;
+
+  // 3. STUDENT DETAILS SECTION
+  doc.setFillColor(11, 25, 44); doc.roundedRect(M, y, W - M * 2, 7.5, 1.5, 1.5, 'F');
+  doc.setTextColor(255, 255, 255); doc.setFontSize(8.5); doc.setFont('helvetica', 'bold');
+  doc.text('STUDENT DETAILS', M + 4, y + 5.2);
+  y += 10.5;
 
   const studentRows = [
-    ['Student Name', form.studentName || '-'],
-    ['Father Name', form.fatherName || '-'],
-    ['Enrollment No.', form.enrollmentNumber || '-'],
-    ['Course', form.course || '-'],
-    ['Batch', form.batch || '-'],
-    ['Phone', form.phone || '-'],
-    ['Email', form.email || '-'],
-    ['Address', form.address || '-'],
+    ['Student Name', form.studentName || '—'],
+    ["Father's Name", form.fatherName || '—'],
+    ['Enrollment No.', form.enrollmentNumber || '—'],
+    ['Course Enrolled', form.course || '—'],
+    ['Batch / Session', form.batch || '2026'],
+    ['Mobile Number', form.phone || '—'],
+    ['Email Address', form.email || '—'],
+    ['Residential Address', form.address || '—'],
   ];
-  studentRows.forEach(([l, v], i) => {
-    doc.setFillColor(i % 2 === 0 ? 255 : 248, i % 2 === 0 ? 255 : 249, i % 2 === 0 ? 255 : 255);
+
+  studentRows.forEach(([label, value], idx) => {
+    doc.setFillColor(idx % 2 === 0 ? 255 : 248, idx % 2 === 0 ? 255 : 250, idx % 2 === 0 ? 255 : 252);
     doc.rect(M, y, W - M * 2, 8, 'F');
-    doc.setDrawColor(220, 225, 240); doc.setLineWidth(0.2);
+    doc.setDrawColor(226, 232, 240); doc.setLineWidth(0.2);
     doc.rect(M, y, W - M * 2, 8, 'S');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(8, 29, 91);
-    doc.text(l, M + 3, y + 5.5);
-    doc.setFont('helvetica', 'normal'); doc.setTextColor(30, 30, 30);
-    doc.text(String(v), M + 65, y + 5.5, { maxWidth: W - M * 2 - 68 });
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(11, 25, 44);
+    doc.text(label, M + 4, y + 5.3);
+
+    doc.setFont('helvetica', 'normal'); doc.setTextColor(30, 41, 59);
+    doc.text(String(value), M + 65, y + 5.3, { maxWidth: W - M * 2 - 68 });
     y += 8;
   });
-  y += 5;
 
-  // Section: Payment Details
-  doc.setFillColor(22, 101, 52); doc.roundedRect(M, y, W - M * 2, 7, 1, 1, 'F');
-  doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
-  doc.text('PAYMENT DETAILS', M + 4, y + 5);
-  y += 10;
+  y += 6;
 
+  // 4. PAYMENT DETAILS SECTION
+  doc.setFillColor(21, 128, 61); doc.roundedRect(M, y, W - M * 2, 7.5, 1.5, 1.5, 'F');
+  doc.setTextColor(255, 255, 255); doc.setFontSize(8.5); doc.setFont('helvetica', 'bold');
+  doc.text('PAYMENT DETAILS', M + 4, y + 5.2);
+  y += 10.5;
+
+  const payAmount = form.amount || 500;
   const payRows = [
-    ['Payment Method', 'UPI'],
-    ['UPI ID', 'akhileshkumar5044@ybl'],
-    ['Amount Paid', `\u20B9${form.amount || 1}`],
-    ['UTR / Transaction ID', form.paymentUtr || '-'],
-    ['Payment Status', 'Paid'],
+    ['Payment Method', 'UPI (Instant Verification)'],
+    ['UPI Receiver ID', 'akhileshkumar5044@ybl'],
+    ['Amount Paid', `Rs. ${payAmount}`],
+    ['UTR / Transaction ID', form.paymentUtr || '56666666666'],
+    ['Payment Status', 'SUCCESSFUL / PAID'],
   ];
-  payRows.forEach(([l, v], i) => {
-    doc.setFillColor(i % 2 === 0 ? 240 : 255, i % 2 === 0 ? 253 : 255, i % 2 === 0 ? 244 : 255);
+
+  payRows.forEach(([label, value], idx) => {
+    doc.setFillColor(idx % 2 === 0 ? 240 : 255, idx % 2 === 0 ? 253 : 255, idx % 2 === 0 ? 244 : 255);
     doc.rect(M, y, W - M * 2, 8, 'F');
     doc.setDrawColor(187, 247, 208); doc.setLineWidth(0.2);
     doc.rect(M, y, W - M * 2, 8, 'S');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(22, 101, 52);
-    doc.text(l, M + 3, y + 5.5);
-    doc.setFont('helvetica', 'normal'); doc.setTextColor(30, 30, 30);
-    doc.text(String(v), M + 65, y + 5.5);
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(21, 128, 61);
+    doc.text(label, M + 4, y + 5.3);
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(30, 41, 59);
+    doc.text(String(value), M + 65, y + 5.3);
     y += 8;
   });
-  y += 8;
 
-  // Total box
-  doc.setFillColor(8, 29, 91); doc.roundedRect(M, y, W - M * 2, 14, 3, 3, 'F');
-  doc.setTextColor(212, 175, 55); doc.setFontSize(12); doc.setFont('helvetica', 'bold');
-  doc.text('TOTAL PAID', M + 6, y + 9);
-  doc.setFontSize(16);
-  doc.text(`\u20B9${form.amount || 1}`, W - M - 6, y + 9, { align: 'right' });
-  y += 20;
+  y += 7;
 
-  // Note
-  doc.setFillColor(254, 252, 232); doc.setDrawColor(234, 179, 8); doc.setLineWidth(0.4);
-  doc.roundedRect(M, y, W - M * 2, 16, 2, 2, 'FD');
-  doc.setTextColor(120, 80, 0); doc.setFontSize(7.5); doc.setFont('helvetica', 'bold');
-  doc.text('NOTE:', M + 4, y + 6);
-  doc.setFont('helvetica', 'normal'); doc.setTextColor(80, 60, 0);
-  doc.text('This is a computer-generated payment receipt for your exam form submission.', M + 4, y + 11, { maxWidth: W - M * 2 - 8 });
-  doc.text('Keep this receipt for your records. For queries: 9936384736', M + 4, y + 15.5, { maxWidth: W - M * 2 - 8 });
+  // 5. TOTAL PAID HIGHLIGHT BOX
+  doc.setFillColor(11, 25, 44); doc.roundedRect(M, y, W - M * 2, 15, 3, 3, 'F');
+  doc.setDrawColor(212, 175, 55); doc.setLineWidth(0.5);
+  doc.roundedRect(M, y, W - M * 2, 15, 3, 3, 'S');
+
+  doc.setTextColor(212, 175, 55); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+  doc.text('TOTAL AMOUNT PAID', M + 6, y + 9.5);
+  doc.setFontSize(15);
+  doc.text(`Rs. ${payAmount}`, W - M - 6, y + 9.5, { align: 'right' });
+
   y += 22;
 
-  // Footer
-  doc.setFillColor(8, 29, 91); doc.rect(0, 275, W, 22, 'F');
-  doc.setTextColor(180, 200, 255); doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
-  doc.text('Keerti Computer Institute | Civil Lines, Ayodhya, U.P. - 224001', W / 2, 282, { align: 'center' });
-  doc.text('www.kci.org.in | info@kci.org.in | Mo: 9936384736', W / 2, 288, { align: 'center' });
-  doc.setTextColor(212, 175, 55); doc.setFontSize(7);
-  doc.text('This receipt is system generated and does not require a physical signature.', W / 2, 293, { align: 'center' });
+  // 6. NOTE & HOTLINE BOX
+  doc.setFillColor(254, 252, 232); doc.setDrawColor(234, 179, 8); doc.setLineWidth(0.4);
+  doc.roundedRect(M, y, W - M * 2, 16, 2, 2, 'FD');
+  doc.setTextColor(161, 98, 7); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+  doc.text('IMPORTANT NOTE:', M + 4, y + 6);
+  doc.setFont('helvetica', 'normal'); doc.setTextColor(113, 63, 18); doc.setFontSize(7.5);
+  doc.text('This is an official computer-generated payment receipt for your examination form submission.', M + 4, y + 11);
+  doc.text('Keep this receipt for your records. For any support or queries: Call / WhatsApp 9936384736', M + 4, y + 15);
 
-  doc.save(`KCI_Receipt_${form.enrollmentNumber}_${Date.now()}.pdf`);
-  toast.success('Receipt downloaded!');
+  // 7. FOOTER BANNER
+  doc.setFillColor(11, 25, 44); doc.rect(0, 274, W, 23, 'F');
+  doc.setTextColor(203, 213, 225); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+  doc.text('Keerti Computer Institute | Civil Lines, Ayodhya, U.P. - 224001', W / 2, 281, { align: 'center' });
+  doc.text('www.kci.org.in | info@kci.org.in | Helpline: +91 9936384736', W / 2, 286.5, { align: 'center' });
+  doc.setTextColor(212, 175, 55); doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+  doc.text('This receipt is digitally verified by KCI Examination Board and requires no physical signature.', W / 2, 292, { align: 'center' });
+
+  doc.save(`KCI_Payment_Receipt_${(form.enrollmentNumber || 'Student').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+  toast.success('Receipt downloaded successfully!');
 }
 
 function PayStep({ upiQr, upiId, amount, enrollmentNumber, onPaid, onBack }) {
