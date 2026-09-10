@@ -19,7 +19,7 @@ async function notifyStudent(enrollmentNumber, formNo, rollNumber, studentId, ti
       branchId: student?.branchId || student?.franchiseId || null,
       isActive: true,
     });
-  } catch (_) {}
+  } catch (_) { }
 }
 
 async function logAudit(action, user, targetId, details, ip) {
@@ -29,7 +29,7 @@ async function logAudit(action, user, targetId, details, ip) {
       performedByRole: user.role, branchId: user.branchId || user._id,
       targetId, targetModel: 'Certificate', details, ip: ip || 'unknown',
     });
-  } catch (_) {}
+  } catch (_) { }
 }
 
 const makeTemplateHandlers = (key) => ({
@@ -59,21 +59,11 @@ exports.uploadIdCardTemplate = idCardTpl.upload;
 
 exports.verifyCertificate = async (req, res) => {
   try {
-    const { certNumber } = req.params;
-    const { formNo } = req.query;
     const searchKey = (req.params.certNumber || req.query.roll || req.query.formNo || req.query.cert || '').trim();
 
-    let cert = null;
-    if (certNumber && certNumber !== 'undefined') {
-      cert = await Certificate.findOne({ certificateNumber: certNumber }).populate('course', 'title');
     if (!searchKey || searchKey === 'undefined' || searchKey === 'null') {
       return res.status(400).json({ success: false, message: 'Please provide a valid Certificate No., Roll No., or Form No.' });
     }
-    if (!cert && formNo) {
-      cert = await Certificate.findOne({
-        $or: [{ formNo }, { enrollmentNumber: formNo }, { rollNumber: formNo }],
-        isApproved: true,
-      }).populate('course', 'title');
 
     // 1. Search in Certificate collection first
     let cert = await Certificate.findOne({
@@ -90,8 +80,6 @@ exports.verifyCertificate = async (req, res) => {
       return res.json({ success: true, certificate: cert });
     }
 
-    if (!cert) return res.status(404).json({ success: false, message: 'Certificate not found or invalid' });
-    res.json({ success: true, certificate: cert });
     // 2. Fallback: Search in User (Student) collection by Roll No, Enrollment No, or Form No
     const student = await User.findOne({
       $or: [
