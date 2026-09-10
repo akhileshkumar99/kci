@@ -27,61 +27,47 @@ function fmt(date) {
   return d.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
-// ── Managing Director Red Cursive Signature SVG Component ──────────
-function MDSignatureSVG({ signatureUrl, style = {} }) {
-  if (signatureUrl) {
-    return <img src={getPhotoUrl(signatureUrl)} alt="Managing Director Signature" style={{ height: 48, objectFit: 'contain', ...style }} />;
-  }
-  // Vector SVG rendering of the red cursive MD signature from original design
-  return (
-    <svg viewBox="0 0 160 55" style={{ height: 48, width: 140, ...style }}>
-      <path
-        d="M 10 40 Q 20 10 35 35 T 50 15 Q 60 45 75 25 T 95 38 Q 110 5 125 35 T 150 20 M 25 45 C 50 50 100 48 145 42"
-        fill="none"
-        stroke="#D32F2F"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-// ── Official Digital PVC ID Card Component ──────────────────────────
+// ── Official PVC ID Card Component (using exact image background template + dynamic overlays) ──
 export function KCIIDCard({ student, settings = {}, forPrint = false }) {
+  const [qrUrl, setQrUrl] = useState('');
   const photoUrl = getPhotoUrl(student?.photo);
 
-  const websiteLogo = settings?.logo || settings?.websiteLogo || '/logo.png';
-  const logoUrl = getPhotoUrl(websiteLogo);
+  const websiteLogo = settings?.logo || settings?.websiteLogo || null;
+  const logoUrl = websiteLogo ? getPhotoUrl(websiteLogo) : null;
 
-  const instituteName = settings?.instituteName || 'KEERTI COMPUTER INSTITUTE';
-  const tagline = settings?.tagline || 'The College of IT';
-  const isoRegNo = settings?.isoRegNo || 'VKCI26052306978';
-  const msmeRegNo = settings?.msmeRegNo || '198952612-COL';
-  const societyRegNo = settings?.societyReg || settings?.societyRegNo || '781';
-  const website = settings?.website || 'www.kci.org.in';
-  const officePhone = settings?.officePhone || '6716159476';
-  const mobilePhone = settings?.mobilePhone || '9936384736';
-  const headOffice = settings?.headOffice || settings?.address || 'H.O.- Sahjanand Road, Shringar Hat, Ayodhya- Faizabad, U.P.- 224001';
+  // Dynamic Verification QR URL
+  useEffect(() => {
+    const rollOrEnroll = student?.rollNumber || student?.enrollmentNumber || student?.formNo || '';
+    const verifyUrl = `${window.location.origin}/verify-certificate?roll=${encodeURIComponent(rollOrEnroll)}`;
 
-  // Validity formatting
+    QRCode.toDataURL(verifyUrl, {
+      width: 250,
+      margin: 1,
+      color: { dark: '#0052CC', light: '#FFFFFF' },
+    })
+      .then(setQrUrl)
+      .catch(() => {});
+  }, [student]);
+
+  // Validity dates
   const currentYear = new Date().getFullYear();
   const validFromYear = settings?.validFrom || student?.batch?.split('-')[0] || currentYear;
   const validToYear = settings?.validTo || (parseInt(validFromYear, 10) + 1) || (currentYear + 1);
-  const courseVal = student?.courseName || student?.course?.title || student?.course || '';
-  const formNoVal = student?.formNo || student?.enrollmentNumber || student?.rollNumber || '';
-  const fatherVal = student?.fatherName || '';
+
+  const courseVal = student?.courseName || student?.course?.title || student?.course || '—';
+  const formNoVal = student?.formNo || student?.enrollmentNumber || student?.rollNumber || '—';
+  const fatherVal = student?.fatherName || '—';
   const dobVal = fmt(student?.dob);
-  const mobileVal = student?.phone || student?.mobile || '';
+  const mobileVal = student?.phone || student?.mobile || '—';
   const branchVal = student?.branchId?.branchName || student?.branchName || 'Main Campus';
 
   return (
     <div
-      className="pvc-idcard-digital-container"
+      className="pvc-idcard-exact-template-container"
       style={{
         width: CARD_W,
         height: CARD_H,
-        fontFamily: "'Inter', 'Arial', sans-serif",
+        fontFamily: "'Arial', 'Helvetica', sans-serif",
         background: '#FFFFFF',
         borderRadius: 24,
         overflow: 'hidden',
@@ -92,211 +78,261 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         boxSizing: 'border-box',
       }}
     >
-      {/* ── 1. DIAGONAL BLUE TOP HEADER & RED ACCENT STRIPE ── */}
-      <div style={{ position: 'relative', width: CARD_W, height: 260, overflow: 'hidden' }}>
-        {/* Background Canvas: White with Blue Slanted Swoop */}
-        <svg viewBox="0 0 638 260" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
-          {/* Blue Swoop */}
-          <path d="M 0 0 L 638 0 L 638 90 L 0 240 Z" fill="url(#blueGradient)" />
-          {/* Red Accent Stripe */}
-          <path d="M 0 240 L 638 90 L 638 102 L 0 252 Z" fill="#D32F2F" />
+      {/* ── 1. EXACT TEMPLATE BACKGROUND IMAGE ── */}
+      <img
+        src="/idcard_bg.jpg"
+        alt="KCI ID Card Template"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'fill',
+          zIndex: 0,
+        }}
+      />
 
-          <defs>
-            <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#0052CC" />
-              <stop offset="100%" stopColor="#003399" />
-            </linearGradient>
-          </defs>
-        </svg>
-
-        {/* Top Left: Official Website Logo Badge (ZOOMED IN) */}
-        <div style={{ position: 'absolute', top: 12, left: 16, display: 'flex', alignItems: 'center', gap: 6, zIndex: 10 }}>
-          <div
-            style={{
-              width: 106,
-              height: 106,
-              borderRadius: '50%',
-              border: '4px solid #FFCC00',
-              background: '#FFFFFF',
-              overflow: 'hidden',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
-              padding: 4,
-            }}
-          >
-            <img src={logoUrl} alt="Website Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-          </div>
-          <span style={{ color: '#FFCC00', fontSize: 14, fontWeight: 900, marginTop: -45, marginLeft: 2 }}>TM</span>
-        </div>
-
-        {/* Top Right: NIELIT Authorization Badge & Contact Phones */}
-        <div style={{ position: 'absolute', top: 12, right: 18, zIndex: 10, textAlign: 'right' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, marginBottom: 4 }}>
-            {/* NIELIT Icon Badge */}
-            <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0052CC', fontWeight: 'bold', fontSize: 13, border: '1.5px solid #FFCC00' }}>
-              🌐
-            </div>
-            <span style={{ color: '#FFFFFF', fontSize: 20, fontWeight: 950, letterSpacing: 1 }}>NIELIT</span>
-          </div>
-          <div style={{ color: '#FFFFFF', fontSize: 13, fontWeight: 900, lineHeight: 1.3 }}>
-            Office-{officePhone}
-          </div>
-          <div style={{ color: '#FFFFFF', fontSize: 13, fontWeight: 900, lineHeight: 1.3 }}>
-            Mobile-{mobilePhone}
-          </div>
-        </div>
-      </div>
-
-      {/* ── 2. INSTITUTE DETAILS HEADER TEXT ── */}
-      <div style={{ marginTop: -15, textAlign: 'center', padding: '0 20px', zIndex: 5, position: 'relative' }}>
-        {/* ISO Line */}
-        <div style={{ color: '#0F172A', fontSize: 15, fontWeight: 900, letterSpacing: 0.3 }}>
-          An ISO 9001:2015 Certified Organization
-        </div>
-
-        {/* ISO Reg + MSME Line */}
-        <div style={{ color: '#334155', fontSize: 12, fontWeight: 800, marginTop: 2 }}>
-          ISO. Reg. No.- <span style={{ fontWeight: 900 }}>{isoRegNo}</span> &nbsp;&nbsp;&nbsp; MSME Reg. No.- <span style={{ fontWeight: 900 }}>{msmeRegNo}</span>
-        </div>
-
-        {/* Large Institute Name */}
-        <div style={{ fontSize: 29, fontWeight: 950, letterSpacing: 0.8, marginTop: 4, lineHeight: 1.15 }}>
-          <span style={{ color: '#D32F2F' }}>KEERTI </span>
-          <span style={{ color: '#0052CC' }}>COMPUTER </span>
-          <span style={{ color: '#D32F2F' }}>INSTITUTE</span>
-        </div>
-
-        {/* Website + Soc Reg + Tagline */}
-        <div style={{ color: '#1E293B', fontSize: 12.5, fontWeight: 800, marginTop: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-          <span>Website-{website}</span>
-          <span>Soc. Reg. No.- {societyRegNo}</span>
-          <span style={{ color: '#D32F2F', fontWeight: 950 }}>{tagline}</span>
-        </div>
-
-        {/* Valid From Line */}
-        <div style={{ textAlign: 'left', color: '#0052CC', fontSize: 15, fontWeight: 900, marginTop: 8, paddingLeft: 10 }}>
-          Valid From- {validFromYear} to {validToYear}
-        </div>
-      </div>
-
-      {/* ── 3. CENTRAL STUDENT PHOTO SECTION ── */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 10, marginBottom: 12 }}>
+      {/* ── 2. DYNAMIC WEBSITE LOGO OVERLAY (IF CUSTOM LOGO SET IN ADMIN) ── */}
+      {logoUrl && (
         <div
           style={{
-            width: 175,
-            height: 215,
-            border: '3px solid #475569',
-            background: '#F1F5F9',
+            position: 'absolute',
+            top: 14,
+            left: 16,
+            width: 104,
+            height: 104,
+            borderRadius: '50%',
+            background: '#FFFFFF',
             overflow: 'hidden',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
-            position: 'relative',
+            zIndex: 5,
+            padding: 4,
           }}
         >
-          {photoUrl ? (
-            <img src={photoUrl} alt={student?.name || 'Student Photo'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <div style={{ textAlign: 'center', color: '#64748B' }}>
-              {/* Silhouette SVG */}
-              <svg viewBox="0 0 100 120" style={{ width: 90, height: 110, margin: '0 auto', fill: '#94A3B8' }}>
-                <path d="M 50 15 A 25 25 0 1 0 50 65 A 25 25 0 1 0 50 15 Z M 15 105 C 15 80 30 75 50 75 C 70 75 85 80 85 105 Z" />
-              </svg>
-              <div style={{ fontSize: 13, fontWeight: 900, color: '#475569', marginTop: 4 }}>PHOTO HERE</div>
-            </div>
-          )}
+          <img src={logoUrl} alt="Website Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
-      </div>
+      )}
 
-      {/* ── 4. RED DIVIDER STRIPE ABOVE STUDENT DETAILS ── */}
-      <div style={{ width: '68%', margin: '0 auto 14px', height: 3.5, background: '#D32F2F', borderRadius: 2 }} />
-
-      {/* ── 5. DYNAMIC STUDENT DETAILS LIST WITH UNDERLINES ── */}
-      <div style={{ padding: '0 40px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {/* Course */}
-        <div style={{ display: 'flex', alignItems: 'baseline', fontSize: 16, fontWeight: 900 }}>
-          <span style={{ color: '#D32F2F', width: 140, flexShrink: 0 }}>Course -</span>
-          <span style={{ flex: 1, borderBottom: '2.5px solid #D32F2F', color: '#D32F2F', paddingBottom: 2, paddingLeft: 6, minHeight: 24 }}>
-            {courseVal}
-          </span>
-        </div>
-
-        {/* Form No. */}
-        <div style={{ display: 'flex', alignItems: 'baseline', fontSize: 16, fontWeight: 900 }}>
-          <span style={{ color: '#0052CC', width: 140, flexShrink: 0 }}>Form No.-</span>
-          <span style={{ flex: 1, borderBottom: '2.5px solid #0052CC', color: '#0052CC', paddingBottom: 2, paddingLeft: 6, minHeight: 24 }}>
-            {formNoVal}
-          </span>
-        </div>
-
-        {/* Father's Name */}
-        <div style={{ display: 'flex', alignItems: 'baseline', fontSize: 16, fontWeight: 900 }}>
-          <span style={{ color: '#0052CC', width: 140, flexShrink: 0 }}>Father's Name-</span>
-          <span style={{ flex: 1, borderBottom: '2.5px solid #0052CC', color: '#0052CC', paddingBottom: 2, paddingLeft: 6, minHeight: 24 }}>
-            {fatherVal}
-          </span>
-        </div>
-
-        {/* DOB */}
-        <div style={{ display: 'flex', alignItems: 'baseline', fontSize: 16, fontWeight: 900 }}>
-          <span style={{ color: '#0052CC', width: 140, flexShrink: 0 }}>DOB-</span>
-          <span style={{ flex: 1, borderBottom: '2.5px solid #0052CC', color: '#0052CC', paddingBottom: 2, paddingLeft: 6, minHeight: 24 }}>
-            {dobVal}
-          </span>
-        </div>
-
-        {/* Mobile */}
-        <div style={{ display: 'flex', alignItems: 'baseline', fontSize: 16, fontWeight: 900 }}>
-          <span style={{ color: '#0052CC', width: 140, flexShrink: 0 }}>Mobile-</span>
-          <span style={{ flex: 1, borderBottom: '2.5px solid #0052CC', color: '#0052CC', paddingBottom: 2, paddingLeft: 6, minHeight: 24 }}>
-            {mobileVal}
-          </span>
-        </div>
-
-        {/* Branch */}
-        <div style={{ display: 'flex', alignItems: 'baseline', fontSize: 16, fontWeight: 900 }}>
-          <span style={{ color: '#0052CC', width: 140, flexShrink: 0 }}>Branch -</span>
-          <span style={{ flex: 1, borderBottom: '2.5px solid #0052CC', color: '#0052CC', paddingBottom: 2, paddingLeft: 6, minHeight: 24 }}>
-            {branchVal}
-          </span>
-        </div>
-      </div>
-
-      {/* ── 6. SIGNATURE (BOTTOM LEFT) & DIAGONAL BLUE WEDGE (BOTTOM RIGHT) ── */}
-      <div style={{ position: 'absolute', bottom: 32, left: 0, right: 0, height: 110, overflow: 'hidden' }}>
-        {/* Bottom Right Blue Swoop with Red Stripe */}
-        <svg viewBox="0 0 638 110" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
-          <path d="M 330 110 L 638 30 L 638 110 Z" fill="#0052CC" />
-          <path d="M 315 110 L 638 18 L 638 30 L 330 110 Z" fill="#D32F2F" />
-        </svg>
-
-        {/* Bottom Left: Managing Director Signature */}
-        <div style={{ position: 'absolute', bottom: 10, left: 30, zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-          <MDSignatureSVG signatureUrl={settings?.signature} />
-          <div style={{ color: '#D32F2F', fontSize: 17, fontWeight: 950, marginTop: -2 }}>
-            Managing Director
-          </div>
-        </div>
-      </div>
-
-      {/* ── 7. BOTTOM FOOTER TEXT ── */}
+      {/* ── 3. DYNAMIC VALIDITY YEARS OVERLAY ── */}
       <div
         style={{
           position: 'absolute',
-          bottom: 6,
-          left: 0,
-          right: 0,
-          textAlign: 'center',
-          color: '#0F172A',
-          fontSize: 11.5,
-          fontWeight: 800,
-          zIndex: 15,
+          top: 412,
+          left: 124,
+          width: 110,
+          height: 16,
+          background: '#FFFFFF',
+          zIndex: 4,
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: 411,
+          left: 126,
+          color: '#0052CC',
+          fontSize: 14.5,
+          fontWeight: 900,
+          zIndex: 5,
         }}
       >
-        {headOffice}
+        {validFromYear} to {validToYear}
+      </div>
+
+      {/* ── 4. DYNAMIC STUDENT PHOTO ── */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 425,
+          left: 236,
+          width: 165,
+          height: 200,
+          borderRadius: 4,
+          overflow: 'hidden',
+          background: '#F1F5F9',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 5,
+        }}
+      >
+        {photoUrl ? (
+          <img src={photoUrl} alt={student?.name || 'Student Photo'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <div style={{ textAlign: 'center', color: '#64748B' }}>
+            <svg viewBox="0 0 100 120" style={{ width: 85, height: 105, margin: '0 auto', fill: '#94A3B8' }}>
+              <path d="M 50 15 A 25 25 0 1 0 50 65 A 25 25 0 1 0 50 15 Z M 15 105 C 15 80 30 75 50 75 C 70 75 85 80 85 105 Z" />
+            </svg>
+            <div style={{ fontSize: 12, fontWeight: 900, color: '#475569', marginTop: 2 }}>PHOTO HERE</div>
+          </div>
+        )}
+      </div>
+
+      {/* ── 5. DYNAMIC STUDENT DETAILS OVERLAY (ON TOP OF UNDERLINES) ── */}
+      {/* Course */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 666,
+          left: 300,
+          right: 35,
+          color: '#D32F2F',
+          fontSize: 17,
+          fontWeight: 900,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          zIndex: 5,
+        }}
+      >
+        {courseVal}
+      </div>
+
+      {/* Form No. */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 700,
+          left: 320,
+          right: 35,
+          color: '#0052CC',
+          fontSize: 17,
+          fontWeight: 900,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          zIndex: 5,
+        }}
+      >
+        {formNoVal}
+      </div>
+
+      {/* Father's Name */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 734,
+          left: 283,
+          right: 35,
+          color: '#0052CC',
+          fontSize: 17,
+          fontWeight: 900,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          zIndex: 5,
+        }}
+      >
+        {fatherVal}
+      </div>
+
+      {/* DOB cover & text */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 775,
+          left: 270,
+          width: 152,
+          height: 18,
+          background: '#FFFFFF',
+          zIndex: 4,
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: 770,
+          left: 274,
+          right: 35,
+          color: '#0052CC',
+          fontSize: 17,
+          fontWeight: 900,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          zIndex: 5,
+        }}
+      >
+        {dobVal}
+      </div>
+
+      {/* Mobile */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 802,
+          left: 275,
+          right: 35,
+          color: '#0052CC',
+          fontSize: 17,
+          fontWeight: 900,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          zIndex: 5,
+        }}
+      >
+        {mobileVal}
+      </div>
+
+      {/* Branch */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 835,
+          left: 270,
+          right: 35,
+          color: '#0052CC',
+          fontSize: 17,
+          fontWeight: 900,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          zIndex: 5,
+        }}
+      >
+        {branchVal}
+      </div>
+
+      {/* ── 6. DYNAMIC QR VERIFICATION CODE (BOTTOM RIGHT) ── */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 45,
+          right: 25,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 3,
+          zIndex: 10,
+        }}
+      >
+        <div
+          style={{
+            width: 76,
+            height: 76,
+            border: '2px solid #FFCC00',
+            borderRadius: 8,
+            background: '#FFFFFF',
+            padding: 3,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
+          }}
+        >
+          {qrUrl ? (
+            <img src={qrUrl} alt="QR Verification" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          ) : (
+            <div style={{ fontSize: 9, color: '#0052CC', fontWeight: 'bold' }}>QR Code</div>
+          )}
+        </div>
+        <span style={{ color: '#0052CC', fontSize: 8.5, fontWeight: 900, letterSpacing: 0.5 }}>
+          🔒 SCAN TO VERIFY
+        </span>
       </div>
     </div>
   );

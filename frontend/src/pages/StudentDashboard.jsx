@@ -52,7 +52,7 @@ function IDCard({ student, branch }) {
     api
       .get('/certificates/idcard-settings')
       .then((r) => setSettings(r.data.settings || {}))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const handleDownloadPDF = async () => {
