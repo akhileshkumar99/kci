@@ -59,22 +59,59 @@ exports.uploadIdCardTemplate = idCardTpl.upload;
 
 exports.verifyCertificate = async (req, res) => {
   try {
-    const { certNumber } = req.params;
-    const { formNo } = req.query;
+    const searchKey = (req.params.certNumber || req.query.roll || req.query.formNo || req.query.cert || '').trim();
 
-    let cert = null;
-    if (certNumber && certNumber !== 'undefined') {
-      cert = await Certificate.findOne({ certificateNumber: certNumber }).populate('course', 'title');
-    }
-    if (!cert && formNo) {
-      cert = await Certificate.findOne({
-        $or: [{ formNo }, { enrollmentNumber: formNo }, { rollNumber: formNo }],
-        isApproved: true,
-      }).populate('course', 'title');
+    if (!searchKey || searchKey === 'undefined' || searchKey === 'null') {
+      return res.status(400).json({ success: false, message: 'Please provide a valid Certificate No., Roll No., or Form No.' });
     }
 
-    if (!cert) return res.status(404).json({ success: false, message: 'Certificate not found or invalid' });
-    res.json({ success: true, certificate: cert });
+    // 1. Search in Certificate collection first
+    let cert = await Certificate.findOne({
+      $or: [
+        { certificateNumber: searchKey },
+        { certificateNumber: new RegExp('^' + searchKey.replace(/[^a-zA-Z0-9]/g, '\\$&') + '$', 'i') },
+        { rollNumber: searchKey },
+        { enrollmentNumber: searchKey },
+        { formNo: searchKey },
+      ],
+    }).populate('course', 'title');
+
+    if (cert) {
+      return res.json({ success: true, certificate: cert });
+    }
+
+    // 2. Fallback: Search in User (Student) collection by Roll No, Enrollment No, or Form No
+    const student = await User.findOne({
+      $or: [
+        { rollNumber: searchKey },
+        { enrollmentNumber: searchKey },
+        { formNo: searchKey },
+        { email: searchKey.toLowerCase() },
+      ],
+      role: 'student',
+    }).populate('branchId', 'branchName');
+
+    if (student) {
+      // Return a verified student certificate/identity record
+      const studentCertRecord = {
+        _id: student._id,
+        certificateNumber: student.enrollmentNumber || student.rollNumber || student.formNo || 'VERIFIED-STUDENT',
+        studentName: student.name,
+        fatherName: student.fatherName || '—',
+        courseName: student.courseName || student.course || 'Certificate Program',
+        issueDate: student.admissionDate || student.createdAt,
+        grade: 'Verified Record',
+        isValid: true,
+        isStudentRecord: true,
+        rollNumber: student.rollNumber,
+        enrollmentNumber: student.enrollmentNumber,
+        formNo: student.formNo,
+        branchName: student.branchId?.branchName || 'Main Campus',
+      };
+      return res.json({ success: true, certificate: studentCertRecord });
+    }
+
+    return res.status(404).json({ success: false, message: `No matching record found for "${searchKey}"` });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

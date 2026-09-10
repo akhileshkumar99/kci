@@ -24,11 +24,11 @@ function VerticalAdmitCardContent({ student, admitCard, branch, qrUrl, scale = 1
   const courseName = admitCard?.courseName || admitCard?.course || student?.courseName || student?.course || '—';
   const examType = admitCard?.examType || 'Regular (Theory + Practical)';
   const address = admitCard?.address || student?.address || '—';
-  
+
   const examDate = admitCard?.examDate
     ? new Date(admitCard.examDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
     : (admitCard?.schedule?.examDate ? new Date(admitCard.schedule.examDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : 'As Per Schedule');
-  
+
   const examCenter = admitCard?.examCenter || admitCard?.schedule?.examCenter || branch?.branchName || 'Keerti Computer Institute, Main Campus, Ayodhya';
   const reportingTime = admitCard?.reportingTime || admitCard?.schedule?.reportingTime || '9:15 AM';
   const issueDate = admitCard?.updatedAt ? new Date(admitCard.updatedAt).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN');
@@ -53,7 +53,7 @@ function VerticalAdmitCardContent({ student, admitCard, branch, qrUrl, scale = 1
   ];
 
   return (
-    <div 
+    <div
       className="admit-card-vertical-container"
       style={{
         width: px(210),            // 210mm (A4 Portrait Width)
@@ -71,7 +71,7 @@ function VerticalAdmitCardContent({ student, admitCard, branch, qrUrl, scale = 1
     >
 
       {/* ── 1. HEADER SECTION (DARK NAVY BANNER) ── */}
-      <div 
+      <div
         style={{
           background: 'linear-gradient(135deg, #0B2D5C 0%, #163F73 100%)',
           display: 'flex',
@@ -213,7 +213,7 @@ function VerticalAdmitCardContent({ student, admitCard, branch, qrUrl, scale = 1
           padding: `${s(8)}px ${s(8)}px`, zIndex: 1, background: '#F8FAFC',
           gap: `${s(10)}px`,
         }}>
-          
+
           {/* Candidate Photo Card */}
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div style={{
@@ -419,7 +419,7 @@ export default function AdmitCard({ student, admitCard, branch }) {
       color: { dark: '#0B2D5C', light: '#FFFFFF' },
     })
       .then(setQrUrl)
-      .catch(() => {});
+      .catch(() => { });
   }, [student, admitCard]);
 
   // High-Quality A4 Portrait PDF Export
@@ -462,7 +462,7 @@ export default function AdmitCard({ student, admitCard, branch }) {
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const imgHeightMm = (canvas.height / canvas.width) * 210;
       pdf.addImage(imgData, 'JPEG', 0, 0, 210, Math.min(imgHeightMm, 297));
-      
+
       const fileName = `AdmitCard_${(admitCard?.enrollmentNumber || student?.rollNumber || 'KCI').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
       pdf.save(fileName);
       toast.success('Admit Card downloaded in clean A4 Portrait PDF format!');
@@ -557,7 +557,7 @@ export default function AdmitCard({ student, admitCard, branch }) {
 
       {/* Screen Preview Container */}
       <div className="w-full overflow-hidden flex justify-center py-2">
-        <div 
+        <div
           style={{
             transform: `scale(${previewScale})`,
             transformOrigin: 'top center',
@@ -573,8 +573,8 @@ export default function AdmitCard({ student, admitCard, branch }) {
       </p>
 
       {/* Hidden Container for High Resolution PDF Capture */}
-      <div 
-        ref={pdfRef} 
+      <div
+        ref={pdfRef}
         style={{
           display: 'none',
           position: 'fixed',
@@ -588,8 +588,8 @@ export default function AdmitCard({ student, admitCard, branch }) {
       </div>
 
       {/* Hidden Container for Print Execution */}
-      <div 
-        ref={printRef} 
+      <div
+        ref={printRef}
         style={{
           display: 'none',
           position: 'fixed',

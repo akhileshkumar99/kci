@@ -46,7 +46,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       color: { dark: '#0052CC', light: '#FFFFFF' },
     })
       .then(setQrUrl)
-      .catch(() => {});
+      .catch(() => { });
   }, [student]);
 
   // Validity dates

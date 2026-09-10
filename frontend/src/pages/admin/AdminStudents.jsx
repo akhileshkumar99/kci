@@ -103,18 +103,18 @@ export default function AdminStudents() {
       const year = new Date().getFullYear();
       const serial = String(next).padStart(4, '0');
       setNextRoll(`KCI${year}${serial} | KCI/ENR/${year}/${serial}`);
-    } catch {}
+    } catch { }
     setLoading(false);
   };
 
   useEffect(() => {
     fetchStudents();
-    api.get('/admin/branch-users').then(r => setBranches(r.data.branches || [])).catch(() => {});
+    api.get('/admin/branch-users').then(r => setBranches(r.data.branches || [])).catch(() => { });
     api.get('/certificates/idcard-settings').then(r => {
       const s = r.data.settings || {};
       setIdCardSettings(s);
       setSettingsForm(s);
-    }).catch(() => {});
+    }).catch(() => { });
   }, []);
 
   const handleSaveSettings = async () => {
@@ -210,7 +210,7 @@ export default function AdminStudents() {
     setSaving(true);
     try {
       const fd = new FormData();
-      ['name','email','phone','batch','courseName','fatherName','dob','address','admissionDate'].forEach(k => fd.append(k, editForm[k] || ''));
+      ['name', 'email', 'phone', 'batch', 'courseName', 'fatherName', 'dob', 'address', 'admissionDate'].forEach(k => fd.append(k, editForm[k] || ''));
       fd.append('isApproved', editForm.isApproved);
       if (editForm.branchId) fd.append('branchId', editForm.branchId);
       if (editForm.photo) fd.append('photo', editForm.photo);
@@ -311,7 +311,7 @@ export default function AdminStudents() {
             fd.append('admissionDate', row['Admission Date'] || '');
             await api.post('/admin/students', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
             added++;
-          } catch {}
+          } catch { }
         }
         toast.success(`${added} students imported!`);
         fetchStudents();
@@ -329,11 +329,10 @@ export default function AdminStudents() {
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Students ({filtered.length}/{students.length}) {universalLoading && <span className="text-sm text-blue-500 font-normal">searching...</span>}</h1>
         <div className="flex items-center gap-1.5 bg-gray-100 rounded-xl p-1">
-          {['all','weekly','monthly','yearly'].map(p => (
+          {['all', 'weekly', 'monthly', 'yearly'].map(p => (
             <button key={p} onClick={() => setFilterPeriod(p)}
-              className={`px-2 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all capitalize ${
-                filterPeriod === p ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'
-              }`}>{p === 'all' ? 'All' : p.charAt(0).toUpperCase() + p.slice(1)}</button>
+              className={`px-2 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all capitalize ${filterPeriod === p ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                }`}>{p === 'all' ? 'All' : p.charAt(0).toUpperCase() + p.slice(1)}</button>
           ))}
         </div>
         {(filterPeriod === 'yearly' || filterPeriod === 'monthly') && (
@@ -345,7 +344,7 @@ export default function AdminStudents() {
         {filterPeriod === 'monthly' && (
           <select value={filterMonth} onChange={e => setFilterMonth(Number(e.target.value))}
             className="px-2 py-1.5 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-            {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m, i) => <option key={i} value={i}>{m}</option>)}
+            {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((m, i) => <option key={i} value={i}>{m}</option>)}
           </select>
         )}
       </div>
@@ -456,52 +455,52 @@ export default function AdminStudents() {
           </div>
           {/* Desktop table */}
           <div className="hidden sm:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50">
-              <tr>{['Name', 'Enrollment No.', 'Phone', 'Course', 'Batch', 'Status', 'Actions'].map(h => (
-                <th key={h} className="text-left p-4 font-semibold text-gray-600">{h}</th>
-              ))}</tr>
-            </thead>
-            <tbody>
-              {filtered.map(s => (
-                <tr key={s._id} className="border-t border-gray-100 hover:bg-gray-50">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      {s.photo ? (
-                        <img src={getPhotoUrl(s.photo)} alt={s.name}
-                          className="w-9 h-9 rounded-full object-cover border-2 border-blue-100 flex-shrink-0" />
-                      ) : (
-                        <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                          <span className="text-sm font-bold text-blue-600">{s.name[0].toUpperCase()}</span>
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50">
+                <tr>{['Name', 'Enrollment No.', 'Phone', 'Course', 'Batch', 'Status', 'Actions'].map(h => (
+                  <th key={h} className="text-left p-4 font-semibold text-gray-600">{h}</th>
+                ))}</tr>
+              </thead>
+              <tbody>
+                {filtered.map(s => (
+                  <tr key={s._id} className="border-t border-gray-100 hover:bg-gray-50">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        {s.photo ? (
+                          <img src={getPhotoUrl(s.photo)} alt={s.name}
+                            className="w-9 h-9 rounded-full object-cover border-2 border-blue-100 flex-shrink-0" />
+                        ) : (
+                          <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                            <span className="text-sm font-bold text-blue-600">{s.name[0].toUpperCase()}</span>
+                          </div>
+                        )}
+                        <div>
+                          <div className="font-medium text-gray-900">{s.name}</div>
+                          <div className="text-xs text-gray-400">{s.email}</div>
                         </div>
-                      )}
-                      <div>
-                        <div className="font-medium text-gray-900">{s.name}</div>
-                        <div className="text-xs text-gray-400">{s.email}</div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="p-4"><span className="px-2 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-mono">{s.enrollmentNumber || '—'}</span></td>
-                  <td className="p-4 text-gray-600">{s.phone || '—'}</td>
-                  <td className="p-4 text-gray-600 max-w-[160px] truncate">{s.courseName || s.course?.title || '—'}</td>
-                  <td className="p-4 text-gray-600">{s.batch || '—'}</td>
-                  <td className="p-4"><span className={`px-2 py-1 rounded-lg text-xs font-semibold ${s.isApproved ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>{s.isApproved ? '✓ Approved' : 'Pending'}</span></td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-1">
-                      {!s.isApproved && (
-                        <button onClick={() => handleApprove(s)} className="px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold transition-colors" title="Approve">Approve</button>
-                      )}
-                      <button onClick={() => setPreviewStudent(s)} className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors" title="ID Card"><CreditCard className="w-4 h-4" /></button>
-                      <button onClick={() => { setViewStudent(s); setViewModal(true); }} className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="View"><Eye className="w-4 h-4" /></button>
-                      <button onClick={() => openEdit(s)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><Pencil className="w-4 h-4" /></button>
-                      {isAdmin && <button onClick={() => handleDelete(s._id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {filtered.length === 0 && <tr><td colSpan={7} className="p-8 text-center text-gray-500">No students found</td></tr>}
-            </tbody>
-          </table>
+                    </td>
+                    <td className="p-4"><span className="px-2 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-mono">{s.enrollmentNumber || '—'}</span></td>
+                    <td className="p-4 text-gray-600">{s.phone || '—'}</td>
+                    <td className="p-4 text-gray-600 max-w-[160px] truncate">{s.courseName || s.course?.title || '—'}</td>
+                    <td className="p-4 text-gray-600">{s.batch || '—'}</td>
+                    <td className="p-4"><span className={`px-2 py-1 rounded-lg text-xs font-semibold ${s.isApproved ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>{s.isApproved ? '✓ Approved' : 'Pending'}</span></td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-1">
+                        {!s.isApproved && (
+                          <button onClick={() => handleApprove(s)} className="px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold transition-colors" title="Approve">Approve</button>
+                        )}
+                        <button onClick={() => setPreviewStudent(s)} className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors" title="ID Card"><CreditCard className="w-4 h-4" /></button>
+                        <button onClick={() => { setViewStudent(s); setViewModal(true); }} className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="View"><Eye className="w-4 h-4" /></button>
+                        <button onClick={() => openEdit(s)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><Pencil className="w-4 h-4" /></button>
+                        {isAdmin && <button onClick={() => handleDelete(s._id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {filtered.length === 0 && <tr><td colSpan={7} className="p-8 text-center text-gray-500">No students found</td></tr>}
+              </tbody>
+            </table>
           </div>
         </>
       )}
