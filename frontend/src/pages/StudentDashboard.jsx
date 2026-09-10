@@ -17,6 +17,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import DevCredit from '../components/DevCredit';
 import AdmitCardComponent from '../components/AdmitCard';
+import { KCIIDCard } from './IDCard';
 
 const ALL_TABS = [
   { id: 'profile', label: 'My Profile', icon: User },
@@ -41,244 +42,110 @@ function InfoRow({ label, value }) {
 }
 
 // €€€ Grade color helper €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
-function CardInner({ W, H, student, branch, fields, qrDataUrl }) {
-  const scale = W / 856;
-  const s = (n) => Math.round(n * scale);
-  const HDR = s(130);
-  const FOOT = s(72);
-  return (
-    <div style={{
-      width: W,
-      fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif",
-      border: s(3) + 'px solid #d4af37',
-      borderRadius: s(18),
-      overflow: 'hidden',
-      background: '#f8f9fc',
-      display: 'flex',
-      flexDirection: 'column',
-      boxSizing: 'border-box',
-    }}>
-      {/* HEADER */}
-      <div style={{ background: '#081d5b', display: 'flex', alignItems: 'center', padding: s(14) + 'px ' + s(20) + 'px', gap: s(14), flexShrink: 0, borderBottom: s(3) + 'px solid #d4af37' }}>
-        <div style={{ width: s(72), height: s(72), borderRadius: '50%', background: 'transparent', border: s(2) + 'px solid #d4af37', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img src="/logo.png" alt="KCI" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
-        </div>
-        <div style={{ flex: 1, minWidth: 0, textAlign: 'center' }}>
-          <div style={{ color: '#ffffff', fontWeight: 900, fontSize: s(24), letterSpacing: 1, lineHeight: 1.2 }}>KEERTI COMPUTER INSTITUTE</div>
-          <div style={{ color: '#d4af37', fontSize: s(12), fontWeight: 700, marginTop: s(2) }}>The College of IT</div>
-          <div style={{ color: '#b4c8f0', fontSize: s(10), marginTop: s(4), lineHeight: 1.6 }}>
-            ISO Reg. No.: UAS/2017/155491 &nbsp;|&nbsp; MHRD Regd. &nbsp;|&nbsp; Society Reg. No.: 1373/2005
-          </div>
-          <div style={{ color: '#93b4e8', fontSize: s(10), lineHeight: 1.6 }}>
-            info@kci.org.in &nbsp;|&nbsp; Mob: 9936384736 / 9919660880 &nbsp;|&nbsp; www.kci.org.in
-          </div>
-        </div>
-        <div style={{ background: '#d4af37', borderRadius: s(10), padding: s(8) + 'px ' + s(13) + 'px', flexShrink: 0, textAlign: 'center', border: '1.5px solid #f0d060' }}>
-          <div style={{ color: '#081d5b', fontWeight: 900, fontSize: s(14), lineHeight: 1.4, whiteSpace: 'nowrap' }}>STUDENT</div>
-          <div style={{ color: '#081d5b', fontWeight: 900, fontSize: s(14), lineHeight: 1.4, whiteSpace: 'nowrap' }}>IDENTITY CARD</div>
-        </div>
-      </div>
-
-      {/* BODY — height auto, never clipped */}
-      <div style={{ background: '#f8f9fc', display: 'flex', flexShrink: 0, position: 'relative' }}>
-        {/* Watermark */}
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: s(220), height: s(220), opacity: 0.05, pointerEvents: 'none', zIndex: 0 }}>
-          <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
-        </div>
-
-        {/* LEFT — fields, strict 3-column: label | colon | value */}
-        <div style={{ flex: '0 0 76%', paddingTop: s(10), paddingBottom: s(10), paddingLeft: s(20), paddingRight: s(12), position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: s(4) }}>
-          {fields.map(([lbl, val], i) => (
-            <div key={lbl} style={{
-              display: 'grid',
-              gridTemplateColumns: s(120) + 'px ' + s(18) + 'px 1fr',
-              alignItems: 'start',
-              minHeight: s(28),
-              borderBottom: i < fields.length - 1 ? '1px solid #dde4f0' : 'none',
-              paddingBottom: s(4),
-            }}>
-              <span style={{ color: '#0b1f5b', fontWeight: 700, fontSize: s(14), lineHeight: 1.5, whiteSpace: 'nowrap', overflow: 'visible' }}>{lbl}</span>
-              <span style={{ color: '#0b1f5b', fontWeight: 700, fontSize: s(14), lineHeight: 1.5, textAlign: 'center' }}>:</span>
-              <span style={{
-                color: '#111111',
-                fontWeight: 600,
-                fontSize: s(14),
-                lineHeight: 1.5,
-                wordBreak: 'break-word',
-                overflowWrap: 'anywhere',
-                whiteSpace: 'normal',
-                display: '-webkit-box',
-                WebkitLineClamp: (lbl === 'Course' || lbl === 'Address') ? 2 : undefined,
-                WebkitBoxOrient: (lbl === 'Course' || lbl === 'Address') ? 'vertical' : undefined,
-              }}>{val || '-'}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* RIGHT — photo + QR */}
-        <div style={{ flex: '0 0 24%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: s(8), padding: s(10) + 'px ' + s(10) + 'px ' + s(10) + 'px ' + s(4) + 'px', position: 'relative', zIndex: 1 }}>
-          <div style={{ width: s(140), height: s(170), border: '2.5px solid #d4af37', borderRadius: s(16), overflow: 'hidden', background: '#dce7f8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            {student?.photo
-              ? <img src={student.photo} alt="photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}><User size={s(36)} color="#8aaad8" /><span style={{ color: '#8aaad8', fontSize: s(12), fontWeight: 700 }}>PHOTO</span></div>
-            }
-          </div>
-          <div style={{ width: s(120), height: s(120), border: '2px solid #d4af37', borderRadius: s(10), background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: s(4) }}>
-            {qrDataUrl
-              ? <img src={qrDataUrl} alt="QR" style={{ width: s(104), height: s(104), objectFit: 'contain' }} />
-              : <QrCode size={s(64)} color="#081d5b" />
-            }
-          </div>
-          <span style={{ color: '#5070b4', fontSize: s(10), fontWeight: 700, textAlign: 'center' }}>Unique ID / QR Code</span>
-        </div>
-      </div>
-
-      {/* FOOTER */}
-      <div style={{ height: FOOT, background: '#081d5b', borderTop: s(3) + 'px solid #d4af37', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid rgba(255,255,255,0.2)', height: '100%' }}>
-          <div style={{ borderTop: '1.5px solid rgba(180,200,240,0.6)', width: s(110), marginBottom: s(6) }} />
-          <span style={{ color: '#b4c8f0', fontSize: s(13) }}>Student Signature</span>
-        </div>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid rgba(255,255,255,0.2)', height: '100%' }}>
-          <div style={{ width: s(48), height: s(48), borderRadius: '50%', background: '#d4af37', border: '2px solid #fff', overflow: 'hidden', marginBottom: s(4) }}>
-            <img src="/logo.png" alt="seal" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
-          </div>
-          <span style={{ color: '#d4af37', fontSize: s(12), fontWeight: 700 }}>KCI Official Seal</span>
-        </div>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-          <div style={{ borderTop: '1.5px solid rgba(180,200,240,0.6)', width: s(110), marginBottom: s(6) }} />
-          <span style={{ color: '#b4c8f0', fontSize: s(13) }}>Principal Signature</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function IDCard({ student, branch }) {
   const cardRef = useRef(null);
-  const [exporting, setExporting] = useState(false);
-  const dob = student?.dob ? new Date(student.dob).toLocaleDateString('en-IN') : '-';
-  const uniqueId = student?.formNo || student?.rollNumber || student?.enrollmentNumber || 'KCI000';
+  const [settings, setSettings] = useState({});
+  const [downloading, setDownloading] = useState(false);
+  const [printing, setPrinting] = useState(false);
 
-  const pdfRef = useRef(null);
+  useEffect(() => {
+    api
+      .get('/certificates/idcard-settings')
+      .then((r) => setSettings(r.data.settings || {}))
+      .catch(() => {});
+  }, []);
 
   const handleDownloadPDF = async () => {
-    if (!pdfRef.current) return;
-    setExporting(true);
+    if (!cardRef.current) return;
+    setDownloading(true);
     try {
-      const el = pdfRef.current;
-      el.style.display = 'block';
-      await new Promise(r => setTimeout(r, 80)); // let browser paint
       const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(el, {
-        scale: 4,
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 3,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        windowWidth: 856,
+        width: 638,
       });
-      el.style.display = 'none';
-      const pxW = canvas.width;
-      const pxH = canvas.height;
-      const mmW = 85.6;
-      const mmH = (pxH / pxW) * mmW;
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [mmW, mmH] });
-      doc.addImage(imgData, 'JPEG', 0, 0, mmW, mmH);
-      doc.save('IDCard_' + uniqueId + '.pdf');
+      const imgData = canvas.toDataURL('image/png');
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 86] });
+      doc.addImage(imgData, 'PNG', 0, 0, 54, 86);
+      doc.save(`KCI_IDCard_${student?.rollNumber || student?.enrollmentNumber || 'student'}.pdf`);
       toast.success('ID Card downloaded!');
-    } catch { toast.error('Download failed'); }
-    setExporting(false);
+    } catch (err) {
+      console.error(err);
+      toast.error('Download failed');
+    }
+    setDownloading(false);
   };
 
-  const W = 856;
+  const handlePrint = async () => {
+    if (!cardRef.current) return;
+    setPrinting(true);
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 3,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: 638,
+      });
+      const imgData = canvas.toDataURL('image/png');
+      const win = window.open('', '_blank');
+      win.document.write(`
+        <!DOCTYPE html>
+        <html><head><title>KCI Student ID Card</title>
+        <style>
+          @page { size: 54mm 86mm; margin: 0; }
+          body { margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; background: #ffffff; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          img { width: 54mm; height: 86mm; display: block; }
+        </style></head>
+        <body><img src="${imgData}" /></body></html>
+      `);
+      win.document.close();
+      win.onload = () => {
+        win.print();
+        win.close();
+      };
+    } catch (err) {
+      console.error(err);
+      toast.error('Print failed');
+    }
+    setPrinting(false);
+  };
 
-  // Real dynamic QR via qrcode lib
-  const [qrDataUrl, setQrDataUrl] = useState('');
-  useEffect(() => {
-    const qrData = JSON.stringify({
-      name: student?.name || '',
-      formNo: uniqueId,
-      course: student?.courseName || '',
-      branchCode: branch?.branchCode || branch?.code || '',
-      branchName: branch?.branchName || '',
-      address: student?.address || '',
-    });
-    QRCode.toDataURL(qrData, { width: 300, margin: 1, color: { dark: '#081d5b', light: '#ffffff' } })
-      .then(url => setQrDataUrl(url))
-      .catch(() => { });
-  }, [student, branch, uniqueId]);
-
-  const admDate = student?.admissionDate ? new Date(student.admissionDate).toLocaleDateString('en-IN') : '-';
-  const fields = [
-    ['Form No', uniqueId],
-    ['Name', student?.name],
-    ['Father Name', student?.fatherName],
-    ['Course', student?.courseName],
-    ['Branch', branch?.branchName || student?.branchName || 'N/A'],
-    ['Session', student?.batch || '-'],
-    ['Date of Admission', admDate],
-    ['Date of Birth', dob],
-    ['Address', student?.address],
-  ];
+  const CARD_H = 1016;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
-
-      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <button onClick={handleDownloadPDF} disabled={exporting}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 22px', background: 'linear-gradient(135deg,#081d5b,#1a3a8f)', color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 900, cursor: exporting ? 'not-allowed' : 'pointer', opacity: exporting ? 0.6 : 1, boxShadow: '0 4px 14px rgba(8,29,91,0.4)' }}>
-          <Download size={16} /> {exporting ? 'Generating PDF...' : 'Download PDF'}
+    <div className="flex flex-col items-center gap-5 w-full">
+      <div className="flex items-center gap-3 flex-wrap justify-center">
+        <button
+          onClick={handleDownloadPDF}
+          disabled={downloading || printing}
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#003399] to-[#0052CC] text-white rounded-2xl text-xs sm:text-sm font-black shadow-lg shadow-blue-900/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer"
+        >
+          <Download className="w-4 h-4" />
+          <span>{downloading ? 'Generating PDF...' : 'Download PDF'}</span>
         </button>
-        <button onClick={async () => {
-          if (!pdfRef.current) return;
-          const el = pdfRef.current;
-          el.style.display = 'block';
-          await new Promise(r => setTimeout(r, 80));
-          const win = window.open('', '_blank', 'width=1000,height=700');
-          win.document.write(`<html><head><title>ID Card — KCI</title><style>body{margin:0;padding:0;background:#fff;}@media print{body{margin:0;}@page{size:landscape;margin:0;}}</style></head><body>${el.innerHTML}</body></html>`);
-          win.document.close(); win.focus();
-          setTimeout(() => { win.print(); win.close(); }, 400);
-          el.style.display = 'none';
-        }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 22px', background: 'linear-gradient(135deg,#065f46,#047857)', color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 900, cursor: 'pointer', boxShadow: '0 4px 14px rgba(6,95,70,0.4)' }}>
-          <Printer size={16} /> Print
+        <button
+          onClick={handlePrint}
+          disabled={downloading || printing}
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-700 to-teal-800 text-white rounded-2xl text-xs sm:text-sm font-black shadow-lg shadow-emerald-700/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer"
+        >
+          <Printer className="w-4 h-4" />
+          <span>{printing ? 'Preparing...' : 'Print Card'}</span>
         </button>
       </div>
 
-      {/* Hidden PDF container — fixed 856px wide, never responsive, off-screen */}
-      <div
-        ref={pdfRef}
-        style={{
-          display: 'none',
-          position: 'fixed',
-          top: 0,
-          left: '-9999px',
-          width: 856,
-          minWidth: 856,
-          zIndex: -9999,
-          pointerEvents: 'none',
-          boxSizing: 'border-box',
-        }}
-      >
-        <CardInner W={856} student={student} branch={branch} fields={fields} qrDataUrl={qrDataUrl} />
-      </div>
-
-      {/* Screen Preview — scales responsively, does NOT affect PDF */}
-      <div style={{ width: '100%', overflowX: 'hidden', display: 'flex', justifyContent: 'center' }}>
-        <div style={{ width: '100%', maxWidth: 856 }}>
-          <div style={{
-            transform: window.innerWidth < 480 ? 'scale(0.35)' : window.innerWidth < 768 ? 'scale(0.42)' : 'scale(0.55)',
-            transformOrigin: 'top center',
-            width: 856,
-            marginLeft: window.innerWidth < 480 ? '-27%' : window.innerWidth < 768 ? '-22%' : '-10%',
-            marginBottom: window.innerWidth < 480 ? -360 : window.innerWidth < 768 ? -310 : -230,
-          }}>
-            <CardInner W={856} student={student} branch={branch} fields={fields} qrDataUrl={qrDataUrl} />
-          </div>
+      <div className="mx-auto flex justify-center overflow-visible" style={{ height: Math.round(CARD_H * 0.52) }}>
+        <div ref={cardRef} style={{ display: 'inline-block' }}>
+          <KCIIDCard student={student} settings={settings} />
         </div>
       </div>
-      <p style={{ color: '#9ca3af', fontSize: 12, marginTop: 4 }}>⬆ Preview — Download PDF for print-ready card</p>
+      <p className="text-center text-xs text-gray-400 mt-2">* Official Computer Institute Digital PVC ID Card.</p>
     </div>
   );
 }
