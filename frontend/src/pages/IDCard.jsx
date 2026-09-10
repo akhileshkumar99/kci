@@ -357,10 +357,24 @@ export default function IDCardPage() {
   const captureCard = useCallback(async () => {
     const el = printCardRef.current;
     if (!el) return null;
+
+    // Ensure all images inside el are loaded before capturing
+    const imgs = Array.from(el.querySelectorAll('img'));
+    await Promise.all(
+      imgs.map(
+        (img) =>
+          new Promise((resolve) => {
+            if (img.complete) return resolve();
+            img.onload = resolve;
+            img.onerror = resolve;
+          })
+      )
+    );
+
     return html2canvas(el, {
       scale: 3,
       useCORS: true,
-      allowTaint: true,
+      allowTaint: false,
       backgroundColor: '#ffffff',
       logging: false,
       width: 638,
@@ -381,8 +395,8 @@ export default function IDCardPage() {
       doc.save(`KCI_IDCard_${(user.rollNumber || user.enrollmentNumber || 'student').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
       toast.success('ID Card downloaded in high resolution PDF format!');
     } catch (err) {
-      console.error(err);
-      toast.error('Download failed');
+      console.error('ID Card download error:', err);
+      toast.error('Download failed. Please try again.');
     }
     setDownloading(false);
   };
@@ -394,25 +408,47 @@ export default function IDCardPage() {
       const canvas = await captureCard();
       if (!canvas) throw new Error('Capture failed');
       const imgData = canvas.toDataURL('image/png', 1.0);
-      const win = window.open('', '_blank');
-      win.document.write(`
+
+      // Print via hidden iframe (bypasses popup blockers on all browsers)
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = '0';
+      document.body.appendChild(iframe);
+
+      const doc = iframe.contentWindow.document;
+      doc.open();
+      doc.write(`
         <!DOCTYPE html>
-        <html><head><title>KCI Student ID Card</title>
-        <style>
-          @page { size: 54mm 86mm; margin: 0; }
-          html, body { margin: 0; padding: 0; width: 54mm; height: 86mm; background: #ffffff; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          img { width: 54mm; height: 86mm; display: block; object-fit: fill; }
-        </style></head>
-        <body><img src="${imgData}" /></body></html>
+        <html>
+          <head>
+            <title>KCI Student ID Card</title>
+            <style>
+              @page { size: 54mm 86mm; margin: 0; }
+              html, body { margin: 0; padding: 0; width: 54mm; height: 86mm; background: #ffffff; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+              img { width: 54mm; height: 86mm; display: block; object-fit: fill; }
+            </style>
+          </head>
+          <body>
+            <img src="${imgData}" />
+          </body>
+        </html>
       `);
-      win.document.close();
-      win.onload = () => {
-        win.print();
-        win.close();
-      };
+      doc.close();
+
+      setTimeout(() => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        setTimeout(() => {
+          if (document.body.contains(iframe)) document.body.removeChild(iframe);
+        }, 2000);
+      }, 300);
     } catch (err) {
-      console.error(err);
-      toast.error('Print failed');
+      console.error('ID Card print error:', err);
+      toast.error('Print failed. Please try again.');
     }
     setPrinting(false);
   };

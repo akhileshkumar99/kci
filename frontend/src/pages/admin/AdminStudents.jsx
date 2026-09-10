@@ -131,13 +131,29 @@ export default function AdminStudents() {
   const handleIdCardDownload = useCallback(async (student) => {
     if (!previewCardRef.current) return;
     try {
-      const canvas = await html2canvas(previewCardRef.current, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' });
+      const el = previewCardRef.current;
+      const imgs = Array.from(el.querySelectorAll('img'));
+      await Promise.all(
+        imgs.map(
+          (img) =>
+            new Promise((resolve) => {
+              if (img.complete) return resolve();
+              img.onload = resolve;
+              img.onerror = resolve;
+            })
+        )
+      );
+
+      const canvas = await html2canvas(el, { scale: 2, useCORS: true, allowTaint: false, backgroundColor: '#ffffff' });
       const imgData = canvas.toDataURL('image/png');
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 86] });
       doc.addImage(imgData, 'PNG', 0, 0, 54, 86);
-      doc.save(`KCI_IDCard_${student.rollNumber || student.name}.pdf`);
+      doc.save(`KCI_IDCard_${(student.rollNumber || student.name || 'student').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
       toast.success('ID Card downloaded!');
-    } catch { toast.error('Download failed'); }
+    } catch (err) {
+      console.error('Admin ID Card download error:', err);
+      toast.error('Download failed. Please try again.');
+    }
   }, []);
 
   const openModal = () => { setForm(emptyForm); setModal(true); };

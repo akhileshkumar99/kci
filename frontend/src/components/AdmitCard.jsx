@@ -431,11 +431,24 @@ export default function AdmitCard({ student, admitCard, branch }) {
       el.style.display = 'block';
       await new Promise(r => setTimeout(r, 100));
 
+      // Pre-load all images inside el
+      const imgs = Array.from(el.querySelectorAll('img'));
+      await Promise.all(
+        imgs.map(
+          (img) =>
+            new Promise((resolve) => {
+              if (img.complete) return resolve();
+              img.onload = resolve;
+              img.onerror = resolve;
+            })
+        )
+      );
+
       const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(el, {
         scale: 3,
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         backgroundColor: '#FFFFFF',
         logging: false,
         width: mmToPx(210),
@@ -454,9 +467,10 @@ export default function AdmitCard({ student, admitCard, branch }) {
       pdf.save(fileName);
       toast.success('Admit Card downloaded in clean A4 Portrait PDF format!');
     } catch (err) {
-      console.error(err);
-      toast.error('PDF download failed. Please try printing to PDF.');
+      console.error('Admit Card download error:', err);
+      toast.error('PDF download failed. Please try again.');
     } finally {
+      if (pdfRef.current) pdfRef.current.style.display = 'none';
       setExporting(false);
     }
   };
@@ -468,30 +482,49 @@ export default function AdmitCard({ student, admitCard, branch }) {
     el.style.display = 'block';
     await new Promise(r => setTimeout(r, 100));
 
-    const win = window.open('', '_blank', 'width=900,height=1100');
-    win.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Admit Card — Keerti Computer Institute</title>
-          <style>
-            @page { size: A4 portrait; margin: 0; }
-            body { margin: 0; padding: 0; background: #ffffff; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .admit-card-vertical-container { margin: 0 auto; box-shadow: none !important; }
-          </style>
-        </head>
-        <body>
-          ${el.innerHTML}
-        </body>
-      </html>
-    `);
-    win.document.close();
-    win.focus();
-    setTimeout(() => {
-      win.print();
-      win.close();
+    try {
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = '0';
+      document.body.appendChild(iframe);
+
+      const doc = iframe.contentWindow.document;
+      doc.open();
+      doc.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Admit Card — Keerti Computer Institute</title>
+            <style>
+              @page { size: A4 portrait; margin: 0; }
+              body { margin: 0; padding: 0; background: #ffffff; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+              .admit-card-vertical-container { margin: 0 auto; box-shadow: none !important; }
+            </style>
+          </head>
+          <body>
+            ${el.innerHTML}
+          </body>
+        </html>
+      `);
+      doc.close();
+
+      setTimeout(() => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        setTimeout(() => {
+          if (document.body.contains(iframe)) document.body.removeChild(iframe);
+          el.style.display = 'none';
+        }, 2000);
+      }, 300);
+    } catch (err) {
+      console.error('Admit Card print error:', err);
+      toast.error('Print failed. Please try again.');
       el.style.display = 'none';
-    }, 500);
+    }
   };
 
   // Preview Scale Factor for Screen
