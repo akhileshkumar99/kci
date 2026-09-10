@@ -3,3 +3,4 @@
   "ignore": ["uploads/*", "logs/*", "*.test.js", "node_modules/*"],
   "ext": "js,json"
 }
+

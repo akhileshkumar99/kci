@@ -10,7 +10,30 @@ import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
 const EXAM_TYPES = ['Theory', 'Practical', 'Theory + Practical', 'Online', 'Viva'];
-const EMPTY_ROW  = () => ({ course: '', examDate: '', reportingTime: '', examType: '' });
+
+const DEFAULT_COURSES = [
+  'Advance Diploma in Computer Application (ADCA)',
+  'Diploma in Computer Application (DCA)',
+  'Course On Computer Concept (CCC from NIELIT)',
+  'Tally Specialist Course With GST',
+  'Certificate In Tally A/c With GST (CIT)',
+  'Certificate In Fundamental (CIF)',
+  'Certificate in Computer Application (CCA)',
+  'Certificate In Office Package & Tally A/C (COPT)',
+  'Desktop Publishing (DTP)',
+  'Computer Teacher Training Course',
+  'Certificate In Computer Hardware (CICH)',
+  'Python & Web Development',
+  'JAVA, VB.net, ASP.net, PHP',
+  'C, C++ Programming',
+  'Graphic Design & Video Editing',
+  'Computer Typing (Hindi + English)',
+  'Multimedia Animation Course (N-Mass)',
+  'O Level (NIELIT)',
+  'BCA / BBA / MCA / MBA / PGDCA & More',
+];
+
+const EMPTY_ROW = () => ({ course: '', examDate: '', reportingTime: '', examType: '' });
 
 export default function AdminAdmitCard() {
   const [enabled,      setEnabled]      = useState(false);
@@ -28,9 +51,9 @@ export default function AdminAdmitCard() {
   // form state
   const [examCenter,    setExamCenter]    = useState('');
   const [customCenter,  setCustomCenter]  = useState('');
-  const [reportingTime, setReportingTime] = useState('9:00 AM');
-  const [examType,      setExamType]      = useState('Theory');
-  const [instructions,  setInstructions]  = useState('');
+  const [reportingTime, setReportingTime] = useState('9:15 AM');
+  const [examType,      setExamType]      = useState('Theory + Practical');
+  const [instructions,  setInstructions]  = useState('Please arrive 15 minutes early and carry a valid ID card. Late arrivals may not be permitted.');
   const [rows,          setRows]          = useState([EMPTY_ROW()]);
 
   // ── Load all data ──
@@ -48,9 +71,9 @@ export default function AdminAdmitCard() {
       if (s) {
         setSaved(s);
         setExamCenter(s.examCenter    || '');
-        setReportingTime(s.reportingTime || '9:00 AM');
-        setExamType(s.examType        || 'Theory');
-        setInstructions(s.instructions || '');
+        setReportingTime(s.reportingTime || '9:15 AM');
+        setExamType(s.examType        || 'Theory + Practical');
+        setInstructions(s.instructions || 'Please arrive 15 minutes early and carry a valid ID card. Late arrivals may not be permitted.');
         setRows(s.courseSchedules?.length ? s.courseSchedules.map(r => ({
           course:        r.course        || '',
           examDate:      r.examDate ? r.examDate.slice(0, 10) : '',
@@ -83,11 +106,19 @@ export default function AdminAdmitCard() {
   // The actual center used (custom overrides dropdown)
   const finalCenter = customCenter.trim() || examCenter;
 
+  // Combine DB courses and default courses uniquely
+  const allCourseOptions = Array.from(
+    new Set([
+      ...(courses || []).map(c => (typeof c === 'object' ? c.title : c)).filter(Boolean),
+      ...DEFAULT_COURSES,
+    ])
+  );
+
   // ── Save ──
   const handleSave = async (e) => {
     e.preventDefault();
     const validRows = rows.filter(r => r.course && r.examDate);
-    if (!validRows.length) return toast.error('Add at least one course with a date.');
+    if (!validRows.length) return toast.error('Add at least one course with an exam date.');
     setSaving(true);
     try {
       const { data } = await api.post('/admit-card/schedule', {
@@ -101,7 +132,7 @@ export default function AdminAdmitCard() {
         })),
       });
       setSaved(data.schedule);
-      toast.success('Exam schedule saved!');
+      toast.success('Exam schedule saved successfully!');
     } catch (err) { toast.error(err.response?.data?.message || 'Save failed'); }
     setSaving(false);
   };
@@ -109,12 +140,12 @@ export default function AdminAdmitCard() {
   // ── Notify ──
   const handleNotify = async () => {
     if (!saved) return toast.error('Save a schedule first.');
-    if (!window.confirm('Send exam schedule emails to ALL approved students now?')) return;
+    if (!window.confirm('Send exam schedule email notification to ALL students now?')) return;
     setNotifying(true); setNotifyResult(null);
     try {
       const { data } = await api.post('/admit-card/notify');
       setNotifyResult(data);
-      toast.success(data.message);
+      toast.success(data.message || 'Notifications dispatched!');
     } catch (err) { toast.error(err.response?.data?.message || 'Notification failed'); }
     setNotifying(false);
   };
@@ -173,7 +204,7 @@ export default function AdminAdmitCard() {
           <h2 className="text-white font-black">Set Exam Schedule</h2>
           {saved && (
             <span className="ml-auto text-xs bg-white/20 text-white px-3 py-1 rounded-full">
-              Last saved: {new Date(saved.updatedAt).toLocaleDateString('en-IN')}
+              Last saved: {new Date(saved.updatedAt || Date.now()).toLocaleDateString('en-IN')}
             </span>
           )}
         </div>
@@ -190,11 +221,13 @@ export default function AdminAdmitCard() {
               </label>
               <div className="relative">
                 <select value={examCenter} onChange={e => { setExamCenter(e.target.value); setCustomCenter(''); }}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50 appearance-none pr-9">
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50 appearance-none pr-9 font-medium text-gray-800">
                   <option value="">-- Select Branch --</option>
-                  {branches.map(b => (
-                    <option key={b._id} value={`${b.name}, ${b.city}`}>{b.name} — {b.city}</option>
-                  ))}
+                  {branches.map((b, idx) => {
+                    const val = typeof b === 'object' ? `${b.name}, ${b.city}` : b;
+                    const lbl = typeof b === 'object' ? `${b.name} — ${b.city}` : b;
+                    return <option key={idx} value={val}>{lbl}</option>;
+                  })}
                   <option value="__custom__">+ Type Custom Center</option>
                 </select>
                 <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3 top-3 pointer-events-none" />
@@ -211,9 +244,9 @@ export default function AdminAdmitCard() {
               <label className="text-xs font-bold text-gray-600 mb-1.5 flex items-center gap-1.5 uppercase tracking-wide">
                 <Clock className="w-3.5 h-3.5 text-blue-500" /> Default Reporting Time
               </label>
-              <input type="text" placeholder="e.g. 9:00 AM" value={reportingTime}
+              <input type="text" placeholder="e.g. 9:15 AM" value={reportingTime}
                 onChange={e => setReportingTime(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50" />
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50 font-medium text-gray-800" />
             </div>
 
             {/* Default Exam Type */}
@@ -223,8 +256,8 @@ export default function AdminAdmitCard() {
               </label>
               <div className="relative">
                 <select value={examType} onChange={e => setExamType(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50 appearance-none pr-9">
-                  {EXAM_TYPES.map(t => <option key={t}>{t}</option>)}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50 appearance-none pr-9 font-medium text-gray-800">
+                  {EXAM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
                 <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3 top-3 pointer-events-none" />
               </div>
@@ -244,7 +277,7 @@ export default function AdminAdmitCard() {
             </div>
 
             {/* Table header */}
-            <div className="hidden sm:grid grid-cols-12 gap-2 mb-1 px-1">
+            <div className="hidden sm:grid grid-cols-12 gap-2 mb-1.5 px-1">
               <div className="col-span-4 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Course</div>
               <div className="col-span-3 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Exam Date</div>
               <div className="col-span-2 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Time (override)</div>
@@ -261,9 +294,11 @@ export default function AdminAdmitCard() {
                   {/* Course selector */}
                   <div className="col-span-12 sm:col-span-4 relative">
                     <select value={row.course} onChange={e => updateRow(i, 'course', e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50 appearance-none pr-8">
+                      className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-blue-500 bg-gray-50 appearance-none pr-8 font-medium text-gray-800 truncate">
                       <option value="">-- Select Course --</option>
-                      {courses.map(c => <option key={c._id} value={c.title}>{c.title}</option>)}
+                      {allCourseOptions.map(courseName => (
+                        <option key={courseName} value={courseName}>{courseName}</option>
+                      ))}
                     </select>
                     <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-3 pointer-events-none" />
                   </div>
@@ -271,22 +306,22 @@ export default function AdminAdmitCard() {
                   {/* Exam Date */}
                   <div className="col-span-6 sm:col-span-3">
                     <input type="date" value={row.examDate} onChange={e => updateRow(i, 'examDate', e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50" />
+                      className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-blue-500 bg-gray-50 font-medium text-gray-800" />
                   </div>
 
                   {/* Reporting Time override */}
                   <div className="col-span-3 sm:col-span-2">
                     <input type="text" placeholder={reportingTime} value={row.reportingTime}
                       onChange={e => updateRow(i, 'reportingTime', e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50" />
+                      className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-blue-500 bg-gray-50 font-medium text-gray-800" />
                   </div>
 
                   {/* Exam Type override */}
                   <div className="col-span-2 sm:col-span-2 relative">
                     <select value={row.examType} onChange={e => updateRow(i, 'examType', e.target.value)}
-                      className="w-full px-2 py-2.5 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-blue-500 bg-gray-50 appearance-none pr-6">
+                      className="w-full px-2 py-2.5 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-blue-500 bg-gray-50 appearance-none pr-6 font-medium text-gray-800">
                       <option value="">Default</option>
-                      {EXAM_TYPES.map(t => <option key={t}>{t}</option>)}
+                      {EXAM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
                     <ChevronDown className="w-3 h-3 text-gray-400 absolute right-2 top-3 pointer-events-none" />
                   </div>
@@ -304,7 +339,7 @@ export default function AdminAdmitCard() {
               ))}
             </AnimatePresence>
 
-            <p className="text-[10px] text-gray-400 mt-1">
+            <p className="text-[10px] text-gray-400 mt-1.5 font-medium">
               Time and Type columns are optional — leave blank to use the defaults above.
             </p>
           </div>
@@ -314,13 +349,13 @@ export default function AdminAdmitCard() {
             <label className="text-xs font-bold text-gray-600 mb-1.5 flex items-center gap-1.5 uppercase tracking-wide">
               <Bell className="w-3.5 h-3.5 text-blue-500" /> Special Instructions (included in email)
             </label>
-            <textarea rows={3} placeholder="e.g. Bring original ID proof. No electronic devices allowed." value={instructions}
+            <textarea rows={3} placeholder="Please arrive 15 minutes early and carry a valid ID card. Late arrivals may not be permitted." value={instructions}
               onChange={e => setInstructions(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50 resize-none" />
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-gray-50 resize-none font-medium text-gray-800" />
           </div>
 
           <button type="submit" disabled={saving}
-            className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-bold hover:shadow-lg transition-all disabled:opacity-60">
+            className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-bold hover:shadow-lg transition-all disabled:opacity-60 cursor-pointer">
             {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             {saving ? 'Saving...' : 'Save Schedule'}
           </button>
@@ -359,8 +394,8 @@ export default function AdminAdmitCard() {
                   ))}
                 </tbody>
               </table>
-              <p className="text-xs text-gray-400 mt-2">
-                Center: <strong>{saved.examCenter || '-'}</strong>
+              <p className="text-xs text-gray-500 mt-2 font-medium">
+                Center: <strong className="text-gray-800">{saved.examCenter || '-'}</strong>
               </p>
             </div>
           ) : (
@@ -377,7 +412,7 @@ export default function AdminAdmitCard() {
           </div>
 
           <button onClick={handleNotify} disabled={notifying || !saved}
-            className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-bold hover:shadow-lg transition-all disabled:opacity-50">
+            className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-bold hover:shadow-lg transition-all disabled:opacity-50 cursor-pointer">
             {notifying ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             {notifying ? 'Sending Emails...' : 'Send Email to All Students'}
           </button>

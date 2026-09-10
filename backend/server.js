@@ -53,6 +53,7 @@ app.use('/api/admit-card', require('./routes/admitCard'));
 app.use('/api/test', require('./routes/test'));
 
 app.get('/', (req, res) => res.json({ message: 'KCI API Running' }));
+app.get('/api/auth/ping', (req, res) => res.json({ status: 'ok' }));
 app.get('/api/auth/ping', (req, res) => res.json({ status: 'ok', db: mongoose.connection.readyState === 1 ? 'connected' : 'connecting' }));
 
 // Self-ping every 14 minutes to prevent Render free tier sleep
@@ -66,8 +67,11 @@ setInterval(() => {
   }).on('error', () => {});
 }, 14 * 60 * 1000);
 
+// Global error handler
 // Global Error Handler Middleware
 app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({ success: false, message: err.message || 'Internal Server Error' });
   console.error('Express Request Error:', err.stack || err);
   res.status(err.status || 500).json({ 
     success: false, 
@@ -75,6 +79,7 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Keep-alive for MongoDB connection
 // Process Safety - Prevent backend process from crashing on unhandled errors
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Promise Rejection at:', promise, 'reason:', reason);
@@ -104,6 +109,8 @@ mongoose.connection.on('error', (err) => {
 });
 
 mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected, reconnecting...');
+  mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 10000, socketTimeoutMS: 45000, family: 4 });
   console.warn('⚠️ MongoDB disconnected! Auto-reconnecting background worker active...');
 });
 
@@ -123,6 +130,25 @@ const connectDB = async () => {
 
 // Start Express Server immediately so Vite proxy never gets ECONNREFUSED
 const PORT = process.env.PORT || 5000;
+
+if (!process.env.MONGO_URI) {
+  console.error('ERROR: MONGO_URI environment variable is not set!');
+  process.exit(1);
+} else {
+  mongoose.connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+    family: 4,
+  })
+    .then(() => {
+      console.log('MongoDB connected');
+      app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    })
+    .catch(err => {
+      console.error('DB Error:', err);
+      process.exit(1);
+    });
+}
 app.listen(PORT, () => {
   console.log(`🚀 KCI Backend Server running on port ${PORT}`);
   connectDB();
