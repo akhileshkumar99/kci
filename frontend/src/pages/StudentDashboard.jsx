@@ -573,19 +573,19 @@ async function downloadReceiptPDF(form) {
   // Logo loading with emblem fallback
   let logoUrl = null;
   try {
-    const img = await new Promise((res, rej) => { 
-      const i = new Image(); 
-      i.onload = () => res(i); 
-      i.onerror = rej; 
-      i.src = '/logo.png'; 
+    const img = await new Promise((res, rej) => {
+      const i = new Image();
+      i.onload = () => res(i);
+      i.onerror = rej;
+      i.src = '/logo.png';
     });
-    const sz = 300, cv = document.createElement('canvas'); 
+    const sz = 300, cv = document.createElement('canvas');
     cv.width = sz; cv.height = sz;
-    const cx = cv.getContext('2d'); 
-    cx.beginPath(); 
-    cx.arc(sz / 2, sz / 2, sz / 2, 0, Math.PI * 2); 
-    cx.closePath(); 
-    cx.clip(); 
+    const cx = cv.getContext('2d');
+    cx.beginPath();
+    cx.arc(sz / 2, sz / 2, sz / 2, 0, Math.PI * 2);
+    cx.closePath();
+    cx.clip();
     cx.drawImage(img, 0, 0, sz, sz);
     logoUrl = cv.toDataURL('image/png');
   } catch (_) { }
