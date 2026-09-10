@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Trash2, Eye, Pencil, Search, X } from 'lucide-react';
+import { FileText, Trash2, Eye, Pencil, Search, X, CheckCircle, Clock } from 'lucide-react';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
 const statusColor = {
-  Pending:  'bg-yellow-100 text-yellow-700',
-  Approved: 'bg-green-100 text-green-700',
-  Rejected: 'bg-red-100 text-red-700',
+  Pending:  'bg-yellow-100 text-yellow-700 border border-yellow-200',
+  Approved: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+  Rejected: 'bg-red-100 text-red-700 border border-red-200',
 };
 
 const inputCls = 'w-full px-3 py-2 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 text-sm transition-all';
@@ -40,13 +40,23 @@ export default function AdminExamForms() {
     } catch { toast.error('Delete failed'); }
   };
 
+  const updateStatus = async (id, status) => {
+    try {
+      const { data } = await api.put(`/exam-forms/${id}`, { status });
+      setForms(p => p.map(f => f._id === id ? (data.form || { ...f, status }) : f));
+      toast.success(`Exam form marked as ${status}`);
+    } catch {
+      toast.error('Failed to update status');
+    }
+  };
+
   const openEdit = (f) => { setEditForm(f); setEditData({ ...f }); };
 
   const saveEdit = async () => {
     setSaving(true);
     try {
       const { data } = await api.put(`/exam-forms/${editForm._id}`, editData);
-      setForms(p => p.map(f => f._id === editForm._id ? data.form : f));
+      setForms(p => p.map(f => f._id === editForm._id ? (data.form || editData) : f));
       setEditForm(null);
       toast.success('Updated successfully');
     } catch { toast.error('Update failed'); }
@@ -92,14 +102,14 @@ export default function AdminExamForms() {
         <div className="space-y-3">
           {filtered.map((f, i) => (
             <motion.div key={f._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+              className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-shadow">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-2">
-                    <h3 className="font-bold text-gray-900">{f.studentName}</h3>
-                    {f.status !== 'Pending' && (
-                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusColor[f.status]}`}>{f.status}</span>
-                    )}
+                    <h3 className="font-bold text-gray-900 text-base">{f.studentName}</h3>
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${statusColor[f.status || 'Pending']}`}>
+                      {f.status || 'Pending'}
+                    </span>
                   </div>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-1 text-sm text-gray-600">
                     <span><b className="text-gray-700">Enrollment:</b> {f.enrollmentNumber}</span>
@@ -108,17 +118,36 @@ export default function AdminExamForms() {
                     <span><b className="text-gray-700">Phone:</b> {f.phone}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+
+                {/* Actions Bar */}
+                <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                  
+                  {/* Approve / Approved Button */}
+                  {f.status === 'Approved' ? (
+                    <span className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-extrabold cursor-default">
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> Approved
+                    </span>
+                  ) : (
+                    <button 
+                      onClick={() => updateStatus(f._id, 'Approved')}
+                      className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black shadow-md shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+                    >
+                      <CheckCircle className="w-3.5 h-3.5" /> Approve
+                    </button>
+                  )}
+
                   <button onClick={() => setViewForm(f)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-semibold transition-colors">
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl text-xs font-bold transition-colors">
                     <Eye className="w-3.5 h-3.5" /> View
                   </button>
+                  
                   <button onClick={() => openEdit(f)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg text-xs font-semibold transition-colors">
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl text-xs font-bold transition-colors">
                     <Pencil className="w-3.5 h-3.5" /> Edit
                   </button>
+
                   <button onClick={() => deleteForm(f._id)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg text-xs font-semibold transition-colors">
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-500 hover:bg-red-100 rounded-xl text-xs font-bold transition-colors">
                     <Trash2 className="w-3.5 h-3.5" /> Delete
                   </button>
                 </div>
@@ -149,6 +178,7 @@ export default function AdminExamForms() {
                 ['Phone', viewForm.phone],
                 ['Email', viewForm.email],
                 ['UTR / Transaction ID', viewForm.paymentUtr],
+                ['Status', viewForm.status || 'Pending'],
                 ['Submitted', new Date(viewForm.createdAt).toLocaleDateString()],
               ].map(([label, val]) => val ? (
                 <div key={label} className="bg-gray-50 rounded-xl px-4 py-3">
@@ -163,6 +193,19 @@ export default function AdminExamForms() {
                 </div>
               )}
             </div>
+            {viewForm.status !== 'Approved' && (
+              <div className="mt-5 flex justify-end">
+                <button
+                  onClick={() => {
+                    updateStatus(viewForm._id, 'Approved');
+                    setViewForm(null);
+                  }}
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black shadow-md flex items-center gap-1.5 transition-all"
+                >
+                  <CheckCircle className="w-4 h-4" /> Approve Examination Form
+                </button>
+              </div>
+            )}
           </Modal>
         )}
       </AnimatePresence>
@@ -200,7 +243,9 @@ export default function AdminExamForms() {
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-1">Status</label>
                 <select value={editData.status || 'Pending'} onChange={e => setEditData(p => ({ ...p, status: e.target.value }))} className={inputCls}>
-                  <option>Approved</option><option>Rejected</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Approved">Approved</option>
+                  <option value="Rejected">Rejected</option>
                 </select>
               </div>
               <div className="sm:col-span-2">
