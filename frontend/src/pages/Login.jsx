@@ -380,69 +380,59 @@ export default function Login() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[100] flex items-center justify-center p-4"
+            className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
             onClick={() => setErrorModal({ open: false, title: '', message: '', role: '' })}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              initial={{ scale: 0.92, opacity: 0, y: 15 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              exit={{ scale: 0.92, opacity: 0, y: 15 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-red-100 text-slate-900"
+              className="w-full max-w-xs sm:max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100 text-slate-900"
             >
-              {/* Header Gradient Banner */}
-              <div className="bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 p-6 text-white text-center relative overflow-hidden">
+              {/* Top Banner */}
+              <div className="bg-gradient-to-r from-red-600 via-rose-600 to-red-700 p-4 text-white text-center relative">
                 <button
                   type="button"
                   onClick={() => setErrorModal({ open: false, title: '', message: '', role: '' })}
-                  className="absolute top-4 right-4 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full p-1.5 transition-colors cursor-pointer"
+                  className="absolute top-3 right-3 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full p-1 transition-colors cursor-pointer"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
-                <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner border border-white/30 animate-bounce">
-                  <ShieldAlert className="w-9 h-9 text-white" />
+
+                <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center mx-auto mb-2 border border-white/30">
+                  <ShieldAlert className="w-6 h-6 text-white" />
                 </div>
-                <div className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-black/25 backdrop-blur-md rounded-full text-[11px] font-extrabold text-amber-200 uppercase tracking-wider mb-2 border border-white/20">
-                  <LockKeyhole className="w-3.5 h-3.5" /> Login Failed ({errorModal.role.toUpperCase()})
-                </div>
-                <h3 className="text-xl font-black tracking-tight">{errorModal.title}</h3>
+
+                <span className="inline-block px-2.5 py-0.5 bg-black/25 rounded-full text-[10px] font-extrabold text-amber-200 uppercase tracking-wide mb-1 border border-white/10">
+                  Login Failed ({errorModal.role.toUpperCase()})
+                </span>
+
+                <h3 className="text-base font-black tracking-tight text-white">{errorModal.title}</h3>
               </div>
 
-              {/* Body */}
-              <div className="p-6 space-y-4">
-                <div className="p-4 bg-red-50/90 border border-red-200 rounded-2xl text-center">
-                  <p className="text-sm font-bold text-red-900 leading-snug">{errorModal.message}</p>
-                  <p className="text-xs text-red-700 mt-1 font-semibold">
+              {/* Compact Body */}
+              <div className="p-4 space-y-3">
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-center">
+                  <p className="text-xs font-bold text-red-900 leading-snug">{errorModal.message}</p>
+                  <p className="text-[11px] text-red-700 mt-1 font-semibold">
                     गलत ईमेल, फ़ोन नंबर या पासवर्ड प्रविष्ट किया गया है!
                   </p>
                 </div>
 
-                {/* Helpful Troubleshooting Guidance */}
-                <div className="space-y-2 text-xs font-semibold text-slate-600 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                  <p className="text-slate-900 font-black uppercase text-[11px] tracking-wider mb-2.5 flex items-center gap-1.5">
-                    <HelpCircle className="w-4 h-4 text-blue-600" /> Troubleshooting Instructions:
-                  </p>
-                  <div className="flex items-start gap-2">
-                    <span className="text-red-500 font-bold">•</span>
-                    <span><strong>Email / Phone / Form No:</strong> Ensure spelling is correct with no extra spaces.</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-red-500 font-bold">•</span>
-                    <span><strong>Password Verification:</strong> Check that Caps Lock is OFF and re-enter your password carefully.</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-blue-600 font-bold">•</span>
-                    <span><strong>Role Selection:</strong> Selected role is <strong className="text-blue-700">{errorModal.role.toUpperCase()}</strong>. Ensure you clicked the correct role tab (Student, Branch, or Admin).</span>
-                  </div>
+                <div className="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-1">
+                  <p className="font-semibold text-slate-700">💡 Quick Check:</p>
+                  <p>• Verify your Email / Phone & Password spelling.</p>
+                  <p>• Make sure selected role is <strong className="text-slate-800">{errorModal.role.toUpperCase()}</strong>.</p>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex gap-3 pt-2">
+                {/* Buttons */}
+                <div className="flex gap-2 pt-1">
                   <button
                     type="button"
                     onClick={() => setErrorModal({ open: false, title: '', message: '', role: '' })}
-                    className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-sm rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all text-center cursor-pointer"
+                    className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs rounded-xl shadow-md transition-all text-center cursor-pointer"
                   >
                     Try Again 🔄
                   </button>
@@ -450,9 +440,9 @@ export default function Login() {
                     type="button"
                     onClick={() => {
                       setErrorModal({ open: false, title: '', message: '', role: '' });
-                      toast.error('Contact KCI Support at 9936384736 or branch admin for assistance');
+                      toast.error('Contact KCI Support at 9936384736 for help');
                     }}
-                    className="px-4 py-3 bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold text-xs rounded-xl transition-all cursor-pointer"
+                    className="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all cursor-pointer"
                   >
                     Get Help 💬
                   </button>
