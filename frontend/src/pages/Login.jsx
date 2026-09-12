@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { Mail, Lock, Eye, EyeOff, ShieldCheck, GraduationCap, Building2, ArrowRight, Shield, Star, Award, Users, BookOpen, Key, ChevronDown, ChevronUp, CheckCircle, Sun, Moon, LockKeyhole } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mail, Lock, Eye, EyeOff, ShieldCheck, GraduationCap, Building2, ArrowRight, Shield, Star, Award, Users, BookOpen, Key, ChevronDown, ChevronUp, CheckCircle, Sun, Moon, LockKeyhole, ShieldAlert, HelpCircle, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const roles = [
@@ -17,12 +18,21 @@ export default function Login() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
+  const [errorModal, setErrorModal] = useState({ open: false, title: '', message: '', role: '' });
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.email || !form.password) return toast.error('Please fill all fields');
+    if (!form.email || !form.password) {
+      setErrorModal({
+        open: true,
+        title: 'Missing Required Fields',
+        message: 'Please enter both your Email / Phone / Form No. and Password to proceed.',
+        role: activeRole,
+      });
+      return toast.error('Please fill all fields');
+    }
     setLoading(true);
     try {
       const user = await login(form.email, form.password, activeRole);
@@ -32,8 +42,22 @@ export default function Login() {
       else if (user.role === 'student') navigate('/student-dashboard');
       else navigate('/');
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'Login failed. Please check credentials.';
-      toast.error(msg);
+      const msg = err.response?.data?.message || err.message || 'Login failed. Invalid email or password.';
+      
+      let title = 'Invalid Credentials 🔒';
+      if (msg.toLowerCase().includes('approved')) {
+        title = 'Account Pending Approval ⏳';
+      } else if (msg.toLowerCase().includes('email') || msg.toLowerCase().includes('password') || msg.toLowerCase().includes('credential')) {
+        title = 'Incorrect Email or Password ❌';
+      }
+
+      setErrorModal({
+        open: true,
+        title,
+        message: msg,
+        role: activeRole,
+      });
+      toast.error('Login failed! Please check error details.');
     }
     setLoading(false);
   };
@@ -348,6 +372,96 @@ export default function Login() {
           </div>
         </div>
       </div>
+
+      {/* ── ERROR POPUP MODAL ── */}
+      <AnimatePresence>
+        {errorModal.open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[100] flex items-center justify-center p-4"
+            onClick={() => setErrorModal({ open: false, title: '', message: '', role: '' })}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-red-100 text-slate-900"
+            >
+              {/* Header Gradient Banner */}
+              <div className="bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 p-6 text-white text-center relative overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setErrorModal({ open: false, title: '', message: '', role: '' })}
+                  className="absolute top-4 right-4 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full p-1.5 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+                <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner border border-white/30 animate-bounce">
+                  <ShieldAlert className="w-9 h-9 text-white" />
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-black/25 backdrop-blur-md rounded-full text-[11px] font-extrabold text-amber-200 uppercase tracking-wider mb-2 border border-white/20">
+                  <LockKeyhole className="w-3.5 h-3.5" /> Login Failed ({errorModal.role.toUpperCase()})
+                </div>
+                <h3 className="text-xl font-black tracking-tight">{errorModal.title}</h3>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 space-y-4">
+                <div className="p-4 bg-red-50/90 border border-red-200 rounded-2xl text-center">
+                  <p className="text-sm font-bold text-red-900 leading-snug">{errorModal.message}</p>
+                  <p className="text-xs text-red-700 mt-1 font-semibold">
+                    गलत ईमेल, फ़ोन नंबर या पासवर्ड प्रविष्ट किया गया है!
+                  </p>
+                </div>
+
+                {/* Helpful Troubleshooting Guidance */}
+                <div className="space-y-2 text-xs font-semibold text-slate-600 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <p className="text-slate-900 font-black uppercase text-[11px] tracking-wider mb-2.5 flex items-center gap-1.5">
+                    <HelpCircle className="w-4 h-4 text-blue-600" /> Troubleshooting Instructions:
+                  </p>
+                  <div className="flex items-start gap-2">
+                    <span className="text-red-500 font-bold">•</span>
+                    <span><strong>Email / Phone / Form No:</strong> Ensure spelling is correct with no extra spaces.</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-red-500 font-bold">•</span>
+                    <span><strong>Password Verification:</strong> Check that Caps Lock is OFF and re-enter your password carefully.</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-blue-600 font-bold">•</span>
+                    <span><strong>Role Selection:</strong> Selected role is <strong className="text-blue-700">{errorModal.role.toUpperCase()}</strong>. Ensure you clicked the correct role tab (Student, Branch, or Admin).</span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setErrorModal({ open: false, title: '', message: '', role: '' })}
+                    className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-sm rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all text-center cursor-pointer"
+                  >
+                    Try Again 🔄
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setErrorModal({ open: false, title: '', message: '', role: '' });
+                      toast.error('Contact KCI Support at 9936384736 or branch admin for assistance');
+                    }}
+                    className="px-4 py-3 bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold text-xs rounded-xl transition-all cursor-pointer"
+                  >
+                    Get Help 💬
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
