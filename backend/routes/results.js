@@ -37,21 +37,72 @@ async function logAudit(action, user, targetId, details, ip) {
 // PUBLIC: Search result by roll number or form number (only published)
 router.get('/public/search', async (req, res) => {
   try {
-    const { rollNumber, formNo } = req.query;
+    const { rollNumber, formNo, course, year } = req.query;
     if (!rollNumber && !formNo)
       return res.status(400).json({ success: false, message: 'Provide rollNumber or formNo' });
 
-    const orConditions = [];
-    if (rollNumber) orConditions.push({ rollNumber: rollNumber.trim() }, { enrollmentNumber: rollNumber.trim() });
-    if (formNo) orConditions.push({ formNo: formNo.trim() });
+    const searchStr = (rollNumber || formNo || '').trim();
+    const orConditions = [
+      { rollNumber: new RegExp(`^${searchStr}$`, 'i') },
+      { enrollmentNumber: new RegExp(`^${searchStr}$`, 'i') },
+      { formNo: new RegExp(`^${searchStr}$`, 'i') }
+    ];
 
-    const result = await Result.findOne({
+    const mainFilter = {
       $or: orConditions,
       isApproved: true,
       resultFile: { $exists: true, $ne: null, $ne: '' },
-    }).sort('-createdAt');
+    };
 
-    if (!result) return res.status(404).json({ success: false, message: 'Result not found or not yet published.' });
+    // Apply Course Filter if specified and not 'All Courses'
+    if (course && course !== 'All Courses') {
+      const cleanCourse = course.trim();
+      // Extract short code e.g. "ADCA" from "ADCA (Advanced Diploma...)" or "Advance Diploma... (ADCA)"
+      const bracketMatch = cleanCourse.match(/\(([^)]+)\)/);
+      const codeMatch = cleanCourse.match(/^([A-[#\]\s]+)/);
+      const codeStr = bracketMatch ? bracketMatch[1].trim() : (codeMatch ? codeMatch[1].trim() : cleanCourse);
+
+      mainFilter.$and = mainFilter.$and || [];
+      mainFilter.$and.push({
+        $or: [
+          { courseName: { $regex: cleanCourse.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' } },
+          { courseName: { $regex: codeStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' } }
+        ]
+      });
+    }
+
+    // Apply Year Filter if specified and not 'All Years'
+    if (year && year !== 'All Years') {
+      const yNum = parseInt(year.trim(), 10);
+      if (!isNaN(yNum)) {
+        const startOfYear = new Date(Date.UTC(yNum, 0, 1));
+        const endOfYear = new Date(Date.UTC(yNum, 11, 31, 23, 59, 59, 999));
+
+        mainFilter.$and = mainFilter.$and || [];
+        mainFilter.$and.push({
+          $or: [
+            { examDate: { $gte: startOfYear, $lte: endOfYear } },
+            { batch: { $regex: year.trim(), $options: 'i' } },
+            { createdAt: { $gte: startOfYear, $lte: endOfYear } }
+          ]
+        });
+      }
+    }
+
+    const result = await Result.findOne(mainFilter).sort('-createdAt');
+
+    if (!result) {
+      // Check if roll number exists under any filter
+      const rollExists = await Result.findOne({ $or: orConditions, isApproved: true });
+      if (rollExists) {
+        return res.status(404).json({
+          success: false,
+          message: `No result found for Roll No '${searchStr}' with selected Course ('${course || 'All'}') or Year ('${year || 'All'}'). Please verify your filter options.`
+        });
+      }
+      return res.status(404).json({ success: false, message: `No official examination result found for Roll Number / Form No '${searchStr}'.` });
+    }
+
     res.json({ success: true, result });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });

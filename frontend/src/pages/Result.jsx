@@ -146,7 +146,6 @@ export default function Result() {
               <div className="relative">
                 <label className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1 flex items-center gap-1.5 px-1">
                   <BookOpen className="w-3 h-3 text-blue-600" /> Select Course
-                  <BookOpen className="w-3 h-3 text-blue-600" /> Select Course (All Courses)
                 </label>
                 <div className="relative">
                   <select
