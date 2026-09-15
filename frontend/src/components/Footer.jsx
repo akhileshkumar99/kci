@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { Phone, Mail, MapPin, Facebook, Twitter, Instagram, Youtube } from 'lucide-react';
-import DevCredit from './DevCredit';
 
 export default function Footer() {
   return (
@@ -112,7 +111,6 @@ export default function Footer() {
               <Link to="/result" className="hover:text-blue-400 transition-colors">Check Result</Link>
             </div>
           </div>
-          <DevCredit dark />
         </div>
       </div>
     </footer>
