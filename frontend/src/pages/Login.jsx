@@ -380,56 +380,38 @@ export default function Login() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
             className="fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[100] flex items-center justify-center p-4"
             onClick={() => setErrorModal({ open: false, title: '', message: '', role: '' })}
           >
             <motion.div
-              initial={{ scale: 0.92, opacity: 0, y: 15 }}
               initial={{ scale: 0.92, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.92, opacity: 0, y: 15 }}
               exit={{ scale: 0.92, opacity: 0, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-xs sm:max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100 text-slate-900"
               className="w-full max-w-[460px] bg-white rounded-[24px] sm:rounded-[28px] shadow-[0_25px_70px_rgba(15,23,42,0.25)] border border-slate-100 overflow-hidden text-slate-900 relative"
             >
-              {/* Top Banner */}
-              <div className="bg-gradient-to-r from-red-600 via-rose-600 to-red-700 p-4 text-white text-center relative">
               {/* Header Gradient Banner */}
               <div className="bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 p-5 sm:p-6 text-white text-center relative overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setErrorModal({ open: false, title: '', message: '', role: '' })}
-                  className="absolute top-3 right-3 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full p-1 transition-colors cursor-pointer"
                   className="absolute top-4 right-4 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full p-1.5 transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
 
-                <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center mx-auto mb-2 border border-white/30">
-                  <ShieldAlert className="w-6 h-6 text-white" />
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-2.5 shadow-inner border border-white/30">
                   <ShieldAlert className="w-7 h-7 text-white" />
                 </div>
 
-                <span className="inline-block px-2.5 py-0.5 bg-black/25 rounded-full text-[10px] font-extrabold text-amber-200 uppercase tracking-wide mb-1 border border-white/10">
-                  Login Failed ({errorModal.role.toUpperCase()})
-                </span>
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-black/25 backdrop-blur-md rounded-full text-[10px] sm:text-[11px] font-extrabold text-amber-200 uppercase tracking-wider mb-1.5 border border-white/20">
                   <LockKeyhole className="w-3.5 h-3.5 text-amber-300" /> Login Failed ({errorModal.role.toUpperCase()})
                 </div>
 
-                <h3 className="text-base font-black tracking-tight text-white">{errorModal.title}</h3>
                 <h3 className="text-lg sm:text-xl font-black tracking-tight text-white">{errorModal.title}</h3>
               </div>
 
-              {/* Compact Body */}
-              <div className="p-4 space-y-3">
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-center">
-                  <p className="text-xs font-bold text-red-900 leading-snug">{errorModal.message}</p>
-                  <p className="text-[11px] text-red-700 mt-1 font-semibold">
               {/* Modal Body */}
               <div className="p-5 sm:p-6 space-y-4">
                 {/* Error Banner */}
@@ -440,10 +422,6 @@ export default function Login() {
                   </p>
                 </div>
 
-                <div className="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-1">
-                  <p className="font-semibold text-slate-700">💡 Quick Check:</p>
-                  <p>• Verify your Email / Phone & Password spelling.</p>
-                  <p>• Make sure selected role is <strong className="text-slate-800">{errorModal.role.toUpperCase()}</strong>.</p>
                 {/* Quick Check Card */}
                 <div className="text-xs text-slate-600 bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2">
                   <p className="font-extrabold text-slate-900 uppercase text-[11px] tracking-wider flex items-center gap-1.5">
@@ -461,17 +439,13 @@ export default function Login() {
                   </div>
                 </div>
 
-                {/* Buttons */}
-                <div className="flex gap-2 pt-1">
                 {/* Action Buttons */}
                 <div className="flex items-center gap-3 pt-1">
                   <button
                     type="button"
                     onClick={() => setErrorModal({ open: false, title: '', message: '', role: '' })}
-                    className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs rounded-xl shadow-md transition-all text-center cursor-pointer"
                     className="flex-1 h-11 sm:h-12 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 hover:to-rose-800 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg shadow-red-500/25 hover:shadow-xl active:scale-[0.99] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    Try Again 🔄
                     <span>Try Again</span>
                     <span className="text-sm">🔄</span>
                   </button>
@@ -481,10 +455,8 @@ export default function Login() {
                       setErrorModal({ open: false, title: '', message: '', role: '' });
                       toast.error('Contact KCI Support at 9936384736 for help');
                     }}
-                    className="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all cursor-pointer"
                     className="px-4 h-11 sm:h-12 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer"
                   >
-                    Get Help 💬
                     <span>Get Help</span>
                     <span className="text-sm">💬</span>
                   </button>
