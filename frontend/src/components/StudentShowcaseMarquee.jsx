@@ -32,7 +32,7 @@ export default function StudentShowcaseMarquee() {
     return () => { isMounted = false; };
   }, []);
 
-  // Duplicate items array to ensure seamless infinite auto-sliding marquee loop
+  // Duplicate items list for continuous smooth infinite auto-sliding animation
   const marqueeList = [...students, ...students, ...students, ...students];
 
   return (
@@ -82,7 +82,7 @@ export default function StudentShowcaseMarquee() {
                     <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 shadow-xl shadow-blue-500/15 group-hover/card:shadow-blue-500/30 transition-all">
                       <img
                         src={item.image}
-                        alt={item.name}
+                        alt=""
                         className="w-full h-full rounded-full object-cover border-2 border-white bg-slate-100"
                         loading="lazy"
                         onError={(e) => {
@@ -121,7 +121,7 @@ export default function StudentShowcaseMarquee() {
         .animate-marquee {
           display: flex;
           width: max-content;
-          animation: marquee 30s linear infinite;
+          animation: marquee 25s linear infinite;
         }
         .animate-marquee:hover {
           animation-play-state: paused;
