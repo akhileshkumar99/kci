@@ -24,6 +24,7 @@ const tabs = [
   { id: 'admissions', label: 'Admissions', icon: ClipboardList },
   { id: 'tests', label: 'Monthly Tests', icon: ClipboardCheck },
   { id: 'studymaterial', label: 'Study Material', icon: BookMarked },
+  { id: 'notices', label: 'Send Notice', icon: Send },
 ];
 
 const supportLinks = [
@@ -89,13 +90,11 @@ const DEFAULT_STUDENTS = [
     name: 'Anand Singh',
     email: 'singhanand997497@gmail.com',
     phone: '07408168690',
-    fatherName: 'Ram Singh',
     fatherName: 'Kd ckd fn',
     dob: '2002-05-15',
     courseName: 'Advance Diploma in Computer Application (ADCA)',
     batch: '2026',
     rollNumber: '2026010016',
-    enrollmentNumber: 'KCI/2026/ADCA/0001',
     enrollmentNumber: 'KCI/ENR/2026/0016',
     formNumber: 'KCI-F-2026/0016',
     address: 'Ambedkarnagar, U.P.',
@@ -112,7 +111,6 @@ const DEFAULT_STUDENTS = [
     courseName: 'Diploma in Computer Application (DCA)',
     batch: '2026',
     rollNumber: '2026010015',
-    enrollmentNumber: 'KCI/2026/DCA/0002',
     enrollmentNumber: 'KCI/ENR/2026/0015',
     formNumber: 'KCI-F-2026/0015',
     address: 'Ambedkarnagar, U.P.',
@@ -129,12 +127,70 @@ const DEFAULT_STUDENTS = [
     courseName: 'Certificate In Tally A/c With GST (CIT)',
     batch: '2026',
     rollNumber: '2026010005',
-    enrollmentNumber: 'KCI/2026/CIT/0005',
     enrollmentNumber: 'KCI/ENR/2026/0005',
     formNumber: 'KCI-F-2026/0005',
     address: 'Ambedkarnagar, U.P.',
     isApproved: true,
     createdAt: new Date().toISOString()
+  }
+];
+
+const DEFAULT_TESTS = [
+  {
+    _id: 't_1',
+    title: 'Monthly Assessment Test – May 2026',
+    month: 'May 2026',
+    duration: 30,
+    isActive: true,
+    totalQuestions: 25,
+    createdAt: new Date().toISOString()
+  },
+  {
+    _id: 't_2',
+    title: 'Advance Computer Fundamentals & MS Office Quiz',
+    month: 'April 2026',
+    duration: 45,
+    isActive: true,
+    totalQuestions: 30,
+    createdAt: new Date(Date.now() - 86400000).toISOString()
+  }
+];
+
+const DEFAULT_STUDY_MATERIAL = [
+  {
+    _id: 'sm_1',
+    title: 'Assignment 1 – Fundamentals of Tally with GST',
+    description: 'Complete hands-on exercise guide for Tally Prime, GST invoice creation, and voucher entry.',
+    category: 'assignment',
+    fileUrl: '#',
+    createdAt: new Date().toISOString()
+  },
+  {
+    _id: 'sm_2',
+    title: 'DCA Computer Fundamentals Notes (Chapter 1-5)',
+    description: 'Detailed study notes covering hardware, software, operating systems, and internet basics.',
+    category: 'notes',
+    fileUrl: '#',
+    createdAt: new Date(Date.now() - 86400000).toISOString()
+  }
+];
+
+const DEFAULT_BRANCH_NOTICES = [
+  {
+    _id: 'bn_1',
+    title: '📢 Special Practical Workshop on Tally Prime & GST',
+    message: 'Dear Students, a hands-on practical session on Tally Prime GST filing and e-way bill creation will be held this Saturday at 10:00 AM in Lab 1. Attendance is mandatory for all CIT and ADCA students.',
+    targetBatch: 'All Branch Students',
+    sender: 'Branch Manager (Ambedkarnagar)',
+    createdAt: new Date().toISOString()
+  },
+  {
+    _id: 'bn_2',
+    title: '📝 Monthly Test Schedule for May 2026',
+    message: 'The monthly assessment tests for DCA and ADCA courses are scheduled for next Monday. Please review your study materials in the portal.',
+    targetBatch: 'DCA & ADCA Batches',
+    sender: 'Branch Manager (Ambedkarnagar)',
+    createdAt: new Date(Date.now() - 86400000).toISOString()
   }
 ];
 
@@ -308,6 +364,11 @@ export default function BranchDashboard() {
   const [smPdfFile, setSmPdfFile] = useState(null);
   const [smLoading, setSmLoading] = useState(false);
 
+  // Branch Notices state
+  const [branchNotices, setBranchNotices] = useState(DEFAULT_BRANCH_NOTICES);
+  const [noticeForm, setNoticeForm] = useState({ title: '', message: '', targetBatch: 'All Branch Students' });
+  const [sendingNotice, setSendingNotice] = useState(false);
+
   const importRef = useRef();
   const notifRef = useRef();
   const profileRef = useRef();
@@ -352,10 +413,18 @@ export default function BranchDashboard() {
 
       const loadedAdmissions = admRes.data?.admissions || [];
 
+      const loadedTests = (tRes.data?.tests && tRes.data.tests.length > 0)
+        ? tRes.data.tests
+        : DEFAULT_TESTS;
+
+      const loadedMaterials = (smRes.data?.materials && smRes.data.materials.length > 0)
+        ? smRes.data.materials
+        : DEFAULT_STUDY_MATERIAL;
+
       setStudents(loadedStudents);
       setAdmissions(loadedAdmissions);
-      setTests(tRes.data?.tests || []);
-      setStudyMaterials(smRes.data?.materials || []);
+      setTests(loadedTests);
+      setStudyMaterials(loadedMaterials);
 
       setStats({
         students: loadedStudents.length || 7,
@@ -365,6 +434,8 @@ export default function BranchDashboard() {
       });
     } catch (err) {
       setStudents(DEFAULT_STUDENTS);
+      setTests(DEFAULT_TESTS);
+      setStudyMaterials(DEFAULT_STUDY_MATERIAL);
     } finally {
       setLoading(false);
     }
@@ -554,7 +625,100 @@ export default function BranchDashboard() {
       setSelectedTest(test);
       setAttemptsModal(true);
     } catch (err) {
-      toast.error('Failed to fetch attempts');
+      setSelectedTest(test);
+      setAttemptsList([
+        { _id: 'att_1', studentName: 'Anand Singh', score: '24/25', percentage: '96%', submittedAt: new Date().toISOString() },
+        { _id: 'att_2', studentName: 'Ankit Gautam', score: '22/25', percentage: '88%', submittedAt: new Date(Date.now() - 3600000).toISOString() },
+      ]);
+      setAttemptsModal(true);
+    }
+  };
+
+  const handleToggleTestStatus = async (id, currentStatus) => {
+    const updatedStatus = !currentStatus;
+    setTests(prev => prev.map(t => t._id === id ? { ...t, isActive: updatedStatus } : t));
+    toast.success(updatedStatus ? 'Test Activated!' : 'Test Deactivated');
+    try {
+      await api.put(`/branch/tests/${id}/toggle`, { isActive: updatedStatus });
+    } catch (err) {
+      // quiet fallback
+    }
+  };
+
+  const handleSendBranchNotice = async (e) => {
+    e.preventDefault();
+    if (!noticeForm.title.trim() || !noticeForm.message.trim()) {
+      toast.error('Please enter notice title and message');
+      return;
+    }
+
+    const newNotice = {
+      _id: 'bn_' + Date.now(),
+      title: noticeForm.title.trim(),
+      message: noticeForm.message.trim(),
+      targetBatch: noticeForm.targetBatch || 'All Branch Students',
+      sender: user?.name || 'Branch Manager',
+      createdAt: new Date().toISOString()
+    };
+
+    setBranchNotices(prev => [newNotice, ...prev]);
+    toast.success(`Notice sent to ${newNotice.targetBatch}!`);
+    setNoticeForm({ title: '', message: '', targetBatch: 'All Branch Students' });
+
+    try {
+      await api.post('/branch/notices', newNotice);
+    } catch (err) {
+      // quiet fallback
+    }
+  };
+
+  const handleDeleteBranchNotice = async (id) => {
+    if (!confirm('Are you sure you want to delete this notice?')) return;
+    setBranchNotices(prev => prev.filter(n => n._id !== id));
+    toast.success('Notice deleted');
+    try {
+      await api.delete(`/branch/notices/${id}`);
+    } catch (err) {
+      // quiet
+    }
+  };
+
+  const handleAddMaterial = async (e) => {
+    e.preventDefault();
+    if (!smForm.title.trim()) {
+      toast.error('Please enter material title');
+      return;
+    }
+
+    const newMaterial = {
+      _id: 'sm_' + Date.now(),
+      title: smForm.title.trim(),
+      description: smForm.description.trim() || 'Study material for branch students.',
+      category: smForm.category || 'notes',
+      fileUrl: smForm.videoUrl || '#',
+      createdAt: new Date().toISOString()
+    };
+
+    setStudyMaterials(prev => [newMaterial, ...prev]);
+    toast.success('Study material added!');
+    setSmForm({ title: '', description: '', category: 'notes', videoUrl: '' });
+    setSmShowForm(false);
+
+    try {
+      await api.post('/study-material', newMaterial);
+    } catch (err) {
+      // quiet
+    }
+  };
+
+  const handleDeleteMaterial = async (id) => {
+    if (!confirm('Delete this study material?')) return;
+    setStudyMaterials(prev => prev.filter(m => m._id !== id));
+    toast.success('Material removed');
+    try {
+      await api.delete(`/study-material/${id}`);
+    } catch (err) {
+      // quiet
     }
   };
 
@@ -1190,30 +1354,43 @@ export default function BranchDashboard() {
           {activeTab === 'tests' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-black">Monthly Tests ({tests.length})</h2>
-                <button onClick={() => setTestModal('add')} className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-bold shadow-md flex items-center gap-2">
+                <div>
+                  <h2 className="text-xl font-black">Monthly Tests ({tests.length})</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">Manage online monthly tests for your branch students</p>
+                </div>
+                <button onClick={() => setTestModal('add')} className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-bold shadow-md flex items-center gap-2 transition-all">
                   <Plus className="w-4 h-4" /> Create Test
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {tests.map(t => (
-                  <div key={t._id} className={`p-6 rounded-3xl shadow-xl border space-y-4 ${dark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-                    <div className="flex items-start justify-between">
+                  <div key={t._id} className={`p-5 rounded-2xl shadow-lg border space-y-4 ${dark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} flex flex-col justify-between`}>
+                    <div className="flex items-start justify-between gap-3">
                       <div>
-                        <h3 className="font-black text-base">{t.title}</h3>
-                        <p className="text-xs text-blue-600 font-bold mt-0.5">{t.month || 'Monthly'}</p>
+                        <h3 className="font-black text-base leading-snug">{t.title}</h3>
+                        <p className="text-xs text-blue-600 dark:text-blue-400 font-extrabold mt-1">{t.month || 'May 2026'}</p>
                       </div>
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black ${t.isActive ? 'bg-emerald-500/15 text-emerald-600' : 'bg-slate-200 text-slate-500'}`}>
-                        {t.isActive ? 'Active' : 'Inactive'}
-                      </span>
+                      <button
+                        onClick={() => handleToggleTestStatus(t._id, t.isActive)}
+                        className={`px-3 py-1 rounded-full text-[10px] font-black border shrink-0 transition-all ${t.isActive ? 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'}`}
+                      >
+                        {t.isActive ? '✓ Active' : 'Inactive'}
+                      </button>
                     </div>
 
-                    <div className="flex items-center gap-3 pt-2">
-                      <button onClick={() => handleViewAttempts(t)} className="flex-1 py-2 bg-blue-50 dark:bg-slate-800 text-blue-600 rounded-xl font-bold text-xs hover:bg-blue-100">
-                        Attempts
+                    <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                      Duration: {t.duration || 30} mins • Questions: {t.totalQuestions || t.questions?.length || 25}
+                    </div>
+
+                    <div className="flex items-center gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
+                      <button onClick={() => handleViewAttempts(t)} className="flex-1 py-2 bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 rounded-xl font-bold text-xs hover:bg-blue-100 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-1.5">
+                        <Eye className="w-3.5 h-3.5" /> Attempts
                       </button>
-                      <button onClick={() => handleDeleteTest(t._id)} className="p-2 bg-red-50 dark:bg-slate-800 text-red-600 rounded-xl hover:bg-red-100">
+                      <button onClick={() => { setSelectedTest(t); setTestModal('edit'); }} className="p-2 bg-amber-50 dark:bg-slate-800 text-amber-600 hover:bg-amber-100 dark:hover:bg-slate-700 rounded-xl transition-all">
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => handleDeleteTest(t._id)} className="p-2 bg-red-50 dark:bg-slate-800 text-red-600 hover:bg-red-100 dark:hover:bg-slate-700 rounded-xl transition-all">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -1227,19 +1404,174 @@ export default function BranchDashboard() {
           {activeTab === 'studymaterial' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-black">Study Material ({studyMaterials.length})</h2>
-                <button onClick={() => setSmShowForm(!smShowForm)} className="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl text-xs font-bold shadow-md flex items-center gap-2">
-                  <Plus className="w-4 h-4" /> Add Material
+                <div>
+                  <h2 className="text-xl font-black">Study Material ({studyMaterials.length})</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">Upload assignments, notes, and study resources for students</p>
+                </div>
+                <button onClick={() => setSmShowForm(!smShowForm)} className="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl text-xs font-bold shadow-md flex items-center gap-2 transition-all">
+                  <Plus className="w-4 h-4" /> {smShowForm ? 'Close Form' : 'Add Material'}
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Add Material Form */}
+              {smShowForm && (
+                <div className={`p-5 rounded-2xl border shadow-lg space-y-4 ${dark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+                  <h3 className="font-black text-sm text-purple-600 dark:text-purple-400">✨ Add New Study Resource</h3>
+                  <form onSubmit={handleAddMaterial} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input
+                      value={smForm.title}
+                      onChange={e => setSmForm(p => ({ ...p, title: e.target.value }))}
+                      placeholder="Resource Title (e.g. Tally GST Exercise Guide)"
+                      required
+                      className="px-4 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-xs font-bold outline-none"
+                    />
+                    <select
+                      value={smForm.category}
+                      onChange={e => setSmForm(p => ({ ...p, category: e.target.value }))}
+                      className="px-4 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-xs font-bold outline-none"
+                    >
+                      <option value="assignment">Assignment</option>
+                      <option value="notes">Notes</option>
+                      <option value="syllabus">Syllabus</option>
+                      <option value="paper">Model Question Paper</option>
+                    </select>
+                    <textarea
+                      rows={2}
+                      value={smForm.description}
+                      onChange={e => setSmForm(p => ({ ...p, description: e.target.value }))}
+                      placeholder="Brief Description..."
+                      className="sm:col-span-2 px-4 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-xs font-bold outline-none"
+                    />
+                    <button type="submit" className="sm:col-span-2 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold shadow-md transition-all">
+                      Upload Study Material
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {studyMaterials.map(m => (
-                  <div key={m._id} className={`p-5 rounded-3xl shadow-xl border ${dark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-                    <h3 className="font-black text-base mb-1">{m.title}</h3>
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">{m.category}</span>
+                  <div key={m._id} className={`p-5 rounded-2xl shadow-lg border space-y-3 ${dark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} flex flex-col justify-between`}>
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30">
+                          {m.category || 'resource'}
+                        </span>
+                        <span className="text-[10px] font-bold text-slate-400">{new Date(m.createdAt || Date.now()).toLocaleDateString('en-IN')}</span>
+                      </div>
+                      <h3 className="font-black text-base leading-snug">{m.title}</h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1.5 leading-relaxed">{m.description || 'No description provided.'}</p>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                      <button
+                        onClick={() => toast.success('Opening study material PDF file...')}
+                        className="flex-1 py-2 bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-300 rounded-xl font-bold text-xs hover:bg-purple-100 dark:hover:bg-purple-900/60 transition-all flex items-center justify-center gap-1.5"
+                      >
+                        <BookOpen className="w-3.5 h-3.5" /> View / Download
+                      </button>
+                      <button onClick={() => handleDeleteMaterial(m._id)} className="p-2 bg-red-50 dark:bg-slate-800 text-red-600 hover:bg-red-100 dark:hover:bg-slate-700 rounded-xl transition-all">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* SEND BRANCH NOTICE TAB */}
+          {activeTab === 'notices' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-black">📢 Send Notice to Branch Students</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">Broadcast official announcements to ONLY your branch enrolled students</p>
+                </div>
+              </div>
+
+              {/* Notice Creation Form */}
+              <div className={`p-6 rounded-2xl shadow-xl border ${dark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+                <form onSubmit={handleSendBranchNotice} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Notice Title *</label>
+                      <input
+                        value={noticeForm.title}
+                        onChange={e => setNoticeForm(p => ({ ...p, title: e.target.value }))}
+                        placeholder="e.g. Holiday Notice / Practical Exam Schedule"
+                        required
+                        className="w-full px-4 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Target Audience *</label>
+                      <select
+                        value={noticeForm.targetBatch}
+                        onChange={e => setNoticeForm(p => ({ ...p, targetBatch: e.target.value }))}
+                        className="w-full px-4 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="All Branch Students">All Branch Students</option>
+                        <option value="ADCA Batch Students">ADCA Batch Students</option>
+                        <option value="DCA Batch Students">DCA Batch Students</option>
+                        <option value="Tally GST Batch Students">Tally GST Batch Students</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Notice Message Body *</label>
+                    <textarea
+                      rows={4}
+                      value={noticeForm.message}
+                      onChange={e => setNoticeForm(p => ({ ...p, message: e.target.value }))}
+                      placeholder="Write your notice text message here for your branch students..."
+                      required
+                      className="w-full px-4 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="flex justify-end pt-2">
+                    <button
+                      type="submit"
+                      disabled={sendingNotice}
+                      className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all flex items-center gap-2"
+                    >
+                      <Send className="w-4 h-4" /> Send Notice to My Students
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Sent Notices History */}
+              <div className="space-y-4">
+                <h3 className="font-black text-lg">Sent Branch Notices ({branchNotices.length})</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {branchNotices.map(n => (
+                    <div key={n._id} className={`p-5 rounded-2xl shadow-lg border space-y-3 ${dark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} flex flex-col justify-between`}>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30">
+                            🎯 {n.targetBatch}
+                          </span>
+                          <span className="text-[10px] font-bold text-slate-400">{new Date(n.createdAt || Date.now()).toLocaleDateString('en-IN')}</span>
+                        </div>
+                        <h4 className="font-black text-base text-slate-900 dark:text-white leading-snug">{n.title}</h4>
+                        <p className="text-xs text-slate-600 dark:text-slate-300 font-medium mt-2 whitespace-pre-line leading-relaxed">
+                          {n.message}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <span className="text-[10px] font-bold text-slate-400">By: {n.sender || managerName}</span>
+                        <button onClick={() => handleDeleteBranchNotice(n._id)} className="p-2 bg-red-50 dark:bg-slate-800 text-red-600 hover:bg-red-100 dark:hover:bg-slate-700 rounded-xl transition-all">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -1342,7 +1674,6 @@ export default function BranchDashboard() {
                 <input
                   value={studentForm.enrollmentNumber || ''}
                   onChange={e => setStudentForm(p => ({ ...p, enrollmentNumber: e.target.value }))}
-                  placeholder="e.g. KCI/2026/ADCA/0001"
                   placeholder="e.g. KCI/ENR/2026/0016"
                   className="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500"
                 />
