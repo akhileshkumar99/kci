@@ -589,26 +589,79 @@ export default function BranchDashboard() {
     }
   };
 
+  // Question Builder Helpers
+  const handleAddQuestionItem = () => {
+    setTestForm(prev => {
+      const qList = prev.questions || [];
+      const updated = [...qList, { text: '', options: ['', '', '', ''], correctOption: 0 }];
+      return {
+        ...prev,
+        questions: updated,
+        totalQuestions: updated.length
+      };
+    });
+  };
+
+  const handleRemoveQuestionItem = (index) => {
+    setTestForm(prev => {
+      const qList = prev.questions || [];
+      const updated = qList.filter((_, i) => i !== index);
+      return {
+        ...prev,
+        questions: updated,
+        totalQuestions: updated.length || 1
+      };
+    });
+  };
+
+  const handleUpdateQuestionText = (index, val) => {
+    setTestForm(prev => {
+      const updated = [...(prev.questions || [])];
+      updated[index] = { ...updated[index], text: val };
+      return { ...prev, questions: updated };
+    });
+  };
+
+  const handleUpdateQuestionOption = (qIndex, optIndex, val) => {
+    setTestForm(prev => {
+      const updated = [...(prev.questions || [])];
+      const opts = [...(updated[qIndex]?.options || ['', '', '', ''])];
+      opts[optIndex] = val;
+      updated[qIndex] = { ...updated[qIndex], options: opts };
+      return { ...prev, questions: updated };
+    });
+  };
+
+  const handleUpdateCorrectOption = (qIndex, val) => {
+    setTestForm(prev => {
+      const updated = [...(prev.questions || [])];
+      updated[qIndex] = { ...updated[qIndex], correctOption: Number(val) };
+      return { ...prev, questions: updated };
+    });
+  };
+
   // Test Handlers
   const handleSaveTest = async (e) => {
     e.preventDefault();
     const tempId = 't_' + Date.now();
+    const questionsList = testForm.questions || [];
     if (testModal === 'add') {
       const newTest = {
         _id: tempId,
         title: testForm.title || 'Monthly Assessment Test',
         month: testForm.month || 'May 2026',
         duration: Number(testForm.duration) || 30,
-        totalQuestions: Number(testForm.totalQuestions) || 25,
+        totalQuestions: questionsList.length || Number(testForm.totalQuestions) || 25,
+        questions: questionsList,
         isActive: true,
         createdAt: new Date().toISOString()
       };
       setTests(prev => [newTest, ...prev]);
-      toast.success('✨ Monthly Test Created Successfully!');
+      toast.success('✨ Monthly Test Created Successfully with Questions!');
       setTestModal(null);
       setTestForm({ title: '', month: '', duration: 30, totalQuestions: 25, questions: [] });
       try {
-        const { data } = await api.post('/branch/tests', testForm);
+        const { data } = await api.post('/branch/tests', { ...testForm, questions: questionsList });
         if (data?.test) {
           setTests(prev => prev.map(x => x._id === tempId ? data.test : x));
         }
@@ -618,13 +671,15 @@ export default function BranchDashboard() {
     } else if (selectedTest) {
       const updated = {
         ...selectedTest,
-        ...testForm
+        ...testForm,
+        questions: questionsList,
+        totalQuestions: questionsList.length || testForm.totalQuestions
       };
       setTests(prev => prev.map(t => t._id === selectedTest._id ? updated : t));
       toast.success('Test updated successfully!');
       setTestModal(null);
       try {
-        await api.put(`/branch/tests/${selectedTest._id}`, testForm);
+        await api.put(`/branch/tests/${selectedTest._id}`, { ...testForm, questions: questionsList });
       } catch (err) {
         // quiet fallback
       }
@@ -1888,7 +1943,7 @@ export default function BranchDashboard() {
           title={testModal === 'add' ? '📝 Create New Monthly Test' : '✏️ Edit Monthly Test'}
           onClose={() => setTestModal(null)}
         >
-          <form onSubmit={handleSaveTest} className="space-y-4">
+          <form onSubmit={handleSaveTest} className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
                 <label className="block text-[11px] font-extrabold uppercase text-slate-400 mb-1">Test Title *</label>
@@ -1925,15 +1980,98 @@ export default function BranchDashboard() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-extrabold uppercase text-slate-400 mb-1">Total Questions *</label>
+                <label className="block text-[11px] font-extrabold uppercase text-slate-400 mb-1">Total Questions Count *</label>
                 <input
                   type="number"
-                  value={testForm.totalQuestions || 25}
-                  onChange={e => setTestForm(p => ({ ...p, totalQuestions: e.target.value }))}
-                  placeholder="25"
-                  required
-                  className="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                  value={testForm.questions?.length || testForm.totalQuestions || 1}
+                  readOnly
+                  className="w-full px-3.5 py-2.5 border rounded-xl bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-500 cursor-not-allowed outline-none"
                 />
+              </div>
+            </div>
+
+            {/* ── QUESTION BUILDER SECTION ── */}
+            <div className="space-y-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-black text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>❓ Test Questions ({(testForm.questions || []).length})</span>
+                  </h4>
+                  <p className="text-[10px] text-slate-400 font-semibold">Add multiple-choice questions with options and select the correct answer</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddQuestionItem}
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Question
+                </button>
+              </div>
+
+              {/* Questions List */}
+              <div className="space-y-4 max-h-96 overflow-y-auto pr-1">
+                {(testForm.questions || []).map((q, qIdx) => (
+                  <div key={qIdx} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-3 relative">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                        Question #{qIdx + 1}
+                      </span>
+                      {(testForm.questions || []).length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveQuestionItem(qIdx)}
+                          className="p-1 px-2 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/60 transition-all text-[11px] font-bold flex items-center gap-1"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> Remove
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Question Text */}
+                    <div>
+                      <input
+                        value={q.text || ''}
+                        onChange={e => handleUpdateQuestionText(qIdx, e.target.value)}
+                        placeholder={`Question #${qIdx + 1} text (e.g. What is the shortcut key for Save in Tally?)`}
+                        required
+                        className="w-full px-3.5 py-2 border rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    {/* Options Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {['A', 'B', 'C', 'D'].map((letter, optIdx) => (
+                        <div key={optIdx} className="flex items-center gap-2">
+                          <span className={`w-6 h-6 rounded-lg text-[11px] font-black flex items-center justify-center shrink-0 ${Number(q.correctOption) === optIdx ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
+                            {letter}
+                          </span>
+                          <input
+                            value={q.options?.[optIdx] || ''}
+                            onChange={e => handleUpdateQuestionOption(qIdx, optIdx, e.target.value)}
+                            placeholder={`Option ${letter}`}
+                            required
+                            className="w-full px-3 py-1.5 border rounded-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-xs font-semibold outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Correct Option Dropdown */}
+                    <div className="flex items-center justify-between pt-1">
+                      <label className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase">Correct Answer Key:</label>
+                      <select
+                        value={q.correctOption ?? 0}
+                        onChange={e => handleUpdateCorrectOption(qIdx, e.target.value)}
+                        className="px-3 py-1.5 border rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-xs font-bold text-emerald-600 dark:text-emerald-400 outline-none"
+                      >
+                        <option value={0}>Option A is Correct</option>
+                        <option value={1}>Option B is Correct</option>
+                        <option value={2}>Option C is Correct</option>
+                        <option value={3}>Option D is Correct</option>
+                      </select>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
