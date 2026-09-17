@@ -32,7 +32,7 @@ export default function StudentShowcaseMarquee() {
     return () => { isMounted = false; };
   }, []);
 
-  // Duplicate items list for continuous smooth infinite auto-sliding animation
+  // Duplicate items list for continuous smooth fast running marquee
   const marqueeList = [...students, ...students, ...students, ...students];
 
   return (
@@ -69,7 +69,7 @@ export default function StudentShowcaseMarquee() {
           <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none" />
 
-          {/* Continuous Automatic Infinite Scrolling Track */}
+          {/* Fast Running Marquee Track (Left & Right Ping-Pong) */}
           <div className="overflow-hidden py-4">
             <div className="flex items-center gap-6 sm:gap-10 animate-marquee flex-nowrap hover:[animation-play-state:paused]">
               {marqueeList.map((item, idx) => (
@@ -112,16 +112,16 @@ export default function StudentShowcaseMarquee() {
 
       </div>
 
-      {/* Auto Marquee CSS Animation Inject */}
+      {/* Fast Left-Right Ping-Pong Auto Marquee Animation */}
       <style>{`
-        @keyframes marquee {
+        @keyframes marquee-fast-pingpong {
           0% { transform: translateX(0%); }
           100% { transform: translateX(-50%); }
         }
         .animate-marquee {
           display: flex;
           width: max-content;
-          animation: marquee 25s linear infinite;
+          animation: marquee-fast-pingpong 14s ease-in-out infinite alternate;
         }
         .animate-marquee:hover {
           animation-play-state: paused;
