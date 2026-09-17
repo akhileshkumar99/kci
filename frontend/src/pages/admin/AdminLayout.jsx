@@ -5,7 +5,7 @@ import {
   LayoutDashboard, BookOpen, Users, FileText, Award, Image,
   ClipboardList, UserCheck, MessageSquare, LogOut, Menu,
   ChevronRight, Bell, Sun, Moon, Search, ChevronDown,
-  AlertCircle, CheckCircle, Info, Building2, Download, BarChart2, Shield
+  AlertCircle, CheckCircle, Info, Building2, Download, BarChart2, Shield, Star
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import DevCredit from '../../components/DevCredit';
