@@ -517,3 +517,23 @@
     background-position: 200% 0%;
   }
 }
+
+@keyframes kci-marquee-loop {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.kci-marquee-track {
+  display: flex !important;
+  width: max-content !important;
+  animation: kci-marquee-loop 16s linear infinite !important;
+  will-change: transform;
+}
+
+.kci-marquee-track:hover {
+  animation-play-state: paused !important;
+}

@@ -84,13 +84,6 @@ const features = [
   'Flexible Batch Timings',
 ];
 
-const testimonials = [
-  { name: 'Akhilesh Infotech', course: 'Fullstack Developer', text: 'Keerti computer institute is the best institute with top-notch faculty and lab facilities.', rating: 5 },
-  { name: 'Priya Sharma', course: 'DCA', text: 'KCI helped me get my first IT job. The faculty is excellent and practical hands-on learning is great.', rating: 5 },
-  { name: 'Rahul Verma', course: 'Tally with GST', text: 'Best computer training center. Learned Tally GST here and working as an accountant now.', rating: 5 },
-  { name: 'Anjali Singh', course: 'Web Design', text: 'The web development course was amazing. Built complete websites within 2 months.', rating: 5 },
-];
-
 const govtAffiliations = [
   { name: 'NIELIT', bg: 'bg-blue-50', text: 'text-blue-900', icon: GraduationCap },
   { name: 'Ministry of IT', bg: 'bg-indigo-50', text: 'text-indigo-900', icon: Building2 },
@@ -100,143 +93,6 @@ const govtAffiliations = [
   { name: 'Digital India', bg: 'bg-cyan-50', text: 'text-cyan-900', icon: Laptop },
   { name: 'ISO Certified', bg: 'bg-teal-50', text: 'text-teal-900', icon: BadgeCheck },
 ];
-
-function TestimonialsSection() {
-  const [reviews, setReviews] = useState(testimonials);
-  const [showForm, setShowForm] = useState(false);
-  const [newReview, setNewReview] = useState({ name: '', course: '', text: '', rating: 5 });
-  const [submitted, setSubmitted] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % reviews.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, [reviews.length]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!newReview.name.trim() || !newReview.text.trim()) return;
-    setReviews(prev => [{ ...newReview }, ...prev]);
-    setSubmitted(true);
-    setTimeout(() => { setShowForm(false); setSubmitted(false); setNewReview({ name: '', course: '', text: '', rating: 5 }); }, 2000);
-  };
-
-  return (
-    <section className="py-16 bg-[#f1f5f9] border-t border-slate-300 text-slate-900 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
-          <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.4 }}>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-blue-100 text-blue-900 border border-blue-200 mb-2 shadow-xs">
-              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 animate-pulse" /> Student Feedback
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">Student Reviews</h2>
-            <p className="text-slate-700 text-xs sm:text-sm font-bold mt-1">What our students say about their learning experience at KCI</p>
-          </motion.div>
-
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-150 self-start sm:self-auto">
-            <Star className="w-4 h-4 fill-amber-300 text-amber-300" />
-            {showForm ? 'Cancel' : 'Write a Review'}
-          </motion.button>
-        </div>
-
-        {/* Review Form Pop-up */}
-        <AnimatePresence>
-          {showForm && (
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: -20 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              className="bg-white rounded-3xl shadow-2xl border-2 border-slate-200 p-6 sm:p-8 mb-8 text-slate-900">
-              {submitted ? (
-                <div className="text-center py-6">
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300 }}
-                    className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <CheckCircle className="w-7 h-7 text-emerald-600" />
-                  </motion.div>
-                  <h3 className="text-lg font-bold text-slate-900">Thank you for your review! 🎉</h3>
-                  <p className="text-slate-600 text-xs mt-1 font-semibold">Your feedback has been added successfully.</p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <h3 className="text-lg font-black text-slate-900">Share Your Experience</h3>
-                  <div>
-                    <label className="text-xs font-bold text-slate-900 block mb-1.5 uppercase tracking-wider">Your Rating</label>
-                    <div className="flex gap-1.5">
-                      {[1, 2, 3, 4, 5].map(s => (
-                        <motion.button key={s} type="button" whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }} onClick={() => setNewReview(r => ({ ...r, rating: s }))} className="focus:outline-none">
-                          <Star className={`w-7 h-7 ${s <= newReview.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`} />
-                        </motion.button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-bold text-slate-900 block mb-1 uppercase tracking-wider">Your Name *</label>
-                      <input value={newReview.name} onChange={e => setNewReview(r => ({ ...r, name: e.target.value }))} placeholder="Full name" required
-                        className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 bg-slate-50 text-xs sm:text-sm font-bold text-slate-900" />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-slate-900 block mb-1 uppercase tracking-wider">Course Name</label>
-                      <input value={newReview.course} onChange={e => setNewReview(r => ({ ...r, course: e.target.value }))} placeholder="e.g. DCA, Tally, Web Design"
-                        className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 bg-slate-50 text-xs sm:text-sm font-bold text-slate-900" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-slate-900 block mb-1 uppercase tracking-wider">Review *</label>
-                    <textarea value={newReview.text} onChange={e => setNewReview(r => ({ ...r, text: e.target.value }))} placeholder="Share your experience at KCI..." rows={3} required
-                      className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 bg-slate-50 text-xs sm:text-sm font-bold text-slate-900 resize-none" />
-                  </div>
-                  <button type="submit" className="px-6 py-2.5 bg-blue-600 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md hover:bg-blue-700 transition-all duration-150">
-                    Submit Review
-                  </button>
-                </form>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Sliding Reviews */}
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4 }}
-          className="relative overflow-hidden bg-white rounded-3xl shadow-xl border-2 border-slate-200 p-6 sm:p-8 text-slate-900">
-          <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
-            {reviews.map((t, i) => (
-              <div key={i} className="w-full flex-shrink-0 px-2">
-                <div className="text-center max-w-2xl mx-auto">
-                  <div className="flex justify-center gap-1 mb-3">
-                    {[...Array(5)].map((_, j) => <Star key={j} className={`w-4 h-4 ${j < t.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />)}
-                  </div>
-                  <blockquote className="text-base sm:text-xl text-slate-900 font-bold leading-relaxed mb-4 italic">
-                    "{t.text}"
-                  </blockquote>
-                  <div className="flex items-center justify-center gap-2.5">
-                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-md">
-                      {t.name.charAt(0)}
-                    </div>
-                    <div className="text-left">
-                      <div className="font-extrabold text-slate-900 text-xs sm:text-sm">{t.name}</div>
-                      {t.course && <div className="text-blue-700 text-xs font-black">{t.course}</div>}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex justify-center gap-1.5 mt-6">
-            {reviews.map((_, i) => (
-              <button key={i} onClick={() => setCurrentIndex(i)}
-                className={`h-2 rounded-full transition-all duration-200 ${i === currentIndex ? 'w-6 bg-blue-600' : 'w-2 bg-slate-300 hover:bg-slate-400'}`} />
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
 
 const notices = [
   { text: 'New Batch Starting: DCA & ADCA — 1st of Every Month', badge: '📢 BATCH' },
@@ -661,9 +517,6 @@ export default function Home() {
           </div>
         </section>
       )}
-
-      {/* Testimonials */}
-      <TestimonialsSection />
 
       {/* Government Affiliations */}
       <section className="py-14 bg-[#f1f5f9] overflow-hidden border-t border-slate-200 text-slate-900">

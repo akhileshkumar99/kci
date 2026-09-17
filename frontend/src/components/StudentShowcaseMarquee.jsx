@@ -21,7 +21,7 @@ export default function StudentShowcaseMarquee() {
     const fetchShowcases = async () => {
       try {
         const { data } = await api.get('/showcase/public');
-        if (isMounted && data.success && data.students && data.students.length > 0) {
+        if (isMounted && data.success && Array.isArray(data.students) && data.students.length > 0) {
           setStudents(data.students);
         }
       } catch (err) {
@@ -32,8 +32,9 @@ export default function StudentShowcaseMarquee() {
     return () => { isMounted = false; };
   }, []);
 
-  // Duplicate items list for continuous smooth fast running marquee
-  const marqueeList = [...students, ...students, ...students, ...students];
+  // Duplicate items list multiple times for seamless, continuous infinite running marquee
+  const displayList = Array.isArray(students) && students.length > 0 ? students : DEFAULT_SHOWCASE_STUDENTS;
+  const marqueeList = [...displayList, ...displayList, ...displayList, ...displayList];
 
   return (
     <section className="relative bg-gradient-to-b from-slate-50 via-blue-50/40 to-slate-100 py-12 sm:py-16 overflow-hidden border-t border-slate-200/60">
@@ -62,16 +63,19 @@ export default function StudentShowcaseMarquee() {
           </div>
         </div>
 
-        {/* Continuous Running Marquee Container */}
+        {/* Continuous Running Marquee Wrapper Container */}
         <div className="relative overflow-hidden group">
           
           {/* Gradient Blur Edges for Seamless Blend */}
           <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none" />
 
-          {/* Continuous Running Marquee Track */}
-          <div className="overflow-hidden py-4">
-            <div className="flex items-center gap-6 sm:gap-10 animate-marquee flex-nowrap hover:[animation-play-state:paused]">
+          {/* Guaranteed Running Marquee Track */}
+          <div className="overflow-hidden py-4 w-full">
+            <div 
+              className="kci-marquee-track flex items-center gap-6 sm:gap-10 flex-nowrap"
+              style={{ animation: 'kci-marquee-loop 16s linear infinite' }}
+            >
               {marqueeList.map((item, idx) => (
                 <div 
                   key={`${item._id || item.name}-${idx}`}
@@ -111,27 +115,6 @@ export default function StudentShowcaseMarquee() {
         </div>
 
       </div>
-
-      {/* High Performance Continuous Marquee Animation */}
-      <style>{`
-        @keyframes marquee-loop {
-          0% { transform: translateX(0%); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-          display: flex;
-          width: max-content;
-          animation: marquee-loop 16s linear infinite;
-        }
-        .animate-marquee:hover {
-          animation-play-state: paused;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .animate-marquee {
-            animation: none;
-          }
-        }
-      `}</style>
     </section>
   );
 }
