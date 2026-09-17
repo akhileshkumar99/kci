@@ -89,12 +89,13 @@ const DEFAULT_STUDENTS = [
     name: 'Anand Singh',
     email: 'singhanand997497@gmail.com',
     phone: '07408168690',
-    fatherName: 'Ram Singh',
+    fatherName: 'Kd ckd fn',
     dob: '2002-05-15',
     courseName: 'Advance Diploma in Computer Application (ADCA)',
     batch: '2026',
     rollNumber: '2026010016',
-    enrollmentNumber: 'KCI/2026/ADCA/0001',
+    enrollmentNumber: 'KCI/ENR/2026/0016',
+    formNumber: 'KCI-F-2026/0016',
     address: 'Ambedkarnagar, U.P.',
     isApproved: true,
     createdAt: new Date().toISOString()
@@ -109,7 +110,8 @@ const DEFAULT_STUDENTS = [
     courseName: 'Diploma in Computer Application (DCA)',
     batch: '2026',
     rollNumber: '2026010015',
-    enrollmentNumber: 'KCI/2026/DCA/0002',
+    enrollmentNumber: 'KCI/ENR/2026/0015',
+    formNumber: 'KCI-F-2026/0015',
     address: 'Ambedkarnagar, U.P.',
     isApproved: true,
     createdAt: new Date().toISOString()
@@ -124,7 +126,8 @@ const DEFAULT_STUDENTS = [
     courseName: 'Certificate In Tally A/c With GST (CIT)',
     batch: '2026',
     rollNumber: '2026010005',
-    enrollmentNumber: 'KCI/2026/CIT/0005',
+    enrollmentNumber: 'KCI/ENR/2026/0005',
+    formNumber: 'KCI-F-2026/0005',
     address: 'Ambedkarnagar, U.P.',
     isApproved: true,
     createdAt: new Date().toISOString()
@@ -141,7 +144,8 @@ const EMPTY_STUDENT = {
   courseName: '',
   batch: '',
   rollNumber: '',
-  enrollmentNumber: ''
+  enrollmentNumber: '',
+  formNumber: ''
 };
 
 function RenewalCountdown({ renewalDate, approvedAt }) {
@@ -1334,7 +1338,18 @@ export default function BranchDashboard() {
                 <input
                   value={studentForm.enrollmentNumber || ''}
                   onChange={e => setStudentForm(p => ({ ...p, enrollmentNumber: e.target.value }))}
-                  placeholder="e.g. KCI/2026/ADCA/0001"
+                  placeholder="e.g. KCI/ENR/2026/0016"
+                  className="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Form Number */}
+              <div>
+                <label className="block text-[11px] font-extrabold uppercase text-slate-400 mb-1">Form Number</label>
+                <input
+                  value={studentForm.formNumber || ''}
+                  onChange={e => setStudentForm(p => ({ ...p, formNumber: e.target.value }))}
+                  placeholder="e.g. KCI-F-2026/0016"
                   className="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -1420,6 +1435,10 @@ export default function BranchDashboard() {
 
             {/* Details Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">Form Number</span>
+                <span className="font-mono font-black text-indigo-600 dark:text-indigo-400 text-sm">{viewItem.formNumber || viewItem.formNo || 'KCI-F-2026/0016'}</span>
+              </div>
               <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">Roll Number</span>
                 <span className="font-mono font-black text-blue-600 dark:text-blue-400 text-sm">{viewItem.rollNumber || '—'}</span>
