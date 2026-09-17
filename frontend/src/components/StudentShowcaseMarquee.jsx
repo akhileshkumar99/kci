@@ -62,14 +62,14 @@ export default function StudentShowcaseMarquee() {
           </div>
         </div>
 
-        {/* Marquee Wrapper Container */}
+        {/* Continuous Running Marquee Container */}
         <div className="relative overflow-hidden group">
           
           {/* Gradient Blur Edges for Seamless Blend */}
           <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none" />
 
-          {/* Fast Running Marquee Track (Left & Right Ping-Pong) */}
+          {/* Continuous Running Marquee Track */}
           <div className="overflow-hidden py-4">
             <div className="flex items-center gap-6 sm:gap-10 animate-marquee flex-nowrap hover:[animation-play-state:paused]">
               {marqueeList.map((item, idx) => (
@@ -112,16 +112,16 @@ export default function StudentShowcaseMarquee() {
 
       </div>
 
-      {/* Fast Left-Right Ping-Pong Auto Marquee Animation */}
+      {/* High Performance Continuous Marquee Animation */}
       <style>{`
-        @keyframes marquee-fast-pingpong {
+        @keyframes marquee-loop {
           0% { transform: translateX(0%); }
           100% { transform: translateX(-50%); }
         }
         .animate-marquee {
           display: flex;
           width: max-content;
-          animation: marquee-fast-pingpong 14s ease-in-out infinite alternate;
+          animation: marquee-loop 16s linear infinite;
         }
         .animate-marquee:hover {
           animation-play-state: paused;
