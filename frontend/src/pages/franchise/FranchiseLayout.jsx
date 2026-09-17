@@ -101,11 +101,10 @@ export default function FranchiseLayout() {
             const active = isActive({ path, exact });
             return (
               <Link key={path} to={path}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative ${
-                  active
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative ${active
                     ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200'
                     : `${navInactive} ${navHover}`
-                }`}
+                  }`}
               >
                 <Icon className={`w-5 h-5 shrink-0 ${active ? 'text-white' : color}`} />
                 <AnimatePresence>

@@ -236,9 +236,8 @@ function StudentForm({ initial, onSave, onClose, saving }) {
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-orange-700">🔑 Change Password</span>
             <button type="button" onClick={() => { setShowPass(p => !p); setForm(p => ({ ...p, newPassword: '' })); }}
-              className={`text-xs font-semibold px-3 py-1 rounded-lg transition-all ${
-                showPass ? 'bg-orange-200 text-orange-800' : 'bg-orange-100 text-orange-600 hover:bg-orange-200'
-              }`}>
+              className={`text-xs font-semibold px-3 py-1 rounded-lg transition-all ${showPass ? 'bg-orange-200 text-orange-800' : 'bg-orange-100 text-orange-600 hover:bg-orange-200'
+                }`}>
               {showPass ? 'Cancel' : 'Set New Password'}
             </button>
           </div>
@@ -421,10 +420,10 @@ function ResultForm({ initial, students, onSave, onClose, saving }) {
 
   const filteredStudents = query.trim()
     ? students.filter(s =>
-        s.name?.toLowerCase().includes(query.toLowerCase()) ||
-        s.rollNumber?.toLowerCase().includes(query.toLowerCase()) ||
-        s.enrollmentNumber?.toLowerCase().includes(query.toLowerCase())
-      ).slice(0, 8)
+      s.name?.toLowerCase().includes(query.toLowerCase()) ||
+      s.rollNumber?.toLowerCase().includes(query.toLowerCase()) ||
+      s.enrollmentNumber?.toLowerCase().includes(query.toLowerCase())
+    ).slice(0, 8)
     : students.slice(0, 8);
 
   const selectStudent = (s) => {
@@ -588,11 +587,11 @@ function CertStudentSearch({ students, onSelect }) {
 
   const filtered = query.trim()
     ? students.filter(s =>
-        s.name?.toLowerCase().includes(query.toLowerCase()) ||
-        s.enrollmentNumber?.toLowerCase().includes(query.toLowerCase()) ||
-        s.formNo?.toLowerCase().includes(query.toLowerCase()) ||
-        s.rollNumber?.toLowerCase().includes(query.toLowerCase())
-      ).slice(0, 8)
+      s.name?.toLowerCase().includes(query.toLowerCase()) ||
+      s.enrollmentNumber?.toLowerCase().includes(query.toLowerCase()) ||
+      s.formNo?.toLowerCase().includes(query.toLowerCase()) ||
+      s.rollNumber?.toLowerCase().includes(query.toLowerCase())
+    ).slice(0, 8)
     : [];
 
   const pick = (s) => {
@@ -634,20 +633,20 @@ function CertStudentSearch({ students, onSelect }) {
         />
         {open && filtered.length > 0 && (
           <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden max-h-52 overflow-y-auto">
-          {filtered.map(s => (
-            <button key={s._id} type="button" onClick={() => pick(s)}
-              className="w-full flex items-start gap-3 px-4 py-3 hover:bg-teal-50 transition-colors text-left border-b border-gray-50 last:border-0">
-              <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center shrink-0 text-teal-700 font-black text-sm">
-                {s.name?.[0]?.toUpperCase()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-gray-900 truncate">{s.name}</p>
-                <p className="text-xs text-gray-400 truncate">
-                  {s.formNo || s.enrollmentNumber || s.rollNumber} · {s.courseName}
-                </p>
-              </div>
-            </button>
-          ))}
+            {filtered.map(s => (
+              <button key={s._id} type="button" onClick={() => pick(s)}
+                className="w-full flex items-start gap-3 px-4 py-3 hover:bg-teal-50 transition-colors text-left border-b border-gray-50 last:border-0">
+                <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center shrink-0 text-teal-700 font-black text-sm">
+                  {s.name?.[0]?.toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-gray-900 truncate">{s.name}</p>
+                  <p className="text-xs text-gray-400 truncate">
+                    {s.formNo || s.enrollmentNumber || s.rollNumber} · {s.courseName}
+                  </p>
+                </div>
+              </button>
+            ))}
           </div>
         )}
         {open && filtered.length === 0 && query.trim() && (
@@ -693,7 +692,7 @@ function CertForm({ initial, students, onSave, onClose, saving }) {
     try {
       const { data } = await api.get(`/branch/certificates/next-number?courseName=${encodeURIComponent(courseName)}`);
       if (data.certNumber) setForm(p => ({ ...p, certificateNumber: data.certNumber }));
-    } catch {}
+    } catch { }
     setLoadingCertNo(false);
   };
 
@@ -812,12 +811,12 @@ function TestFormModal({ initial, onSave, onClose, saving }) {
     month: initial?.month || '',
     duration: initial?.duration || 30,
     isActive: initial?.isActive ?? true,
-    questions: initial?.questions?.length ? initial.questions.map(q => ({ ...q, options: q.options?.length ? q.options : ['','','',''] })) : [{ ...EMPTY_Q }],
+    questions: initial?.questions?.length ? initial.questions.map(q => ({ ...q, options: q.options?.length ? q.options : ['', '', '', ''] })) : [{ ...EMPTY_Q }],
   });
 
   const setQ = (i, field, val) => setForm(p => ({ ...p, questions: p.questions.map((q, j) => j === i ? { ...q, [field]: val } : q) }));
   const setOpt = (qi, oi, val) => setForm(p => ({ ...p, questions: p.questions.map((q, j) => j === qi ? { ...q, options: q.options.map((o, k) => k === oi ? val : o) } : q) }));
-  const addQ = () => setForm(p => ({ ...p, questions: [...p.questions, { ...EMPTY_Q, options: ['','','',''] }] }));
+  const addQ = () => setForm(p => ({ ...p, questions: [...p.questions, { ...EMPTY_Q, options: ['', '', '', ''] }] }));
   const removeQ = (i) => setForm(p => ({ ...p, questions: p.questions.filter((_, j) => j !== i) }));
 
   const inp = 'w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 bg-gray-50';
@@ -880,12 +879,10 @@ function TestFormModal({ initial, onSave, onClose, saving }) {
                   className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 bg-white" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {q.options.map((opt, oi) => (
-                    <div key={oi} className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all cursor-pointer ${
-                      q.correctAnswer === oi ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white'
-                    }`} onClick={() => setQ(i, 'correctAnswer', oi)}>
-                      <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
-                        q.correctAnswer === oi ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'
-                      }`}>{String.fromCharCode(65 + oi)}</span>
+                    <div key={oi} className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all cursor-pointer ${q.correctAnswer === oi ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white'
+                      }`} onClick={() => setQ(i, 'correctAnswer', oi)}>
+                      <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${q.correctAnswer === oi ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'
+                        }`}>{String.fromCharCode(65 + oi)}</span>
                       <input value={opt} onChange={e => setOpt(i, oi, e.target.value)} placeholder={`Option ${String.fromCharCode(65 + oi)}`}
                         className="flex-1 text-xs bg-transparent outline-none" onClick={e => e.stopPropagation()} />
                     </div>
@@ -985,9 +982,8 @@ function PasswordResetModal({ onClose, userEmail }) {
                 </div>
               ))}
               {form.newPassword && form.confirmPassword && (
-                <div className={`text-xs font-bold px-3 py-2 rounded-lg ${
-                  form.newPassword === form.confirmPassword ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'
-                }`}>
+                <div className={`text-xs font-bold px-3 py-2 rounded-lg ${form.newPassword === form.confirmPassword ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'
+                  }`}>
                   {form.newPassword === form.confirmPassword ? '✓ Passwords match' : '✗ Passwords do not match'}
                 </div>
               )}
@@ -1047,13 +1043,12 @@ function ReportIssueModal({ onClose }) {
           {types.map(([type, icon]) => (
             <button key={type}
               onClick={() => setSelectedType(prev => prev === type ? '' : type)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left ${
-                selectedType === type
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left ${selectedType === type
                   ? 'border-red-500 bg-red-50'
                   : 'border-gray-100 hover:border-red-200 hover:bg-red-50'
-              }`}>
+                }`}>
               <span className="text-xl">{icon}</span>
-              <span className={`text-sm font-bold flex-1 ${ selectedType === type ? 'text-red-700' : 'text-gray-700' }`}>{type}</span>
+              <span className={`text-sm font-bold flex-1 ${selectedType === type ? 'text-red-700' : 'text-gray-700'}`}>{type}</span>
               {selectedType === type
                 ? <span className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></span>
                 : <span className="text-xs text-gray-300">→</span>
@@ -1163,7 +1158,7 @@ export default function BranchDashboard() {
           try {
             await api.post('/branch/students', { name: row.Name, email: row.Email, phone: row.Phone || '', batch: row.Batch || '', courseName: row.Course || '' });
             added++;
-          } catch {}
+          } catch { }
         }
         toast.success(`${added} students imported!`);
         loadData();
@@ -1178,7 +1173,7 @@ export default function BranchDashboard() {
     try {
       const { data } = await api.get('/notifications/my');
       setNotifications(data.notifications || []);
-    } catch {}
+    } catch { }
     setNotifLoading(false);
   };
 
@@ -1186,14 +1181,14 @@ export default function BranchDashboard() {
     try {
       await api.put(`/notifications/${id}/read`);
       setNotifications(p => p.map(n => n._id === id ? { ...n, isRead: true } : n));
-    } catch {}
+    } catch { }
   };
 
   const handleMarkAllRead = async () => {
     try {
       await api.put('/notifications/mark-all-read');
       setNotifications(p => p.map(n => ({ ...n, isRead: true })));
-    } catch {}
+    } catch { }
   };
 
   const typeIcon = (type) => {
@@ -1210,13 +1205,13 @@ export default function BranchDashboard() {
   };
 
   const loadData = () => {
-    api.get('/branch/dashboard-stats').then(r => setStats(r.data.stats)).catch(() => {});
-    api.get('/branch/students').then(r => setStudents(r.data.students || [])).catch(() => {});
-    api.get('/branch/admissions').then(r => setAdmissions(r.data.admissions || [])).catch(() => {});
-    api.get('/branch/results').then(r => setResults(r.data.results || [])).catch(() => {});
-    api.get('/branch/certificates').then(r => setCertificates(r.data.certificates || [])).catch(() => {});
-    api.get('/branch/tests').then(r => setTests(r.data.tests || [])).catch(() => {});
-    api.get('/study-material').then(r => setStudyMaterials(r.data.materials || [])).catch(() => {});
+    api.get('/branch/dashboard-stats').then(r => setStats(r.data.stats)).catch(() => { });
+    api.get('/branch/students').then(r => setStudents(r.data.students || [])).catch(() => { });
+    api.get('/branch/admissions').then(r => setAdmissions(r.data.admissions || [])).catch(() => { });
+    api.get('/branch/results').then(r => setResults(r.data.results || [])).catch(() => { });
+    api.get('/branch/certificates').then(r => setCertificates(r.data.certificates || [])).catch(() => { });
+    api.get('/branch/tests').then(r => setTests(r.data.tests || [])).catch(() => { });
+    api.get('/study-material').then(r => setStudyMaterials(r.data.materials || [])).catch(() => { });
   };
 
   useEffect(() => {
@@ -1370,7 +1365,7 @@ export default function BranchDashboard() {
       setAdmissions(p => p.map(a => a._id === id ? { ...a, status } : a));
       if (data.newStudent) {
         // Reload full students list to get complete data from DB
-        api.get('/branch/students').then(r => setStudents(r.data.students || [])).catch(() => {});
+        api.get('/branch/students').then(r => setStudents(r.data.students || [])).catch(() => { });
         toast.success('Admission Approved! Student account created & credentials sent via email.');
       } else {
         toast.success(`Admission ${status}!`);
@@ -1459,7 +1454,7 @@ export default function BranchDashboard() {
           <button onClick={() => setLogoPreview(true)}
             className="w-10 h-10 rounded-xl overflow-hidden shrink-0 flex items-center justify-center hover:scale-105 transition-all"
             style={{ background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
-            <img src="/logo.png" alt="KCI" className="w-full h-full object-contain" onError={e => { e.target.style.display='none'; }} />
+            <img src="/logo.png" alt="KCI" className="w-full h-full object-contain" onError={e => { e.target.style.display = 'none'; }} />
           </button>
           {sidebarOpen && (
             <div className="min-w-0">
@@ -1697,1067 +1692,1046 @@ export default function BranchDashboard() {
           </div>
         </header>
 
-      <div className="flex-1 p-4 sm:p-6 space-y-5 overflow-y-auto">
+        <div className="flex-1 p-4 sm:p-6 space-y-5 overflow-y-auto">
 
-        {/* ── OVERVIEW ── */}
-        {activeTab === 'overview' && (
-          <div className="space-y-5">
+          {/* ── OVERVIEW ── */}
+          {activeTab === 'overview' && (
+            <div className="space-y-5">
 
-            {/* ── PROFILE + STATS ROW ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+              {/* ── PROFILE + STATS ROW ── */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
-              {/* Branch Profile Card */}
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-                className="lg:col-span-1 rounded-2xl"
-                style={{ background: 'linear-gradient(135deg, #1E3A8A 0%, #2563EB 60%, #3B82F6 100%)', border: '1px solid #1D4ED8', boxShadow: '0 8px 32px rgba(37,99,235,0.35)' }}>
-                <div className="p-5">
-                  {/* Top row: avatar + badge */}
-                  <div className="flex items-center gap-4 mb-5">
-                    <div
-                      onClick={() => user?.photo && setPhotoPreview(true)}
-                      className={`rounded-2xl shrink-0 ${user?.photo ? 'cursor-pointer' : ''}`}
-                      style={{ width: 80, height: 80, overflow: 'hidden', background: 'rgba(255,255,255,0.15)', border: '3px solid rgba(255,255,255,0.5)', boxShadow: '0 4px 20px rgba(0,0,0,0.25)' }}>
-                      {user?.photo
-                        ? <img
+                {/* Branch Profile Card */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+                  className="lg:col-span-1 rounded-2xl"
+                  style={{ background: 'linear-gradient(135deg, #1E3A8A 0%, #2563EB 60%, #3B82F6 100%)', border: '1px solid #1D4ED8', boxShadow: '0 8px 32px rgba(37,99,235,0.35)' }}>
+                  <div className="p-5">
+                    {/* Top row: avatar + badge */}
+                    <div className="flex items-center gap-4 mb-5">
+                      <div
+                        onClick={() => user?.photo && setPhotoPreview(true)}
+                        className={`rounded-2xl shrink-0 ${user?.photo ? 'cursor-pointer' : ''}`}
+                        style={{ width: 80, height: 80, overflow: 'hidden', background: 'rgba(255,255,255,0.15)', border: '3px solid rgba(255,255,255,0.5)', boxShadow: '0 4px 20px rgba(0,0,0,0.25)' }}>
+                        {user?.photo
+                          ? <img
                             src={user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_URL || ''}${user.photo}`}
                             alt={user.name}
                             style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
                           />
-                        : <div className="w-full h-full flex items-center justify-center"><span className="text-3xl font-black text-white">{(user?.branchName || 'B')[0]}</span></div>}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)' }}>
-                          <div className="w-2 h-2 bg-green-300 rounded-full animate-pulse" />
-                          <span className="text-xs font-black tracking-widest text-white">ACTIVE</span>
+                          : <div className="w-full h-full flex items-center justify-center"><span className="text-3xl font-black text-white">{(user?.branchName || 'B')[0]}</span></div>}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)' }}>
+                            <div className="w-2 h-2 bg-green-300 rounded-full animate-pulse" />
+                            <span className="text-xs font-black tracking-widest text-white">ACTIVE</span>
+                          </div>
                         </div>
+                        <div className="text-xs font-black uppercase tracking-widest mb-0.5" style={{ color: 'rgba(255,255,255,0.7)' }}>🏢 Branch Dashboard</div>
+                        <div className="text-xl font-black leading-tight truncate text-white">{user?.branchName}</div>
+                        <div className="text-base font-black truncate" style={{ color: 'rgba(255,255,255,0.9)' }}>{user?.name}</div>
                       </div>
-                      <div className="text-xs font-black uppercase tracking-widest mb-0.5" style={{ color: 'rgba(255,255,255,0.7)' }}>🏢 Branch Dashboard</div>
-                      <div className="text-xl font-black leading-tight truncate text-white">{user?.branchName}</div>
-                      <div className="text-base font-black truncate" style={{ color: 'rgba(255,255,255,0.9)' }}>{user?.name}</div>
                     </div>
+                    {/* Info rows */}
+                    <div className="space-y-2.5">
+                      {[{ icon: '🎫', val: user?.branchCode }, { icon: '📍', val: user?.branchCity }, { icon: '📧', val: user?.email }].filter(x => x.val).map((x, i) => (
+                        <div key={i} className="flex items-center gap-2.5 px-3 py-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)' }}>
+                          <span className="text-base shrink-0">{x.icon}</span>
+                          <span className="text-sm font-black text-white truncate">{x.val}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Renewal Countdown inside profile card */}
+                    <RenewalCountdown renewalDate={user?.renewalDate} approvedAt={user?.approvedAt} />
                   </div>
-                  {/* Info rows */}
-                  <div className="space-y-2.5">
-                    {[{ icon: '🎫', val: user?.branchCode }, { icon: '📍', val: user?.branchCity }, { icon: '📧', val: user?.email }].filter(x => x.val).map((x, i) => (
-                      <div key={i} className="flex items-center gap-2.5 px-3 py-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)' }}>
-                        <span className="text-base shrink-0">{x.icon}</span>
-                        <span className="text-sm font-black text-white truncate">{x.val}</span>
-                      </div>
-                    ))}
-                  </div>
-                  {/* Renewal Countdown inside profile card */}
-                  <RenewalCountdown renewalDate={user?.renewalDate} approvedAt={user?.approvedAt} />
-                </div>
-              </motion.div>
+                </motion.div>
 
-              {/* Stats Grid */}
-              <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {[
+                {/* Stats Grid */}
+                <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {[
                   { icon: Users, label: 'Students', value: stats?.students, gradient: 'linear-gradient(135deg,#2563EB,#3B82F6)', bg: '#EFF6FF', tab: 'students', emoji: '👨‍🎓' },
                   { icon: CheckCircle, label: 'Active', value: stats?.active, gradient: 'linear-gradient(135deg,#16A34A,#22C55E)', bg: '#F0FDF4', tab: 'students', emoji: '✅' },
                   { icon: ClipboardList, label: 'Admissions', value: stats?.admissions, gradient: 'linear-gradient(135deg,#D97706,#F59E0B)', bg: '#FFFBEB', tab: 'admissions', emoji: '📋' },
                   { icon: BookOpen, label: 'Courses', value: stats?.courses, gradient: 'linear-gradient(135deg,#7C3AED,#8B5CF6)', bg: '#F5F3FF', action: 'courses', emoji: '📚' },
-                  { icon: Award, label: 'Results', value: stats?.results, gradient: 'linear-gradient(135deg,#EA580C,#F97316)', bg: '#FFF7ED', tab: 'results', emoji: '🏆' },
-                  { icon: FileText, label: 'Certificates', value: stats?.certificates, gradient: 'linear-gradient(135deg,#0D9488,#14B8A6)', bg: '#F0FDFA', tab: 'certificates', emoji: '📜' },
-                ].map(({ icon: Icon, label, value, gradient, bg, tab, action, emoji }, i) => (
-                  <motion.div key={label}
-                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.06, type: 'spring', stiffness: 200 }}
-                    whileHover={{ y: -5, boxShadow: '0 16px 40px rgba(0,0,0,0.12)' }}
-                    onClick={() => { if (tab) { setActiveTab(tab); setSearch(''); } else if (action === 'courses') setModal('courses'); }}
-                    className="rounded-2xl p-4 cursor-pointer relative overflow-hidden"
-                    style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
-                    {/* top color bar */}
-                    <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl" style={{ background: gradient }} />
-                    <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-3 mt-1" style={{ background: gradient, boxShadow: `0 4px 12px rgba(0,0,0,0.15)` }}>
-                      <Icon className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="text-3xl font-black" style={{ color: '#1E293B' }}>{value ?? 0}</div>
-                    <div className="text-sm font-bold mt-0.5 flex items-center gap-1" style={{ color: '#64748B' }}>
-                      <span>{emoji}</span><span>{label}</span>
-                    </div>
-                    <div className="mt-2.5 h-1.5 rounded-full" style={{ background: bg }}>
-                      <motion.div className="h-full rounded-full" style={{ background: gradient }}
-                        initial={{ width: 0 }} animate={{ width: '75%' }} transition={{ delay: i * 0.1 + 0.3, duration: 0.8 }} />
-                    </div>
-                  </motion.div>
-                ))}
+                  ].map(({ icon: Icon, label, value, gradient, bg, tab, action, emoji }, i) => (
+                    <motion.div key={label}
+                      initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.06, type: 'spring', stiffness: 200 }}
+                      whileHover={{ y: -5, boxShadow: '0 16px 40px rgba(0,0,0,0.12)' }}
+                      onClick={() => { if (tab) { setActiveTab(tab); setSearch(''); } else if (action === 'courses') setModal('courses'); }}
+                      className="rounded-2xl p-4 cursor-pointer relative overflow-hidden"
+                      style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
+                      {/* top color bar */}
+                      <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl" style={{ background: gradient }} />
+                      <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-3 mt-1" style={{ background: gradient, boxShadow: `0 4px 12px rgba(0,0,0,0.15)` }}>
+                        <Icon className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="text-3xl font-black" style={{ color: '#1E293B' }}>{value ?? 0}</div>
+                      <div className="text-sm font-bold mt-0.5 flex items-center gap-1" style={{ color: '#64748B' }}>
+                        <span>{emoji}</span><span>{label}</span>
+                      </div>
+                      <div className="mt-2.5 h-1.5 rounded-full" style={{ background: bg }}>
+                        <motion.div className="h-full rounded-full" style={{ background: gradient }}
+                          initial={{ width: 0 }} animate={{ width: '75%' }} transition={{ delay: i * 0.1 + 0.3, duration: 0.8 }} />
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* ── CHARTS ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              {[
-                {
-                  title: 'Students by Course', icon: '📊',
-                  chart: (
-                    <ResponsiveContainer width="100%" height={200}>
-                      <BarChart data={(() => { const map = {}; students.forEach(s => { const name = (s.courseName || 'Unknown').split('(')[0].trim().slice(0, 12); map[name] = (map[name] || 0) + 1; }); return Object.entries(map).map(([name, count]) => ({ name, count })); })()} margin={{ top: 0, right: 10, left: -20, bottom: 40 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                        <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 600, fill: '#94A3B8' }} angle={-35} textAnchor="end" interval={0} />
-                        <YAxis tick={{ fontSize: 10, fill: '#94A3B8' }} allowDecimals={false} />
-                        <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #E2E8F0', color: '#1E293B' }} />
-                        <Bar dataKey="count" fill="#2563EB" radius={[6, 6, 0, 0]} name="Students" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  )
-                },
-                {
-                  title: 'Admission Status', icon: '📋',
-                  chart: (
-                    <ResponsiveContainer width="100%" height={200}>
-                      <PieChart>
-                        <Pie data={[{ name: 'Approved', value: admissions.filter(a => a.status === 'Approved').length }, { name: 'Pending', value: admissions.filter(a => !a.status || a.status === 'Pending').length }, { name: 'Rejected', value: admissions.filter(a => a.status === 'Rejected').length }].filter(d => d.value > 0)}
-                          cx="50%" cy="50%" outerRadius={75} dataKey="value" label={({ name, value }) => `${name}: ${value}`} labelLine={false}>
-                          {['#22C55E', '#F59E0B', '#EF4444'].map((c, i) => <Cell key={i} fill={c} />)}
-                        </Pie>
-                        <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11, color: '#64748B' }} />
-                        <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #E2E8F0', color: '#1E293B' }} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  )
-                },
-                {
-                  title: 'Results Overview', icon: '🏆',
-                  chart: (
-                    <ResponsiveContainer width="100%" height={200}>
-                      <BarChart data={(() => { const map = {}; results.forEach(r => { const name = (r.courseName || 'Unknown').split('(')[0].trim().slice(0, 12); if (!map[name]) map[name] = { name, Pass: 0, Fail: 0 }; map[name][r.status === 'Pass' ? 'Pass' : 'Fail']++; }); return Object.values(map); })()} margin={{ top: 0, right: 10, left: -20, bottom: 40 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                        <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 600, fill: '#94A3B8' }} angle={-35} textAnchor="end" interval={0} />
-                        <YAxis tick={{ fontSize: 10, fill: '#94A3B8' }} allowDecimals={false} />
-                        <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #E2E8F0', color: '#1E293B' }} />
-                        <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11, color: '#64748B' }} />
-                        <Bar dataKey="Pass" fill="#22C55E" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="Fail" fill="#EF4444" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  )
-                },
-                {
-                  title: 'Student Approval Status', icon: '👥',
-                  chart: (
-                    <>
-                      <ResponsiveContainer width="100%" height={160}>
+              {/* ── CHARTS ── */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                {[
+                  {
+                    title: 'Students by Course', icon: '📊',
+                    chart: (
+                      <ResponsiveContainer width="100%" height={200}>
+                        <BarChart data={(() => { const map = {}; students.forEach(s => { const name = (s.courseName || 'Unknown').split('(')[0].trim().slice(0, 12); map[name] = (map[name] || 0) + 1; }); return Object.entries(map).map(([name, count]) => ({ name, count })); })()} margin={{ top: 0, right: 10, left: -20, bottom: 40 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                          <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 600, fill: '#94A3B8' }} angle={-35} textAnchor="end" interval={0} />
+                          <YAxis tick={{ fontSize: 10, fill: '#94A3B8' }} allowDecimals={false} />
+                          <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #E2E8F0', color: '#1E293B' }} />
+                          <Bar dataKey="count" fill="#2563EB" radius={[6, 6, 0, 0]} name="Students" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    )
+                  },
+                  {
+                    title: 'Admission Status', icon: '📋',
+                    chart: (
+                      <ResponsiveContainer width="100%" height={200}>
                         <PieChart>
-                          <Pie data={[{ name: 'Approved', value: students.filter(s => s.isApproved).length }, { name: 'Pending', value: students.filter(s => !s.isApproved).length }].filter(d => d.value > 0)}
-                            cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value">
-                            <Cell fill="#2563EB" /><Cell fill="#F59E0B" />
+                          <Pie data={[{ name: 'Approved', value: admissions.filter(a => a.status === 'Approved').length }, { name: 'Pending', value: admissions.filter(a => !a.status || a.status === 'Pending').length }, { name: 'Rejected', value: admissions.filter(a => a.status === 'Rejected').length }].filter(d => d.value > 0)}
+                            cx="50%" cy="50%" outerRadius={75} dataKey="value" label={({ name, value }) => `${name}: ${value}`} labelLine={false}>
+                            {['#22C55E', '#F59E0B', '#EF4444'].map((c, i) => <Cell key={i} fill={c} />)}
                           </Pie>
                           <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11, color: '#64748B' }} />
                           <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #E2E8F0', color: '#1E293B' }} />
                         </PieChart>
                       </ResponsiveContainer>
-                      <div className="flex justify-center gap-6 mt-1">
-                        {[['Approved', students.filter(s => s.isApproved).length, '#2563EB'], ['Pending', students.filter(s => !s.isApproved).length, '#F59E0B'], ['Certs', certificates.length, '#14B8A6']].map(([l, v, c]) => (
-                          <div key={l} className="text-center">
-                            <div className="text-lg font-black" style={{ color: c }}>{v}</div>
-                            <div className="text-[10px] font-semibold" style={{ color: '#94A3B8' }}>{l}</div>
-                          </div>
-                        ))}
+                    )
+                  },
+                  {
+                    title: 'Student Approval Status', icon: '👥',
+                    chart: (
+                      <>
+                        <ResponsiveContainer width="100%" height={160}>
+                          <PieChart>
+                            <Pie data={[{ name: 'Approved', value: students.filter(s => s.isApproved).length }, { name: 'Pending', value: students.filter(s => !s.isApproved).length }].filter(d => d.value > 0)}
+                              cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value">
+                              <Cell fill="#2563EB" /><Cell fill="#F59E0B" />
+                            </Pie>
+                            <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 11, color: '#64748B' }} />
+                            <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, background: '#fff', border: '1px solid #E2E8F0', color: '#1E293B' }} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                        <div className="flex justify-center gap-6 mt-1">
+                          {[['Approved', students.filter(s => s.isApproved).length, '#2563EB'], ['Pending', students.filter(s => !s.isApproved).length, '#F59E0B']].map(([l, v, c]) => (
+                            <div key={l} className="text-center">
+                              <div className="text-lg font-black" style={{ color: c }}>{v}</div>
+                              <div className="text-[10px] font-semibold" style={{ color: '#94A3B8' }}>{l}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )
+                  },
+                ].map(({ title, icon, chart }) => (
+                  <motion.div key={title}
+                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ y: -2 }} transition={{ type: 'spring', stiffness: 300 }}
+                    className="rounded-2xl p-5"
+                    style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: '#EFF6FF' }}>
+                        <span className="text-xs">{icon}</span>
                       </div>
-                    </>
-                  )
-                },
-              ].map(({ title, icon, chart }) => (
-                <motion.div key={title}
-                  initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -2 }} transition={{ type: 'spring', stiffness: 300 }}
-                  className="rounded-2xl p-5"
-                  style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: '#EFF6FF' }}>
-                      <span className="text-xs">{icon}</span>
+                      <h3 className="text-sm font-black" style={{ color: '#1E293B' }}>{title}</h3>
                     </div>
-                    <h3 className="text-sm font-black" style={{ color: '#1E293B' }}>{title}</h3>
-                  </div>
-                  {chart}
-                </motion.div>
-              ))}
-            </div>
-
-            {/* ── BRANCH INFO CARD ── */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-              className="rounded-2xl overflow-hidden"
-              style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
-              <div className="px-5 py-4 flex items-center gap-3 border-b" style={{ borderColor: '#E2E8F0', background: '#F8FAFC' }}>
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: '#EFF6FF' }}>
-                  <Building2 className="w-4 h-4" style={{ color: '#2563EB' }} />
-                </div>
-                <span className="font-black text-base" style={{ color: '#1E293B' }}>Branch Information</span>
-              </div>
-              <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {[
-                  { icon: '🏢', label: 'Branch Name', value: user?.branchName },
-                  { icon: '🎫', label: 'Branch Code', value: user?.branchCode, mono: true },
-                  { icon: '📍', label: 'City', value: user?.branchCity },
-                  { icon: '📞', label: 'Phone', value: user?.phone || '—' },
-                  { icon: '📧', label: 'Email', value: user?.email },
-                  { icon: '📮', label: 'Address', value: user?.branchAddress || user?.address || '—' },
-                ].map(({ icon, label, value, mono }, idx) => (
-                  <motion.div key={label}
-                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.05 * idx }}
-                    whileHover={{ scale: 1.02 }}
-                    className="flex items-start gap-3 p-3 rounded-xl"
-                    style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-                    <span className="text-base shrink-0">{icon}</span>
-                    <div className="min-w-0">
-                      <div className="text-xs font-bold uppercase tracking-wide" style={{ color: '#94A3B8' }}>{label}</div>
-                      <div className={`text-base font-black truncate ${mono ? 'font-mono' : ''}`} style={{ color: mono ? '#2563EB' : '#1E293B' }}>{value || '—'}</div>
-                    </div>
+                    {chart}
                   </motion.div>
+                ))}
+              </div>
+
+              {/* ── BRANCH INFO CARD ── */}
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+                className="rounded-2xl overflow-hidden"
+                style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
+                <div className="px-5 py-4 flex items-center gap-3 border-b" style={{ borderColor: '#E2E8F0', background: '#F8FAFC' }}>
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: '#EFF6FF' }}>
+                    <Building2 className="w-4 h-4" style={{ color: '#2563EB' }} />
+                  </div>
+                  <span className="font-black text-base" style={{ color: '#1E293B' }}>Branch Information</span>
+                </div>
+                <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {[
+                    { icon: '🏢', label: 'Branch Name', value: user?.branchName },
+                    { icon: '🎫', label: 'Branch Code', value: user?.branchCode, mono: true },
+                    { icon: '📍', label: 'City', value: user?.branchCity },
+                    { icon: '📞', label: 'Phone', value: user?.phone || '—' },
+                    { icon: '📧', label: 'Email', value: user?.email },
+                    { icon: '📮', label: 'Address', value: user?.branchAddress || user?.address || '—' },
+                  ].map(({ icon, label, value, mono }, idx) => (
+                    <motion.div key={label}
+                      initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.05 * idx }}
+                      whileHover={{ scale: 1.02 }}
+                      className="flex items-start gap-3 p-3 rounded-xl"
+                      style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                      <span className="text-base shrink-0">{icon}</span>
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold uppercase tracking-wide" style={{ color: '#94A3B8' }}>{label}</div>
+                        <div className={`text-base font-black truncate ${mono ? 'font-mono' : ''}`} style={{ color: mono ? '#2563EB' : '#1E293B' }}>{value || '—'}</div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+          )}
+
+          {/* Students */}
+          {activeTab === 'students' && (
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <h2 className="text-xl font-black text-gray-900">Students <span className="text-blue-600">({students.length})</span></h2>
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="relative flex-1 min-w-[140px]">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..."
+                      className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-white w-full font-medium" />
+                  </div>
+                  <input ref={importRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={importExcel} />
+                  <button onClick={() => importRef.current.click()}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700 transition-colors shadow-md">
+                    <Upload className="w-4 h-4" /> <span className="hidden sm:inline">Import</span>
+                  </button>
+                  <button onClick={exportExcel}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-colors shadow-md">
+                    <Download className="w-4 h-4" /> <span className="hidden sm:inline">Export</span>
+                  </button>
+                  <button onClick={() => { setSelected(null); setModal('add'); }}
+                    className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold transition-all shadow-md">
+                    <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add Student</span><span className="sm:hidden">Add</span>
+                  </button>
+                </div>
+              </div>
+              {/* Mobile Cards */}
+              <div className="block sm:hidden space-y-3">
+                {filtered(students, ['name', 'enrollmentNumber', 'rollNumber', 'courseName', 'phone']).map(s => (
+                  <div key={s._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      {s.photo ? (
+                        <img src={getPhotoUrl(s.photo)} alt={s.name} className="w-10 h-10 rounded-full object-cover border-2 border-blue-100 shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                          <span className="text-sm font-bold text-blue-600">{s.name[0].toUpperCase()}</span>
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <div className="font-black text-gray-900 text-sm truncate">{s.name}</div>
+                        <div className="text-xs text-gray-500 truncate">{s.email}</div>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-black shrink-0 ${s.isApproved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                        {s.isApproved ? '✓' : '⏳'}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1.5 text-xs mb-3">
+                      <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Enroll: </span><span className="font-bold text-green-700 font-mono">{s.enrollmentNumber || '—'}</span></div>
+                      <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Phone: </span><span className="font-bold">{s.phone || '—'}</span></div>
+                      <div className="bg-gray-50 rounded-lg px-2 py-1 col-span-2"><span className="text-gray-400">Course: </span><span className="font-bold text-indigo-700">{s.courseName || '—'}</span></div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => { setViewItem(s); setViewType('student'); }} className="flex-1 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold flex items-center justify-center gap-1"><Eye className="w-3 h-3" /> View</button>
+                      <button onClick={() => { setSelected(s); setModal('edit'); }} className="flex-1 py-1.5 bg-amber-50 text-amber-700 rounded-lg text-xs font-bold flex items-center justify-center gap-1"><Pencil className="w-3 h-3" /> Edit</button>
+                      {!s.isApproved && (
+                        <button onClick={() => handleApprove(s._id)} disabled={approving === s._id} className="flex-1 py-1.5 bg-green-50 text-green-700 rounded-lg text-xs font-bold flex items-center justify-center gap-1">
+                          {approving === s._id ? <div className="w-3 h-3 border-2 border-green-600 border-t-transparent rounded-full animate-spin" /> : <><Check className="w-3 h-3" /> OK</>}
+                        </button>
+                      )}
+                      <button onClick={() => handleDelete(s._id, s.name)} className="flex-1 py-1.5 bg-red-50 text-red-700 rounded-lg text-xs font-bold flex items-center justify-center gap-1"><Trash2 className="w-3 h-3" /> Del</button>
+                    </div>
+                  </div>
+                ))}
+                {students.length === 0 && <div className="text-center py-12 text-gray-400"><Users className="w-10 h-10 mx-auto mb-2 text-gray-200" /><p className="font-semibold">No students yet.</p></div>}
+              </div>
+              {/* Desktop Table */}
+              <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gradient-to-r from-blue-600 to-indigo-600">
+                      <tr>{['Name', 'Enrollment No', 'Course', 'Phone', 'Status', 'Actions'].map(h => (
+                        <th key={h} className="text-left px-4 py-3 text-xs font-black text-white uppercase tracking-wider">{h}</th>
+                      ))}</tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {filtered(students, ['name', 'enrollmentNumber', 'rollNumber', 'courseName', 'phone']).map((s, i) => (
+                        <tr key={s._id} className={`hover:bg-blue-50/50 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3">
+                              {s.photo ? (
+                                <img src={getPhotoUrl(s.photo)} alt={s.name} className="w-9 h-9 rounded-full object-cover border-2 border-blue-100 flex-shrink-0" />
+                              ) : (
+                                <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                  <span className="text-sm font-bold text-blue-600">{s.name[0].toUpperCase()}</span>
+                                </div>
+                              )}
+                              <div>
+                                <div className="font-black text-gray-900">{s.name}</div>
+                                <div className="text-xs font-semibold text-gray-500">{s.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 font-black font-mono text-green-700 text-sm">{s.enrollmentNumber || '—'}</td>
+                          <td className="px-4 py-3 font-bold text-gray-700 text-xs">{s.courseName || '—'}</td>
+                          <td className="px-4 py-3 font-bold text-gray-700 text-xs">{s.phone || '—'}</td>
+                          <td className="px-4 py-3">
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-black ${s.isApproved ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-yellow-100 text-yellow-800 border border-yellow-200'}`}>
+                              {s.isApproved ? '✓ Approved' : '⏳ Pending'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-1.5">
+                              <button onClick={() => { setViewItem(s); setViewType('student'); }} className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors" title="View"><Eye className="w-3.5 h-3.5" /></button>
+                              <button onClick={() => { setSelected(s); setModal('edit'); }} className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg transition-colors" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>
+                              {!s.isApproved && (
+                                <button onClick={() => handleApprove(s._id)} disabled={approving === s._id} className="p-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors disabled:opacity-50" title="Approve">
+                                  {approving === s._id ? <div className="w-3.5 h-3.5 border-2 border-green-600 border-t-transparent rounded-full animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                                </button>
+                              )}
+                              <button onClick={() => handleDelete(s._id, s.name)} className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg transition-colors" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {students.length === 0 && (
+                        <tr><td colSpan={6} className="text-center py-16 text-gray-400">
+                          <Users className="w-10 h-10 mx-auto mb-2 text-gray-200" />
+                          <p className="font-semibold">No students yet. Click "Add Student" to get started.</p>
+                        </td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              {students.filter(s => !s.isApproved).length > 0 && (
+                <div className="bg-yellow-50 border border-yellow-300 rounded-2xl p-4 flex items-center gap-3">
+                  <Clock className="w-5 h-5 text-yellow-600 shrink-0" />
+                  <p className="text-sm font-bold text-yellow-900">
+                    <strong>{students.filter(s => !s.isApproved).length}</strong> student(s) pending approval. Click ✓ to approve and send login credentials via email.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Admissions */}
+          {activeTab === 'admissions' && (
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <h2 className="text-xl font-black text-gray-900">Admissions <span className="text-orange-500">({admissions.length})</span></h2>
+                <div className="flex flex-wrap items-center gap-2">
+                  <select value={admissionFilter} onChange={e => setAdmissionFilter(e.target.value)}
+                    className="px-3 py-2 border border-gray-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 bg-white text-gray-700">
+                    <option value="all">All</option>
+                    <option value="Pending">⏳ Pending</option>
+                    <option value="Approved">✓ Approved</option>
+                    <option value="Rejected">✗ Rejected</option>
+                  </select>
+                  <div className="relative flex-1 min-w-[140px]">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..."
+                      className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-blue-500 bg-white w-full" />
+                  </div>
+                </div>
+              </div>
+              {/* Mobile Cards */}
+              <div className="block sm:hidden space-y-3">
+                {filtered(admissions, ['name', 'email', 'phone', 'qualification'])
+                  .filter(a => admissionFilter === 'all' ? true : (a.status || 'Pending') === admissionFilter)
+                  .map(a => (
+                    <div key={a._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="min-w-0">
+                          <div className="font-black text-gray-900 text-sm">{a.name}</div>
+                          <div className="text-xs text-gray-500 truncate">{a.email}</div>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-black shrink-0 border ${a.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' :
+                            a.status === 'Rejected' ? 'bg-red-100 text-red-700 border-red-200' :
+                              'bg-yellow-100 text-yellow-800 border-yellow-200'
+                          }`}>{a.status || 'Pending'}</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1.5 text-xs mb-3">
+                        <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Phone: </span><span className="font-bold">{a.phone}</span></div>
+                        <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Gender: </span><span className="font-bold">{a.gender || '—'}</span></div>
+                        <div className="bg-gray-50 rounded-lg px-2 py-1 col-span-2"><span className="text-gray-400">Course: </span><span className="font-bold text-indigo-700">{a.course?.title || a.courseName || '—'}</span></div>
+                        <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Qual: </span><span className="font-bold">{a.qualification || '—'}</span></div>
+                        <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Date: </span><span className="font-bold">{a.createdAt ? new Date(a.createdAt).toLocaleDateString('en-IN') : '—'}</span></div>
+                      </div>
+                      <div className="flex gap-2">
+                        {a.status !== 'Approved' && <button onClick={() => handleAdmissionStatus(a._id, 'Approved')} className="flex-1 py-1.5 bg-green-100 text-green-800 rounded-lg text-xs font-black">✓ Approve</button>}
+                        {a.status !== 'Rejected' && <button onClick={() => handleAdmissionStatus(a._id, 'Rejected')} className="flex-1 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-black">✗ Reject</button>}
+                        {a.status !== 'Pending' && <button onClick={() => handleAdmissionStatus(a._id, 'Pending')} className="py-1.5 px-3 bg-yellow-100 text-yellow-800 rounded-lg text-xs font-black">↺</button>}
+                        <button onClick={() => handleDeleteAdmission(a._id)} className="py-1.5 px-3 bg-red-50 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
+                      </div>
+                    </div>
+                  ))}
+                {admissions.length === 0 && <div className="text-center py-12 text-gray-400"><ClipboardList className="w-10 h-10 mx-auto mb-2 text-gray-200" /><p className="font-semibold">No admissions found.</p></div>}
+              </div>
+              {/* Desktop Table */}
+              <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gradient-to-r from-orange-500 to-amber-500">
+                      <tr>{['Name', 'Email', 'Phone', 'Course', 'Qualification', 'Gender', 'Status', 'Date', 'Action'].map(h => (
+                        <th key={h} className="text-left px-4 py-3 text-xs font-black text-white uppercase tracking-wider">{h}</th>
+                      ))}</tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {filtered(admissions, ['name', 'email', 'phone', 'qualification'])
+                        .filter(a => admissionFilter === 'all' ? true : (a.status || 'Pending') === admissionFilter)
+                        .map((a, i) => (
+                          <tr key={a._id} className={`hover:bg-orange-50/40 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
+                            <td className="px-4 py-3"><div className="font-black text-gray-900">{a.name}</div>{a.address && <div className="text-xs font-semibold text-gray-500 truncate max-w-[120px]">{a.address}</div>}</td>
+                            <td className="px-4 py-3 font-bold text-gray-700 text-xs">{a.email}</td>
+                            <td className="px-4 py-3 font-black text-gray-800 text-xs">{a.phone}</td>
+                            <td className="px-4 py-3 font-bold text-indigo-700 text-xs">{a.course?.title || a.courseName || '—'}</td>
+                            <td className="px-4 py-3 font-bold text-gray-700 text-xs">{a.qualification || '—'}</td>
+                            <td className="px-4 py-3 font-bold text-gray-700 text-xs">{a.gender || '—'}</td>
+                            <td className="px-4 py-3"><span className={`px-2.5 py-1 rounded-full text-xs font-black border ${a.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' :
+                                a.status === 'Rejected' ? 'bg-red-100 text-red-700 border-red-200' :
+                                  'bg-yellow-100 text-yellow-800 border-yellow-200'
+                              }`}>{a.status || 'Pending'}</span></td>
+                            <td className="px-4 py-3 font-bold text-gray-600 text-xs">{a.createdAt ? new Date(a.createdAt).toLocaleDateString('en-IN') : '—'}</td>
+                            <td className="px-4 py-3"><div className="flex items-center gap-1">
+                              {a.status !== 'Approved' && <button onClick={() => handleAdmissionStatus(a._id, 'Approved')} className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-800 rounded-lg text-xs font-black">✓ Approve</button>}
+                              {a.status !== 'Rejected' && <button onClick={() => handleAdmissionStatus(a._id, 'Rejected')} className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-black">✗ Reject</button>}
+                              {a.status !== 'Pending' && <button onClick={() => handleAdmissionStatus(a._id, 'Pending')} className="px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded-lg text-xs font-black">↺</button>}
+                              <button onClick={() => handleDeleteAdmission(a._id)} className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
+                            </div></td>
+                          </tr>
+                        ))}
+                      {admissions.length === 0 && <tr><td colSpan={9} className="text-center py-12 text-gray-400"><ClipboardList className="w-10 h-10 mx-auto mb-2 text-gray-200" /><p className="font-semibold">No admissions found for your branch.</p></td></tr>}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+
+
+          {/* Monthly Tests */}
+          {activeTab === 'tests' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <h2 className="text-xl font-black text-gray-900">Monthly Tests ({tests.length})</h2>
+                <button onClick={() => { setSelectedTest(null); setTestModal('add'); }}
+                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-colors shadow-md">
+                  <Plus className="w-4 h-4" /> Create Test
+                </button>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {tests.map(t => (
+                  <div key={t._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <div className="font-black text-gray-900 text-sm">{t.title}</div>
+                        <div className="text-xs text-indigo-600 font-semibold mt-0.5">{t.month || 'No month set'}</div>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-bold shrink-0 ${t.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                        {t.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      {[['Questions', t.questions?.length || 0], ['Marks', t.totalMarks || 0], ['Duration', `${t.duration}m`]].map(([l, v]) => (
+                        <div key={l} className="bg-gray-50 rounded-xl py-2">
+                          <div className="text-sm font-black text-gray-900">{v}</div>
+                          <div className="text-[10px] text-gray-400 font-medium">{l}</div>
+                        </div>
+                      ))}
+                    </div>
+                    {t.description && <p className="text-xs text-gray-500 line-clamp-2">{t.description}</p>}
+                    <div className="flex gap-2 pt-1">
+                      <button onClick={() => handleViewAttempts(t)}
+                        className="flex-1 flex items-center justify-center gap-1 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-bold transition-colors">
+                        <Eye className="w-3.5 h-3.5" /> Attempts
+                      </button>
+                      <button onClick={() => { setSelectedTest(t); setTestModal('edit'); }}
+                        className="p-2 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl transition-colors">
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button onClick={() => handleDeleteTest(t._id)}
+                        className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-colors">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {tests.length === 0 && (
+                  <div className="col-span-3 text-center py-16 text-gray-400">
+                    <ClipboardCheck className="w-10 h-10 mx-auto mb-2 text-gray-200" />
+                    <p>No tests yet. Click "Create Test" to add one.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          {/* Study Material Tab */}
+          {activeTab === 'studymaterial' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <h2 className="text-xl font-black text-gray-900">Study Material ({studyMaterials.length})</h2>
+                <button onClick={() => setSmShowForm(p => !p)}
+                  className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-bold transition-colors shadow-md">
+                  {smShowForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />} {smShowForm ? 'Cancel' : 'Add Material'}
+                </button>
+              </div>
+
+              {smShowForm && (
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                  className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                  <form onSubmit={async e => {
+                    e.preventDefault();
+                    if (!smForm.title) return toast.error('Title required');
+                    setSmLoading(true);
+                    try {
+                      const fd = new FormData();
+                      Object.entries(smForm).forEach(([k, v]) => v && fd.append(k, v));
+                      if (smThumbnail) fd.append('thumbnail', smThumbnail);
+                      if (smPdfFile) fd.append('file', smPdfFile);
+                      const { data } = await api.post('/study-material', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+                      setStudyMaterials(p => [data.material, ...p]);
+                      setSmForm({ title: '', description: '', category: 'notes', videoUrl: '' });
+                      setSmThumbnail(null); setSmThumbPreview(null); setSmPdfFile(null);
+                      setSmShowForm(false);
+                      toast.success('Added!');
+                    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+                    setSmLoading(false);
+                  }} className="space-y-3">
+                    <div className="grid sm:grid-cols-2 gap-3">
+                      <input value={smForm.title} onChange={e => setSmForm(p => ({ ...p, title: e.target.value }))} placeholder="Title *"
+                        className="px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50" />
+                      <select value={smForm.category} onChange={e => setSmForm(p => ({ ...p, category: e.target.value }))}
+                        className="px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50">
+                        <option value="notes">Notes</option>
+                        <option value="assignment">Assignment</option>
+                        <option value="previous_paper">Previous Paper</option>
+                        <option value="video">Video</option>
+                        <option value="other">Other</option>
+                      </select>
+                      <div>
+                        <label className="text-xs font-semibold text-gray-500 mb-1 block">Thumbnail Image</label>
+                        <input type="file" accept="image/*" onChange={e => { const f = e.target.files[0]; if (f) { setSmThumbnail(f); setSmThumbPreview(URL.createObjectURL(f)); } }}
+                          className="w-full px-3 py-2 border-2 border-gray-100 rounded-xl bg-gray-50 text-sm" />
+                        {smThumbPreview && <img src={smThumbPreview} className="mt-2 h-20 w-full object-contain bg-gray-100 rounded-xl" />}
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold text-gray-500 mb-1 block">Upload Image</label>
+                        <input type="file" accept="image/*" onChange={e => setSmPdfFile(e.target.files[0])}
+                          className="w-full px-3 py-2 border-2 border-gray-100 rounded-xl bg-gray-50 text-sm" />
+                        {smPdfFile && <img src={URL.createObjectURL(smPdfFile)} className="mt-2 h-20 w-full object-contain bg-gray-100 rounded-xl" />}
+                      </div>
+                    </div>
+                    <input value={smForm.videoUrl} onChange={e => setSmForm(p => ({ ...p, videoUrl: e.target.value }))} placeholder="Video URL (YouTube link)"
+                      className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50" />
+                    <textarea value={smForm.description} onChange={e => setSmForm(p => ({ ...p, description: e.target.value }))} placeholder="Description" rows={2}
+                      className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50 resize-none" />
+                    <button type="submit" disabled={smLoading}
+                      className="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl disabled:opacity-60 transition-colors">
+                      {smLoading ? 'Uploading...' : 'Add Material'}
+                    </button>
+                  </form>
+                </motion.div>
+              )}
+
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {studyMaterials.map((m, i) => {
+                  const ytMatch = m.videoUrl && m.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^?&/]+)/);
+                  const ytThumb = ytMatch ? ('https://img.youtube.com/vi/' + ytMatch[1] + '/hqdefault.jpg') : null;
+                  const thumb = m.thumbnailUrl || ytThumb;
+                  const catColors = { notes: 'bg-blue-100 text-blue-700', assignment: 'bg-violet-100 text-violet-700', previous_paper: 'bg-orange-100 text-orange-700', video: 'bg-pink-100 text-pink-700', other: 'bg-gray-100 text-gray-700' };
+                  return (
+                    <motion.div key={m._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                      {thumb ? (
+                        <img src={thumb} alt={m.title} className="w-full object-contain bg-white" style={{ maxHeight: '160px' }} />
+                      ) : (
+                        <div className="w-full h-32 bg-violet-50 flex items-center justify-center">
+                          <BookMarked className="w-10 h-10 text-violet-200" />
+                        </div>
+                      )}
+                      <div className="p-4">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <p className="font-black text-gray-900 text-sm leading-snug flex-1">{m.title}</p>
+                          <button onClick={async () => { if (!confirm('Delete?')) return; try { await api.delete('/study-material/' + m._id); setStudyMaterials(p => p.filter(x => x._id !== m._id)); toast.success('Deleted'); } catch { toast.error('Failed'); } }}
+                            className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold capitalize ${catColors[m.category] || 'bg-gray-100 text-gray-700'}`}>{m.category?.replace('_', ' ')}</span>
+                          {m.createdAt && <span className="text-[10px] text-gray-400">{new Date(m.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>}
+                        </div>
+
+                      </div>
+                    </motion.div>
+                  );
+                })}
+                {studyMaterials.length === 0 && (
+                  <div className="col-span-3 text-center py-16 text-gray-400">
+                    <BookMarked className="w-10 h-10 mx-auto mb-2 text-gray-200" />
+                    <p className="font-semibold">No study materials yet. Click "Add Material" to add one.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+
+
+          {/* Modals */}
+          {/* Courses Modal */}
+          {modal === 'courses' && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ background: 'linear-gradient(135deg,#7C3AED,#8B5CF6)' }}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+                      <BookOpen className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-black text-white">All Courses ({COURSES.length})</h2>
+                      <p className="text-xs text-white/70">Click any course to view full details</p>
+                    </div>
+                  </div>
+                  <button onClick={() => { setModal(null); setSelected(null); }} className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/20 hover:bg-white/30 transition-colors">
+                    <X className="w-4 h-4 text-white" />
+                  </button>
+                </div>
+                <div className="overflow-y-auto flex-1 p-4">
+                  {selected ? (
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+                      <button onClick={() => setSelected(null)} className="flex items-center gap-2 text-sm font-bold text-violet-600 hover:text-violet-700">
+                        ← Back to all courses
+                      </button>
+                      <div className="rounded-2xl overflow-hidden border border-violet-100">
+                        <div className="p-5" style={{ background: 'linear-gradient(135deg,#7C3AED,#8B5CF6)' }}>
+                          <h3 className="text-lg font-black text-white">{selected.name}</h3>
+                          <p className="text-sm text-white/80 mt-1">{selected.description}</p>
+                          <div className="flex flex-wrap gap-2 mt-3">
+                            {[['⏱', 'Duration', selected.duration], ['💰', 'Fee', selected.fee], ['🎓', 'Eligibility', selected.eligibility]].map(([icon, l, v]) => (
+                              <div key={l} className="px-3 py-1.5 rounded-xl text-xs font-bold text-white" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                                {icon} {l}: <span className="font-black">{v}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="p-5 space-y-4">
+                          <div>
+                            <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-2">📚 Subjects Covered</p>
+                            <div className="grid grid-cols-2 gap-2">
+                              {selected.subjects.map((s, i) => (
+                                <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: '#F5F3FF' }}>
+                                  <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white shrink-0" style={{ background: '#7C3AED' }}>{i + 1}</div>
+                                  <span className="text-sm font-semibold text-gray-800">{s}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-2">💼 Career / Job Roles</p>
+                            <div className="flex flex-wrap gap-2">
+                              {selected.jobs.map((j, i) => (
+                                <span key={i} className="px-3 py-1.5 rounded-full text-xs font-bold" style={{ background: '#ECFDF5', color: '#065F46', border: '1px solid #A7F3D0' }}>{j}</span>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: '#FFF7ED', border: '1px solid #FED7AA' }}>
+                            <span className="text-xl">🏅</span>
+                            <div>
+                              <p className="text-xs text-gray-500 font-semibold">Certificate Awarded</p>
+                              <p className="text-sm font-black text-orange-800">{selected.certificate}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <div className="grid sm:grid-cols-2 gap-3">
+                      {COURSES.map((course, i) => (
+                        <motion.div key={i}
+                          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}
+                          onClick={() => setSelected(course)}
+                          className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-100 hover:border-violet-300 hover:bg-violet-50 transition-all cursor-pointer group"
+                          style={{ background: '#F8FAFC' }}>
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm font-black text-white"
+                            style={{ background: `hsl(${(i * 37) % 360}, 65%, 55%)` }}>{i + 1}</div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-bold text-gray-900 leading-snug group-hover:text-violet-700 transition-colors">{course.name}</p>
+                            <p className="text-xs text-gray-400 mt-0.5">{course.duration} • {course.fee}</p>
+                          </div>
+                          <span className="text-gray-300 group-hover:text-violet-400 transition-colors text-lg">›</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            </div>
+          )}
+
+          {modal === 'add' && (
+            <Modal title="Add New Student" onClose={() => setModal(null)}>
+              <StudentForm initial={EMPTY_STUDENT} onSave={handleAddStudent} onClose={() => setModal(null)} saving={saving} />
+            </Modal>
+          )}
+          {modal === 'edit' && selected && (
+            <Modal title="Edit Student" onClose={() => setModal(null)}>
+              <StudentForm initial={selected} onSave={handleEditStudent} onClose={() => setModal(null)} saving={saving} />
+            </Modal>
+          )}
+          {modal === 'add-result' && (
+            <Modal title="Add Result" onClose={() => setModal(null)}>
+              <ResultForm initial={{}} students={students} onSave={handleAddResult} onClose={() => setModal(null)} saving={saving} />
+            </Modal>
+          )}
+          {modal === 'edit-result' && selected && (
+            <Modal title="Edit Result" onClose={() => setModal(null)}>
+              <ResultForm initial={selected} students={students} onSave={handleEditResult} onClose={() => setModal(null)} saving={saving} />
+            </Modal>
+          )}
+          {(modal === 'add-cert' || (modal === 'edit-cert' && selected)) && (
+            <Modal title={modal === 'add-cert' ? 'Issue Certificate' : 'Edit Certificate'} onClose={() => setModal(null)}>
+              <CertForm
+                initial={modal === 'add-cert' ? EMPTY_CERT : selected}
+                students={students}
+                onSave={modal === 'add-cert' ? handleAddCert : handleEditCert}
+                onClose={() => setModal(null)}
+                saving={saving}
+              />
+            </Modal>
+          )}
+
+          {viewItem && (
+            <ViewModal
+              title={viewType === 'student' ? 'Student Details' : viewType === 'result' ? 'Result Details' : 'Certificate Details'}
+              data={viewItem}
+              fields={viewType === 'student' ? studentFields : viewType === 'result' ? resultFields : certFields}
+              onClose={() => setViewItem(null)}
+            />
+          )}
+
+          {/* Test Create/Edit Modal */}
+          {(testModal === 'add' || testModal === 'edit') && (
+            <TestFormModal
+              initial={testModal === 'edit' ? selectedTest : null}
+              onSave={handleSaveTest}
+              onClose={() => { setTestModal(null); setSelectedTest(null); }}
+              saving={savingTest}
+            />
+          )}
+
+          {/* Test Attempts Modal */}
+          {testModal === 'attempts' && selectedTest && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                  <div>
+                    <h2 className="text-lg font-black text-gray-900">{selectedTest.title} — Attempts</h2>
+                    <p className="text-xs text-gray-400">{testAttempts.length} student(s) attempted</p>
+                  </div>
+                  <button onClick={() => setTestModal(null)} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-gray-100">
+                    <X className="w-4 h-4 text-gray-500" />
+                  </button>
+                </div>
+                <div className="p-4">
+                  {testAttempts.length === 0 ? (
+                    <p className="text-center py-8 text-gray-400">No attempts yet.</p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm min-w-[480px]">
+                        <thead className="bg-gray-50">
+                          <tr>{['Student', 'Roll No', 'Score', 'Percentage', 'Time', 'Date'].map(h => (
+                            <th key={h} className="text-left px-3 py-2 text-xs font-bold text-gray-500 uppercase">{h}</th>
+                          ))}</tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                          {testAttempts.map(a => (
+                            <tr key={a._id} className="hover:bg-gray-50">
+                              <td className="px-3 py-2 font-semibold text-gray-900">{a.studentName}</td>
+                              <td className="px-3 py-2 font-mono text-blue-600 text-xs">{a.rollNumber}</td>
+                              <td className="px-3 py-2 font-bold">{a.score}/{a.totalMarks}</td>
+                              <td className="px-3 py-2"><span className={`px-2 py-0.5 rounded-full text-xs font-bold ${a.percentage >= 60 ? 'bg-green-100 text-green-700' : a.percentage >= 33 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'
+                                }`}>{a.percentage}%</span></td>
+                              <td className="px-3 py-2 text-gray-500 text-xs">{a.timeTaken ? `${Math.floor(a.timeTaken / 60)}m ${a.timeTaken % 60}s` : '—'}</td>
+                              <td className="px-3 py-2 text-gray-400 text-xs">{new Date(a.submittedAt).toLocaleDateString('en-IN')}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </div>
+
+        {/* Profile Details Modal */}
+        {profileModalOpen && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setProfileModalOpen(false)}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+              className="w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl"
+              style={{ background: '#FFFFFF' }}
+              onClick={e => e.stopPropagation()}>
+              {/* Banner + Avatar combined - no overlap */}
+              <div className="relative" style={{ background: 'linear-gradient(135deg, #1E3A8A 0%, #2563EB 60%, #3B82F6 100%)' }}>
+                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+                <button onClick={() => setProfileModalOpen(false)}
+                  className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center z-10" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                  <X className="w-4 h-4 text-white" />
+                </button>
+                <div className="flex flex-col items-center pt-6 pb-5 px-5">
+                  <div
+                    onClick={() => { if (user?.photo) { setPhotoPreview(true); setProfileModalOpen(false); } }}
+                    className={user?.photo ? 'cursor-pointer' : ''}
+                    style={{ width: 88, height: 88, borderRadius: 20, overflow: 'hidden', border: '4px solid rgba(255,255,255,0.9)', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', background: 'linear-gradient(135deg,#60a5fa,#2563EB)', flexShrink: 0 }}>
+                    {user?.photo
+                      ? <img src={user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_URL || ''}${user.photo}`} alt={user.name} style={{ width: 88, height: 88, objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
+                      : <div className="w-full h-full flex items-center justify-center"><span className="text-3xl font-black text-white">{(user?.branchName || 'B')[0]}</span></div>}
+                  </div>
+                  <div className="mt-3 text-center">
+                    <div className="text-xl font-black text-white">{user?.branchName}</div>
+                    <div className="text-base font-black" style={{ color: 'rgba(255,255,255,0.85)' }}>{user?.name}</div>
+                    <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)' }}>
+                      <div className="w-1.5 h-1.5 bg-green-300 rounded-full animate-pulse" />
+                      <span className="text-[10px] font-black tracking-widest text-white">ACTIVE FRANCHISE</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Details */}
+              <div className="px-5 pb-5 space-y-2">
+                {[
+                  { icon: '🎫', label: 'Branch Code', value: user?.branchCode },
+                  { icon: '📍', label: 'City', value: user?.branchCity },
+                  { icon: '📧', label: 'Email', value: user?.email },
+                  { icon: '📞', label: 'Phone', value: user?.phone || '—' },
+                  { icon: '📮', label: 'Address', value: user?.branchAddress || user?.address || '—' },
+                  { icon: '🗓️', label: 'Member Since', value: user?.approvedAt ? new Date(user.approvedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—' },
+                ].map(({ icon, label, value }) => (
+                  <div key={label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                    <span className="text-base shrink-0">{icon}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-bold uppercase tracking-wide" style={{ color: '#94A3B8' }}>{label}</div>
+                      <div className="text-base font-black truncate" style={{ color: '#1E293B' }}>{value}</div>
+                    </div>
+                  </div>
+                ))}
+                <button onClick={() => { handleLogout(); setProfileModalOpen(false); }}
+                  className="w-full mt-2 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors hover:bg-red-100"
+                  style={{ background: '#FEF2F2', color: '#EF4444', border: '1px solid #FECACA' }}>
+                  <LogOut className="w-4 h-4" /> Logout
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Logo Preview Modal */}
+        {logoPreview && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setLogoPreview(false)}>
+            <div className="relative" onClick={e => e.stopPropagation()}>
+              <img src="/logo.png" alt="KCI Logo" className="max-w-xs w-64 h-64 object-contain rounded-2xl shadow-2xl bg-white p-4" />
+              <button onClick={() => setLogoPreview(false)}
+                className="absolute -top-3 -right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors">
+                <X className="w-4 h-4 text-gray-700" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Owner Photo Preview Modal */}
+        {photoPreview && user?.photo && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setPhotoPreview(false)}>
+            <div className="relative" onClick={e => e.stopPropagation()}>
+              <img
+                src={user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_URL || ''}${user.photo}`}
+                alt={user.name}
+                className="w-64 h-64 object-cover rounded-2xl shadow-2xl border-4 border-white"
+              />
+              <div className="mt-3 text-center">
+                <div className="text-white font-black text-sm">{user.name}</div>
+                <div className="text-white/60 text-xs">{user.branchName}</div>
+              </div>
+              <button onClick={() => setPhotoPreview(false)}
+                className="absolute -top-3 -right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors">
+                <X className="w-4 h-4 text-gray-700" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── SUPPORT MODALS ── */}
+        {supportModal === 'help' && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setSupportModal(null)}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-y-auto"
+              onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ background: '#EFF6FF' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center">
+                    <HelpCircle className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-black text-gray-900">❓ Help Center</h2>
+                    <p className="text-xs text-gray-500">Frequently asked questions</p>
+                  </div>
+                </div>
+                <button onClick={() => setSupportModal(null)} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-blue-100"><X className="w-4 h-4 text-gray-500" /></button>
+              </div>
+              <div className="p-5 space-y-3">
+                {[
+                  { q: 'How to add a new student?', a: 'Go to Students tab → Click "Add Student" → Fill the form → Submit. After adding, click ✓ Approve to send login credentials to student via email.' },
+                  { q: 'How to approve a student?', a: 'In Students tab, find the student with ⏳ Pending status → Click the green ✓ button → Student will receive login credentials on their email.' },
+                  { q: 'How to add results?', a: 'Go to Results tab → Click "Add Result" → Select student from dropdown (auto-fills details) → Enter subject marks → Save.' },
+                  { q: 'How to issue a certificate?', a: 'Go to Certificates tab → Click "Add Certificate" → Select student → Certificate number auto-generates → Fill grade & date → Save.' },
+                  { q: 'How to create a monthly test?', a: 'Go to Monthly Tests tab → Click "Create Test" → Add title, questions with options → Mark correct answers (green) → Set Active → Create.' },
+                  { q: 'How to check franchise renewal?', a: 'On Overview tab, the Renewal Countdown card shows days remaining. Contact admin at admin@kci.org.in for renewal.' },
+                  { q: 'How to export student data?', a: 'In Students tab, click the green "Export" button to download an Excel file with all student data.' },
+                ].map(({ q, a }, i) => (
+                  <details key={i} className="group border border-gray-100 rounded-xl overflow-hidden">
+                    <summary className="flex items-center justify-between px-4 py-3 cursor-pointer bg-gray-50 hover:bg-blue-50 transition-colors list-none">
+                      <span className="text-sm font-bold text-gray-800">{q}</span>
+                      <ChevronDown className="w-4 h-4 text-gray-400 group-open:rotate-180 transition-transform shrink-0" />
+                    </summary>
+                    <div className="px-4 py-3 text-sm text-gray-600 leading-relaxed border-t border-gray-100">{a}</div>
+                  </details>
                 ))}
               </div>
             </motion.div>
           </div>
         )}
 
-        {/* Students */}
-        {activeTab === 'students' && (
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h2 className="text-xl font-black text-gray-900">Students <span className="text-blue-600">({students.length})</span></h2>
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="relative flex-1 min-w-[140px]">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..."
-                    className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-white w-full font-medium" />
+        {supportModal === 'contact-support' && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setSupportModal(null)}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md"
+              onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ background: '#F5F3FF' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-violet-600 flex items-center justify-center">
+                    <MessageCircle className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-black text-gray-900">💬 Contact Support</h2>
+                    <p className="text-xs text-gray-500">We'll respond within 24 hours</p>
+                  </div>
                 </div>
-                <input ref={importRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={importExcel} />
-                <button onClick={() => importRef.current.click()}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700 transition-colors shadow-md">
-                  <Upload className="w-4 h-4" /> <span className="hidden sm:inline">Import</span>
-                </button>
-                <button onClick={exportExcel}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-colors shadow-md">
-                  <Download className="w-4 h-4" /> <span className="hidden sm:inline">Export</span>
-                </button>
-                <button onClick={() => { setSelected(null); setModal('add'); }}
-                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold transition-all shadow-md">
-                  <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add Student</span><span className="sm:hidden">Add</span>
-                </button>
+                <button onClick={() => setSupportModal(null)} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-violet-100"><X className="w-4 h-4 text-gray-500" /></button>
               </div>
-            </div>
-            {/* Mobile Cards */}
-            <div className="block sm:hidden space-y-3">
-              {filtered(students, ['name', 'enrollmentNumber', 'rollNumber', 'courseName', 'phone']).map(s => (
-                <div key={s._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    {s.photo ? (
-                      <img src={getPhotoUrl(s.photo)} alt={s.name} className="w-10 h-10 rounded-full object-cover border-2 border-blue-100 shrink-0" />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                        <span className="text-sm font-bold text-blue-600">{s.name[0].toUpperCase()}</span>
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <div className="font-black text-gray-900 text-sm truncate">{s.name}</div>
-                      <div className="text-xs text-gray-500 truncate">{s.email}</div>
+              <div className="p-5 space-y-4">
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  {[['📧 Email', 'admin@kci.org.in'], ['📞 Phone', '+91 98765 43210'], ['⏰ Hours', 'Mon–Sat 9AM–6PM'], ['📍 HQ', 'KCI Head Office']].map(([l, v]) => (
+                    <div key={l} className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                      <div className="text-xs text-gray-400 font-semibold">{l}</div>
+                      <div className="text-sm font-black text-gray-800 mt-0.5">{v}</div>
                     </div>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-black shrink-0 ${s.isApproved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                      {s.isApproved ? '✓' : '⏳'}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-1.5 text-xs mb-3">
-                    <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Enroll: </span><span className="font-bold text-green-700 font-mono">{s.enrollmentNumber || '—'}</span></div>
-                    <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Phone: </span><span className="font-bold">{s.phone || '—'}</span></div>
-                    <div className="bg-gray-50 rounded-lg px-2 py-1 col-span-2"><span className="text-gray-400">Course: </span><span className="font-bold text-indigo-700">{s.courseName || '—'}</span></div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => { setViewItem(s); setViewType('student'); }} className="flex-1 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold flex items-center justify-center gap-1"><Eye className="w-3 h-3" /> View</button>
-                    <button onClick={() => { setSelected(s); setModal('edit'); }} className="flex-1 py-1.5 bg-amber-50 text-amber-700 rounded-lg text-xs font-bold flex items-center justify-center gap-1"><Pencil className="w-3 h-3" /> Edit</button>
-                    {!s.isApproved && (
-                      <button onClick={() => handleApprove(s._id)} disabled={approving === s._id} className="flex-1 py-1.5 bg-green-50 text-green-700 rounded-lg text-xs font-bold flex items-center justify-center gap-1">
-                        {approving === s._id ? <div className="w-3 h-3 border-2 border-green-600 border-t-transparent rounded-full animate-spin" /> : <><Check className="w-3 h-3" /> OK</>}
-                      </button>
-                    )}
-                    <button onClick={() => handleDelete(s._id, s.name)} className="flex-1 py-1.5 bg-red-50 text-red-700 rounded-lg text-xs font-bold flex items-center justify-center gap-1"><Trash2 className="w-3 h-3" /> Del</button>
-                  </div>
-                </div>
-              ))}
-              {students.length === 0 && <div className="text-center py-12 text-gray-400"><Users className="w-10 h-10 mx-auto mb-2 text-gray-200" /><p className="font-semibold">No students yet.</p></div>}
-            </div>
-            {/* Desktop Table */}
-            <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gradient-to-r from-blue-600 to-indigo-600">
-                    <tr>{['Name', 'Enrollment No', 'Course', 'Phone', 'Status', 'Actions'].map(h => (
-                      <th key={h} className="text-left px-4 py-3 text-xs font-black text-white uppercase tracking-wider">{h}</th>
-                    ))}</tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filtered(students, ['name', 'enrollmentNumber', 'rollNumber', 'courseName', 'phone']).map((s, i) => (
-                      <tr key={s._id} className={`hover:bg-blue-50/50 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            {s.photo ? (
-                              <img src={getPhotoUrl(s.photo)} alt={s.name} className="w-9 h-9 rounded-full object-cover border-2 border-blue-100 flex-shrink-0" />
-                            ) : (
-                              <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                <span className="text-sm font-bold text-blue-600">{s.name[0].toUpperCase()}</span>
-                              </div>
-                            )}
-                            <div>
-                              <div className="font-black text-gray-900">{s.name}</div>
-                              <div className="text-xs font-semibold text-gray-500">{s.email}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 font-black font-mono text-green-700 text-sm">{s.enrollmentNumber || '—'}</td>
-                        <td className="px-4 py-3 font-bold text-gray-700 text-xs">{s.courseName || '—'}</td>
-                        <td className="px-4 py-3 font-bold text-gray-700 text-xs">{s.phone || '—'}</td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2.5 py-1 rounded-full text-xs font-black ${s.isApproved ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-yellow-100 text-yellow-800 border border-yellow-200'}`}>
-                            {s.isApproved ? '✓ Approved' : '⏳ Pending'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-1.5">
-                            <button onClick={() => { setViewItem(s); setViewType('student'); }} className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors" title="View"><Eye className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => { setSelected(s); setModal('edit'); }} className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg transition-colors" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>
-                            {!s.isApproved && (
-                              <button onClick={() => handleApprove(s._id)} disabled={approving === s._id} className="p-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors disabled:opacity-50" title="Approve">
-                                {approving === s._id ? <div className="w-3.5 h-3.5 border-2 border-green-600 border-t-transparent rounded-full animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-                              </button>
-                            )}
-                            <button onClick={() => handleDelete(s._id, s.name)} className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg transition-colors" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                    {students.length === 0 && (
-                      <tr><td colSpan={6} className="text-center py-16 text-gray-400">
-                        <Users className="w-10 h-10 mx-auto mb-2 text-gray-200" />
-                        <p className="font-semibold">No students yet. Click "Add Student" to get started.</p>
-                      </td></tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            {students.filter(s => !s.isApproved).length > 0 && (
-              <div className="bg-yellow-50 border border-yellow-300 rounded-2xl p-4 flex items-center gap-3">
-                <Clock className="w-5 h-5 text-yellow-600 shrink-0" />
-                <p className="text-sm font-bold text-yellow-900">
-                  <strong>{students.filter(s => !s.isApproved).length}</strong> student(s) pending approval. Click ✓ to approve and send login credentials via email.
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Admissions */}
-        {activeTab === 'admissions' && (
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h2 className="text-xl font-black text-gray-900">Admissions <span className="text-orange-500">({admissions.length})</span></h2>
-              <div className="flex flex-wrap items-center gap-2">
-                <select value={admissionFilter} onChange={e => setAdmissionFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 bg-white text-gray-700">
-                  <option value="all">All</option>
-                  <option value="Pending">⏳ Pending</option>
-                  <option value="Approved">✓ Approved</option>
-                  <option value="Rejected">✗ Rejected</option>
-                </select>
-                <div className="relative flex-1 min-w-[140px]">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..."
-                    className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-blue-500 bg-white w-full" />
-                </div>
-              </div>
-            </div>
-            {/* Mobile Cards */}
-            <div className="block sm:hidden space-y-3">
-              {filtered(admissions, ['name', 'email', 'phone', 'qualification'])
-                .filter(a => admissionFilter === 'all' ? true : (a.status || 'Pending') === admissionFilter)
-                .map(a => (
-                <div key={a._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="min-w-0">
-                      <div className="font-black text-gray-900 text-sm">{a.name}</div>
-                      <div className="text-xs text-gray-500 truncate">{a.email}</div>
-                    </div>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-black shrink-0 border ${
-                      a.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' :
-                      a.status === 'Rejected' ? 'bg-red-100 text-red-700 border-red-200' :
-                      'bg-yellow-100 text-yellow-800 border-yellow-200'
-                    }`}>{a.status || 'Pending'}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-1.5 text-xs mb-3">
-                    <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Phone: </span><span className="font-bold">{a.phone}</span></div>
-                    <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Gender: </span><span className="font-bold">{a.gender || '—'}</span></div>
-                    <div className="bg-gray-50 rounded-lg px-2 py-1 col-span-2"><span className="text-gray-400">Course: </span><span className="font-bold text-indigo-700">{a.course?.title || a.courseName || '—'}</span></div>
-                    <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Qual: </span><span className="font-bold">{a.qualification || '—'}</span></div>
-                    <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Date: </span><span className="font-bold">{a.createdAt ? new Date(a.createdAt).toLocaleDateString('en-IN') : '—'}</span></div>
-                  </div>
-                  <div className="flex gap-2">
-                    {a.status !== 'Approved' && <button onClick={() => handleAdmissionStatus(a._id, 'Approved')} className="flex-1 py-1.5 bg-green-100 text-green-800 rounded-lg text-xs font-black">✓ Approve</button>}
-                    {a.status !== 'Rejected' && <button onClick={() => handleAdmissionStatus(a._id, 'Rejected')} className="flex-1 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-black">✗ Reject</button>}
-                    {a.status !== 'Pending' && <button onClick={() => handleAdmissionStatus(a._id, 'Pending')} className="py-1.5 px-3 bg-yellow-100 text-yellow-800 rounded-lg text-xs font-black">↺</button>}
-                    <button onClick={() => handleDeleteAdmission(a._id)} className="py-1.5 px-3 bg-red-50 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
-                  </div>
-                </div>
-              ))}
-              {admissions.length === 0 && <div className="text-center py-12 text-gray-400"><ClipboardList className="w-10 h-10 mx-auto mb-2 text-gray-200" /><p className="font-semibold">No admissions found.</p></div>}
-            </div>
-            {/* Desktop Table */}
-            <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gradient-to-r from-orange-500 to-amber-500">
-                    <tr>{['Name', 'Email', 'Phone', 'Course', 'Qualification', 'Gender', 'Status', 'Date', 'Action'].map(h => (
-                      <th key={h} className="text-left px-4 py-3 text-xs font-black text-white uppercase tracking-wider">{h}</th>
-                    ))}</tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filtered(admissions, ['name', 'email', 'phone', 'qualification'])
-                      .filter(a => admissionFilter === 'all' ? true : (a.status || 'Pending') === admissionFilter)
-                      .map((a, i) => (
-                      <tr key={a._id} className={`hover:bg-orange-50/40 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
-                        <td className="px-4 py-3"><div className="font-black text-gray-900">{a.name}</div>{a.address && <div className="text-xs font-semibold text-gray-500 truncate max-w-[120px]">{a.address}</div>}</td>
-                        <td className="px-4 py-3 font-bold text-gray-700 text-xs">{a.email}</td>
-                        <td className="px-4 py-3 font-black text-gray-800 text-xs">{a.phone}</td>
-                        <td className="px-4 py-3 font-bold text-indigo-700 text-xs">{a.course?.title || a.courseName || '—'}</td>
-                        <td className="px-4 py-3 font-bold text-gray-700 text-xs">{a.qualification || '—'}</td>
-                        <td className="px-4 py-3 font-bold text-gray-700 text-xs">{a.gender || '—'}</td>
-                        <td className="px-4 py-3"><span className={`px-2.5 py-1 rounded-full text-xs font-black border ${
-                          a.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' :
-                          a.status === 'Rejected' ? 'bg-red-100 text-red-700 border-red-200' :
-                          'bg-yellow-100 text-yellow-800 border-yellow-200'
-                        }`}>{a.status || 'Pending'}</span></td>
-                        <td className="px-4 py-3 font-bold text-gray-600 text-xs">{a.createdAt ? new Date(a.createdAt).toLocaleDateString('en-IN') : '—'}</td>
-                        <td className="px-4 py-3"><div className="flex items-center gap-1">
-                          {a.status !== 'Approved' && <button onClick={() => handleAdmissionStatus(a._id, 'Approved')} className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-800 rounded-lg text-xs font-black">✓ Approve</button>}
-                          {a.status !== 'Rejected' && <button onClick={() => handleAdmissionStatus(a._id, 'Rejected')} className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-black">✗ Reject</button>}
-                          {a.status !== 'Pending' && <button onClick={() => handleAdmissionStatus(a._id, 'Pending')} className="px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded-lg text-xs font-black">↺</button>}
-                          <button onClick={() => handleDeleteAdmission(a._id)} className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
-                        </div></td>
-                      </tr>
-                    ))}
-                    {admissions.length === 0 && <tr><td colSpan={9} className="text-center py-12 text-gray-400"><ClipboardList className="w-10 h-10 mx-auto mb-2 text-gray-200" /><p className="font-semibold">No admissions found for your branch.</p></td></tr>}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-
-
-        {/* Monthly Tests */}
-        {activeTab === 'tests' && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <h2 className="text-xl font-black text-gray-900">Monthly Tests ({tests.length})</h2>
-              <button onClick={() => { setSelectedTest(null); setTestModal('add'); }}
-                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-colors shadow-md">
-                <Plus className="w-4 h-4" /> Create Test
-              </button>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {tests.map(t => (
-                <div key={t._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <div className="font-black text-gray-900 text-sm">{t.title}</div>
-                      <div className="text-xs text-indigo-600 font-semibold mt-0.5">{t.month || 'No month set'}</div>
-                    </div>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold shrink-0 ${t.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                      {t.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    {[['Questions', t.questions?.length || 0], ['Marks', t.totalMarks || 0], ['Duration', `${t.duration}m`]].map(([l, v]) => (
-                      <div key={l} className="bg-gray-50 rounded-xl py-2">
-                        <div className="text-sm font-black text-gray-900">{v}</div>
-                        <div className="text-[10px] text-gray-400 font-medium">{l}</div>
-                      </div>
-                    ))}
-                  </div>
-                  {t.description && <p className="text-xs text-gray-500 line-clamp-2">{t.description}</p>}
-                  <div className="flex gap-2 pt-1">
-                    <button onClick={() => handleViewAttempts(t)}
-                      className="flex-1 flex items-center justify-center gap-1 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-bold transition-colors">
-                      <Eye className="w-3.5 h-3.5" /> Attempts
-                    </button>
-                    <button onClick={() => { setSelectedTest(t); setTestModal('edit'); }}
-                      className="p-2 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl transition-colors">
-                      <Pencil className="w-3.5 h-3.5" />
-                    </button>
-                    <button onClick={() => handleDeleteTest(t._id)}
-                      className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-              {tests.length === 0 && (
-                <div className="col-span-3 text-center py-16 text-gray-400">
-                  <ClipboardCheck className="w-10 h-10 mx-auto mb-2 text-gray-200" />
-                  <p>No tests yet. Click "Create Test" to add one.</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-        {/* Study Material Tab */}
-        {activeTab === 'studymaterial' && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <h2 className="text-xl font-black text-gray-900">Study Material ({studyMaterials.length})</h2>
-              <button onClick={() => setSmShowForm(p => !p)}
-                className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-bold transition-colors shadow-md">
-                {smShowForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />} {smShowForm ? 'Cancel' : 'Add Material'}
-              </button>
-            </div>
-
-            {smShowForm && (
-              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-                <form onSubmit={async e => {
-                  e.preventDefault();
-                  if (!smForm.title) return toast.error('Title required');
-                  setSmLoading(true);
-                  try {
-                    const fd = new FormData();
-                    Object.entries(smForm).forEach(([k, v]) => v && fd.append(k, v));
-                    if (smThumbnail) fd.append('thumbnail', smThumbnail);
-                    if (smPdfFile) fd.append('file', smPdfFile);
-                    const { data } = await api.post('/study-material', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-                    setStudyMaterials(p => [data.material, ...p]);
-                    setSmForm({ title: '', description: '', category: 'notes', videoUrl: '' });
-                    setSmThumbnail(null); setSmThumbPreview(null); setSmPdfFile(null);
-                    setSmShowForm(false);
-                    toast.success('Added!');
-                  } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
-                  setSmLoading(false);
-                }} className="space-y-3">
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    <input value={smForm.title} onChange={e => setSmForm(p => ({ ...p, title: e.target.value }))} placeholder="Title *"
-                      className="px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50" />
-                    <select value={smForm.category} onChange={e => setSmForm(p => ({ ...p, category: e.target.value }))}
-                      className="px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50">
-                      <option value="notes">Notes</option>
-                      <option value="assignment">Assignment</option>
-                      <option value="previous_paper">Previous Paper</option>
-                      <option value="video">Video</option>
-                      <option value="other">Other</option>
-                    </select>
-                    <div>
-                      <label className="text-xs font-semibold text-gray-500 mb-1 block">Thumbnail Image</label>
-                      <input type="file" accept="image/*" onChange={e => { const f = e.target.files[0]; if(f){ setSmThumbnail(f); setSmThumbPreview(URL.createObjectURL(f)); }}}
-                        className="w-full px-3 py-2 border-2 border-gray-100 rounded-xl bg-gray-50 text-sm" />
-                      {smThumbPreview && <img src={smThumbPreview} className="mt-2 h-20 w-full object-contain bg-gray-100 rounded-xl" />}
-                    </div>
-                    <div>
-                      <label className="text-xs font-semibold text-gray-500 mb-1 block">Upload Image</label>
-                      <input type="file" accept="image/*" onChange={e => setSmPdfFile(e.target.files[0])}
-                        className="w-full px-3 py-2 border-2 border-gray-100 rounded-xl bg-gray-50 text-sm" />
-                      {smPdfFile && <img src={URL.createObjectURL(smPdfFile)} className="mt-2 h-20 w-full object-contain bg-gray-100 rounded-xl" />}
-                    </div>
-                  </div>
-                  <input value={smForm.videoUrl} onChange={e => setSmForm(p => ({ ...p, videoUrl: e.target.value }))} placeholder="Video URL (YouTube link)"
-                    className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50" />
-                  <textarea value={smForm.description} onChange={e => setSmForm(p => ({ ...p, description: e.target.value }))} placeholder="Description" rows={2}
-                    className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50 resize-none" />
-                  <button type="submit" disabled={smLoading}
-                    className="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl disabled:opacity-60 transition-colors">
-                    {smLoading ? 'Uploading...' : 'Add Material'}
-                  </button>
-                </form>
-              </motion.div>
-            )}
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {studyMaterials.map((m, i) => {
-                const ytMatch = m.videoUrl && m.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^?&/]+)/);
-                const ytThumb = ytMatch ? ('https://img.youtube.com/vi/' + ytMatch[1] + '/hqdefault.jpg') : null;
-                const thumb = m.thumbnailUrl || ytThumb;
-                const catColors = { notes: 'bg-blue-100 text-blue-700', assignment: 'bg-violet-100 text-violet-700', previous_paper: 'bg-orange-100 text-orange-700', video: 'bg-pink-100 text-pink-700', other: 'bg-gray-100 text-gray-700' };
-                return (
-                  <motion.div key={m._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                    className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    {thumb ? (
-                      <img src={thumb} alt={m.title} className="w-full object-contain bg-white" style={{maxHeight:'160px'}} />
-                    ) : (
-                      <div className="w-full h-32 bg-violet-50 flex items-center justify-center">
-                        <BookMarked className="w-10 h-10 text-violet-200" />
-                      </div>
-                    )}
-                    <div className="p-4">
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <p className="font-black text-gray-900 text-sm leading-snug flex-1">{m.title}</p>
-                        <button onClick={async () => { if(!confirm('Delete?')) return; try { await api.delete('/study-material/' + m._id); setStudyMaterials(p => p.filter(x => x._id !== m._id)); toast.success('Deleted'); } catch { toast.error('Failed'); }}}
-                          className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold capitalize ${catColors[m.category] || 'bg-gray-100 text-gray-700'}`}>{m.category?.replace('_',' ')}</span>
-                        {m.createdAt && <span className="text-[10px] text-gray-400">{new Date(m.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</span>}
-                      </div>
-
-                    </div>
-                  </motion.div>
-                );
-              })}
-              {studyMaterials.length === 0 && (
-                <div className="col-span-3 text-center py-16 text-gray-400">
-                  <BookMarked className="w-10 h-10 mx-auto mb-2 text-gray-200" />
-                  <p className="font-semibold">No study materials yet. Click "Add Material" to add one.</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-
-
-      {/* Modals */}
-      {/* Courses Modal */}
-      {modal === 'courses' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ background: 'linear-gradient(135deg,#7C3AED,#8B5CF6)' }}>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
-                  <BookOpen className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-base font-black text-white">All Courses ({COURSES.length})</h2>
-                  <p className="text-xs text-white/70">Click any course to view full details</p>
-                </div>
-              </div>
-              <button onClick={() => { setModal(null); setSelected(null); }} className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/20 hover:bg-white/30 transition-colors">
-                <X className="w-4 h-4 text-white" />
-              </button>
-            </div>
-            <div className="overflow-y-auto flex-1 p-4">
-              {selected ? (
-                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-                  <button onClick={() => setSelected(null)} className="flex items-center gap-2 text-sm font-bold text-violet-600 hover:text-violet-700">
-                    ← Back to all courses
-                  </button>
-                  <div className="rounded-2xl overflow-hidden border border-violet-100">
-                    <div className="p-5" style={{ background: 'linear-gradient(135deg,#7C3AED,#8B5CF6)' }}>
-                      <h3 className="text-lg font-black text-white">{selected.name}</h3>
-                      <p className="text-sm text-white/80 mt-1">{selected.description}</p>
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {[['⏱', 'Duration', selected.duration], ['💰', 'Fee', selected.fee], ['🎓', 'Eligibility', selected.eligibility]].map(([icon, l, v]) => (
-                          <div key={l} className="px-3 py-1.5 rounded-xl text-xs font-bold text-white" style={{ background: 'rgba(255,255,255,0.2)' }}>
-                            {icon} {l}: <span className="font-black">{v}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="p-5 space-y-4">
-                      <div>
-                        <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-2">📚 Subjects Covered</p>
-                        <div className="grid grid-cols-2 gap-2">
-                          {selected.subjects.map((s, i) => (
-                            <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: '#F5F3FF' }}>
-                              <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white shrink-0" style={{ background: '#7C3AED' }}>{i+1}</div>
-                              <span className="text-sm font-semibold text-gray-800">{s}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-2">💼 Career / Job Roles</p>
-                        <div className="flex flex-wrap gap-2">
-                          {selected.jobs.map((j, i) => (
-                            <span key={i} className="px-3 py-1.5 rounded-full text-xs font-bold" style={{ background: '#ECFDF5', color: '#065F46', border: '1px solid #A7F3D0' }}>{j}</span>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: '#FFF7ED', border: '1px solid #FED7AA' }}>
-                        <span className="text-xl">🏅</span>
-                        <div>
-                          <p className="text-xs text-gray-500 font-semibold">Certificate Awarded</p>
-                          <p className="text-sm font-black text-orange-800">{selected.certificate}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ) : (
-                <div className="grid sm:grid-cols-2 gap-3">
-                  {COURSES.map((course, i) => (
-                    <motion.div key={i}
-                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}
-                      onClick={() => setSelected(course)}
-                      className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-100 hover:border-violet-300 hover:bg-violet-50 transition-all cursor-pointer group"
-                      style={{ background: '#F8FAFC' }}>
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm font-black text-white"
-                        style={{ background: `hsl(${(i * 37) % 360}, 65%, 55%)` }}>{i + 1}</div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-bold text-gray-900 leading-snug group-hover:text-violet-700 transition-colors">{course.name}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{course.duration} • {course.fee}</p>
-                      </div>
-                      <span className="text-gray-300 group-hover:text-violet-400 transition-colors text-lg">›</span>
-                    </motion.div>
                   ))}
                 </div>
-              )}
-            </div>
-          </motion.div>
-        </div>
-      )}
-
-      {modal === 'add' && (
-        <Modal title="Add New Student" onClose={() => setModal(null)}>
-          <StudentForm initial={EMPTY_STUDENT} onSave={handleAddStudent} onClose={() => setModal(null)} saving={saving} />
-        </Modal>
-      )}
-      {modal === 'edit' && selected && (
-        <Modal title="Edit Student" onClose={() => setModal(null)}>
-          <StudentForm initial={selected} onSave={handleEditStudent} onClose={() => setModal(null)} saving={saving} />
-        </Modal>
-      )}
-      {modal === 'add-result' && (
-        <Modal title="Add Result" onClose={() => setModal(null)}>
-          <ResultForm initial={{}} students={students} onSave={handleAddResult} onClose={() => setModal(null)} saving={saving} />
-        </Modal>
-      )}
-      {modal === 'edit-result' && selected && (
-        <Modal title="Edit Result" onClose={() => setModal(null)}>
-          <ResultForm initial={selected} students={students} onSave={handleEditResult} onClose={() => setModal(null)} saving={saving} />
-        </Modal>
-      )}
-      {(modal === 'add-cert' || (modal === 'edit-cert' && selected)) && (
-        <Modal title={modal === 'add-cert' ? 'Issue Certificate' : 'Edit Certificate'} onClose={() => setModal(null)}>
-          <CertForm
-            initial={modal === 'add-cert' ? EMPTY_CERT : selected}
-            students={students}
-            onSave={modal === 'add-cert' ? handleAddCert : handleEditCert}
-            onClose={() => setModal(null)}
-            saving={saving}
-          />
-        </Modal>
-      )}
-
-      {viewItem && (
-        <ViewModal
-          title={viewType === 'student' ? 'Student Details' : viewType === 'result' ? 'Result Details' : 'Certificate Details'}
-          data={viewItem}
-          fields={viewType === 'student' ? studentFields : viewType === 'result' ? resultFields : certFields}
-          onClose={() => setViewItem(null)}
-        />
-      )}
-
-      {/* Test Create/Edit Modal */}
-      {(testModal === 'add' || testModal === 'edit') && (
-        <TestFormModal
-          initial={testModal === 'edit' ? selectedTest : null}
-          onSave={handleSaveTest}
-          onClose={() => { setTestModal(null); setSelectedTest(null); }}
-          saving={savingTest}
-        />
-      )}
-
-      {/* Test Attempts Modal */}
-      {testModal === 'attempts' && selectedTest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-              <div>
-                <h2 className="text-lg font-black text-gray-900">{selectedTest.title} — Attempts</h2>
-                <p className="text-xs text-gray-400">{testAttempts.length} student(s) attempted</p>
+                <div className="border-t border-gray-100 pt-4 space-y-3">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">Send a Message</p>
+                  <input
+                    value={supportForm.name}
+                    onChange={e => setSupportForm(p => ({ ...p, name: e.target.value }))}
+                    placeholder="Your name"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 bg-gray-50"
+                  />
+                  <input
+                    value={supportForm.email}
+                    onChange={e => setSupportForm(p => ({ ...p, email: e.target.value }))}
+                    placeholder="Your email"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 bg-gray-50"
+                  />
+                  <textarea
+                    value={supportForm.message}
+                    onChange={e => setSupportForm(p => ({ ...p, message: e.target.value }))}
+                    placeholder="Describe your issue or question..."
+                    rows={3}
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 bg-gray-50 resize-none"
+                  />
+                  <button
+                    onClick={() => {
+                      if (!supportForm.message.trim()) return toast.error('Please enter a message');
+                      toast.success('Message sent! We will contact you within 24 hours.');
+                      setSupportForm(p => ({ ...p, message: '' }));
+                      setSupportModal(null);
+                    }}
+                    className="w-full py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                    <Send className="w-4 h-4" /> Send Message
+                  </button>
+                </div>
               </div>
-              <button onClick={() => setTestModal(null)} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-gray-100">
-                <X className="w-4 h-4 text-gray-500" />
-              </button>
-            </div>
-            <div className="p-4">
-              {testAttempts.length === 0 ? (
-                <p className="text-center py-8 text-gray-400">No attempts yet.</p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm min-w-[480px]">
-                    <thead className="bg-gray-50">
-                      <tr>{['Student', 'Roll No', 'Score', 'Percentage', 'Time', 'Date'].map(h => (
-                        <th key={h} className="text-left px-3 py-2 text-xs font-bold text-gray-500 uppercase">{h}</th>
-                      ))}</tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-50">
-                      {testAttempts.map(a => (
-                        <tr key={a._id} className="hover:bg-gray-50">
-                          <td className="px-3 py-2 font-semibold text-gray-900">{a.studentName}</td>
-                          <td className="px-3 py-2 font-mono text-blue-600 text-xs">{a.rollNumber}</td>
-                          <td className="px-3 py-2 font-bold">{a.score}/{a.totalMarks}</td>
-                          <td className="px-3 py-2"><span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                            a.percentage >= 60 ? 'bg-green-100 text-green-700' : a.percentage >= 33 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'
-                          }`}>{a.percentage}%</span></td>
-                          <td className="px-3 py-2 text-gray-500 text-xs">{a.timeTaken ? `${Math.floor(a.timeTaken/60)}m ${a.timeTaken%60}s` : '—'}</td>
-                          <td className="px-3 py-2 text-gray-400 text-xs">{new Date(a.submittedAt).toLocaleDateString('en-IN')}</td>
-                        </tr>
+            </motion.div>
+          </div>
+        )}
+
+        {supportModal === 'report' && (
+          <ReportIssueModal onClose={() => setSupportModal(null)} />
+        )}
+
+        {supportModal === 'guide' && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setSupportModal(null)}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-y-auto"
+              onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ background: '#ECFDF5' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center">
+                    <BookOpenCheck className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-black text-gray-900">📖 User Guide</h2>
+                    <p className="text-xs text-gray-500">Step-by-step instructions</p>
+                  </div>
+                </div>
+                <button onClick={() => setSupportModal(null)} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-emerald-100"><X className="w-4 h-4 text-gray-500" /></button>
+              </div>
+              <div className="p-5 space-y-4">
+                {[
+                  { title: '🏠 Overview Tab', steps: ['View branch stats (students, admissions, results, certificates)', 'Check franchise renewal countdown', 'Analyze charts for course-wise data', 'View branch information'] },
+                  { title: '👥 Students Tab', steps: ['Click "Add Student" to register a new student', 'Fill name, email, course details → Submit', 'Click ✓ to approve → Login credentials sent via email', 'Use Import/Export buttons for bulk Excel operations', 'Click Eye icon to view full student details'] },
+                  { title: '📋 Admissions Tab', steps: ['View all admission requests from your branch', 'Click "✓ Approve" to accept and auto-create student account', 'Click "✗ Reject" to decline the admission', 'Filter by Pending / Approved / Rejected status'] },
+                  { title: '🏆 Results Tab', steps: ['Click "Add Result" → Select student from dropdown', 'Subject marks auto-load based on course', 'Enter obtained marks → Total/Grade auto-calculates', 'Click Approval toggle to make result visible to student'] },
+                  { title: '📜 Certificates Tab', steps: ['Click "Add Certificate" → Select student', 'Certificate number auto-generates (editable)', 'Fill grade and issue date → Save', 'Toggle approval to make certificate visible to student'] },
+                  { title: '📝 Monthly Tests Tab', steps: ['Click "Create Test" → Add title and questions', 'Click option border to mark correct answer (turns green)', 'Set test as Active to allow students to attempt', 'Click "Attempts" to view student scores'] },
+                  { title: '📚 Study Material Tab', steps: ['Click "Add Material" → Enter title and category', 'Upload thumbnail image or add YouTube video URL', 'Material becomes visible to all students immediately', 'Click trash icon to delete any material'] },
+                ].map(({ title, steps }) => (
+                  <div key={title} className="border border-gray-100 rounded-xl overflow-hidden">
+                    <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+                      <p className="text-sm font-black text-gray-800">{title}</p>
+                    </div>
+                    <div className="px-4 py-3 space-y-1.5">
+                      {steps.map((s, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
+                          <span className="text-xs text-gray-600 leading-relaxed">{s}</span>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        </div>
-      )}
-      </div>
-
-      {/* Profile Details Modal */}
-      {profileModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setProfileModalOpen(false)}>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl"
-            style={{ background: '#FFFFFF' }}
-            onClick={e => e.stopPropagation()}>
-            {/* Banner + Avatar combined - no overlap */}
-            <div className="relative" style={{ background: 'linear-gradient(135deg, #1E3A8A 0%, #2563EB 60%, #3B82F6 100%)' }}>
-              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-              <button onClick={() => setProfileModalOpen(false)}
-                className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center z-10" style={{ background: 'rgba(255,255,255,0.2)' }}>
-                <X className="w-4 h-4 text-white" />
-              </button>
-              <div className="flex flex-col items-center pt-6 pb-5 px-5">
-                <div
-                  onClick={() => { if (user?.photo) { setPhotoPreview(true); setProfileModalOpen(false); } }}
-                  className={user?.photo ? 'cursor-pointer' : ''}
-                  style={{ width: 88, height: 88, borderRadius: 20, overflow: 'hidden', border: '4px solid rgba(255,255,255,0.9)', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', background: 'linear-gradient(135deg,#60a5fa,#2563EB)', flexShrink: 0 }}>
-                  {user?.photo
-                    ? <img src={user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_URL || ''}${user.photo}`} alt={user.name} style={{ width: 88, height: 88, objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
-                    : <div className="w-full h-full flex items-center justify-center"><span className="text-3xl font-black text-white">{(user?.branchName || 'B')[0]}</span></div>}
-                </div>
-                <div className="mt-3 text-center">
-                  <div className="text-xl font-black text-white">{user?.branchName}</div>
-                  <div className="text-base font-black" style={{ color: 'rgba(255,255,255,0.85)' }}>{user?.name}</div>
-                  <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)' }}>
-                    <div className="w-1.5 h-1.5 bg-green-300 rounded-full animate-pulse" />
-                    <span className="text-[10px] font-black tracking-widest text-white">ACTIVE FRANCHISE</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* Details */}
-            <div className="px-5 pb-5 space-y-2">
-              {[
-                { icon: '🎫', label: 'Branch Code', value: user?.branchCode },
-                { icon: '📍', label: 'City', value: user?.branchCity },
-                { icon: '📧', label: 'Email', value: user?.email },
-                { icon: '📞', label: 'Phone', value: user?.phone || '—' },
-                { icon: '📮', label: 'Address', value: user?.branchAddress || user?.address || '—' },
-                { icon: '🗓️', label: 'Member Since', value: user?.approvedAt ? new Date(user.approvedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—' },
-              ].map(({ icon, label, value }) => (
-                <div key={label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-                  <span className="text-base shrink-0">{icon}</span>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-xs font-bold uppercase tracking-wide" style={{ color: '#94A3B8' }}>{label}</div>
-                    <div className="text-base font-black truncate" style={{ color: '#1E293B' }}>{value}</div>
-                  </div>
-                </div>
-              ))}
-              <button onClick={() => { handleLogout(); setProfileModalOpen(false); }}
-                className="w-full mt-2 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors hover:bg-red-100"
-                style={{ background: '#FEF2F2', color: '#EF4444', border: '1px solid #FECACA' }}>
-                <LogOut className="w-4 h-4" /> Logout
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
-
-      {/* Logo Preview Modal */}
-      {logoPreview && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setLogoPreview(false)}>
-          <div className="relative" onClick={e => e.stopPropagation()}>
-            <img src="/logo.png" alt="KCI Logo" className="max-w-xs w-64 h-64 object-contain rounded-2xl shadow-2xl bg-white p-4" />
-            <button onClick={() => setLogoPreview(false)}
-              className="absolute -top-3 -right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors">
-              <X className="w-4 h-4 text-gray-700" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Owner Photo Preview Modal */}
-      {photoPreview && user?.photo && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setPhotoPreview(false)}>
-          <div className="relative" onClick={e => e.stopPropagation()}>
-            <img
-              src={user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_URL || ''}${user.photo}`}
-              alt={user.name}
-              className="w-64 h-64 object-cover rounded-2xl shadow-2xl border-4 border-white"
-            />
-            <div className="mt-3 text-center">
-              <div className="text-white font-black text-sm">{user.name}</div>
-              <div className="text-white/60 text-xs">{user.branchName}</div>
-            </div>
-            <button onClick={() => setPhotoPreview(false)}
-              className="absolute -top-3 -right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors">
-              <X className="w-4 h-4 text-gray-700" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ── SUPPORT MODALS ── */}
-      {supportModal === 'help' && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setSupportModal(null)}>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-y-auto"
-            onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ background: '#EFF6FF' }}>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center">
-                  <HelpCircle className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-base font-black text-gray-900">❓ Help Center</h2>
-                  <p className="text-xs text-gray-500">Frequently asked questions</p>
-                </div>
-              </div>
-              <button onClick={() => setSupportModal(null)} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-blue-100"><X className="w-4 h-4 text-gray-500" /></button>
-            </div>
-            <div className="p-5 space-y-3">
-              {[
-                { q: 'How to add a new student?', a: 'Go to Students tab → Click "Add Student" → Fill the form → Submit. After adding, click ✓ Approve to send login credentials to student via email.' },
-                { q: 'How to approve a student?', a: 'In Students tab, find the student with ⏳ Pending status → Click the green ✓ button → Student will receive login credentials on their email.' },
-                { q: 'How to add results?', a: 'Go to Results tab → Click "Add Result" → Select student from dropdown (auto-fills details) → Enter subject marks → Save.' },
-                { q: 'How to issue a certificate?', a: 'Go to Certificates tab → Click "Add Certificate" → Select student → Certificate number auto-generates → Fill grade & date → Save.' },
-                { q: 'How to create a monthly test?', a: 'Go to Monthly Tests tab → Click "Create Test" → Add title, questions with options → Mark correct answers (green) → Set Active → Create.' },
-                { q: 'How to check franchise renewal?', a: 'On Overview tab, the Renewal Countdown card shows days remaining. Contact admin at admin@kci.org.in for renewal.' },
-                { q: 'How to export student data?', a: 'In Students tab, click the green "Export" button to download an Excel file with all student data.' },
-              ].map(({ q, a }, i) => (
-                <details key={i} className="group border border-gray-100 rounded-xl overflow-hidden">
-                  <summary className="flex items-center justify-between px-4 py-3 cursor-pointer bg-gray-50 hover:bg-blue-50 transition-colors list-none">
-                    <span className="text-sm font-bold text-gray-800">{q}</span>
-                    <ChevronDown className="w-4 h-4 text-gray-400 group-open:rotate-180 transition-transform shrink-0" />
-                  </summary>
-                  <div className="px-4 py-3 text-sm text-gray-600 leading-relaxed border-t border-gray-100">{a}</div>
-                </details>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      )}
-
-      {supportModal === 'contact-support' && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setSupportModal(null)}>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md"
-            onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ background: '#F5F3FF' }}>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-violet-600 flex items-center justify-center">
-                  <MessageCircle className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-base font-black text-gray-900">💬 Contact Support</h2>
-                  <p className="text-xs text-gray-500">We'll respond within 24 hours</p>
-                </div>
-              </div>
-              <button onClick={() => setSupportModal(null)} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-violet-100"><X className="w-4 h-4 text-gray-500" /></button>
-            </div>
-            <div className="p-5 space-y-4">
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                {[['📧 Email', 'admin@kci.org.in'], ['📞 Phone', '+91 98765 43210'], ['⏰ Hours', 'Mon–Sat 9AM–6PM'], ['📍 HQ', 'KCI Head Office']].map(([l, v]) => (
-                  <div key={l} className="bg-gray-50 rounded-xl p-3 border border-gray-100">
-                    <div className="text-xs text-gray-400 font-semibold">{l}</div>
-                    <div className="text-sm font-black text-gray-800 mt-0.5">{v}</div>
+                    </div>
                   </div>
                 ))}
               </div>
-              <div className="border-t border-gray-100 pt-4 space-y-3">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">Send a Message</p>
-                <input
-                  value={supportForm.name}
-                  onChange={e => setSupportForm(p => ({ ...p, name: e.target.value }))}
-                  placeholder="Your name"
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 bg-gray-50"
-                />
-                <input
-                  value={supportForm.email}
-                  onChange={e => setSupportForm(p => ({ ...p, email: e.target.value }))}
-                  placeholder="Your email"
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 bg-gray-50"
-                />
-                <textarea
-                  value={supportForm.message}
-                  onChange={e => setSupportForm(p => ({ ...p, message: e.target.value }))}
-                  placeholder="Describe your issue or question..."
-                  rows={3}
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 bg-gray-50 resize-none"
-                />
-                <button
-                  onClick={() => {
-                    if (!supportForm.message.trim()) return toast.error('Please enter a message');
-                    toast.success('Message sent! We will contact you within 24 hours.');
-                    setSupportForm(p => ({ ...p, message: '' }));
-                    setSupportModal(null);
-                  }}
-                  className="w-full py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors">
-                  <Send className="w-4 h-4" /> Send Message
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
+            </motion.div>
+          </div>
+        )}
 
-      {supportModal === 'report' && (
-        <ReportIssueModal onClose={() => setSupportModal(null)} />
-      )}
-
-      {supportModal === 'guide' && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setSupportModal(null)}>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-y-auto"
-            onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ background: '#ECFDF5' }}>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center">
-                  <BookOpenCheck className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-base font-black text-gray-900">📖 User Guide</h2>
-                  <p className="text-xs text-gray-500">Step-by-step instructions</p>
-                </div>
-              </div>
-              <button onClick={() => setSupportModal(null)} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-emerald-100"><X className="w-4 h-4 text-gray-500" /></button>
-            </div>
-            <div className="p-5 space-y-4">
-              {[
-                { title: '🏠 Overview Tab', steps: ['View branch stats (students, admissions, results, certificates)', 'Check franchise renewal countdown', 'Analyze charts for course-wise data', 'View branch information'] },
-                { title: '👥 Students Tab', steps: ['Click "Add Student" to register a new student', 'Fill name, email, course details → Submit', 'Click ✓ to approve → Login credentials sent via email', 'Use Import/Export buttons for bulk Excel operations', 'Click Eye icon to view full student details'] },
-                { title: '📋 Admissions Tab', steps: ['View all admission requests from your branch', 'Click "✓ Approve" to accept and auto-create student account', 'Click "✗ Reject" to decline the admission', 'Filter by Pending / Approved / Rejected status'] },
-                { title: '🏆 Results Tab', steps: ['Click "Add Result" → Select student from dropdown', 'Subject marks auto-load based on course', 'Enter obtained marks → Total/Grade auto-calculates', 'Click Approval toggle to make result visible to student'] },
-                { title: '📜 Certificates Tab', steps: ['Click "Add Certificate" → Select student', 'Certificate number auto-generates (editable)', 'Fill grade and issue date → Save', 'Toggle approval to make certificate visible to student'] },
-                { title: '📝 Monthly Tests Tab', steps: ['Click "Create Test" → Add title and questions', 'Click option border to mark correct answer (turns green)', 'Set test as Active to allow students to attempt', 'Click "Attempts" to view student scores'] },
-                { title: '📚 Study Material Tab', steps: ['Click "Add Material" → Enter title and category', 'Upload thumbnail image or add YouTube video URL', 'Material becomes visible to all students immediately', 'Click trash icon to delete any material'] },
-              ].map(({ title, steps }) => (
-                <div key={title} className="border border-gray-100 rounded-xl overflow-hidden">
-                  <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
-                    <p className="text-sm font-black text-gray-800">{title}</p>
-                  </div>
-                  <div className="px-4 py-3 space-y-1.5">
-                    {steps.map((s, i) => (
-                      <div key={i} className="flex items-start gap-2">
-                        <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
-                        <span className="text-xs text-gray-600 leading-relaxed">{s}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      )}
-
-      {supportModal === 'password-reset' && (
-        <PasswordResetModal onClose={() => setSupportModal(null)} userEmail={user?.email} />
-      )}
+        {supportModal === 'password-reset' && (
+          <PasswordResetModal onClose={() => setSupportModal(null)} userEmail={user?.email} />
+        )}
 
       </div>
     </div>

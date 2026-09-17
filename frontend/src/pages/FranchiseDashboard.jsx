@@ -40,7 +40,7 @@ export default function FranchiseDashboard() {
   const [loading, setLoading] = useState(true);
   const [admFilter, setAdmFilter] = useState('Pending');
   const [updating, setUpdating] = useState(null);
-  
+
   // Students states
   const [studentSearch, setStudentSearch] = useState('');
   const [addStudentModal, setAddStudentModal] = useState(false);
@@ -175,7 +175,7 @@ export default function FranchiseDashboard() {
 
   const filteredAdm = admissions.filter(a => admFilter === 'All' ? true : a.status === admFilter);
 
-const filteredStudents = students.filter(s =>
+  const filteredStudents = students.filter(s =>
     (s.name || '').toLowerCase().includes(studentSearch.toLowerCase()) ||
     (s.email || '').toLowerCase().includes(studentSearch.toLowerCase()) ||
     (s.rollNumber || '').toLowerCase().includes(studentSearch.toLowerCase())
@@ -257,8 +257,8 @@ const filteredStudents = students.filter(s =>
                         className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${admFilter === f
                           ? f === 'Pending' ? 'bg-yellow-500 text-white'
                             : f === 'Approved' ? 'bg-green-600 text-white'
-                            : f === 'Rejected' ? 'bg-red-500 text-white'
-                            : 'bg-gray-700 text-white'
+                              : f === 'Rejected' ? 'bg-red-500 text-white'
+                                : 'bg-gray-700 text-white'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
                         {f}
                         {f === 'Pending' && admissions.filter(a => a.status === 'Pending').length > 0 && (
@@ -287,10 +287,9 @@ const filteredStudents = students.filter(s =>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-bold text-gray-900 text-sm">{a.name}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
-                              a.status === 'Approved' ? 'bg-green-100 text-green-700'
-                              : a.status === 'Rejected' ? 'bg-red-100 text-red-700'
-                              : 'bg-yellow-100 text-yellow-700'}`}>
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${a.status === 'Approved' ? 'bg-green-100 text-green-700'
+                                : a.status === 'Rejected' ? 'bg-red-100 text-red-700'
+                                  : 'bg-yellow-100 text-yellow-700'}`}>
                               {a.status}
                             </span>
                             {a.enrollmentId && (
@@ -332,11 +331,11 @@ const filteredStudents = students.filter(s =>
                 <div className="flex items-center gap-3">
                   <div className="relative flex-1 max-w-md">
                     <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input 
-                      value={studentSearch} 
-                      onChange={e => setStudentSearch(e.target.value)} 
-                      placeholder="Search students by name, email or roll..." 
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                    <input
+                      value={studentSearch}
+                      onChange={e => setStudentSearch(e.target.value)}
+                      placeholder="Search students by name, email or roll..."
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                   <button onClick={() => setAddStudentModal(true)} className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-all shadow-sm hover:shadow-md">
@@ -379,15 +378,15 @@ const filteredStudents = students.filter(s =>
                           <td className="p-4 text-gray-600">{s.batch || '—'}</td>
                           <td className="p-4">
                             <div className="flex items-center gap-1.5">
-                              <button onClick={() => { setViewStudent(s); setViewStudentModal(true); }} 
+                              <button onClick={() => { setViewStudent(s); setViewStudentModal(true); }}
                                 className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-all hover:scale-105" title="View">
                                 <Eye className="w-4 h-4" />
                               </button>
-                              <button onClick={() => openEdit(s)} 
+                              <button onClick={() => openEdit(s)}
                                 className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-all hover:scale-105" title="Edit">
                                 <Pencil className="w-4 h-4" />
                               </button>
-                              <button onClick={() => handleDeleteStudent(s._id)} 
+                              <button onClick={() => handleDeleteStudent(s._id)}
                                 className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all hover:scale-105" title="Delete">
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -479,10 +478,10 @@ const filteredStudents = students.filter(s =>
                   <label className="flex items-center gap-2 text-xs font-semibold text-gray-600 mb-2">
                     <User className="w-4 h-4" /> Full Name <span className="text-red-500">*</span>
                   </label>
-                  <input 
-                    value={studentForm.name} 
+                  <input
+                    value={studentForm.name}
                     onChange={e => setStudentFormField('name', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     placeholder="Enter student name"
                   />
                 </div>
@@ -490,11 +489,11 @@ const filteredStudents = students.filter(s =>
                   <label className="flex items-center gap-2 text-xs font-semibold text-gray-600 mb-2">
                     <PhoneIcon className="w-4 h-4" /> Phone
                   </label>
-                  <input 
+                  <input
                     type="tel"
-                    value={studentForm.phone} 
+                    value={studentForm.phone}
                     onChange={e => setStudentFormField('phone', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     placeholder="10 digit phone"
                   />
                 </div>
@@ -503,7 +502,7 @@ const filteredStudents = students.filter(s =>
                 <label className="flex items-center gap-2 text-xs font-semibold text-gray-600 mb-2">
                   <BookOpen className="w-4 h-4" /> Course <span className="text-red-500">*</span>
                 </label>
-                <select 
+                <select
                   value={studentForm.courseName}
                   onChange={e => setStudentFormField('courseName', e.target.value)}
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
@@ -516,21 +515,21 @@ const filteredStudents = students.filter(s =>
                 <label className="flex items-center gap-2 text-xs font-semibold text-gray-600 mb-2">
                   <CalendarDays className="w-4 h-4" /> Batch
                 </label>
-                <input 
-                  value={studentForm.batch} 
+                <input
+                  value={studentForm.batch}
                   onChange={e => setStudentFormField('batch', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                   placeholder="e.g. 2024-A1"
                 />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-2">Student Photo (optional)</label>
                 <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition-all cursor-pointer">
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
-                    onChange={e => setStudentFormField('photo', e.target.files[0])} 
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={e => setStudentFormField('photo', e.target.files[0])}
                   />
                   {studentForm.photo ? (
                     <span className="text-sm text-blue-600 font-medium truncate max-w-full px-2">{studentForm.photo.name}</span>
@@ -542,8 +541,8 @@ const filteredStudents = students.filter(s =>
                   )}
                 </label>
               </div>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={savingStudent}
                 className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-semibold flex items-center justify-center gap-2 hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-60"
               >
@@ -618,7 +617,7 @@ const filteredStudents = students.filter(s =>
             <div className="p-6 space-y-4">
               <div className="flex items-center justify-center mb-4">
                 {viewStudent.photo ? (
-                  <img src={`http://localhost:5000${viewStudent.photo}`} alt={viewStudent.name} 
+                  <img src={`http://localhost:5000${viewStudent.photo}`} alt={viewStudent.name}
                     className="w-24 h-24 rounded-full object-cover border-4 border-indigo-100 shadow-lg cursor-pointer hover:scale-105 transition-all"
                     onClick={() => setImgPreview(`http://localhost:5000${viewStudent.photo}`)}
                   />
