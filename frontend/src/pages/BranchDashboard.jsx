@@ -637,8 +637,8 @@ export default function BranchDashboard() {
                   key={id}
                   onClick={() => { setActiveTab(id); setSearch(''); }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${active
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/30'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/30'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
                     }`}
                 >
                   <Icon className={`w-4 h-4 ${active ? 'text-white' : 'text-slate-400'}`} />
