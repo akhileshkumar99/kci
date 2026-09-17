@@ -14,8 +14,6 @@ const navItems = [
   { path: '/franchise/courses', label: 'Courses', icon: BookOpen, color: 'text-emerald-400' },
   { path: '/franchise/students', label: 'Students', icon: Users, color: 'text-violet-400' },
   { path: '/franchise/admissions', label: 'Admissions', icon: ClipboardList, color: 'text-orange-400' },
-  { path: '/franchise/results', label: 'Results', icon: Award, color: 'text-yellow-400' },
-  { path: '/franchise/certificates', label: 'Certificates', icon: FileText, color: 'text-teal-400' },
   { path: '/franchise/gallery', label: 'Gallery', icon: Image, color: 'text-pink-400' },
   { path: '/franchise/staff', label: 'Staff', icon: UserCheck, color: 'text-cyan-400' },
   { path: '/franchise/quiz', label: 'Quiz', icon: Trophy, color: 'text-orange-400' },

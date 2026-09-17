@@ -22,8 +22,6 @@ const tabs = [
   { id: 'overview', label: 'Overview', icon: TrendingUp },
   { id: 'students', label: 'Students', icon: Users },
   { id: 'admissions', label: 'Admissions', icon: ClipboardList },
-  { id: 'results', label: 'Results', icon: Award },
-  { id: 'certificates', label: 'Certificates', icon: FileText },
   { id: 'tests', label: 'Monthly Tests', icon: ClipboardCheck },
   { id: 'studymaterial', label: 'Study Material', icon: BookMarked },
 ];
@@ -2146,103 +2144,7 @@ export default function BranchDashboard() {
           </div>
         )}
 
-        {/* Results */}
-        {activeTab === 'results' && (
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h2 className="text-xl font-black text-gray-900">Results <span className="text-yellow-600">({results.length})</span></h2>
-              <div className="flex flex-wrap items-center gap-2">
-                <select value={resultFilter} onChange={e => setResultFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 bg-white text-gray-700">
-                  <option value="all">All</option>
-                  <option value="pending">⏳ Pending</option>
-                  <option value="approved">✓ Approved</option>
-                </select>
-                <div className="relative flex-1 min-w-[140px]">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..."
-                    className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-blue-500 bg-white w-full" />
-                </div>
-                <button onClick={() => { setSelected(null); setModal('add-result'); }}
-                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white rounded-xl text-sm font-bold transition-all shadow-md">
-                  <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add Result</span><span className="sm:hidden">Add</span>
-                </button>
-              </div>
-            </div>
-            {/* Mobile Cards */}
-            <div className="block sm:hidden space-y-3">
-              {filtered(results, ['studentName', 'rollNumber', 'courseName'])
-                .filter(r => resultFilter === 'all' ? true : resultFilter === 'approved' ? r.isApproved === true : r.isApproved !== true)
-                .map(r => (
-                <div key={r._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div>
-                      <div className="font-black text-gray-900 text-sm">{r.studentName}</div>
-                      <div className="text-xs font-mono text-blue-700">Roll: {r.rollNumber}</div>
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-black border ${r.status === 'Pass' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}`}>{r.status || '—'}</span>
-                      <span className="font-black text-indigo-700 text-sm">{r.grade || '—'}</span>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-1.5 text-xs mb-3">
-                    <div className="bg-gray-50 rounded-lg px-2 py-1 col-span-2"><span className="text-gray-400">Course: </span><span className="font-bold text-indigo-700">{r.courseName || '—'}</span></div>
-                    <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">Marks: </span><span className="font-bold">{r.obtainedMarks ?? '—'}/{r.totalMarks ?? '—'}</span></div>
-                    <div className="bg-gray-50 rounded-lg px-2 py-1"><span className="text-gray-400">%: </span><span className="font-bold">{r.percentage ?? '—'}%</span></div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => handleApproveResult(r._id, r.isApproved === true)}
-                      className={`flex-1 py-1.5 rounded-lg text-xs font-black border transition-all ${
-                        r.isApproved === true ? 'bg-green-100 text-green-800 border-green-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200'
-                      }`}>{r.isApproved === true ? '✓ Approved' : '⏳ Pending'}</button>
-                    <button onClick={() => { setViewItem(r); setViewType('result'); }} className="py-1.5 px-3 bg-blue-50 text-blue-700 rounded-lg"><Eye className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => { setSelected(r); setModal('edit-result'); }} className="py-1.5 px-3 bg-amber-50 text-amber-700 rounded-lg"><Pencil className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => handleDeleteResult(r._id)} className="py-1.5 px-3 bg-red-50 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
-                  </div>
-                </div>
-              ))}
-              {results.length === 0 && <div className="text-center py-12 text-gray-400"><p className="font-semibold">No results found.</p></div>}
-            </div>
-            {/* Desktop Table */}
-            <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gradient-to-r from-yellow-500 to-orange-500">
-                    <tr>{['Student', 'Roll No', 'Course', 'Marks', 'Grade', 'Status', 'Approval', 'Actions'].map(h => (
-                      <th key={h} className="text-left px-4 py-3 text-xs font-black text-white uppercase tracking-wider">{h}</th>
-                    ))}</tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filtered(results, ['studentName', 'rollNumber', 'courseName'])
-                      .filter(r => resultFilter === 'all' ? true : resultFilter === 'approved' ? r.isApproved === true : r.isApproved !== true)
-                      .map((r, i) => (
-                      <tr key={r._id} className={`hover:bg-yellow-50/40 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
-                        <td className="px-4 py-3 font-black text-gray-900">{r.studentName}</td>
-                        <td className="px-4 py-3 font-black font-mono text-blue-700 text-xs">{r.rollNumber}</td>
-                        <td className="px-4 py-3 font-bold text-gray-700 text-xs">{r.courseName || '—'}</td>
-                        <td className="px-4 py-3 font-black text-gray-900">{r.obtainedMarks ?? '—'}<span className="text-gray-400 font-bold">/{r.totalMarks ?? '—'}</span></td>
-                        <td className="px-4 py-3"><span className="font-black text-indigo-700 text-base">{r.grade || '—'}</span></td>
-                        <td className="px-4 py-3"><span className={`px-2.5 py-1 rounded-full text-xs font-black border ${r.status === 'Pass' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}`}>{r.status || '—'}</span></td>
-                        <td className="px-4 py-3">
-                          <button onClick={() => handleApproveResult(r._id, r.isApproved === true)}
-                            className={`px-3 py-1 rounded-full text-xs font-black border transition-all ${
-                              r.isApproved === true ? 'bg-green-100 text-green-800 border-green-200 hover:bg-red-100 hover:text-red-700 hover:border-red-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-green-100 hover:text-green-800'
-                            }`}>{r.isApproved === true ? '✓ Approved' : '⏳ Pending'}</button>
-                        </td>
-                        <td className="px-4 py-3"><div className="flex items-center gap-1.5">
-                          <button onClick={() => { setViewItem(r); setViewType('result'); }} className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg"><Eye className="w-3.5 h-3.5" /></button>
-                          <button onClick={() => { setSelected(r); setModal('edit-result'); }} className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg"><Pencil className="w-3.5 h-3.5" /></button>
-                          <button onClick={() => handleDeleteResult(r._id)} className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
-                        </div></td>
-                      </tr>
-                    ))}
-                    {results.length === 0 && <tr><td colSpan={7} className="text-center py-12 text-gray-400"><p className="font-semibold">No results found. Click "Add Result" to add one.</p></td></tr>}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
+
 
         {/* Monthly Tests */}
         {activeTab === 'tests' && (
@@ -2411,106 +2313,7 @@ export default function BranchDashboard() {
           </div>
         )}
 
-        {/* Certificates */}
-        {activeTab === 'certificates' && (
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h2 className="text-xl font-black text-gray-900">Certificates <span className="text-teal-600">({certificates.length})</span></h2>
-              <div className="flex flex-wrap items-center gap-2">
-                <select value={certFilter} onChange={e => setCertFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 bg-white text-gray-700">
-                  <option value="all">All</option>
-                  <option value="pending">⏳ Pending</option>
-                  <option value="approved">✓ Approved</option>
-                </select>
-                <div className="relative flex-1 min-w-[140px]">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..."
-                    className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-blue-500 bg-white w-full" />
-                </div>
-                <button onClick={() => { setSelected(null); setModal('add-cert'); }}
-                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl text-sm font-bold transition-all shadow-md">
-                  <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Issue Certificate</span><span className="sm:hidden">Issue</span>
-                </button>
-              </div>
-            </div>
-            {/* Mobile Cards */}
-            <div className="block sm:hidden space-y-3">
-              {filtered(certificates, ['studentName', 'rollNumber', 'courseName', 'certificateNumber'])
-                .filter(c => certFilter === 'all' ? true : certFilter === 'approved' ? c.isApproved === true : c.isApproved !== true)
-                .map(c => (
-                <div key={c._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div>
-                      <div className="font-black text-gray-900 text-sm">{c.studentName}</div>
-                      <div className="text-xs font-mono text-blue-700">Roll: {c.rollNumber}</div>
-                    </div>
-                    <span className="font-black text-green-700 text-base">{c.grade || '—'}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-1.5 text-xs mb-3">
-                    <div className="bg-gray-50 rounded-lg px-2 py-1 col-span-2"><span className="text-gray-400">Course: </span><span className="font-bold text-indigo-700">{c.courseName || '—'}</span></div>
-                    <div className="bg-gray-50 rounded-lg px-2 py-1 col-span-2"><span className="text-gray-400">Cert No: </span><span className="font-bold font-mono text-indigo-700">{c.certificateNumber}</span></div>
-                    <div className="bg-gray-50 rounded-lg px-2 py-1 col-span-2"><span className="text-gray-400">Issue Date: </span><span className="font-bold">{c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN') : '—'}</span></div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => handleApproveCert(c._id, c.isApproved === true)}
-                      className={`flex-1 py-1.5 rounded-lg text-xs font-black border ${
-                        c.isApproved === true ? 'bg-green-100 text-green-800 border-green-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200'
-                      }`}>{c.isApproved === true ? '✓ Approved' : '⏳ Pending'}</button>
-                    <button onClick={() => { setViewItem(c); setViewType('certificate'); }} className="py-1.5 px-3 bg-blue-50 text-blue-700 rounded-lg"><Eye className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => { setSelected(c); setModal('edit-cert'); }} className="py-1.5 px-3 bg-amber-50 text-amber-700 rounded-lg"><Pencil className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => handleDeleteCert(c._id)} className="py-1.5 px-3 bg-red-50 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
-                  </div>
-                </div>
-              ))}
-              {certificates.length === 0 && <div className="text-center py-12 text-gray-400"><p className="font-semibold">No certificates found.</p></div>}
-            </div>
-            {/* Desktop Table */}
-            <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gradient-to-r from-teal-600 to-cyan-600">
-                    <tr>{['Student', 'Roll No', 'Course', 'Certificate No', 'Grade', 'Issue Date', 'Approval', 'Actions'].map(h => (
-                      <th key={h} className="text-left px-4 py-3 text-xs font-black text-white uppercase tracking-wider">{h}</th>
-                    ))}</tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filtered(certificates, ['studentName', 'rollNumber', 'courseName', 'certificateNumber'])
-                      .filter(c => certFilter === 'all' ? true : certFilter === 'approved' ? c.isApproved === true : c.isApproved !== true)
-                      .map((c, i) => (
-                      <tr key={c._id} className={`hover:bg-teal-50/40 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
-                        <td className="px-4 py-3 font-black text-gray-900">{c.studentName}</td>
-                        <td className="px-4 py-3 font-black font-mono text-blue-700 text-xs">{c.rollNumber}</td>
-                        <td className="px-4 py-3 font-bold text-gray-700 text-xs">{c.courseName || '—'}</td>
-                        <td className="px-4 py-3 font-black font-mono text-indigo-700 text-xs">{c.certificateNumber}</td>
-                        <td className="px-4 py-3"><span className="font-black text-green-700 text-base">{c.grade || '—'}</span></td>
-                        <td className="px-4 py-3 font-bold text-gray-700 text-xs">{c.issueDate ? new Date(c.issueDate).toLocaleDateString('en-IN') : '—'}</td>
-                        <td className="px-4 py-3">
-                          <button onClick={() => handleApproveCert(c._id, c.isApproved === true)}
-                            className={`px-3 py-1 rounded-full text-xs font-black border transition-all ${
-                              c.isApproved === true ? 'bg-green-100 text-green-800 border-green-200 hover:bg-red-100 hover:text-red-700 hover:border-red-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-green-100 hover:text-green-800'
-                            }`}>{c.isApproved === true ? '✓ Approved' : '⏳ Pending'}</button>
-                        </td>
-                        <td className="px-4 py-3"><div className="flex items-center gap-1.5">
-                          <button onClick={() => { setViewItem(c); setViewType('certificate'); }} className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg"><Eye className="w-3.5 h-3.5" /></button>
-                          <button onClick={() => { setSelected(c); setModal('edit-cert'); }} className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg"><Pencil className="w-3.5 h-3.5" /></button>
-                          {c.certificateFile && (
-                            <a href={c.certificateFile} target="_blank" rel="noreferrer" className="p-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 rounded-lg" title="View Certificate File">
-                              <FileText className="w-3.5 h-3.5" />
-                            </a>
-                          )}
-                          {c.isApproved !== true && <button onClick={() => handleApproveCert(c._id)} className="p-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg"><Check className="w-3.5 h-3.5" /></button>}
-                          <button onClick={() => handleDeleteCert(c._id)} className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
-                        </div></td>
-                      </tr>
-                    ))}
-                    {certificates.length === 0 && <tr><td colSpan={7} className="text-center py-12 text-gray-400"><p className="font-semibold">No certificates found. Click "Add Certificate" to add one.</p></td></tr>}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
+
 
       {/* Modals */}
       {/* Courses Modal */}

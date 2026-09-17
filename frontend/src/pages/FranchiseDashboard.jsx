@@ -169,7 +169,7 @@ export default function FranchiseDashboard() {
   const cards = [
     { icon: Users, label: 'Total Students', value: stats.students || 0, color: 'from-blue-500 to-blue-600' },
     { icon: BookOpen, label: 'Active Courses', value: stats.courses || 0, color: 'from-emerald-500 to-emerald-600' },
-    { icon: Award, label: 'Certificates', value: stats.certificates || 0, color: 'from-violet-500 to-violet-600' },
+    { icon: CheckCircle, label: 'Approved Students', value: students.filter(s => s.isApproved).length || 0, color: 'from-violet-500 to-violet-600' },
     { icon: ClipboardList, label: 'Admissions', value: admissions.length, color: 'from-orange-500 to-orange-600' },
   ];
 
