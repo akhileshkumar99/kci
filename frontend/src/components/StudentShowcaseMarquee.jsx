@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { GraduationCap, ChevronLeft, ChevronRight, Award, Star } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { GraduationCap } from 'lucide-react';
 import api from '../utils/api';
 
 const DEFAULT_SHOWCASE_STUDENTS = [
@@ -15,7 +15,6 @@ const DEFAULT_SHOWCASE_STUDENTS = [
 
 export default function StudentShowcaseMarquee() {
   const [students, setStudents] = useState(DEFAULT_SHOWCASE_STUDENTS);
-  const scrollRef = useRef(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -33,15 +32,8 @@ export default function StudentShowcaseMarquee() {
     return () => { isMounted = false; };
   }, []);
 
-  const handleManualScroll = (direction) => {
-    if (scrollRef.current) {
-      const scrollAmount = direction === 'left' ? -260 : 260;
-      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
-
-  // Duplicate items array to ensure seamless infinite looping marquee scroll
-  const marqueeList = [...students, ...students, ...students];
+  // Duplicate items array to ensure seamless infinite auto-sliding marquee loop
+  const marqueeList = [...students, ...students, ...students, ...students];
 
   return (
     <section className="relative bg-gradient-to-b from-slate-50 via-blue-50/40 to-slate-100 py-12 sm:py-16 overflow-hidden border-t border-slate-200/60">
@@ -71,39 +63,14 @@ export default function StudentShowcaseMarquee() {
         </div>
 
         {/* Marquee Wrapper Container */}
-        <div className="relative group">
+        <div className="relative overflow-hidden group">
           
           {/* Gradient Blur Edges for Seamless Blend */}
-          <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none" />
 
-          {/* Navigation Controls (Visible on Desktop / Hover) */}
-          <button
-            type="button"
-            onClick={() => handleManualScroll('left')}
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 shadow-lg border border-slate-200 text-slate-700 hover:text-blue-600 hover:bg-white z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-            aria-label="Scroll left"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          
-          <button
-            type="button"
-            onClick={() => handleManualScroll('right')}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 shadow-lg border border-slate-200 text-slate-700 hover:text-blue-600 hover:bg-white z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-            aria-label="Scroll right"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-
-          {/* Continuous Infinite Scrolling Track */}
-          <div 
-            ref={scrollRef}
-            className="flex items-center gap-6 sm:gap-10 overflow-x-auto scrollbar-none py-4 px-4 hover:[animation-play-state:paused]"
-            style={{
-              scrollBehavior: 'smooth',
-            }}
-          >
+          {/* Continuous Automatic Infinite Scrolling Track */}
+          <div className="overflow-hidden py-4">
             <div className="flex items-center gap-6 sm:gap-10 animate-marquee flex-nowrap hover:[animation-play-state:paused]">
               {marqueeList.map((item, idx) => (
                 <div 
@@ -145,7 +112,7 @@ export default function StudentShowcaseMarquee() {
 
       </div>
 
-      {/* Marquee Animation CSS Inject */}
+      {/* Auto Marquee CSS Animation Inject */}
       <style>{`
         @keyframes marquee {
           0% { transform: translateX(0%); }
@@ -154,7 +121,7 @@ export default function StudentShowcaseMarquee() {
         .animate-marquee {
           display: flex;
           width: max-content;
-          animation: marquee 35s linear infinite;
+          animation: marquee 30s linear infinite;
         }
         .animate-marquee:hover {
           animation-play-state: paused;
