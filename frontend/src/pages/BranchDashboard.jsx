@@ -89,11 +89,13 @@ const DEFAULT_STUDENTS = [
     name: 'Anand Singh',
     email: 'singhanand997497@gmail.com',
     phone: '07408168690',
+    fatherName: 'Ram Singh',
     fatherName: 'Kd ckd fn',
     dob: '2002-05-15',
     courseName: 'Advance Diploma in Computer Application (ADCA)',
     batch: '2026',
     rollNumber: '2026010016',
+    enrollmentNumber: 'KCI/2026/ADCA/0001',
     enrollmentNumber: 'KCI/ENR/2026/0016',
     formNumber: 'KCI-F-2026/0016',
     address: 'Ambedkarnagar, U.P.',
@@ -110,6 +112,7 @@ const DEFAULT_STUDENTS = [
     courseName: 'Diploma in Computer Application (DCA)',
     batch: '2026',
     rollNumber: '2026010015',
+    enrollmentNumber: 'KCI/2026/DCA/0002',
     enrollmentNumber: 'KCI/ENR/2026/0015',
     formNumber: 'KCI-F-2026/0015',
     address: 'Ambedkarnagar, U.P.',
@@ -126,6 +129,7 @@ const DEFAULT_STUDENTS = [
     courseName: 'Certificate In Tally A/c With GST (CIT)',
     batch: '2026',
     rollNumber: '2026010005',
+    enrollmentNumber: 'KCI/2026/CIT/0005',
     enrollmentNumber: 'KCI/ENR/2026/0005',
     formNumber: 'KCI-F-2026/0005',
     address: 'Ambedkarnagar, U.P.',
@@ -1338,6 +1342,7 @@ export default function BranchDashboard() {
                 <input
                   value={studentForm.enrollmentNumber || ''}
                   onChange={e => setStudentForm(p => ({ ...p, enrollmentNumber: e.target.value }))}
+                  placeholder="e.g. KCI/2026/ADCA/0001"
                   placeholder="e.g. KCI/ENR/2026/0016"
                   className="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500"
                 />
