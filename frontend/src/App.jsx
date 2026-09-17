@@ -7,6 +7,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import Loader from './components/Loader';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import StudentShowcaseMarquee from './components/StudentShowcaseMarquee';
 
 import StudentDashboard from './pages/StudentDashboard';
 import BranchDashboard from './pages/BranchDashboard';
@@ -68,6 +69,7 @@ const AdminAnalytics = safeLazy(() => import('./pages/admin/AdminAnalytics'));
 const AdminAuditLogs = safeLazy(() => import('./pages/admin/AdminAuditLogs'));
 const AdminQuiz = safeLazy(() => import('./pages/admin/AdminQuiz'));
 const AdminFranchise = safeLazy(() => import('./pages/admin/AdminFranchise'));
+const AdminShowcase = safeLazy(() => import('./pages/admin/AdminShowcase'));
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -330,6 +332,7 @@ const PublicLayout = ({ children }) => (
   <>
     <Navbar />
     <main>{children}</main>
+    <StudentShowcaseMarquee />
     <Footer />
   </>
 );
@@ -375,6 +378,7 @@ export default function App() {
                   <Route index element={<AdminDashboard />} />
                   <Route path="courses" element={<AdminCourses />} />
                   <Route path="students" element={<AdminStudents />} />
+                  <Route path="showcase" element={<AdminShowcase />} />
                   <Route path="admissions" element={<AdminAdmissions />} />
                   <Route path="results" element={<AdminResults />} />
                   <Route path="certificates" element={<AdminCertificates />} />

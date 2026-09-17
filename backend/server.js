@@ -51,6 +51,7 @@ app.use('/api/franchise', require('./routes/franchise'));
 app.use('/api/exam-forms', require('./routes/examForms'));
 app.use('/api/admit-card', require('./routes/admitCard'));
 app.use('/api/test', require('./routes/test'));
+app.use('/api/showcase', require('./routes/studentShowcase'));
 
 app.get('/', (req, res) => res.json({ message: 'KCI API Running' }));
 app.get('/api/auth/ping', (req, res) => res.json({ status: 'ok' }));
