@@ -532,14 +532,9 @@ export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
       : (el.getBoundingClientRect().width > 0 ? el.getBoundingClientRect().width : window.innerWidth);
 
     const screenW = window.innerWidth;
-    let targetW = 650;
-    if (screenW >= 1024) {
-      targetW = Math.min(Math.max(pW - 16, 540), 680);
-    } else if (screenW >= 640) {
-      targetW = Math.min(Math.max(pW - 16, 460), 580);
-    } else {
-      targetW = Math.min(Math.max(screenW - 24, 300), 460);
-    }
+    const availW = Math.min(pW > 0 ? pW : screenW, screenW);
+    // Expand to 100% of container width (minus padding) up to 980px max
+    const targetW = Math.min(Math.max(availW - 8, 280), 980);
     setScale(targetW / 1000);
   }, []);
 
@@ -625,26 +620,74 @@ export default function IDCardPage() {
     const el = printCardRef.current;
     if (!el) return null;
 
+    const fetchAsDataURL = async (url) => {
+      if (!url || url.startsWith('data:')) return url;
+      try {
+        const res = await fetch(url, { mode: 'cors' });
+        const blob = await res.blob();
+        return await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result || url);
+          reader.onerror = () => resolve(url);
+          reader.readAsDataURL(blob);
+        });
+      } catch (err) {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => {
+            try {
+              const cvs = document.createElement('canvas');
+              cvs.width = img.naturalWidth || 300;
+              cvs.height = img.naturalHeight || 300;
+              const ctx = cvs.getContext('2d');
+              ctx.drawImage(img, 0, 0);
+              resolve(cvs.toDataURL('image/png'));
+            } catch (e) {
+              resolve(url);
+            }
+          };
+          img.onerror = () => resolve(url);
+          img.src = url;
+        });
+      }
+    };
+
     const imgs = Array.from(el.querySelectorAll('img'));
     await Promise.all(
-      imgs.map(
-        (img) =>
-          new Promise((resolve) => {
-            if (img.complete) return resolve();
+      imgs.map(async (img) => {
+        if (img.src && !img.src.startsWith('data:')) {
+          try {
+            const dataUri = await fetchAsDataURL(img.src);
+            if (dataUri && dataUri.startsWith('data:')) {
+              img.src = dataUri;
+            }
+          } catch (e) {}
+        }
+        if (!img.complete) {
+          await new Promise((resolve) => {
             img.onload = resolve;
             img.onerror = resolve;
-          })
-      )
+          });
+        }
+      })
     );
 
+    const html2canvas = (await import('html2canvas')).default;
     return html2canvas(el, {
-      scale: 2.5,
+      scale: 2,
       useCORS: true,
       allowTaint: false,
       backgroundColor: '#ffffff',
       logging: false,
       width: 1000,
       height: 1625,
+      windowWidth: 1000,
+      windowHeight: 1625,
+      x: 0,
+      y: 0,
+      scrollX: 0,
+      scrollY: 0,
     });
   }, []);
 
@@ -732,8 +775,8 @@ export default function IDCardPage() {
   return (
     <div className="pt-20 min-h-screen bg-gray-50">
       {/* Off-screen unscaled 1:1 card for PDF and Print capture */}
-      <div style={{ position: 'fixed', top: 0, left: '-9999px', zIndex: -9999, pointerEvents: 'none' }}>
-        <div ref={printCardRef}>
+      <div style={{ position: 'absolute', top: -9999, left: -9999, width: 1000, height: 1625, pointerEvents: 'none', opacity: 0, overflow: 'hidden' }}>
+        <div ref={printCardRef} style={{ width: 1000, height: 1625, background: '#ffffff' }}>
           <KCIIDCard student={user} settings={settings} forPrint={true} />
         </div>
       </div>
@@ -752,12 +795,12 @@ export default function IDCardPage() {
         </motion.div>
       </section>
 
-      <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col items-center">
-        <div className="w-full flex justify-center items-start overflow-hidden my-4" style={{ maxWidth: 520 }}>
+      <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col items-center">
+        <div className="w-full flex justify-center items-start overflow-hidden my-4">
           <KCIIDCardWrapper student={user} settings={settings} />
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 w-full max-w-md">
           <motion.button
             onClick={handleDownload}
             disabled={downloading || printing}

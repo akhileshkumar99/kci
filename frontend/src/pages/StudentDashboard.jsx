@@ -55,6 +55,39 @@ function IDCard({ student, branch }) {
       .catch(() => { });
   }, []);
 
+  const fetchAsDataURL = async (url) => {
+    if (!url || url.startsWith('data:')) return url;
+    try {
+      const res = await fetch(url, { mode: 'cors' });
+      const blob = await res.blob();
+      return await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result || url);
+        reader.onerror = () => resolve(url);
+        reader.readAsDataURL(blob);
+      });
+    } catch (err) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          try {
+            const cvs = document.createElement('canvas');
+            cvs.width = img.naturalWidth || 300;
+            cvs.height = img.naturalHeight || 300;
+            const ctx = cvs.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            resolve(cvs.toDataURL('image/png'));
+          } catch (e) {
+            resolve(url);
+          }
+        };
+        img.onerror = () => resolve(url);
+        img.src = url;
+      });
+    }
+  };
+
   const handleDownloadPDF = async () => {
     if (!printCardRef.current) return;
     setDownloading(true);
@@ -62,25 +95,39 @@ function IDCard({ student, branch }) {
       const el = printCardRef.current;
       const imgs = Array.from(el.querySelectorAll('img'));
       await Promise.all(
-        imgs.map(
-          (img) =>
-            new Promise((resolve) => {
-              if (img.complete) return resolve();
+        imgs.map(async (img) => {
+          if (img.src && !img.src.startsWith('data:')) {
+            try {
+              const dataUri = await fetchAsDataURL(img.src);
+              if (dataUri && dataUri.startsWith('data:')) {
+                img.src = dataUri;
+              }
+            } catch (e) {}
+          }
+          if (!img.complete) {
+            await new Promise((resolve) => {
               img.onload = resolve;
               img.onerror = resolve;
-            })
-        )
+            });
+          }
+        })
       );
 
       const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(el, {
-        scale: 2.5,
+        scale: 2,
         useCORS: true,
         allowTaint: false,
         backgroundColor: '#ffffff',
         logging: false,
         width: 1000,
         height: 1625,
+        windowWidth: 1000,
+        windowHeight: 1625,
+        x: 0,
+        y: 0,
+        scrollX: 0,
+        scrollY: 0,
       });
 
       let imgData;
@@ -106,15 +153,42 @@ function IDCard({ student, branch }) {
     if (!printCardRef.current) return;
     setPrinting(true);
     try {
+      const el = printCardRef.current;
+      const imgs = Array.from(el.querySelectorAll('img'));
+      await Promise.all(
+        imgs.map(async (img) => {
+          if (img.src && !img.src.startsWith('data:')) {
+            try {
+              const dataUri = await fetchAsDataURL(img.src);
+              if (dataUri && dataUri.startsWith('data:')) {
+                img.src = dataUri;
+              }
+            } catch (e) {}
+          }
+          if (!img.complete) {
+            await new Promise((resolve) => {
+              img.onload = resolve;
+              img.onerror = resolve;
+            });
+          }
+        })
+      );
+
       const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(printCardRef.current, {
-        scale: 2.5,
+        scale: 2,
         useCORS: true,
         allowTaint: false,
         backgroundColor: '#ffffff',
         logging: false,
         width: 1000,
         height: 1625,
+        windowWidth: 1000,
+        windowHeight: 1625,
+        x: 0,
+        y: 0,
+        scrollX: 0,
+        scrollY: 0,
       });
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
       const win = window.open('', '_blank');
@@ -143,8 +217,8 @@ function IDCard({ student, branch }) {
   return (
     <div className="flex flex-col items-center gap-5 w-full">
       {/* Off-screen unscaled 1:1 card for PDF and Print capture */}
-      <div style={{ position: 'fixed', top: 0, left: '-9999px', zIndex: -9999, pointerEvents: 'none' }}>
-        <div ref={printCardRef}>
+      <div style={{ position: 'absolute', top: -9999, left: -9999, width: 1000, height: 1625, pointerEvents: 'none', opacity: 0, overflow: 'hidden' }}>
+        <div ref={printCardRef} style={{ width: 1000, height: 1625, background: '#ffffff' }}>
           <KCIIDCard student={student} settings={settings} forPrint={true} />
         </div>
       </div>
@@ -168,7 +242,7 @@ function IDCard({ student, branch }) {
         </button>
       </div>
 
-      <div className="w-full flex justify-center items-center my-4" style={{ maxWidth: 700 }}>
+      <div className="w-full flex justify-center items-center my-4 max-w-full">
         <KCIIDCardWrapper student={student} settings={settings} />
       </div>
       <p className="text-center text-xs text-gray-400 mt-2">* Official Computer Institute Digital PVC ID Card.</p>
