@@ -164,11 +164,11 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         </span>
       </div>
 
-      {/* ── 3. TOP RIGHT NIELIT LOGO & CONTACT INFO (ON WHITE BACKGROUND) ── */}
+      {/* ── 3. TOP RIGHT OFFICIAL NIELIT LOGO IMAGE & CONTACT INFO ── */}
       <div
         style={{
           position: 'absolute',
-          top: 25,
+          top: 40,
           right: 40,
           display: 'flex',
           flexDirection: 'column',
@@ -176,17 +176,19 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           zIndex: 5,
         }}
       >
-        {/* NIELIT Logo Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-          <svg viewBox="0 0 100 100" style={{ width: 44, height: 44 }}>
-            <circle cx="50" cy="50" r="45" fill="#0052CC" />
-            <circle cx="50" cy="35" r="18" fill="#FFCC00" />
-            <path d="M 25 75 C 25 55 75 55 75 75 Z" fill="#FFFFFF" />
-          </svg>
-          <span style={{ color: '#0052CC', fontSize: 38, fontWeight: 900, fontFamily: 'Arial, sans-serif', letterSpacing: 1 }}>
-            NIELIT
-          </span>
-        </div>
+        <img
+          src="/nielit.jpg"
+          alt="NIELIT Logo"
+          style={{
+            height: 52,
+            maxWidth: 220,
+            objectFit: 'contain',
+            marginBottom: 4,
+          }}
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
+        />
         <div style={{ color: '#000000', fontSize: 24, fontWeight: 900, fontFamily: 'Arial, sans-serif', lineHeight: '1.3' }}>
           Office-6716159476
         </div>
@@ -195,25 +197,37 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         </div>
       </div>
 
-      {/* ── 4. CENTER HEADER CERTIFICATION & INSTITUTION TEXT (SHIFTED DOWN TO TOP 325 TO CLEAR RED LINE) ── */}
+      {/* ── 4. CENTER HEADER CERTIFICATION & INSTITUTION TEXT (SINGLE LINE REGISTRATION NUMBERS) ── */}
       <div
         style={{
           position: 'absolute',
           top: 325,
-          left: 260,
-          right: 40,
+          left: 0,
+          width: 1000,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           zIndex: 5,
         }}
       >
-        <div style={{ color: '#000000', fontSize: 30, fontWeight: 900, fontFamily: "'Times New Roman', serif", marginBottom: 3 }}>
+        <div style={{ color: '#000000', fontSize: 30, fontWeight: 900, fontFamily: "'Times New Roman', serif", marginBottom: 4 }}>
           An ISO 9001:2015 Certified Organization
         </div>
-        <div style={{ display: 'flex', gap: 24, color: '#000000', fontSize: 20, fontWeight: 900, fontFamily: 'Arial, sans-serif' }}>
-          <span>ISO. Reg. No.- VKCI26052306978</span>
-          <span>MSME Reg. No.- 198952612-COL</span>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 28,
+            color: '#000000',
+            fontSize: 20,
+            fontWeight: 900,
+            fontFamily: 'Arial, sans-serif',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <span style={{ whiteSpace: 'nowrap' }}>ISO. Reg. No.- VKCI26052306978</span>
+          <span style={{ whiteSpace: 'nowrap' }}>MSME Reg. No.- 198952612-COL</span>
         </div>
       </div>
 
