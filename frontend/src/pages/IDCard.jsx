@@ -527,21 +527,25 @@ export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
     if (!containerRef.current) return;
     const el = containerRef.current;
     const pEl = el.parentElement;
-    const screenW = window.innerWidth;
+    const screenW = window.innerWidth || document.documentElement.clientWidth || 360;
 
-    let availW;
-    if (screenW < 640) {
-      // On mobile devices, utilize 100% of available mobile screen width
-      const pW = pEl && pEl.getBoundingClientRect().width > 0 ? pEl.getBoundingClientRect().width : 0;
-      availW = Math.max(screenW - 8, pW);
-    } else {
-      const pW = (pEl && pEl.getBoundingClientRect().width > 0)
-        ? pEl.getBoundingClientRect().width
-        : (el.getBoundingClientRect().width > 0 ? el.getBoundingClientRect().width : screenW);
-      availW = Math.min(pW, screenW);
+    let pWidth = 0;
+    if (pEl && pEl.getBoundingClientRect().width > 0) {
+      pWidth = pEl.getBoundingClientRect().width;
+    } else if (el && el.getBoundingClientRect().width > 0) {
+      pWidth = el.getBoundingClientRect().width;
     }
 
-    const targetW = Math.min(Math.max(availW, 280), 980);
+    // Determine available width: fit exactly within container / screen boundaries
+    let availW = pWidth > 0 ? pWidth : (screenW - 16);
+    if (screenW < 640) {
+      // On mobile, use container width or screen width minus padding, ensuring zero horizontal overflow
+      availW = Math.min(pWidth > 0 ? pWidth : (screenW - 16), screenW - 12);
+    } else {
+      availW = Math.min(availW, screenW - 32);
+    }
+
+    const targetW = Math.min(Math.max(availW, 260), 980);
     setScale(targetW / 1000);
   }, []);
 
