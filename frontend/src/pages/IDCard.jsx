@@ -521,24 +521,10 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
 // ── Responsive Scaled Card Wrapper (Proportional Canvas Scaling) ──
 export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
   const containerRef = useRef(null);
-  const [scale, setScale] = useState(0.48);
-  const [scale, setScale] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const screenW = window.innerWidth;
-      if (screenW >= 768) return 0.52;
-      if (screenW >= 480) return 0.44;
-      return Math.max((screenW - 32) / 1000, 0.32);
-    }
-    return 0.50;
-  });
   const [scale, setScale] = useState(0.54);
 
   const updateScale = useCallback(() => {
     if (!containerRef.current) return;
-    const pEl = containerRef.current.parentElement;
-    const parentW = pEl?.clientWidth || containerRef.current.clientWidth || (window.innerWidth < 640 ? 340 : 480);
-    const targetW = Math.min(Math.max(parentW - 16, 320), 480);
-    const parentW = pEl?.clientWidth || containerRef.current.clientWidth || window.innerWidth;
     const el = containerRef.current;
     const pEl = el.parentElement;
     const pW = (pEl && pEl.getBoundingClientRect().width > 0)
@@ -546,25 +532,19 @@ export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
       : (el.getBoundingClientRect().width > 0 ? el.getBoundingClientRect().width : window.innerWidth);
 
     const screenW = window.innerWidth;
-    let targetW = 500;
-    let targetW = 560;
+    let targetW = 650;
     if (screenW >= 1024) {
-      targetW = Math.min(Math.max(parentW - 16, 460), 540);
-      targetW = Math.min(Math.max(pW - 16, 480), 580);
+      targetW = Math.min(Math.max(pW - 16, 540), 680);
     } else if (screenW >= 640) {
-      targetW = Math.min(Math.max(parentW - 16, 400), 500);
-      targetW = Math.min(Math.max(pW - 16, 420), 520);
+      targetW = Math.min(Math.max(pW - 16, 460), 580);
     } else {
-      targetW = Math.max(screenW - 24, 300);
-      targetW = Math.min(Math.max(screenW - 24, 280), 420);
+      targetW = Math.min(Math.max(screenW - 24, 300), 460);
     }
     setScale(targetW / 1000);
   }, []);
 
   useEffect(() => {
     updateScale();
-    const timer1 = setTimeout(updateScale, 50);
-    const timer2 = setTimeout(updateScale, 200);
     const t1 = setTimeout(updateScale, 50);
     const t2 = setTimeout(updateScale, 200);
     const t3 = setTimeout(updateScale, 500);
@@ -580,8 +560,6 @@ export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
 
     window.addEventListener('resize', updateScale);
     return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
@@ -605,7 +583,6 @@ export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
           position: 'relative',
           overflow: 'hidden',
           borderRadius: Math.round(36 * scale),
-          boxShadow: '0 12px 36px rgba(0, 51, 153, 0.22)',
           boxShadow: '0 16px 48px rgba(0, 51, 153, 0.25)',
           flexShrink: 0,
         }}

@@ -59,24 +59,45 @@ function IDCard({ student, branch }) {
     if (!printCardRef.current) return;
     setDownloading(true);
     try {
+      const el = printCardRef.current;
+      const imgs = Array.from(el.querySelectorAll('img'));
+      await Promise.all(
+        imgs.map(
+          (img) =>
+            new Promise((resolve) => {
+              if (img.complete) return resolve();
+              img.onload = resolve;
+              img.onerror = resolve;
+            })
+        )
+      );
+
       const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(printCardRef.current, {
+      const canvas = await html2canvas(el, {
         scale: 2.5,
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         backgroundColor: '#ffffff',
         logging: false,
         width: 1000,
         height: 1625,
       });
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+      let imgData;
+      try {
+        imgData = canvas.toDataURL('image/jpeg', 0.95);
+      } catch (e) {
+        imgData = canvas.toDataURL('image/png');
+      }
+
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 86.5], compress: true });
       doc.addImage(imgData, 'JPEG', 0, 0, 54, 86.5, undefined, 'FAST');
-      doc.save(`KCI_IDCard_${(student?.rollNumber || student?.enrollmentNumber || 'student').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+      const safeName = (student?.rollNumber || student?.enrollmentNumber || student?.name || 'student').replace(/[^a-zA-Z0-9]/g, '_');
+      doc.save(`KCI_IDCard_${safeName}.pdf`);
       toast.success('ID Card downloaded!');
     } catch (err) {
-      console.error(err);
-      toast.error('Download failed');
+      console.error('ID Card PDF Download Error:', err);
+      toast.error('Download failed. Please try again.');
     }
     setDownloading(false);
   };
@@ -89,7 +110,7 @@ function IDCard({ student, branch }) {
       const canvas = await html2canvas(printCardRef.current, {
         scale: 2.5,
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         backgroundColor: '#ffffff',
         logging: false,
         width: 1000,
@@ -147,7 +168,7 @@ function IDCard({ student, branch }) {
         </button>
       </div>
 
-      <div className="w-full flex justify-center items-center my-4" style={{ maxWidth: 540 }}>
+      <div className="w-full flex justify-center items-center my-4" style={{ maxWidth: 700 }}>
         <KCIIDCardWrapper student={student} settings={settings} />
       </div>
       <p className="text-center text-xs text-gray-400 mt-2">* Official Computer Institute Digital PVC ID Card.</p>
