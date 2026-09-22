@@ -22,13 +22,13 @@ function getPhotoUrl(photo) {
 }
 
 function fmt(date) {
-  if (!date) return '__/ __/ ____';
+  if (!date) return '__ / __ / ____';
   const d = new Date(date);
   if (isNaN(d.getTime())) return String(date);
   return d.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
-// ── Official PVC ID Card Component (Fixed 1000px x 1625px Canvas) ──
+// ── Pure Vector / HTML CSS PVC ID Card Component (No Background Image) ──
 export function KCIIDCard({ student, settings = {}, forPrint = false }) {
   const [qrUrl, setQrUrl] = useState('');
   const photoUrl = getPhotoUrl(student?.photo);
@@ -64,7 +64,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
 
   return (
     <div
-      className="pvc-idcard-exact-template-container"
+      className="pvc-idcard-pure-digital-container"
       style={{
         width: CARD_W,
         height: CARD_H,
@@ -81,88 +81,200 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         MozOsxFontSmoothing: 'grayscale',
       }}
     >
-      {/* ── 1. EXACT TEMPLATE BACKGROUND IMAGE ── */}
-      <img
-        src="/idcard_bg.jpg"
-        alt="KCI ID Card Template"
+      {/* ── 1. VECTOR SVG BACKGROUND SHAPES (NO IMAGE IN BACKGROUND) ── */}
+      <svg
+        viewBox="0 0 1000 1625"
         style={{
           position: 'absolute',
           top: 0,
           left: 0,
           width: 1000,
           height: 1625,
-          objectFit: 'fill',
           zIndex: 0,
-        }}
-      />
-
-      {/* ── 2. DYNAMIC WEBSITE LOGO OVERLAY (IF CUSTOM LOGO SET IN ADMIN) ── */}
-      {logoUrl && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 22,
-            left: 26,
-            width: 165,
-            height: 165,
-            borderRadius: '50%',
-            background: '#FFFFFF',
-            overflow: 'hidden',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 5,
-            padding: 6,
-          }}
-        >
-          <img src={logoUrl} alt="Website Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-        </div>
-      )}
-
-      {/* ── 3. DYNAMIC VALIDITY YEARS OVERLAY (ALIGNED AFTER "Valid From- ") ── */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 652,
-          left: 218,
-          width: 150,
-          height: 30,
-          background: '#FFFFFF',
-          zIndex: 4,
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          top: 652,
-          left: 220,
-          color: '#0052CC',
-          fontSize: 24,
-          fontWeight: 900,
-          zIndex: 5,
-          fontFamily: "'Arial', 'Helvetica', sans-serif",
-          letterSpacing: 0.5,
+          pointerEvents: 'none',
         }}
       >
-        {validFromYear} to {validToYear}
+        <defs>
+          <linearGradient id="blueHeaderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#0052CC" />
+            <stop offset="100%" stopColor="#003399" />
+          </linearGradient>
+        </defs>
+        {/* White Base */}
+        <rect width="1000" height="1625" fill="#FFFFFF" />
+
+        {/* Top Diagonal Blue Header */}
+        <polygon points="0,0 1000,0 0,550" fill="url(#blueHeaderGrad)" />
+
+        {/* Top Red Diagonal Accent Stripe */}
+        <polygon points="0,550 1000,0 1000,18 0,568" fill="#D32F2F" />
+
+        {/* Bottom Right Blue Corner Polygon */}
+        <polygon points="1000,1625 1000,1180 500,1625" fill="url(#blueHeaderGrad)" />
+
+        {/* Bottom Right Red Accent Stripe */}
+        <polygon points="1000,1160 480,1625 498,1625 1000,1178" fill="#D32F2F" />
+      </svg>
+
+      {/* ── 2. TOP LEFT OFFICIAL KCI SEAL LOGO (PURE VECTOR SVG) ── */}
+      <div style={{ position: 'absolute', top: 25, left: 35, width: 280, height: 280, zIndex: 5 }}>
+        {logoUrl ? (
+          <div
+            style={{
+              width: 280,
+              height: 280,
+              borderRadius: '50%',
+              background: '#FFFFFF',
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '6px solid #FFCC00',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+              padding: 8,
+            }}
+          >
+            <img src={logoUrl} alt="Website Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          </div>
+        ) : (
+          <svg viewBox="0 0 300 300" style={{ width: '100%', height: '100%' }}>
+            {/* Outer Yellow Border Ring */}
+            <circle cx="150" cy="150" r="142" fill="#FFCC00" stroke="#003399" strokeWidth="4" />
+            <circle cx="150" cy="150" r="132" fill="#D32F2F" />
+            <circle cx="150" cy="150" r="102" fill="#FFCC00" />
+            <circle cx="150" cy="150" r="94" fill="#FFFFFF" />
+
+            {/* Circular Text Arches */}
+            <path id="textPathTop" d="M 30,150 A 120,120 0 0,1 270,150" fill="none" />
+            <text fill="#FFCC00" fontSize="24" fontWeight="900" fontFamily="Arial, sans-serif">
+              <textPath href="#textPathTop" startOffset="50%" textAnchor="middle">
+                Computer Institute
+              </textPath>
+            </text>
+
+            <path id="textPathBottom" d="M 270,150 A 120,120 0 0,1 30,150" fill="none" />
+            <text fill="#FFCC00" fontSize="22" fontWeight="900" fontFamily="Arial, sans-serif">
+              <textPath href="#textPathBottom" startOffset="50%" textAnchor="middle">
+                The College of IT
+              </textPath>
+            </text>
+
+            {/* Inner Computer Graphic */}
+            <g transform="translate(75, 75)">
+              <rect x="25" y="20" width="100" height="70" rx="8" fill="#0052CC" stroke="#FFCC00" strokeWidth="4" />
+              <rect x="35" y="30" width="80" height="50" fill="#FFFF99" />
+              <text x="75" y="62" fill="#D32F2F" fontSize="26" fontWeight="900" textAnchor="middle" fontFamily="Arial, sans-serif">KCI</text>
+              <path d="M 60 90 L 90 90 L 100 110 L 50 110 Z" fill="#0052CC" />
+              <rect x="40" y="110" width="70" height="8" rx="4" fill="#334155" />
+            </g>
+
+            {/* TM Superscript */}
+            <text x="260" y="55" fill="#FFCC00" fontSize="22" fontWeight="900" fontFamily="Arial, sans-serif">TM</text>
+          </svg>
+        )}
       </div>
 
-      {/* ── 4. EXACTLY ONE STUDENT PHOTO CONTAINER (EXACT FRAME ALIGNMENT & NO CROP BUG) ── */}
+      {/* ── 3. TOP RIGHT NIELIT LOGO & CONTACT INFO ── */}
       <div
         style={{
           position: 'absolute',
-          top: 671,
-          left: 372,
-          width: 258,
-          height: 310,
-          borderRadius: 4,
-          overflow: 'hidden',
+          top: 40,
+          right: 40,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          zIndex: 5,
+        }}
+      >
+        {/* NIELIT Logo Header */}
+        <div style={{ display: 'flex', items: 'center', gap: 8, marginBottom: 8 }}>
+          <svg viewBox="0 0 100 100" style={{ width: 44, height: 44 }}>
+            <circle cx="50" cy="50" r="45" fill="#0052CC" />
+            <circle cx="50" cy="35" r="18" fill="#FFCC00" />
+            <path d="M 25 75 C 25 55 75 55 75 75 Z" fill="#FFFFFF" />
+          </svg>
+          <span style={{ color: '#0052CC', fontSize: 38, fontWeight: 900, fontFamily: 'Arial, sans-serif', letterSpacing: 1 }}>
+            NIELIT
+          </span>
+        </div>
+        <div style={{ color: '#000000', fontSize: 23, fontWeight: 900, fontFamily: 'Arial, sans-serif', lineHeight: '1.4' }}>
+          Office-6716159476
+        </div>
+        <div style={{ color: '#000000', fontSize: 23, fontWeight: 900, fontFamily: 'Arial, sans-serif', lineHeight: '1.4' }}>
+          Mobile-9936384736
+        </div>
+      </div>
+
+      {/* ── 4. CENTER HEADER CERTIFICATION & INSTITUTION TEXT ── */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 395,
+          left: 0,
+          width: 1000,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          zIndex: 5,
+        }}
+      >
+        <div style={{ color: '#000000', fontSize: 32, fontWeight: 900, fontFamily: "'Times New Roman', serif", marginBottom: 6 }}>
+          An ISO 9001:2015 Certified Organization
+        </div>
+        <div style={{ display: 'flex', gap: 40, color: '#000000', fontSize: 21, fontWeight: 900, fontFamily: 'Arial, sans-serif', marginBottom: 12 }}>
+          <span>ISO. Reg. No.- VKCI26052306978</span>
+          <span>MSME Reg. No.- 198952612-COL</span>
+        </div>
+
+        {/* KEERTI COMPUTER INSTITUTE Main Heading */}
+        <div style={{ fontSize: 50, fontWeight: 900, fontFamily: "'Times New Roman', serif", letterSpacing: 1, marginBottom: 6 }}>
+          <span style={{ color: '#D32F2F' }}>KEERTI </span>
+          <span style={{ color: '#0052CC' }}>COMPUTER </span>
+          <span style={{ color: '#D32F2F' }}>INSTITUTE</span>
+        </div>
+
+        {/* Sub-header Website & Soc Reg Info */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20, fontSize: 24, fontWeight: 900, fontFamily: 'Arial, sans-serif' }}>
+          <span style={{ color: '#0052CC' }}>Website-www.kci.org.in</span>
+          <span style={{ color: '#000000' }}>Soc. Reg. No.- 781</span>
+          <span style={{ color: '#D32F2F' }}>The College of IT</span>
+        </div>
+      </div>
+
+      {/* ── 5. VALIDITY PERIOD SECTION ── */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 640,
+          left: 45,
+          color: '#0052CC',
+          fontSize: 27,
+          fontWeight: 900,
+          fontFamily: 'Arial, sans-serif',
+          zIndex: 5,
+        }}
+      >
+        Valid From- <span style={{ color: '#0052CC' }}>{validFromYear} to {validToYear}</span>
+      </div>
+
+      {/* ── 6. EXACTLY ONE STUDENT PHOTO FRAME ── */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 655,
+          left: 360,
+          width: 280,
+          height: 335,
+          borderRadius: 6,
+          border: '3px solid #334155',
           background: '#FFFFFF',
+          overflow: 'hidden',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 5,
+          zIndex: 10,
           boxSizing: 'border-box',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
         }}
       >
         {photoUrl ? (
@@ -175,10 +287,10 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
               if (e.currentTarget.parentElement) {
                 e.currentTarget.parentElement.innerHTML = `
                   <div style="text-align: center; color: #64748B; padding: 10px;">
-                    <svg viewBox="0 0 100 120" style="width: 130px; height: 150px; margin: 0 auto; fill: #94A3B8;">
+                    <svg viewBox="0 0 100 120" style="width: 140px; height: 160px; margin: 0 auto; fill: #94A3B8;">
                       <path d="M 50 15 A 25 25 0 1 0 50 65 A 25 25 0 1 0 50 15 Z M 15 105 C 15 80 30 75 50 75 C 70 75 85 80 85 105 Z" />
                     </svg>
-                    <div style="font-size: 19px; font-weight: 900; color: #475569; margin-top: 4px;">PHOTO HERE</div>
+                    <div style="font-size: 20px; font-weight: 900; color: #475569; margin-top: 4px;">PHOTO HERE</div>
                   </div>
                 `;
               }
@@ -186,153 +298,144 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           />
         ) : (
           <div style={{ textAlign: 'center', color: '#64748B', padding: 10 }}>
-            <svg viewBox="0 0 100 120" style={{ width: 130, height: 150, margin: '0 auto', fill: '#94A3B8' }}>
+            <svg viewBox="0 0 100 120" style={{ width: 140, height: 160, margin: '0 auto', fill: '#94A3B8' }}>
               <path d="M 50 15 A 25 25 0 1 0 50 65 A 25 25 0 1 0 50 15 Z M 15 105 C 15 80 30 75 50 75 C 70 75 85 80 85 105 Z" />
             </svg>
-            <div style={{ fontSize: 19, fontWeight: 900, color: '#475569', marginTop: 4 }}>PHOTO HERE</div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#475569', marginTop: 4 }}>PHOTO HERE</div>
           </div>
         )}
       </div>
 
-      {/* ── 5. DYNAMIC FIELD VALUES (PERFECTLY ALIGNED AFTER LABELS & NO OVERLAPPING) ── */}
-
-      {/* Course - (Starts right after "Course - ") */}
+      {/* ── 7. DYNAMIC FIELD VALUES (STRUCTURED FLEX/GRID WITH PURE DIGITAL UNDERLINES) ── */}
       <div
         style={{
           position: 'absolute',
-          top: 1053,
-          left: 455,
-          right: 40,
-          color: '#D32F2F',
-          fontSize: 27,
-          fontWeight: 900,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
+          top: 1030,
+          left: 200,
+          right: 70,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 24,
           zIndex: 5,
-          fontFamily: "'Arial', 'Helvetica', sans-serif",
         }}
       >
-        {courseVal}
+        {/* Course */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, width: '100%' }}>
+          <span style={{ color: '#D32F2F', fontSize: 30, fontWeight: 900, whiteSpace: 'nowrap', fontFamily: 'Arial, sans-serif' }}>
+            Course -
+          </span>
+          <div style={{ flex: 1, borderBottom: '3px solid #D32F2F', paddingBottom: 2, overflow: 'hidden' }}>
+            <span style={{ color: '#D32F2F', fontSize: 30, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block', fontFamily: 'Arial, sans-serif' }}>
+              {courseVal}
+            </span>
+          </div>
+        </div>
+
+        {/* Form No. */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, width: '100%' }}>
+          <span style={{ color: '#0052CC', fontSize: 30, fontWeight: 900, whiteSpace: 'nowrap', fontFamily: 'Arial, sans-serif' }}>
+            Form No.-
+          </span>
+          <div style={{ flex: 1, borderBottom: '3px solid #0052CC', paddingBottom: 2, overflow: 'hidden' }}>
+            <span style={{ color: '#0052CC', fontSize: 30, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block', fontFamily: 'Arial, sans-serif' }}>
+              {formNoVal}
+            </span>
+          </div>
+        </div>
+
+        {/* Father’s Name */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, width: '100%' }}>
+          <span style={{ color: '#0052CC', fontSize: 30, fontWeight: 900, whiteSpace: 'nowrap', fontFamily: 'Arial, sans-serif' }}>
+            Father’s Name-
+          </span>
+          <div style={{ flex: 1, borderBottom: '3px solid #0052CC', paddingBottom: 2, overflow: 'hidden' }}>
+            <span style={{ color: '#0052CC', fontSize: 30, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block', fontFamily: 'Arial, sans-serif' }}>
+              {fatherVal}
+            </span>
+          </div>
+        </div>
+
+        {/* DOB */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, width: '100%' }}>
+          <span style={{ color: '#0052CC', fontSize: 30, fontWeight: 900, whiteSpace: 'nowrap', fontFamily: 'Arial, sans-serif' }}>
+            DOB-
+          </span>
+          <div style={{ flex: 1, borderBottom: '3px solid #0052CC', paddingBottom: 2, overflow: 'hidden' }}>
+            <span style={{ color: '#0052CC', fontSize: 30, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block', fontFamily: 'Arial, sans-serif', letterSpacing: '1px' }}>
+              {dobVal}
+            </span>
+          </div>
+        </div>
+
+        {/* Mobile */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, width: '100%' }}>
+          <span style={{ color: '#0052CC', fontSize: 30, fontWeight: 900, whiteSpace: 'nowrap', fontFamily: 'Arial, sans-serif' }}>
+            Mobile-
+          </span>
+          <div style={{ flex: 1, borderBottom: '3px solid #0052CC', paddingBottom: 2, overflow: 'hidden' }}>
+            <span style={{ color: '#0052CC', fontSize: 30, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block', fontFamily: 'Arial, sans-serif' }}>
+              {mobileVal}
+            </span>
+          </div>
+        </div>
+
+        {/* Branch */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, width: '70%' }}>
+          <span style={{ color: '#0052CC', fontSize: 30, fontWeight: 900, whiteSpace: 'nowrap', fontFamily: 'Arial, sans-serif' }}>
+            Branch -
+          </span>
+          <div style={{ flex: 1, borderBottom: '3px solid #0052CC', paddingBottom: 2, overflow: 'hidden' }}>
+            <span style={{ color: '#0052CC', fontSize: 30, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block', fontFamily: 'Arial, sans-serif' }}>
+              {branchVal}
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Form No.- (Starts right after "Form No.- ") */}
+      {/* ── 8. BOTTOM LEFT MANAGING DIRECTOR SIGNATURE & ADDRESS ── */}
       <div
         style={{
           position: 'absolute',
-          top: 1107,
-          left: 492,
-          right: 40,
-          color: '#0052CC',
-          fontSize: 27,
-          fontWeight: 900,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
+          bottom: 45,
+          left: 45,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
           zIndex: 5,
-          fontFamily: "'Arial', 'Helvetica', sans-serif",
         }}
       >
-        {formNoVal}
+        {/* Red Vector Signature */}
+        <svg viewBox="0 0 300 110" style={{ width: 280, height: 95, marginBottom: 2 }}>
+          <path
+            d="M 20 80 C 40 15 60 10 75 55 C 85 85 95 25 110 45 C 125 65 135 20 150 70 C 165 105 145 85 190 70 C 230 55 270 65 290 60"
+            fill="none"
+            stroke="#D32F2F"
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M 50 90 C 90 85 170 80 250 80"
+            fill="none"
+            stroke="#D32F2F"
+            strokeWidth="5"
+            strokeLinecap="round"
+          />
+        </svg>
+
+        <div style={{ color: '#D32F2F', fontSize: 32, fontWeight: 900, fontFamily: "'Times New Roman', serif", marginBottom: 6 }}>
+          Managing Director
+        </div>
+        <div style={{ color: '#000000', fontSize: 18, fontWeight: 900, fontFamily: 'Arial, sans-serif' }}>
+          H.O.- Sahjanand Road, Shringar Hat, Ayodhya- Faizabad, U.P.- 224001
+        </div>
       </div>
 
-      {/* Father’s Name- (Starts right after "Father’s Name- ") */}
+      {/* ── 9. DYNAMIC QR VERIFICATION CODE (BOTTOM RIGHT) ── */}
       <div
         style={{
           position: 'absolute',
-          top: 1161,
-          left: 508,
-          right: 40,
-          color: '#0052CC',
-          fontSize: 27,
-          fontWeight: 900,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          zIndex: 5,
-          fontFamily: "'Arial', 'Helvetica', sans-serif",
-        }}
-      >
-        {fatherVal}
-      </div>
-
-      {/* DOB- (Clean white cover over template's "__/__/___" + formatted date overlay) */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 1215,
-          left: 418,
-          width: 230,
-          height: 36,
-          background: '#FFFFFF',
-          zIndex: 4,
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          top: 1216,
-          left: 422,
-          right: 40,
-          color: '#0052CC',
-          fontSize: 27,
-          fontWeight: 900,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          zIndex: 5,
-          fontFamily: "'Arial', 'Helvetica', sans-serif",
-          letterSpacing: 0.5,
-        }}
-      >
-        {dobVal}
-      </div>
-
-      {/* Mobile- (Starts right after "Mobile- ") */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 1270,
-          left: 431,
-          right: 40,
-          color: '#0052CC',
-          fontSize: 27,
-          fontWeight: 900,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          zIndex: 5,
-          fontFamily: "'Arial', 'Helvetica', sans-serif",
-        }}
-      >
-        {mobileVal}
-      </div>
-
-      {/* Branch - (Starts right after "Branch - " & bounded to avoid QR overlap) */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 1322,
-          left: 455,
-          right: 200,
-          color: '#0052CC',
-          fontSize: 27,
-          fontWeight: 900,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          zIndex: 5,
-          fontFamily: "'Arial', 'Helvetica', sans-serif",
-        }}
-      >
-        {branchVal}
-      </div>
-
-      {/* ── 6. DYNAMIC QR VERIFICATION CODE (BOTTOM RIGHT) ── */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 70,
+          bottom: 65,
           right: 40,
           display: 'flex',
           flexDirection: 'column',
@@ -343,10 +446,10 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       >
         <div
           style={{
-            width: 122,
-            height: 122,
+            width: 125,
+            height: 125,
             border: '3px solid #FFCC00',
-            borderRadius: 12,
+            borderRadius: 14,
             background: '#FFFFFF',
             padding: 4,
             display: 'flex',
