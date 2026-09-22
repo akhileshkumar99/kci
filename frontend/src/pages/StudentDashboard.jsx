@@ -1628,6 +1628,7 @@ export default function StudentDashboard() {
 
       {/* DESKTOP PERMANENT DARK SIDEBAR (Visible >= 1024px) */}
       <aside className="hidden lg:flex flex-col h-screen sticky top-0 z-40 bg-[#151D2C] border-r border-slate-800 shrink-0">
+      <aside className="hidden lg:flex flex-col h-screen sticky top-0 z-50 bg-[#151D2C] border-r border-slate-800 shrink-0">
         <StudentSidebarContent
           tabs={tabs}
           activeTab={activeTab}
@@ -1677,6 +1678,8 @@ export default function StudentDashboard() {
 
         {/* TOP HEADER */}
         <header className={`backdrop-blur-md sticky top-0 z-40 shrink-0 h-[64px] sm:h-[72px] px-4 sm:px-6 flex items-center justify-between shadow-xs transition-colors duration-300 ${darkMode ? 'bg-[#131F3F]/90 border-b border-slate-800 text-white' : 'bg-white/95 border-b border-slate-200/80'
+        {/* TOP HEADER (STICKY) */}
+        <header className={`backdrop-blur-md sticky top-0 z-40 shrink-0 h-[64px] sm:h-[72px] px-4 sm:px-6 flex items-center justify-between shadow-md transition-colors duration-300 ${darkMode ? 'bg-[#131F3F]/95 border-b border-slate-800 text-white' : 'bg-white/95 border-b border-slate-200/80'
           }`}>
           {/* Left Header Controls */}
           <div className="flex items-center gap-3 min-w-0">
