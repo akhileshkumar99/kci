@@ -116,7 +116,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         <polygon points="1000,1210 520,1625 538,1625 1000,1228" fill="#D32F2F" />
       </svg>
 
-      {/* ── 2. TOP LEFT OFFICIAL KCI SEAL LOGO (CIRCULAR CLIPPED SEAL WITH GOLDEN BORDER) ── */}
+      {/* ── 2. TOP LEFT OFFICIAL KCI SEAL LOGO (NO YELLOW OUTLINE) ── */}
       <div style={{ position: 'absolute', top: 25, left: 35, width: 280, height: 280, zIndex: 5 }}>
         <div
           style={{
@@ -125,9 +125,8 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
             height: 270,
             borderRadius: '50%',
             overflow: 'hidden',
-            border: '6px solid #FFCC00',
-            background: '#FFFFFF',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+            border: 'none',
+            background: 'transparent',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -137,9 +136,9 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
             src={logoUrl}
             alt="KCI Logo"
             style={{
-              width: '102%',
-              height: '102%',
-              objectFit: 'cover',
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
               borderRadius: '50%',
             }}
             onError={(e) => {
@@ -164,11 +163,11 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         </span>
       </div>
 
-      {/* ── 3. TOP RIGHT OFFICIAL NIELIT LOGO IMAGE (TRANSPARENT BACKGROUND & ENLARGED) ── */}
+      {/* ── 3. TOP RIGHT OFFICIAL NIELIT LOGO IMAGE (ENLARGED & SHIFTED DOWN) ── */}
       <div
         style={{
           position: 'absolute',
-          top: 65,
+          top: 85,
           right: 40,
           display: 'flex',
           flexDirection: 'column',
@@ -180,10 +179,11 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           src="/nielit.png"
           alt="NIELIT Logo"
           style={{
-            height: 75,
-            maxWidth: 280,
+            height: 98,
+            maxWidth: 340,
             objectFit: 'contain',
             marginBottom: 6,
+            filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.12))',
           }}
           onError={(e) => {
             e.currentTarget.style.display = 'none';
