@@ -1292,6 +1292,7 @@ export default function StudentDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('kci_student_theme') === 'dark');
 
   const toggleDarkMode = () => {
@@ -1736,17 +1737,36 @@ export default function StudentDashboard() {
                 }`}
             >
               <div className="w-9 h-9 rounded-xl bg-[#2563EB] text-white font-black flex items-center justify-center overflow-hidden border border-slate-300 shadow-sm shrink-0">
+            <div className="flex items-center gap-2.5 p-1 rounded-xl">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPhotoModalOpen(true);
+                }}
+                title="Click to view photo"
+                className="w-9 h-9 rounded-xl bg-[#2563EB] text-white font-black flex items-center justify-center overflow-hidden border border-slate-300 shadow-sm shrink-0 cursor-pointer hover:scale-105 transition-transform"
+              >
                 {data.student?.photo ? (
                   <img src={data.student.photo} alt="" className="w-full h-full object-cover" />
+                  <img src={data.student.photo} alt={data.student?.name || 'Student'} className="w-full h-full object-cover" />
                 ) : (
                   ((data.student?.name?.[0] || user?.name?.[0] || 'S').toUpperCase())
                 )}
               </div>
               <div className="hidden sm:block text-left min-w-0">
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('profile')}
+                className="hidden sm:block text-left min-w-0 cursor-pointer hover:opacity-80 transition-opacity"
+              >
                 <div className={`text-xs font-black leading-tight truncate max-w-[120px] ${darkMode ? 'text-white' : 'text-slate-900'}`}>{data.student?.name || user?.name}</div>
                 <div className="text-[10px] text-blue-500 font-bold font-mono truncate">{data.student?.rollNumber || 'Student'}</div>
               </div>
             </button>
+              </button>
+            </div>
           </div>
         </header>
 
@@ -1840,11 +1860,9 @@ export default function StudentDashboard() {
                   <div className="relative w-32 h-32 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
                     <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                       <path className={darkMode ? "text-slate-800" : "text-slate-100"} strokeWidth="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                      <path className="text-blue-500" strokeDasharray="75, 100" strokeWidth="3.5" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                       <path className="text-blue-500" strokeDasharray="50, 100" strokeWidth="3.5" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                     </svg>
                     <div className="absolute flex flex-col items-center justify-center text-center">
-                      <span className={`text-2xl font-black ${darkMode ? 'text-white' : 'text-slate-900'}`}>75%</span>
                       <span className={`text-2xl font-black ${darkMode ? 'text-white' : 'text-slate-900'}`}>50%</span>
                     </div>
                   </div>
@@ -1856,10 +1874,8 @@ export default function StudentDashboard() {
                       <div className={`text-xs font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>You are doing great! Keep it up.</div>
                     </div>
                     <div className={`flex items-end gap-2 h-16 pt-2 border-t ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
-                      {[40, 60, 45, 80, 75, 90, 85].map((h, i) => (
                       {[30, 50, 40, 60, 50, 70, 55].map((h, i) => (
                         <div key={i} className={`flex-1 rounded-t-md relative overflow-hidden transition-colors ${darkMode ? 'bg-slate-800' : 'bg-blue-100'}`} style={{ height: `${h}%` }}>
-                          <div className="absolute bottom-0 inset-x-0 bg-blue-600 rounded-t-md group-hover:bg-blue-500 transition-colors" style={{ height: '70%' }} />
                           <div className="absolute bottom-0 inset-x-0 bg-blue-600 rounded-t-md group-hover:bg-blue-500 transition-colors" style={{ height: '50%' }} />
                         </div>
                       ))}
@@ -2947,6 +2963,61 @@ export default function StudentDashboard() {
             );
           })}
         </nav>
+
+        {/* ── PROFILE PHOTO POPUP MODAL ── */}
+        <AnimatePresence>
+          {photoModalOpen && (
+            <div
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+              onClick={() => setPhotoModalOpen(false)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.85 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                className={`relative border p-6 rounded-3xl max-w-sm w-full flex flex-col items-center shadow-2xl overflow-hidden ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'
+                  }`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Close Button */}
+                <button
+                  type="button"
+                  onClick={() => setPhotoModalOpen(false)}
+                  className="absolute top-3 right-3 w-9 h-9 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center transition-colors cursor-pointer z-10 shadow-md"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                {/* Modal Title */}
+                <div className="text-base font-black mb-4 text-center w-full pr-8 truncate">
+                  {data.student?.name || user?.name || 'Student Photo'}
+                </div>
+
+                {/* Full Image Container */}
+                <div className="w-64 h-64 sm:w-72 sm:h-72 rounded-2xl overflow-hidden border-2 border-blue-500/50 shadow-xl bg-slate-950 flex items-center justify-center">
+                  {data.student?.photo ? (
+                    <img src={data.student.photo} alt={data.student?.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-blue-600 text-white font-black text-6xl flex items-center justify-center">
+                      {((data.student?.name?.[0] || user?.name?.[0] || 'S').toUpperCase())}
+                    </div>
+                  )}
+                </div>
+
+                {/* Student Roll No & Course Tag */}
+                <div className="mt-4 text-center space-y-1">
+                  <div className="text-xs font-mono font-bold text-blue-500">
+                    Roll No: {data.student?.rollNumber || data.student?.formNo || '—'}
+                  </div>
+                  <div className="text-xs font-semibold text-slate-400">
+                    Course: {data.student?.courseName || 'Student'}
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
