@@ -34,7 +34,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
   const photoUrl = getPhotoUrl(student?.photo);
 
   const websiteLogo = settings?.logo || settings?.websiteLogo || null;
-  const logoUrl = websiteLogo ? getPhotoUrl(websiteLogo) : null;
+  const logoUrl = websiteLogo ? getPhotoUrl(websiteLogo) : '/logo.png';
 
   // Dynamic Verification QR URL
   useEffect(() => {
@@ -60,7 +60,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
   const fatherVal = student?.fatherName || '—';
   const dobVal = fmt(student?.dob);
   const mobileVal = student?.phone || student?.mobile || '—';
-  const branchVal = student?.branchId?.branchName || student?.branchName || 'Main Campus';
+  const branchVal = student?.branchId?.branchName || student?.branchName || 'Ambedkarnagar';
 
   return (
     <div
@@ -81,7 +81,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         MozOsxFontSmoothing: 'grayscale',
       }}
     >
-      {/* ── 1. VECTOR SVG BACKGROUND SHAPES (NO IMAGE IN BACKGROUND) ── */}
+      {/* ── 1. VECTOR SVG BACKGROUND SHAPES ── */}
       <svg
         viewBox="0 0 1000 1625"
         style={{
@@ -100,85 +100,60 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
             <stop offset="100%" stopColor="#003399" />
           </linearGradient>
         </defs>
-        {/* White Base */}
+        {/* White Base Card */}
         <rect width="1000" height="1625" fill="#FFFFFF" />
 
-        {/* Top Diagonal Blue Header */}
-        <polygon points="0,0 1000,0 0,550" fill="url(#blueHeaderGrad)" />
+        {/* Top Diagonal Blue Header (Ends at x=930 on top edge, leaving top-right white for NIELIT & numbers) */}
+        <polygon points="0,0 930,0 0,360" fill="url(#blueHeaderGrad)" />
 
         {/* Top Red Diagonal Accent Stripe */}
-        <polygon points="0,550 1000,0 1000,18 0,568" fill="#D32F2F" />
+        <polygon points="0,360 930,0 948,0 0,378" fill="#D32F2F" />
 
         {/* Bottom Right Blue Corner Polygon */}
-        <polygon points="1000,1625 1000,1180 500,1625" fill="url(#blueHeaderGrad)" />
+        <polygon points="1000,1625 1000,1228 538,1625" fill="url(#blueHeaderGrad)" />
 
         {/* Bottom Right Red Accent Stripe */}
-        <polygon points="1000,1160 480,1625 498,1625 1000,1178" fill="#D32F2F" />
+        <polygon points="1000,1210 520,1625 538,1625 1000,1228" fill="#D32F2F" />
       </svg>
 
-      {/* ── 2. TOP LEFT OFFICIAL KCI SEAL LOGO (PURE VECTOR SVG) ── */}
-      <div style={{ position: 'absolute', top: 25, left: 35, width: 280, height: 280, zIndex: 5 }}>
-        {logoUrl ? (
-          <div
+      {/* ── 2. TOP LEFT OFFICIAL KCI SEAL LOGO (FROM WEBSITE /LOGO.PNG) ── */}
+      <div style={{ position: 'absolute', top: 30, left: 35, width: 280, height: 280, zIndex: 5 }}>
+        <div style={{ position: 'relative', width: 280, height: 280 }}>
+          <img
+            src={logoUrl}
+            alt="KCI Logo"
             style={{
-              width: 280,
-              height: 280,
-              borderRadius: '50%',
-              background: '#FFFFFF',
-              overflow: 'hidden',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '6px solid #FFCC00',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-              padding: 8,
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0px 4px 10px rgba(0,0,0,0.25))',
+            }}
+            onError={(e) => {
+              e.currentTarget.src = '/logo.png';
+            }}
+          />
+          {/* TM Superscript */}
+          <span
+            style={{
+              position: 'absolute',
+              top: 35,
+              right: 25,
+              color: '#FFCC00',
+              fontSize: 24,
+              fontWeight: 900,
+              fontFamily: 'Arial, sans-serif',
             }}
           >
-            <img src={logoUrl} alt="Website Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-          </div>
-        ) : (
-          <svg viewBox="0 0 300 300" style={{ width: '100%', height: '100%' }}>
-            {/* Outer Yellow Border Ring */}
-            <circle cx="150" cy="150" r="142" fill="#FFCC00" stroke="#003399" strokeWidth="4" />
-            <circle cx="150" cy="150" r="132" fill="#D32F2F" />
-            <circle cx="150" cy="150" r="102" fill="#FFCC00" />
-            <circle cx="150" cy="150" r="94" fill="#FFFFFF" />
-
-            {/* Circular Text Arches */}
-            <path id="textPathTop" d="M 30,150 A 120,120 0 0,1 270,150" fill="none" />
-            <text fill="#FFCC00" fontSize="24" fontWeight="900" fontFamily="Arial, sans-serif">
-              <textPath href="#textPathTop" startOffset="50%" textAnchor="middle">
-                Computer Institute
-              </textPath>
-            </text>
-
-            <path id="textPathBottom" d="M 270,150 A 120,120 0 0,1 30,150" fill="none" />
-            <text fill="#FFCC00" fontSize="22" fontWeight="900" fontFamily="Arial, sans-serif">
-              <textPath href="#textPathBottom" startOffset="50%" textAnchor="middle">
-                The College of IT
-              </textPath>
-            </text>
-
-            {/* Inner Computer Graphic */}
-            <g transform="translate(75, 75)">
-              <rect x="25" y="20" width="100" height="70" rx="8" fill="#0052CC" stroke="#FFCC00" strokeWidth="4" />
-              <rect x="35" y="30" width="80" height="50" fill="#FFFF99" />
-              <text x="75" y="62" fill="#D32F2F" fontSize="26" fontWeight="900" textAnchor="middle" fontFamily="Arial, sans-serif">KCI</text>
-              <path d="M 60 90 L 90 90 L 100 110 L 50 110 Z" fill="#0052CC" />
-              <rect x="40" y="110" width="70" height="8" rx="4" fill="#334155" />
-            </g>
-
-            {/* TM Superscript */}
-            <text x="260" y="55" fill="#FFCC00" fontSize="22" fontWeight="900" fontFamily="Arial, sans-serif">TM</text>
-          </svg>
-        )}
+            TM
+          </span>
+        </div>
       </div>
 
-      {/* ── 3. TOP RIGHT NIELIT LOGO & CONTACT INFO ── */}
+      {/* ── 3. TOP RIGHT NIELIT LOGO & CONTACT INFO (ON WHITE BACKGROUND) ── */}
       <div
         style={{
           position: 'absolute',
-          top: 40,
+          top: 30,
           right: 40,
           display: 'flex',
           flexDirection: 'column',
@@ -187,7 +162,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         }}
       >
         {/* NIELIT Logo Header */}
-        <div style={{ display: 'flex', items: 'center', gap: 8, marginBottom: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
           <svg viewBox="0 0 100 100" style={{ width: 44, height: 44 }}>
             <circle cx="50" cy="50" r="45" fill="#0052CC" />
             <circle cx="50" cy="35" r="18" fill="#FFCC00" />
@@ -197,10 +172,10 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
             NIELIT
           </span>
         </div>
-        <div style={{ color: '#000000', fontSize: 23, fontWeight: 900, fontFamily: 'Arial, sans-serif', lineHeight: '1.4' }}>
+        <div style={{ color: '#000000', fontSize: 24, fontWeight: 900, fontFamily: 'Arial, sans-serif', lineHeight: '1.3' }}>
           Office-6716159476
         </div>
-        <div style={{ color: '#000000', fontSize: 23, fontWeight: 900, fontFamily: 'Arial, sans-serif', lineHeight: '1.4' }}>
+        <div style={{ color: '#000000', fontSize: 24, fontWeight: 900, fontFamily: 'Arial, sans-serif', lineHeight: '1.3' }}>
           Mobile-9936384736
         </div>
       </div>
@@ -209,7 +184,28 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          top: 395,
+          top: 255,
+          left: 160,
+          right: 40,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          zIndex: 5,
+        }}
+      >
+        <div style={{ color: '#000000', fontSize: 32, fontWeight: 900, fontFamily: "'Times New Roman', serif", marginBottom: 4 }}>
+          An ISO 9001:2015 Certified Organization
+        </div>
+        <div style={{ display: 'flex', gap: 30, color: '#000000', fontSize: 21, fontWeight: 900, fontFamily: 'Arial, sans-serif', marginBottom: 10 }}>
+          <span>ISO. Reg. No.- VKCI26052306978</span>
+          <span>MSME Reg. No.- 198952612-COL</span>
+        </div>
+      </div>
+
+      <div
+        style={{
+          position: 'absolute',
+          top: 340,
           left: 0,
           width: 1000,
           display: 'flex',
@@ -218,37 +214,29 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           zIndex: 5,
         }}
       >
-        <div style={{ color: '#000000', fontSize: 32, fontWeight: 900, fontFamily: "'Times New Roman', serif", marginBottom: 6 }}>
-          An ISO 9001:2015 Certified Organization
-        </div>
-        <div style={{ display: 'flex', gap: 40, color: '#000000', fontSize: 21, fontWeight: 900, fontFamily: 'Arial, sans-serif', marginBottom: 12 }}>
-          <span>ISO. Reg. No.- VKCI26052306978</span>
-          <span>MSME Reg. No.- 198952612-COL</span>
-        </div>
-
         {/* KEERTI COMPUTER INSTITUTE Main Heading */}
-        <div style={{ fontSize: 50, fontWeight: 900, fontFamily: "'Times New Roman', serif", letterSpacing: 1, marginBottom: 6 }}>
+        <div style={{ fontSize: 48, fontWeight: 900, fontFamily: "'Times New Roman', serif", letterSpacing: 1, marginBottom: 4 }}>
           <span style={{ color: '#D32F2F' }}>KEERTI </span>
           <span style={{ color: '#0052CC' }}>COMPUTER </span>
           <span style={{ color: '#D32F2F' }}>INSTITUTE</span>
         </div>
 
         {/* Sub-header Website & Soc Reg Info */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20, fontSize: 24, fontWeight: 900, fontFamily: 'Arial, sans-serif' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 23, fontWeight: 900, fontFamily: 'Arial, sans-serif' }}>
           <span style={{ color: '#0052CC' }}>Website-www.kci.org.in</span>
           <span style={{ color: '#000000' }}>Soc. Reg. No.- 781</span>
           <span style={{ color: '#D32F2F' }}>The College of IT</span>
         </div>
       </div>
 
-      {/* ── 5. VALIDITY PERIOD SECTION ── */}
+      {/* ── 5. VALIDITY PERIOD & STUDENT PHOTO SECTION ── */}
       <div
         style={{
           position: 'absolute',
-          top: 640,
+          top: 465,
           left: 45,
           color: '#0052CC',
-          fontSize: 27,
+          fontSize: 26,
           fontWeight: 900,
           fontFamily: 'Arial, sans-serif',
           zIndex: 5,
@@ -261,12 +249,12 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          top: 655,
-          left: 360,
-          width: 280,
-          height: 335,
-          borderRadius: 6,
-          border: '3px solid #334155',
+          top: 455,
+          left: 370,
+          width: 260,
+          height: 320,
+          borderRadius: 4,
+          border: '3px solid #333333',
           background: '#FFFFFF',
           overflow: 'hidden',
           display: 'flex',
@@ -306,16 +294,16 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         )}
       </div>
 
-      {/* ── 7. DYNAMIC FIELD VALUES (STRUCTURED FLEX/GRID WITH PURE DIGITAL UNDERLINES) ── */}
+      {/* ── 7. DYNAMIC FIELD VALUES (PERFECTLY ALIGNED UNDERLINES & ZERO OVERLAP) ── */}
       <div
         style={{
           position: 'absolute',
-          top: 1030,
-          left: 200,
-          right: 70,
+          top: 815,
+          left: 180,
+          width: 630,
           display: 'flex',
           flexDirection: 'column',
-          gap: 24,
+          gap: 18,
           zIndex: 5,
         }}
       >
@@ -380,7 +368,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         </div>
 
         {/* Branch */}
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, width: '70%' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, width: '100%' }}>
           <span style={{ color: '#0052CC', fontSize: 30, fontWeight: 900, whiteSpace: 'nowrap', fontFamily: 'Arial, sans-serif' }}>
             Branch -
           </span>
@@ -396,7 +384,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          bottom: 45,
+          bottom: 40,
           left: 45,
           display: 'flex',
           flexDirection: 'column',
@@ -405,7 +393,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         }}
       >
         {/* Red Vector Signature */}
-        <svg viewBox="0 0 300 110" style={{ width: 280, height: 95, marginBottom: 2 }}>
+        <svg viewBox="0 0 300 110" style={{ width: 290, height: 100, marginBottom: 2 }}>
           <path
             d="M 20 80 C 40 15 60 10 75 55 C 85 85 95 25 110 45 C 125 65 135 20 150 70 C 165 105 145 85 190 70 C 230 55 270 65 290 60"
             fill="none"
@@ -423,10 +411,10 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           />
         </svg>
 
-        <div style={{ color: '#D32F2F', fontSize: 32, fontWeight: 900, fontFamily: "'Times New Roman', serif", marginBottom: 6 }}>
+        <div style={{ color: '#D32F2F', fontSize: 34, fontWeight: 900, fontFamily: "'Times New Roman', serif", marginBottom: 6 }}>
           Managing Director
         </div>
-        <div style={{ color: '#000000', fontSize: 18, fontWeight: 900, fontFamily: 'Arial, sans-serif' }}>
+        <div style={{ color: '#000000', fontSize: 19, fontWeight: 900, fontFamily: 'Arial, sans-serif' }}>
           H.O.- Sahjanand Road, Shringar Hat, Ayodhya- Faizabad, U.P.- 224001
         </div>
       </div>
@@ -435,7 +423,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          bottom: 65,
+          bottom: 50,
           right: 40,
           display: 'flex',
           flexDirection: 'column',
@@ -446,8 +434,8 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       >
         <div
           style={{
-            width: 125,
-            height: 125,
+            width: 135,
+            height: 135,
             border: '3px solid #FFCC00',
             borderRadius: 14,
             background: '#FFFFFF',
@@ -464,7 +452,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
             <div style={{ fontSize: 13, color: '#0052CC', fontWeight: 'bold' }}>QR Code</div>
           )}
         </div>
-        <span style={{ color: '#0052CC', fontSize: 13, fontWeight: 900, letterSpacing: 0.5, fontFamily: "'Arial', 'Helvetica', sans-serif" }}>
+        <span style={{ color: '#FFCC00', fontSize: 13, fontWeight: 900, letterSpacing: 0.5, fontFamily: "'Arial', 'Helvetica', sans-serif" }}>
           🔒 SCAN TO VERIFY
         </span>
       </div>
