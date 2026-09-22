@@ -148,6 +148,7 @@ function IDCard({ student, branch }) {
       </div>
 
       <div className="w-full flex justify-center items-center overflow-hidden my-4" style={{ maxWidth: 520 }}>
+      <div className="w-full flex justify-center items-start overflow-hidden my-4" style={{ maxWidth: 520 }}>
         <KCIIDCardWrapper student={student} settings={settings} />
       </div>
       <p className="text-center text-xs text-gray-400 mt-2">* Official Computer Institute Digital PVC ID Card.</p>

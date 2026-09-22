@@ -118,6 +118,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
 
       {/* ── 2. TOP LEFT OFFICIAL KCI SEAL LOGO (NO YELLOW OUTLINE) ── */}
       <div style={{ position: 'absolute', top: 25, left: 35, width: 280, height: 280, zIndex: 5 }}>
+      <div style={{ position: 'absolute', top: 25, left: 35, width: 330, height: 280, zIndex: 5 }}>
         <div
           style={{
             position: 'relative',
@@ -147,11 +148,13 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           />
         </div>
         {/* TM Superscript */}
+        {/* TM Superscript with clear space from circular logo */}
         <span
           style={{
             position: 'absolute',
             top: 20,
             right: 0,
+            left: 285,
             color: '#FFCC00',
             fontSize: 26,
             fontWeight: 900,
@@ -535,13 +538,17 @@ export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
     return () => window.removeEventListener('resize', updateScale);
   }, []);
 
+  const scaledH = Math.round(1625 * scale);
+
   return (
     <div
       ref={containerRef}
       className={`w-full flex justify-center items-center overflow-hidden ${className}`}
+      className={`w-full flex justify-center items-start overflow-hidden ${className}`}
       style={{
         height: Math.round(1625 * scale) + 10,
         minHeight: 300,
+        height: scaledH > 0 ? scaledH : 'auto',
       }}
     >
       <div
@@ -550,6 +557,7 @@ export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
           height: 1625,
           transform: `scale(${scale})`,
           transformOrigin: 'top center',
+          marginBottom: -(1625 - scaledH),
           flexShrink: 0,
         }}
       >
@@ -708,6 +716,7 @@ export default function IDCardPage() {
 
       <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col items-center">
         <div className="w-full flex justify-center items-center overflow-hidden my-4" style={{ maxWidth: 520 }}>
+        <div className="w-full flex justify-center items-start overflow-hidden my-4" style={{ maxWidth: 520 }}>
           <KCIIDCardWrapper student={user} settings={settings} />
         </div>
 
