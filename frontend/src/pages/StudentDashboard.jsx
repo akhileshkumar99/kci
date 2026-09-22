@@ -1573,6 +1573,7 @@ export default function StudentDashboard() {
 
   return (
     <div className={`min-h-screen font-sans w-full lg:grid lg:grid-cols-[240px_minmax(0,1fr)] student-portal transition-colors duration-300 ${darkMode ? 'bg-[#0B132B] text-slate-100 dark' : 'bg-[#F4F7FC] text-[#172033]'}`}>
+    <div className={`flex h-screen font-sans w-full overflow-hidden student-portal transition-colors duration-300 ${darkMode ? 'bg-[#0B132B] text-slate-100 dark' : 'bg-[#F4F7FC] text-[#172033]'}`}>
       <style>{`
         .student-portal.dark .bg-white {
           background-color: #131F3F !important;
@@ -1628,6 +1629,8 @@ export default function StudentDashboard() {
 
       {/* DESKTOP PERMANENT DARK SIDEBAR (Sticky top-0) */}
       <aside className="hidden lg:flex flex-col h-screen sticky top-0 z-40 bg-[#151D2C] border-r border-slate-800 shrink-0">
+      {/* DESKTOP PERMANENT DARK SIDEBAR (Fixed Full Height) */}
+      <aside className="hidden lg:flex flex-col h-full w-[240px] bg-[#151D2C] border-r border-slate-800 shrink-0 z-40">
         <StudentSidebarContent
           tabs={tabs}
           activeTab={activeTab}
@@ -1674,9 +1677,13 @@ export default function StudentDashboard() {
 
       {/* MAIN AREA */}
       <div className={`min-w-0 w-full flex flex-col min-h-screen transition-colors duration-300 ${darkMode ? 'bg-[#0B132B]' : 'bg-[#F4F7FC]'}`}>
+      {/* MAIN RIGHT AREA (Header + Scrollable Main) */}
+      <div className={`flex-1 flex flex-col h-full min-w-0 overflow-hidden transition-colors duration-300 ${darkMode ? 'bg-[#0B132B]' : 'bg-[#F4F7FC]'}`}>
 
         {/* TOP HEADER (STICKY ON SCROLL) */}
         <header className={`backdrop-blur-md sticky top-0 z-30 shrink-0 h-[64px] sm:h-[72px] px-4 sm:px-6 flex items-center justify-between shadow-sm transition-colors duration-300 ${darkMode ? 'bg-[#131F3F]/95 border-b border-slate-800 text-white' : 'bg-white/95 border-b border-slate-200/80'
+        {/* TOP HEADER (FIXED TOP NAVBAR) */}
+        <header className={`backdrop-blur-md shrink-0 h-[64px] sm:h-[72px] px-4 sm:px-6 flex items-center justify-between shadow-xs transition-colors duration-300 z-30 ${darkMode ? 'bg-[#131F3F]/95 border-b border-slate-800 text-white' : 'bg-white/95 border-b border-slate-200/80'
           }`}>
           {/* Left Header Controls */}
           <div className="flex items-center gap-3 min-w-0">
@@ -1752,6 +1759,8 @@ export default function StudentDashboard() {
 
         {/* MAIN CONTENT AREA */}
         <main className="w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6 flex-1 box-border pb-28 lg:pb-8">
+        {/* SCROLLABLE MAIN CONTENT AREA */}
+        <main className="flex-1 overflow-y-auto w-full p-4 sm:p-6 lg:p-8 space-y-6 box-border pb-28 lg:pb-8">
 
           {/* Profile Tab */}
           {activeTab === 'profile' && (
