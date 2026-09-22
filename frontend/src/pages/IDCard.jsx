@@ -189,10 +189,10 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
             e.currentTarget.style.display = 'none';
           }}
         />
-        <div style={{ color: '#000000', fontSize: 24, fontWeight: 900, fontFamily: 'Arial, sans-serif', lineHeight: '1.3' }}>
+        <div style={{ color: '#000000', fontSize: 24, fontWeight: 900, fontFamily: 'Arial, sans-serif', lineHeight: '1.3', whiteSpace: 'nowrap' }}>
           Office-6716159476
         </div>
-        <div style={{ color: '#000000', fontSize: 24, fontWeight: 900, fontFamily: 'Arial, sans-serif', lineHeight: '1.3' }}>
+        <div style={{ color: '#000000', fontSize: 24, fontWeight: 900, fontFamily: 'Arial, sans-serif', lineHeight: '1.3', whiteSpace: 'nowrap' }}>
           Mobile-9936384736
         </div>
       </div>
@@ -210,7 +210,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           zIndex: 5,
         }}
       >
-        <div style={{ color: '#000000', fontSize: 30, fontWeight: 900, fontFamily: "'Times New Roman', serif", marginBottom: 4 }}>
+        <div style={{ color: '#000000', fontSize: 30, fontWeight: 900, fontFamily: "'Times New Roman', serif", marginBottom: 4, whiteSpace: 'nowrap' }}>
           An ISO 9001:2015 Certified Organization
         </div>
         <div
@@ -244,17 +244,17 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         }}
       >
         {/* KEERTI COMPUTER INSTITUTE Main Heading */}
-        <div style={{ fontSize: 48, fontWeight: 900, fontFamily: "'Times New Roman', serif", letterSpacing: 1, marginBottom: 4 }}>
+        <div style={{ fontSize: 48, fontWeight: 900, fontFamily: "'Times New Roman', serif", letterSpacing: 1, marginBottom: 4, whiteSpace: 'nowrap' }}>
           <span style={{ color: '#D32F2F' }}>KEERTI </span>
           <span style={{ color: '#0052CC' }}>COMPUTER </span>
           <span style={{ color: '#D32F2F' }}>INSTITUTE</span>
         </div>
 
         {/* Sub-header Website & Soc Reg Info */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 23, fontWeight: 900, fontFamily: 'Arial, sans-serif' }}>
-          <span style={{ color: '#0052CC' }}>Website-www.kci.org.in</span>
-          <span style={{ color: '#000000' }}>Soc. Reg. No.- 781</span>
-          <span style={{ color: '#D32F2F' }}>The College of IT</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 23, fontWeight: 900, fontFamily: 'Arial, sans-serif', whiteSpace: 'nowrap' }}>
+          <span style={{ color: '#0052CC', whiteSpace: 'nowrap' }}>Website-www.kci.org.in</span>
+          <span style={{ color: '#000000', whiteSpace: 'nowrap' }}>Soc. Reg. No.- 781</span>
+          <span style={{ color: '#D32F2F', whiteSpace: 'nowrap' }}>The College of IT</span>
         </div>
       </div>
 
@@ -271,11 +271,12 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           fontSize: 24,
           fontWeight: 900,
           fontFamily: 'Arial, sans-serif',
+          whiteSpace: 'nowrap',
           zIndex: 5,
         }}
       >
-        <span>Valid From-</span>
-        <span style={{ color: '#0052CC', letterSpacing: '0.5px' }}>{validFromYear} to {validToYear}</span>
+        <span style={{ whiteSpace: 'nowrap' }}>Valid From-</span>
+        <span style={{ color: '#0052CC', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>{validFromYear} to {validToYear}</span>
       </div>
 
       {/* ── 6. EXACTLY ONE STUDENT PHOTO FRAME (SHIFTED DOWN TO TOP 535) ── */}
@@ -520,20 +521,57 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
 // ── Responsive Scaled Card Wrapper (Proportional Canvas Scaling) ──
 export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
   const containerRef = useRef(null);
-  const [scale, setScale] = useState(0.42);
+  const [scale, setScale] = useState(0.48);
+  const [scale, setScale] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const screenW = window.innerWidth;
+      if (screenW >= 768) return 0.52;
+      if (screenW >= 480) return 0.44;
+      return Math.max((screenW - 32) / 1000, 0.32);
+    }
+    return 0.50;
+  });
+
+  const updateScale = useCallback(() => {
+    if (!containerRef.current) return;
+    const pEl = containerRef.current.parentElement;
+    const parentW = pEl?.clientWidth || containerRef.current.clientWidth || (window.innerWidth < 640 ? 340 : 480);
+    const targetW = Math.min(Math.max(parentW - 16, 320), 480);
+    const parentW = pEl?.clientWidth || containerRef.current.clientWidth || window.innerWidth;
+    const screenW = window.innerWidth;
+    let targetW = 500;
+    if (screenW >= 1024) {
+      targetW = Math.min(Math.max(parentW - 16, 460), 540);
+    } else if (screenW >= 640) {
+      targetW = Math.min(Math.max(parentW - 16, 400), 500);
+    } else {
+      targetW = Math.max(screenW - 24, 300);
+    }
+    setScale(targetW / 1000);
+  }, []);
 
   useEffect(() => {
-    const updateScale = () => {
-      if (!containerRef.current) return;
-      const parentW = containerRef.current.clientWidth || 360;
-      const targetW = Math.min(parentW - 8, 480);
-      setScale(targetW / 1000);
-    };
-
     updateScale();
+    const timer1 = setTimeout(updateScale, 50);
+    const timer2 = setTimeout(updateScale, 200);
+
+    let ro = null;
+    if (containerRef.current && window.ResizeObserver) {
+      ro = new ResizeObserver(updateScale);
+      ro.observe(containerRef.current);
+      if (containerRef.current.parentElement) {
+        ro.observe(containerRef.current.parentElement);
+      }
+    }
+
     window.addEventListener('resize', updateScale);
-    return () => window.removeEventListener('resize', updateScale);
-  }, []);
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      if (ro) ro.disconnect();
+      window.removeEventListener('resize', updateScale);
+    };
+  }, [updateScale]);
 
   const scaledW = Math.round(1000 * scale);
   const scaledH = Math.round(1625 * scale);
@@ -545,12 +583,13 @@ export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
     >
       <div
         style={{
-          width: scaledW > 0 ? scaledW : 360,
-          height: scaledH > 0 ? scaledH : 585,
+          width: scaledW,
+          height: scaledH,
           position: 'relative',
           overflow: 'hidden',
           borderRadius: Math.round(36 * scale),
           boxShadow: '0 12px 36px rgba(0, 51, 153, 0.22)',
+          boxShadow: '0 16px 48px rgba(0, 51, 153, 0.25)',
           flexShrink: 0,
         }}
       >

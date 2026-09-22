@@ -147,7 +147,7 @@ function IDCard({ student, branch }) {
         </button>
       </div>
 
-      <div className="w-full flex justify-center items-start overflow-hidden my-4" style={{ maxWidth: 520 }}>
+      <div className="w-full flex justify-center items-center my-4" style={{ maxWidth: 540 }}>
         <KCIIDCardWrapper student={student} settings={settings} />
       </div>
       <p className="text-center text-xs text-gray-400 mt-2">* Official Computer Institute Digital PVC ID Card.</p>
@@ -1731,12 +1731,6 @@ export default function StudentDashboard() {
               )}
             </button>
 
-            <button
-              onClick={() => setActiveTab('profile')}
-              className={`flex items-center gap-2.5 p-1 rounded-xl transition-colors cursor-pointer ${darkMode ? 'hover:bg-slate-800' : 'hover:bg-slate-100'
-                }`}
-            >
-              <div className="w-9 h-9 rounded-xl bg-[#2563EB] text-white font-black flex items-center justify-center overflow-hidden border border-slate-300 shadow-sm shrink-0">
             <div className="flex items-center gap-2.5 p-1 rounded-xl">
               <button
                 type="button"
@@ -1748,13 +1742,10 @@ export default function StudentDashboard() {
                 className="w-9 h-9 rounded-xl bg-[#2563EB] text-white font-black flex items-center justify-center overflow-hidden border border-slate-300 shadow-sm shrink-0 cursor-pointer hover:scale-105 transition-transform"
               >
                 {data.student?.photo ? (
-                  <img src={data.student.photo} alt="" className="w-full h-full object-cover" />
                   <img src={data.student.photo} alt={data.student?.name || 'Student'} className="w-full h-full object-cover" />
                 ) : (
                   ((data.student?.name?.[0] || user?.name?.[0] || 'S').toUpperCase())
                 )}
-              </div>
-              <div className="hidden sm:block text-left min-w-0">
               </button>
               <button
                 type="button"
@@ -1763,8 +1754,6 @@ export default function StudentDashboard() {
               >
                 <div className={`text-xs font-black leading-tight truncate max-w-[120px] ${darkMode ? 'text-white' : 'text-slate-900'}`}>{data.student?.name || user?.name}</div>
                 <div className="text-[10px] text-blue-500 font-bold font-mono truncate">{data.student?.rollNumber || 'Student'}</div>
-              </div>
-            </button>
               </button>
             </div>
           </div>
