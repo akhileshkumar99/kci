@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
@@ -866,29 +866,38 @@ router.get('/student/tests/:id/result', protect, async (req, res) => {
 // Branch: Add student
 router.post('/students', protect, branchAuth, uploadStudent.single('photo'), async (req, res) => {
   try {
-    const { name, email, phone, fatherName, dob, address, courseName, batch } = req.body;
+    const { name, email, phone, fatherName, dob, address, courseName, batch, password } = req.body;
     if (!name || !email) return res.status(400).json({ success: false, message: 'Name and email required' });
-    const exists = await User.findOne({ email });
+    const exists = await User.findOne({ email: email.toLowerCase() });
     if (exists) return res.status(400).json({ success: false, message: 'Email already registered' });
     const { rollNumber, enrollmentNumber, registrationNumber, formNo } = await generateStudentNumbers();
-    const tempPassword = 'pending_' + Date.now();
+    const studentPassword = (password && password.trim().length >= 4)
+      ? password.trim()
+      : ('KCI@' + Math.floor(1000 + Math.random() * 9000));
+
     // Only set course if it's a valid 24-char ObjectId string
     const courseId = req.body.course && typeof req.body.course === 'string' && /^[a-f\d]{24}$/i.test(req.body.course)
       ? req.body.course : undefined;
-    const student = await User.create({
-      name, email, password: tempPassword, phone, fatherName, dob, address,
+
+    const student = new User({
+      name, email: email.toLowerCase(), password: studentPassword, phone, fatherName, dob, address,
       courseName, batch, rollNumber, enrollmentNumber, registrationNumber, formNo,
+      formNumber: formNo,
       ...(courseId && { course: courseId }),
       role: 'student',
       branchId: req.user._id,
       branchName: req.user.branchName,
       branchCity: req.user.branchCity,
-      isApproved: false, isActive: false,
+      isApproved: true,
+      isActive: true,
       ...(req.file && { photo: req.file.path }),
     });
+
+    await student.save();
+
     const result = student.toObject();
     delete result.password;
-    res.status(201).json({ success: true, student: result });
+    res.status(201).json({ success: true, student: result, generatedPassword: studentPassword });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -917,8 +926,8 @@ router.put('/students/:id', protect, branchAuth, uploadStudent.single('photo'), 
     if (req.file) updates.photo = req.file.path;
 
     // Handle password change separately via .save() with bcrypt hook
-    const newPw = req.body.newPassword?.trim();
-    if (newPw) {
+    const newPw = (req.body.password || req.body.newPassword)?.trim();
+    if (newPw && newPw.length >= 4) {
       student.password = newPw;
       await student.save({ validateBeforeSave: false });
     }

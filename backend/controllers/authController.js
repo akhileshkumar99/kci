@@ -32,15 +32,25 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password, role } = req.body;
-    if (!email || !password) return res.status(400).json({ success: false, message: 'Provide email/form number and password' });
+    if (!email || !password) return res.status(400).json({ success: false, message: 'Provide email / roll number / phone / form number and password' });
 
-    // Find by email OR formNo
+    const loginInput = String(email).trim();
+    const loginInputLower = loginInput.toLowerCase();
+
+    // Find by email, formNo, formNumber, rollNumber, enrollmentNumber, or phone
     const user = await User.findOne({
-      $or: [{ email: email.toLowerCase() }, { formNo: email }]
+      $or: [
+        { email: loginInputLower },
+        { formNo: loginInput },
+        { formNumber: loginInput },
+        { rollNumber: loginInput },
+        { enrollmentNumber: loginInput },
+        { phone: loginInput }
+      ]
     }).populate('course', 'title');
 
     if (!user || !(await user.matchPassword(password)))
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'Invalid login credentials. Please check your Roll Number/Email & Password.' });
 
     // Role mismatch check
     if (role) {
