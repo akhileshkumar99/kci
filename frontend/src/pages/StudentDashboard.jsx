@@ -1572,7 +1572,6 @@ export default function StudentDashboard() {
   const greeting = hr < 12 ? 'Good Morning ☀️' : hr < 17 ? 'Good Afternoon 🌤️' : 'Good Evening 🌙';
 
   return (
-    <div className={`min-h-screen font-sans w-full lg:grid lg:grid-cols-[240px_minmax(0,1fr)] student-portal transition-colors duration-300 ${darkMode ? 'bg-[#0B132B] text-slate-100 dark' : 'bg-[#F4F7FC] text-[#172033]'}`}>
     <div className={`flex h-screen font-sans w-full overflow-hidden student-portal transition-colors duration-300 ${darkMode ? 'bg-[#0B132B] text-slate-100 dark' : 'bg-[#F4F7FC] text-[#172033]'}`}>
       <style>{`
         .student-portal.dark .bg-white {
@@ -1627,8 +1626,6 @@ export default function StudentDashboard() {
         }
       `}</style>
 
-      {/* DESKTOP PERMANENT DARK SIDEBAR (Sticky top-0) */}
-      <aside className="hidden lg:flex flex-col h-screen sticky top-0 z-40 bg-[#151D2C] border-r border-slate-800 shrink-0">
       {/* DESKTOP PERMANENT DARK SIDEBAR (Fixed Full Height) */}
       <aside className="hidden lg:flex flex-col h-full w-[240px] bg-[#151D2C] border-r border-slate-800 shrink-0 z-40">
         <StudentSidebarContent
@@ -1675,13 +1672,9 @@ export default function StudentDashboard() {
         )}
       </AnimatePresence>
 
-      {/* MAIN AREA */}
-      <div className={`min-w-0 w-full flex flex-col min-h-screen transition-colors duration-300 ${darkMode ? 'bg-[#0B132B]' : 'bg-[#F4F7FC]'}`}>
       {/* MAIN RIGHT AREA (Header + Scrollable Main) */}
       <div className={`flex-1 flex flex-col h-full min-w-0 overflow-hidden transition-colors duration-300 ${darkMode ? 'bg-[#0B132B]' : 'bg-[#F4F7FC]'}`}>
 
-        {/* TOP HEADER (STICKY ON SCROLL) */}
-        <header className={`backdrop-blur-md sticky top-0 z-30 shrink-0 h-[64px] sm:h-[72px] px-4 sm:px-6 flex items-center justify-between shadow-sm transition-colors duration-300 ${darkMode ? 'bg-[#131F3F]/95 border-b border-slate-800 text-white' : 'bg-white/95 border-b border-slate-200/80'
         {/* TOP HEADER (FIXED TOP NAVBAR) */}
         <header className={`backdrop-blur-md shrink-0 h-[64px] sm:h-[72px] px-4 sm:px-6 flex items-center justify-between shadow-xs transition-colors duration-300 z-30 ${darkMode ? 'bg-[#131F3F]/95 border-b border-slate-800 text-white' : 'bg-white/95 border-b border-slate-200/80'
           }`}>
@@ -1757,8 +1750,6 @@ export default function StudentDashboard() {
           </div>
         </header>
 
-        {/* MAIN CONTENT AREA */}
-        <main className="w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6 flex-1 box-border pb-28 lg:pb-8">
         {/* SCROLLABLE MAIN CONTENT AREA */}
         <main className="flex-1 overflow-y-auto w-full p-4 sm:p-6 lg:p-8 space-y-6 box-border pb-28 lg:pb-8">
 
@@ -1850,9 +1841,11 @@ export default function StudentDashboard() {
                     <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                       <path className={darkMode ? "text-slate-800" : "text-slate-100"} strokeWidth="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                       <path className="text-blue-500" strokeDasharray="75, 100" strokeWidth="3.5" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                      <path className="text-blue-500" strokeDasharray="50, 100" strokeWidth="3.5" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                     </svg>
                     <div className="absolute flex flex-col items-center justify-center text-center">
                       <span className={`text-2xl font-black ${darkMode ? 'text-white' : 'text-slate-900'}`}>75%</span>
+                      <span className={`text-2xl font-black ${darkMode ? 'text-white' : 'text-slate-900'}`}>50%</span>
                     </div>
                   </div>
 
@@ -1864,8 +1857,10 @@ export default function StudentDashboard() {
                     </div>
                     <div className={`flex items-end gap-2 h-16 pt-2 border-t ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                       {[40, 60, 45, 80, 75, 90, 85].map((h, i) => (
+                      {[30, 50, 40, 60, 50, 70, 55].map((h, i) => (
                         <div key={i} className={`flex-1 rounded-t-md relative overflow-hidden transition-colors ${darkMode ? 'bg-slate-800' : 'bg-blue-100'}`} style={{ height: `${h}%` }}>
                           <div className="absolute bottom-0 inset-x-0 bg-blue-600 rounded-t-md group-hover:bg-blue-500 transition-colors" style={{ height: '70%' }} />
+                          <div className="absolute bottom-0 inset-x-0 bg-blue-600 rounded-t-md group-hover:bg-blue-500 transition-colors" style={{ height: '50%' }} />
                         </div>
                       ))}
                     </div>
