@@ -75,7 +75,6 @@ exports.getAdmitCard = async (req, res) => {
       if (dobQuery && !isDobMatch(student.dob, dobQuery)) {
         return res.status(404).json({ success: false, message: 'No record found for this enrollment/roll number and date of birth.' });
       }
-      // Check if student has submitted exam form
       const studentForm = await ExamForm.findOne({ enrollmentNumber: normalized });
       if (!studentForm) {
         return res.status(403).json({ success: false, message: 'Admit card is not available. Please fill and submit your Examination Form first.' });
@@ -86,6 +85,96 @@ exports.getAdmitCard = async (req, res) => {
     }
 
     return res.status(404).json({ success: false, message: 'No record found for this enrollment/roll number. Please check and try again.' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Fetch logged in student's admit card
+exports.getMyAdmitCard = async (req, res) => {
+  try {
+    const student = req.user;
+    if (!student) return res.status(401).json({ success: false, message: 'Not authorized' });
+
+    const normalized = (student.rollNumber || student.enrollmentNumber || student.formNo || '').toUpperCase();
+    if (!normalized) {
+      return res.status(404).json({ success: false, message: 'No enrollment or roll number found.' });
+    }
+
+    let form = await ExamForm.findOne({ enrollmentNumber: normalized, status: 'Approved' });
+    if (form) {
+      const serial = await ExamForm.countDocuments({ status: 'Approved', createdAt: { $lte: form.createdAt } });
+      const admitCard = form.toObject();
+      admitCard.serialNumber = String(serial).padStart(6, '0');
+      admitCard.rollNumber = form.enrollmentNumber;
+      return res.json({ success: true, admitCard, source: 'examForm' });
+    }
+
+    const anyForm = await ExamForm.findOne({ enrollmentNumber: normalized });
+    if (anyForm) {
+      return res.status(403).json({ success: false, message: `Your exam form status is "${anyForm.status}". Only Approved forms can view admit card.` });
+    }
+
+    return res.status(404).json({ success: false, message: 'Admit card is not available. Please submit your Examination Form first.' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Get exam schedule (public / admin)
+exports.getExamSchedule = async (req, res) => {
+  try {
+    const s = await Setting.findOne({ key: 'examSchedule' });
+    res.json({ success: true, schedule: s ? s.value : null });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Save exam schedule (admin)
+exports.saveExamSchedule = async (req, res) => {
+  try {
+    const { schedule } = req.body;
+    await Setting.findOneAndUpdate(
+      { key: 'examSchedule' },
+      { key: 'examSchedule', value: schedule },
+      { upsert: true, new: true }
+    );
+    res.json({ success: true, schedule });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Get schedule options (admin)
+exports.getScheduleOptions = async (req, res) => {
+  try {
+    const s = await Setting.findOne({ key: 'examSchedule' });
+    res.json({ success: true, schedule: s ? s.value : null });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Verify admit card token (QR scan verification)
+exports.verifyAdmitCardToken = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const form = await ExamForm.findOne({ $or: [{ qrToken: token }, { enrollmentNumber: token.toUpperCase() }] });
+    if (!form) return res.status(404).json({ success: false, message: 'Admit card not found' });
+    res.json({ success: true, admitCard: form });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Regenerate QR token for admit card (admin)
+exports.regenerateToken = async (req, res) => {
+  try {
+    const { id } = req.body;
+    const newToken = 'KCI-AC-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+    const form = await ExamForm.findByIdAndUpdate(id, { qrToken: newToken }, { new: true });
+    res.json({ success: true, qrToken: newToken, form });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
