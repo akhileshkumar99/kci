@@ -116,37 +116,52 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         <polygon points="1000,1210 520,1625 538,1625 1000,1228" fill="#D32F2F" />
       </svg>
 
-      {/* ── 2. TOP LEFT OFFICIAL KCI SEAL LOGO (FROM WEBSITE /LOGO.PNG) ── */}
-      <div style={{ position: 'absolute', top: 30, left: 35, width: 280, height: 280, zIndex: 5 }}>
-        <div style={{ position: 'relative', width: 280, height: 280 }}>
+      {/* ── 2. TOP LEFT OFFICIAL KCI SEAL LOGO (CIRCULAR CLIPPED SEAL WITH GOLDEN BORDER) ── */}
+      <div style={{ position: 'absolute', top: 25, left: 30, width: 280, height: 280, zIndex: 5 }}>
+        <div
+          style={{
+            position: 'relative',
+            width: 270,
+            height: 270,
+            borderRadius: '50%',
+            overflow: 'hidden',
+            border: '6px solid #FFCC00',
+            background: '#FFFFFF',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <img
             src={logoUrl}
             alt="KCI Logo"
             style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              filter: 'drop-shadow(0px 4px 10px rgba(0,0,0,0.25))',
+              width: '102%',
+              height: '102%',
+              objectFit: 'cover',
+              borderRadius: '50%',
             }}
             onError={(e) => {
               e.currentTarget.src = '/logo.png';
             }}
           />
-          {/* TM Superscript */}
-          <span
-            style={{
-              position: 'absolute',
-              top: 35,
-              right: 25,
-              color: '#FFCC00',
-              fontSize: 24,
-              fontWeight: 900,
-              fontFamily: 'Arial, sans-serif',
-            }}
-          >
-            TM
-          </span>
         </div>
+        {/* TM Superscript */}
+        <span
+          style={{
+            position: 'absolute',
+            top: 20,
+            right: 0,
+            color: '#FFCC00',
+            fontSize: 24,
+            fontWeight: 900,
+            fontFamily: 'Arial, sans-serif',
+            zIndex: 6,
+          }}
+        >
+          TM
+        </span>
       </div>
 
       {/* ── 3. TOP RIGHT NIELIT LOGO & CONTACT INFO (ON WHITE BACKGROUND) ── */}
@@ -184,8 +199,8 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          top: 255,
-          left: 160,
+          top: 235,
+          left: 170,
           right: 40,
           display: 'flex',
           flexDirection: 'column',
@@ -193,10 +208,10 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           zIndex: 5,
         }}
       >
-        <div style={{ color: '#000000', fontSize: 32, fontWeight: 900, fontFamily: "'Times New Roman', serif", marginBottom: 4 }}>
+        <div style={{ color: '#000000', fontSize: 30, fontWeight: 900, fontFamily: "'Times New Roman', serif", marginBottom: 3 }}>
           An ISO 9001:2015 Certified Organization
         </div>
-        <div style={{ display: 'flex', gap: 30, color: '#000000', fontSize: 21, fontWeight: 900, fontFamily: 'Arial, sans-serif', marginBottom: 10 }}>
+        <div style={{ display: 'flex', gap: 24, color: '#000000', fontSize: 20, fontWeight: 900, fontFamily: 'Arial, sans-serif' }}>
           <span>ISO. Reg. No.- VKCI26052306978</span>
           <span>MSME Reg. No.- 198952612-COL</span>
         </div>
@@ -205,7 +220,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          top: 340,
+          top: 312,
           left: 0,
           width: 1000,
           display: 'flex',
@@ -215,41 +230,45 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         }}
       >
         {/* KEERTI COMPUTER INSTITUTE Main Heading */}
-        <div style={{ fontSize: 48, fontWeight: 900, fontFamily: "'Times New Roman', serif", letterSpacing: 1, marginBottom: 4 }}>
+        <div style={{ fontSize: 46, fontWeight: 900, fontFamily: "'Times New Roman', serif", letterSpacing: 1, marginBottom: 4 }}>
           <span style={{ color: '#D32F2F' }}>KEERTI </span>
           <span style={{ color: '#0052CC' }}>COMPUTER </span>
           <span style={{ color: '#D32F2F' }}>INSTITUTE</span>
         </div>
 
         {/* Sub-header Website & Soc Reg Info */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 23, fontWeight: 900, fontFamily: 'Arial, sans-serif' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 22, fontWeight: 900, fontFamily: 'Arial, sans-serif' }}>
           <span style={{ color: '#0052CC' }}>Website-www.kci.org.in</span>
           <span style={{ color: '#000000' }}>Soc. Reg. No.- 781</span>
           <span style={{ color: '#D32F2F' }}>The College of IT</span>
         </div>
       </div>
 
-      {/* ── 5. VALIDITY PERIOD & STUDENT PHOTO SECTION ── */}
+      {/* ── 5. VALIDITY PERIOD SECTION (TWO-LINE NO OVERLAP) ── */}
       <div
         style={{
           position: 'absolute',
-          top: 465,
+          top: 440,
           left: 45,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
           color: '#0052CC',
-          fontSize: 26,
+          fontSize: 23,
           fontWeight: 900,
           fontFamily: 'Arial, sans-serif',
           zIndex: 5,
         }}
       >
-        Valid From- <span style={{ color: '#0052CC' }}>{validFromYear} to {validToYear}</span>
+        <span>Valid From-</span>
+        <span style={{ color: '#0052CC', letterSpacing: '0.5px' }}>{validFromYear} to {validToYear}</span>
       </div>
 
       {/* ── 6. EXACTLY ONE STUDENT PHOTO FRAME ── */}
       <div
         style={{
           position: 'absolute',
-          top: 455,
+          top: 410,
           left: 370,
           width: 260,
           height: 320,
@@ -298,12 +317,12 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          top: 815,
+          top: 765,
           left: 180,
           width: 630,
           display: 'flex',
           flexDirection: 'column',
-          gap: 18,
+          gap: 16,
           zIndex: 5,
         }}
       >
