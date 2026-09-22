@@ -1626,9 +1626,8 @@ export default function StudentDashboard() {
         }
       `}</style>
 
-      {/* DESKTOP PERMANENT DARK SIDEBAR (Visible >= 1024px) */}
+      {/* DESKTOP PERMANENT DARK SIDEBAR (Sticky top-0) */}
       <aside className="hidden lg:flex flex-col h-screen sticky top-0 z-40 bg-[#151D2C] border-r border-slate-800 shrink-0">
-      <aside className="hidden lg:flex flex-col h-screen sticky top-0 z-50 bg-[#151D2C] border-r border-slate-800 shrink-0">
         <StudentSidebarContent
           tabs={tabs}
           activeTab={activeTab}
@@ -1676,10 +1675,8 @@ export default function StudentDashboard() {
       {/* MAIN AREA */}
       <div className={`min-w-0 w-full flex flex-col min-h-screen transition-colors duration-300 ${darkMode ? 'bg-[#0B132B]' : 'bg-[#F4F7FC]'}`}>
 
-        {/* TOP HEADER */}
-        <header className={`backdrop-blur-md sticky top-0 z-40 shrink-0 h-[64px] sm:h-[72px] px-4 sm:px-6 flex items-center justify-between shadow-xs transition-colors duration-300 ${darkMode ? 'bg-[#131F3F]/90 border-b border-slate-800 text-white' : 'bg-white/95 border-b border-slate-200/80'
-        {/* TOP HEADER (STICKY) */}
-        <header className={`backdrop-blur-md sticky top-0 z-40 shrink-0 h-[64px] sm:h-[72px] px-4 sm:px-6 flex items-center justify-between shadow-md transition-colors duration-300 ${darkMode ? 'bg-[#131F3F]/95 border-b border-slate-800 text-white' : 'bg-white/95 border-b border-slate-200/80'
+        {/* TOP HEADER (STICKY ON SCROLL) */}
+        <header className={`backdrop-blur-md sticky top-0 z-30 shrink-0 h-[64px] sm:h-[72px] px-4 sm:px-6 flex items-center justify-between shadow-sm transition-colors duration-300 ${darkMode ? 'bg-[#131F3F]/95 border-b border-slate-800 text-white' : 'bg-white/95 border-b border-slate-200/80'
           }`}>
           {/* Left Header Controls */}
           <div className="flex items-center gap-3 min-w-0">
@@ -1759,42 +1756,6 @@ export default function StudentDashboard() {
           {/* Profile Tab */}
           {activeTab === 'profile' && (
             <div className="space-y-6">
-
-              {/* ── TOP SEARCH & USER HEADER (DESKTOP) ── */}
-              <div className={`hidden lg:flex items-center justify-between gap-4 rounded-2xl p-3 px-5 shadow-xs border transition-colors duration-300 ${darkMode ? 'bg-slate-900/90 border-slate-800 text-white' : 'bg-white border-slate-200/80'
-                }`}>
-                <div className={`flex items-center gap-3 rounded-xl px-4 py-2 flex-1 max-w-md border transition-colors duration-300 ${darkMode ? 'bg-slate-800/80 border-slate-700 text-slate-200' : 'bg-slate-100/80 border-slate-200/60 text-slate-700'
-                  }`}>
-                  <Search className="w-4 h-4 text-slate-400 shrink-0" />
-                  <input type="text" placeholder="Search anything..." className="bg-transparent text-xs sm:text-sm outline-none w-full font-medium" />
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={toggleDarkMode}
-                    title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-                    className={`p-2 rounded-xl transition-colors cursor-pointer flex items-center justify-center ${darkMode ? 'bg-slate-800 text-amber-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                      }`}
-                  >
-                    {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5 text-indigo-600" />}
-                  </motion.button>
-                  <button onClick={() => setActiveTab('notifications')} className={`relative p-2 rounded-xl transition-colors cursor-pointer ${darkMode ? 'hover:bg-slate-800 text-slate-200' : 'hover:bg-slate-100 text-slate-600'
-                    }`}>
-                    <Bell className="w-5 h-5" />
-                    {unreadCount > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse" />}
-                  </button>
-                  <div className={`h-6 w-px ${darkMode ? 'bg-slate-800' : 'bg-slate-200'}`} />
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-blue-600 text-white font-black flex items-center justify-center overflow-hidden border border-slate-200 shadow-sm">
-                      {data.student?.photo ? <img src={data.student.photo} alt="" className="w-full h-full object-cover" /> : ((data.student?.name?.[0] || user?.name?.[0] || 'S').toUpperCase())}
-                    </div>
-                    <div className="text-left">
-                      <div className={`text-xs font-black leading-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>{data.student?.name || user?.name}</div>
-                      <div className="text-[10px] text-slate-400 font-medium">Student</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
               {/* ── MAIN HERO BANNER (MATCHES REFERENCE IMAGE HERO) ── */}
               <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}

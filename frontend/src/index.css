@@ -64,6 +64,7 @@
     bottom: 24px !important;
     right: 24px !important;
   }
+
   .floating-chat {
     bottom: 100px !important;
     right: 24px !important;
@@ -75,6 +76,7 @@
     bottom: 80px !important;
     right: 16px !important;
   }
+
   .floating-chat {
     bottom: 145px !important;
     right: 16px !important;
@@ -522,6 +524,7 @@
   0% {
     transform: translateX(0%);
   }
+
   100% {
     transform: translateX(-50%);
   }
