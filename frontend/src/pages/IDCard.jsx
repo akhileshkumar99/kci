@@ -104,10 +104,10 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         <rect width="1000" height="1625" fill="#FFFFFF" />
 
         {/* Top Diagonal Blue Header (Ends at x=930 on top edge, leaving top-right white for NIELIT & numbers) */}
-        <polygon points="0,0 930,0 0,360" fill="url(#blueHeaderGrad)" />
+        <polygon points="0,0 930,0 0,330" fill="url(#blueHeaderGrad)" />
 
         {/* Top Red Diagonal Accent Stripe */}
-        <polygon points="0,360 930,0 948,0 0,378" fill="#D32F2F" />
+        <polygon points="0,330 930,0 948,0 0,348" fill="#D32F2F" />
 
         {/* Bottom Right Blue Corner Polygon */}
         <polygon points="1000,1625 1000,1228 538,1625" fill="url(#blueHeaderGrad)" />
@@ -117,12 +117,12 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       </svg>
 
       {/* ── 2. TOP LEFT OFFICIAL KCI SEAL LOGO (CIRCULAR CLIPPED SEAL WITH GOLDEN BORDER) ── */}
-      <div style={{ position: 'absolute', top: 25, left: 30, width: 280, height: 280, zIndex: 5 }}>
+      <div style={{ position: 'absolute', top: 20, left: 30, width: 270, height: 270, zIndex: 5 }}>
         <div
           style={{
             position: 'relative',
-            width: 270,
-            height: 270,
+            width: 260,
+            height: 260,
             borderRadius: '50%',
             overflow: 'hidden',
             border: '6px solid #FFCC00',
@@ -151,7 +151,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         <span
           style={{
             position: 'absolute',
-            top: 20,
+            top: 15,
             right: 0,
             color: '#FFCC00',
             fontSize: 24,
@@ -168,7 +168,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          top: 30,
+          top: 25,
           right: 40,
           display: 'flex',
           flexDirection: 'column',
@@ -199,7 +199,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          top: 235,
+          top: 220,
           left: 170,
           right: 40,
           display: 'flex',
@@ -220,7 +220,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          top: 312,
+          top: 295,
           left: 0,
           width: 1000,
           display: 'flex',
@@ -248,13 +248,13 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          top: 440,
+          top: 480,
           left: 45,
           display: 'flex',
           flexDirection: 'column',
-          gap: 2,
+          gap: 4,
           color: '#0052CC',
-          fontSize: 23,
+          fontSize: 24,
           fontWeight: 900,
           fontFamily: 'Arial, sans-serif',
           zIndex: 5,
@@ -264,11 +264,11 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         <span style={{ color: '#0052CC', letterSpacing: '0.5px' }}>{validFromYear} to {validToYear}</span>
       </div>
 
-      {/* ── 6. EXACTLY ONE STUDENT PHOTO FRAME ── */}
+      {/* ── 6. EXACTLY ONE STUDENT PHOTO FRAME (SHIFTED DOWN TO 460 FOR 80PX CLEARANCE BELOW WEBSITE HEADER) ── */}
       <div
         style={{
           position: 'absolute',
-          top: 410,
+          top: 460,
           left: 370,
           width: 260,
           height: 320,
@@ -313,16 +313,16 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         )}
       </div>
 
-      {/* ── 7. DYNAMIC FIELD VALUES (PERFECTLY ALIGNED UNDERLINES & ZERO OVERLAP) ── */}
+      {/* ── 7. DYNAMIC FIELD VALUES (SHIFTED DOWN TO TOP 840 IN OPEN WHITE SPACE) ── */}
       <div
         style={{
           position: 'absolute',
-          top: 765,
+          top: 840,
           left: 180,
           width: 630,
           display: 'flex',
           flexDirection: 'column',
-          gap: 16,
+          gap: 20,
           zIndex: 5,
         }}
       >
