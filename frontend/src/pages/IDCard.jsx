@@ -527,14 +527,21 @@ export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
     if (!containerRef.current) return;
     const el = containerRef.current;
     const pEl = el.parentElement;
-    const pW = (pEl && pEl.getBoundingClientRect().width > 0)
-      ? pEl.getBoundingClientRect().width
-      : (el.getBoundingClientRect().width > 0 ? el.getBoundingClientRect().width : window.innerWidth);
-
     const screenW = window.innerWidth;
-    const availW = Math.min(pW > 0 ? pW : screenW, screenW);
-    // Expand to 100% of container width (minus padding) up to 980px max
-    const targetW = Math.min(Math.max(availW - 8, 280), 980);
+
+    let availW;
+    if (screenW < 640) {
+      // On mobile devices, utilize 100% of available mobile screen width
+      const pW = pEl && pEl.getBoundingClientRect().width > 0 ? pEl.getBoundingClientRect().width : 0;
+      availW = Math.max(screenW - 8, pW);
+    } else {
+      const pW = (pEl && pEl.getBoundingClientRect().width > 0)
+        ? pEl.getBoundingClientRect().width
+        : (el.getBoundingClientRect().width > 0 ? el.getBoundingClientRect().width : screenW);
+      availW = Math.min(pW, screenW);
+    }
+
+    const targetW = Math.min(Math.max(availW, 280), 980);
     setScale(targetW / 1000);
   }, []);
 
