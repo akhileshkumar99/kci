@@ -77,6 +77,8 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         position: 'relative',
         flexShrink: 0,
         boxSizing: 'border-box',
+        WebkitFontSmoothing: 'antialiased',
+        MozOsxFontSmoothing: 'grayscale',
       }}
     >
       {/* ── 1. EXACT TEMPLATE BACKGROUND IMAGE ── */}
@@ -117,14 +119,14 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         </div>
       )}
 
-      {/* ── 3. DYNAMIC VALIDITY YEARS OVERLAY ── */}
+      {/* ── 3. DYNAMIC VALIDITY YEARS OVERLAY (ALIGNED AFTER "Valid From- ") ── */}
       <div
         style={{
           position: 'absolute',
-          top: 654,
-          left: 195,
-          width: 175,
-          height: 28,
+          top: 652,
+          left: 218,
+          width: 150,
+          height: 30,
           background: '#FFFFFF',
           zIndex: 4,
         }}
@@ -133,33 +135,33 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         style={{
           position: 'absolute',
           top: 652,
-          left: 198,
+          left: 220,
           color: '#0052CC',
           fontSize: 24,
           fontWeight: 900,
           zIndex: 5,
           fontFamily: "'Arial', 'Helvetica', sans-serif",
+          letterSpacing: 0.5,
         }}
       >
         {validFromYear} to {validToYear}
       </div>
 
-      {/* ── 4. EXACTLY ONE STUDENT PHOTO CONTAINER (BOUNDED & NO OVERFLOW) ── */}
+      {/* ── 4. EXACTLY ONE STUDENT PHOTO CONTAINER (EXACT FRAME ALIGNMENT & NO CROP BUG) ── */}
       <div
         style={{
           position: 'absolute',
-          top: 676,
-          left: 368,
-          width: 264,
-          height: 320,
-          borderRadius: 6,
+          top: 671,
+          left: 372,
+          width: 258,
+          height: 310,
+          borderRadius: 4,
           overflow: 'hidden',
           background: '#FFFFFF',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 5,
-          border: '2px solid #94A3B8',
           boxSizing: 'border-box',
         }}
       >
@@ -167,7 +169,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           <img
             src={photoUrl}
             alt={student?.name || 'Student Photo'}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
             onError={(e) => {
               e.currentTarget.style.display = 'none';
               if (e.currentTarget.parentElement) {
@@ -192,15 +194,15 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         )}
       </div>
 
-      {/* ── 5. DYNAMIC FIELD VALUES (NO LAYOUT SHIFT OR OVERFLOW) ── */}
+      {/* ── 5. DYNAMIC FIELD VALUES (PERFECTLY ALIGNED AFTER LABELS & NO OVERLAPPING) ── */}
 
-      {/* Course */}
+      {/* Course - (Starts right after "Course - ") */}
       <div
         style={{
           position: 'absolute',
-          top: 1060,
-          left: 472,
-          right: 60,
+          top: 1053,
+          left: 455,
+          right: 40,
           color: '#D32F2F',
           fontSize: 27,
           fontWeight: 900,
@@ -214,13 +216,13 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         {courseVal}
       </div>
 
-      {/* Form No. */}
+      {/* Form No.- (Starts right after "Form No.- ") */}
       <div
         style={{
           position: 'absolute',
-          top: 1114,
-          left: 505,
-          right: 60,
+          top: 1107,
+          left: 492,
+          right: 40,
           color: '#0052CC',
           fontSize: 27,
           fontWeight: 900,
@@ -234,13 +236,13 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         {formNoVal}
       </div>
 
-      {/* Father’s Name */}
+      {/* Father’s Name- (Starts right after "Father’s Name- ") */}
       <div
         style={{
           position: 'absolute',
-          top: 1168,
-          left: 445,
-          right: 60,
+          top: 1161,
+          left: 508,
+          right: 40,
           color: '#0052CC',
           fontSize: 27,
           fontWeight: 900,
@@ -254,14 +256,14 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         {fatherVal}
       </div>
 
-      {/* DOB Cover & Text */}
+      {/* DOB- (Clean white cover over template's "__/__/___" + formatted date overlay) */}
       <div
         style={{
           position: 'absolute',
-          top: 1234,
-          left: 425,
-          width: 250,
-          height: 32,
+          top: 1215,
+          left: 418,
+          width: 230,
+          height: 36,
           background: '#FFFFFF',
           zIndex: 4,
         }}
@@ -269,9 +271,9 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          top: 1228,
-          left: 430,
-          right: 60,
+          top: 1216,
+          left: 422,
+          right: 40,
           color: '#0052CC',
           fontSize: 27,
           fontWeight: 900,
@@ -280,18 +282,19 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           textOverflow: 'ellipsis',
           zIndex: 5,
           fontFamily: "'Arial', 'Helvetica', sans-serif",
+          letterSpacing: 0.5,
         }}
       >
         {dobVal}
       </div>
 
-      {/* Mobile */}
+      {/* Mobile- (Starts right after "Mobile- ") */}
       <div
         style={{
           position: 'absolute',
-          top: 1278,
-          left: 435,
-          right: 60,
+          top: 1270,
+          left: 431,
+          right: 40,
           color: '#0052CC',
           fontSize: 27,
           fontWeight: 900,
@@ -305,12 +308,12 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         {mobileVal}
       </div>
 
-      {/* Branch */}
+      {/* Branch - (Starts right after "Branch - " & bounded to avoid QR overlap) */}
       <div
         style={{
           position: 'absolute',
-          top: 1332,
-          left: 425,
+          top: 1322,
+          left: 455,
           right: 200,
           color: '#0052CC',
           fontSize: 27,

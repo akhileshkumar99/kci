@@ -75,6 +75,7 @@ exports.getAdmitCard = async (req, res) => {
       if (dobQuery && !isDobMatch(student.dob, dobQuery)) {
         return res.status(404).json({ success: false, message: 'No record found for this enrollment/roll number and date of birth.' });
       }
+      // Check if student has submitted exam form
       const studentForm = await ExamForm.findOne({ enrollmentNumber: normalized });
       if (!studentForm) {
         return res.status(403).json({ success: false, message: 'Admit card is not available. Please fill and submit your Examination Form first.' });
