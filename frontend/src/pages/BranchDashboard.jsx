@@ -198,6 +198,7 @@ const EMPTY_STUDENT = {
   name: '',
   email: '',
   phone: '',
+  password: '',
   fatherName: '',
   dob: '',
   address: '',
@@ -352,8 +353,24 @@ export default function BranchDashboard() {
 
   const [studentForm, setStudentForm] = useState(EMPTY_STUDENT);
   const [studentPhoto, setStudentPhoto] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(false);
   const [logoPreview, setLogoPreview] = useState(false);
+
+  const generateRandomPassword = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789#@!';
+    let pass = 'KCI@';
+    for (let i = 0; i < 4; i++) {
+      pass += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return pass;
+  };
+
+  const handleGeneratePassword = () => {
+    const newPass = generateRandomPassword();
+    setStudentForm(p => ({ ...p, password: newPass }));
+    toast.success(`🔑 Generated Password: ${newPass}`);
+  };
 
   // Support modals & notifications dropdowns
   const [supportModal, setSupportModal] = useState(null);
@@ -1796,6 +1813,43 @@ export default function BranchDashboard() {
                   required
                   className="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500"
                 />
+              </div>
+
+              {/* Student Password & Generate Password Button */}
+              <div className="sm:col-span-2 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-slate-800/90 dark:to-slate-800/50 p-3.5 rounded-2xl border border-blue-100 dark:border-slate-700 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-[11px] font-extrabold uppercase text-slate-600 dark:text-slate-300">
+                    Student Login Password {modal === 'add' ? '*' : '(Leave blank to keep existing)'}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleGeneratePassword}
+                    className="flex items-center gap-1.5 text-[11px] font-black text-blue-700 dark:text-blue-300 bg-white dark:bg-slate-700 px-3 py-1 rounded-xl border border-blue-200 dark:border-slate-600 shadow-xs hover:bg-blue-50 dark:hover:bg-slate-600 transition-all cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Generate Password</span>
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={studentForm.password || ''}
+                    onChange={e => setStudentForm(p => ({ ...p, password: e.target.value }))}
+                    placeholder={modal === 'add' ? 'Enter password or click Generate Password button above' : 'Enter new password to update or leave blank'}
+                    required={modal === 'add'}
+                    className="w-full px-3.5 py-2.5 pr-10 border rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-xs font-mono font-bold outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  >
+                    {showPassword ? <Eye className="w-4 h-4" /> : <Eye className="w-4 h-4 text-slate-300" />}
+                  </button>
+                </div>
+                <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                  🔑 Student will use this password along with their Roll Number / Email / Phone to log in to the Student Portal.
+                </p>
               </div>
 
               {/* Father Name */}
