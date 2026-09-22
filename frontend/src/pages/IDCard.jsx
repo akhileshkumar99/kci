@@ -164,11 +164,11 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         </span>
       </div>
 
-      {/* ── 3. TOP RIGHT OFFICIAL NIELIT LOGO IMAGE & CONTACT INFO ── */}
+      {/* ── 3. TOP RIGHT OFFICIAL NIELIT LOGO IMAGE (TRANSPARENT BACKGROUND & ENLARGED) ── */}
       <div
         style={{
           position: 'absolute',
-          top: 40,
+          top: 65,
           right: 40,
           display: 'flex',
           flexDirection: 'column',
@@ -177,13 +177,13 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         }}
       >
         <img
-          src="/nielit.jpg"
+          src="/nielit.png"
           alt="NIELIT Logo"
           style={{
-            height: 52,
-            maxWidth: 220,
+            height: 75,
+            maxWidth: 280,
             objectFit: 'contain',
-            marginBottom: 4,
+            marginBottom: 6,
           }}
           onError={(e) => {
             e.currentTarget.style.display = 'none';
@@ -341,7 +341,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         }}
       />
 
-      {/* ── 8. DYNAMIC FIELD VALUES (SHIFTED DOWN TO TOP 910) ── */}
+      {/* ── 8. DYNAMIC FIELD VALUES (AUTO-FITTING FONT SIZES TO PREVENT TEXT CLIPPING) ── */}
       <div
         style={{
           position: 'absolute',
@@ -360,7 +360,17 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
             Course -
           </span>
           <div style={{ flex: 1, borderBottom: '3px solid #D32F2F', paddingBottom: 2, overflow: 'hidden' }}>
-            <span style={{ color: '#D32F2F', fontSize: 30, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block', fontFamily: 'Arial, sans-serif' }}>
+            <span
+              style={{
+                color: '#D32F2F',
+                fontSize: courseVal.length > 32 ? 22 : courseVal.length > 24 ? 25 : 30,
+                fontWeight: 900,
+                whiteSpace: 'nowrap',
+                display: 'block',
+                fontFamily: 'Arial, sans-serif',
+                letterSpacing: courseVal.length > 30 ? '-0.5px' : 'normal',
+              }}
+            >
               {courseVal}
             </span>
           </div>
