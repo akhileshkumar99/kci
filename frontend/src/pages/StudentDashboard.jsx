@@ -61,7 +61,7 @@ function IDCard({ student, branch }) {
     try {
       const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(printCardRef.current, {
-        scale: 3,
+        scale: 2.5,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
@@ -69,9 +69,9 @@ function IDCard({ student, branch }) {
         width: 1000,
         height: 1625,
       });
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 86.5] });
-      doc.addImage(imgData, 'PNG', 0, 0, 54, 86.5);
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 86.5], compress: true });
+      doc.addImage(imgData, 'JPEG', 0, 0, 54, 86.5, undefined, 'FAST');
       doc.save(`KCI_IDCard_${(student?.rollNumber || student?.enrollmentNumber || 'student').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
       toast.success('ID Card downloaded!');
     } catch (err) {
@@ -87,7 +87,7 @@ function IDCard({ student, branch }) {
     try {
       const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(printCardRef.current, {
-        scale: 3,
+        scale: 2.5,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
@@ -95,7 +95,7 @@ function IDCard({ student, branch }) {
         width: 1000,
         height: 1625,
       });
-      const imgData = canvas.toDataURL('image/png', 1.0);
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
       const win = window.open('', '_blank');
       win.document.write(`
         <!DOCTYPE html>
@@ -147,7 +147,6 @@ function IDCard({ student, branch }) {
         </button>
       </div>
 
-      <div className="w-full flex justify-center items-center overflow-hidden my-4" style={{ maxWidth: 520 }}>
       <div className="w-full flex justify-center items-start overflow-hidden my-4" style={{ maxWidth: 520 }}>
         <KCIIDCardWrapper student={student} settings={settings} />
       </div>

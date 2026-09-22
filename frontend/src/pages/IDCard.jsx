@@ -117,7 +117,6 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       </svg>
 
       {/* ── 2. TOP LEFT OFFICIAL KCI SEAL LOGO (NO YELLOW OUTLINE) ── */}
-      <div style={{ position: 'absolute', top: 25, left: 35, width: 280, height: 280, zIndex: 5 }}>
       <div style={{ position: 'absolute', top: 25, left: 35, width: 330, height: 280, zIndex: 5 }}>
         <div
           style={{
@@ -147,13 +146,11 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
             }}
           />
         </div>
-        {/* TM Superscript */}
         {/* TM Superscript with clear space from circular logo */}
         <span
           style={{
             position: 'absolute',
             top: 20,
-            right: 0,
             left: 285,
             color: '#FFCC00',
             fontSize: 26,
@@ -523,13 +520,13 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
 // ── Responsive Scaled Card Wrapper (Proportional Canvas Scaling) ──
 export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
   const containerRef = useRef(null);
-  const [scale, setScale] = useState(0.4);
+  const [scale, setScale] = useState(0.42);
 
   useEffect(() => {
     const updateScale = () => {
       if (!containerRef.current) return;
       const parentW = containerRef.current.clientWidth || 360;
-      const targetW = Math.min(parentW - 16, 500);
+      const targetW = Math.min(parentW - 8, 480);
       setScale(targetW / 1000);
     };
 
@@ -538,30 +535,38 @@ export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
     return () => window.removeEventListener('resize', updateScale);
   }, []);
 
+  const scaledW = Math.round(1000 * scale);
   const scaledH = Math.round(1625 * scale);
 
   return (
     <div
       ref={containerRef}
-      className={`w-full flex justify-center items-center overflow-hidden ${className}`}
-      className={`w-full flex justify-center items-start overflow-hidden ${className}`}
-      style={{
-        height: Math.round(1625 * scale) + 10,
-        minHeight: 300,
-        height: scaledH > 0 ? scaledH : 'auto',
-      }}
+      className={`w-full flex justify-center items-center py-2 ${className}`}
     >
       <div
         style={{
-          width: 1000,
-          height: 1625,
-          transform: `scale(${scale})`,
-          transformOrigin: 'top center',
-          marginBottom: -(1625 - scaledH),
+          width: scaledW > 0 ? scaledW : 360,
+          height: scaledH > 0 ? scaledH : 585,
+          position: 'relative',
+          overflow: 'hidden',
+          borderRadius: Math.round(36 * scale),
+          boxShadow: '0 12px 36px rgba(0, 51, 153, 0.22)',
           flexShrink: 0,
         }}
       >
-        <KCIIDCard student={student} settings={settings} />
+        <div
+          style={{
+            width: 1000,
+            height: 1625,
+            transform: `scale(${scale})`,
+            transformOrigin: 'top left',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+          }}
+        >
+          <KCIIDCard student={student} settings={settings} />
+        </div>
       </div>
     </div>
   );
@@ -600,7 +605,7 @@ export default function IDCardPage() {
     );
 
     return html2canvas(el, {
-      scale: 3,
+      scale: 2.5,
       useCORS: true,
       allowTaint: false,
       backgroundColor: '#ffffff',
@@ -616,11 +621,11 @@ export default function IDCardPage() {
     try {
       const canvas = await captureCard();
       if (!canvas) throw new Error('Capture failed');
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 86.5] });
-      doc.addImage(imgData, 'PNG', 0, 0, 54, 86.5);
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 86.5], compress: true });
+      doc.addImage(imgData, 'JPEG', 0, 0, 54, 86.5, undefined, 'FAST');
       doc.save(`KCI_IDCard_${(user.rollNumber || user.enrollmentNumber || 'student').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
-      toast.success('ID Card downloaded in high resolution PDF format!');
+      toast.success('ID Card downloaded fast in high resolution PDF format!');
     } catch (err) {
       console.error('ID Card download error:', err);
       toast.error('Download failed. Please try again.');
@@ -715,7 +720,6 @@ export default function IDCardPage() {
       </section>
 
       <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col items-center">
-        <div className="w-full flex justify-center items-center overflow-hidden my-4" style={{ maxWidth: 520 }}>
         <div className="w-full flex justify-center items-start overflow-hidden my-4" style={{ maxWidth: 520 }}>
           <KCIIDCardWrapper student={user} settings={settings} />
         </div>
