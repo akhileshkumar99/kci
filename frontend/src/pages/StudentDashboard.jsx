@@ -17,7 +17,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import DevCredit from '../components/DevCredit';
 import AdmitCardComponent from '../components/AdmitCard';
-import { KCIIDCard } from './IDCard';
+import { KCIIDCard, KCIIDCardWrapper } from './IDCard';
 
 const ALL_TABS = [
   { id: 'profile', label: 'My Profile', icon: User },
@@ -66,12 +66,12 @@ function IDCard({ student, branch }) {
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        width: 638,
-        height: 1016,
+        width: 1000,
+        height: 1625,
       });
       const imgData = canvas.toDataURL('image/png', 1.0);
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 86] });
-      doc.addImage(imgData, 'PNG', 0, 0, 54, 86);
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 86.5] });
+      doc.addImage(imgData, 'PNG', 0, 0, 54, 86.5);
       doc.save(`KCI_IDCard_${(student?.rollNumber || student?.enrollmentNumber || 'student').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
       toast.success('ID Card downloaded!');
     } catch (err) {
@@ -92,8 +92,8 @@ function IDCard({ student, branch }) {
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        width: 638,
-        height: 1016,
+        width: 1000,
+        height: 1625,
       });
       const imgData = canvas.toDataURL('image/png', 1.0);
       const win = window.open('', '_blank');
@@ -101,9 +101,9 @@ function IDCard({ student, branch }) {
         <!DOCTYPE html>
         <html><head><title>KCI Student ID Card</title>
         <style>
-          @page { size: 54mm 86mm; margin: 0; }
-          html, body { margin: 0; padding: 0; width: 54mm; height: 86mm; background: #ffffff; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          img { width: 54mm; height: 86mm; display: block; object-fit: fill; }
+          @page { size: 54mm 86.5mm; margin: 0; }
+          html, body { margin: 0; padding: 0; width: 54mm; height: 86.5mm; background: #ffffff; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          img { width: 54mm; height: 86.5mm; display: block; object-fit: fill; }
         </style></head>
         <body><img src="${imgData}" /></body></html>
       `);
@@ -147,10 +147,8 @@ function IDCard({ student, branch }) {
         </button>
       </div>
 
-      <div className="w-full flex justify-center items-center overflow-hidden my-4" style={{ minHeight: 650 }}>
-        <div style={{ transform: 'scale(0.62)', transformOrigin: 'top center', width: 638, height: 1016, marginBottom: -380 }}>
-          <KCIIDCard student={student} settings={settings} />
-        </div>
+      <div className="w-full flex justify-center items-center overflow-hidden my-4" style={{ maxWidth: 520 }}>
+        <KCIIDCardWrapper student={student} settings={settings} />
       </div>
       <p className="text-center text-xs text-gray-400 mt-2">* Official Computer Institute Digital PVC ID Card.</p>
     </div>

@@ -11,8 +11,9 @@ import api from '../utils/api';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
-const CARD_W = 638; // ~54mm @ 300dpi
-const CARD_H = 1016; // ~86mm @ 300dpi
+// Fixed internal coordinate system (1000px x 1625px)
+const CARD_W = 1000;
+const CARD_H = 1625;
 
 function getPhotoUrl(photo) {
   if (!photo) return null;
@@ -27,7 +28,7 @@ function fmt(date) {
   return d.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
-// ── Official PVC ID Card Component (using exact image background template + dynamic overlays) ──
+// ── Official PVC ID Card Component (Fixed 1000px x 1625px Canvas) ──
 export function KCIIDCard({ student, settings = {}, forPrint = false }) {
   const [qrUrl, setQrUrl] = useState('');
   const photoUrl = getPhotoUrl(student?.photo);
@@ -41,7 +42,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
     const verifyUrl = `${window.location.origin}/verify-certificate?roll=${encodeURIComponent(rollOrEnroll)}`;
 
     QRCode.toDataURL(verifyUrl, {
-      width: 250,
+      width: 300,
       margin: 1,
       color: { dark: '#0052CC', light: '#FFFFFF' },
     })
@@ -69,10 +70,10 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         height: CARD_H,
         fontFamily: "'Arial', 'Helvetica', sans-serif",
         background: '#FFFFFF',
-        borderRadius: 24,
+        borderRadius: 36,
         overflow: 'hidden',
-        boxShadow: forPrint ? 'none' : '0 16px 48px rgba(0, 51, 153, 0.25)',
-        border: forPrint ? 'none' : '2px solid #0052CC',
+        boxShadow: forPrint ? 'none' : '0 20px 60px rgba(0, 51, 153, 0.25)',
+        border: forPrint ? 'none' : '3px solid #0052CC',
         position: 'relative',
         flexShrink: 0,
         boxSizing: 'border-box',
@@ -86,8 +87,8 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           position: 'absolute',
           top: 0,
           left: 0,
-          width: '100%',
-          height: '100%',
+          width: 1000,
+          height: 1625,
           objectFit: 'fill',
           zIndex: 0,
         }}
@@ -98,10 +99,10 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         <div
           style={{
             position: 'absolute',
-            top: 14,
-            left: 16,
-            width: 104,
-            height: 104,
+            top: 22,
+            left: 26,
+            width: 165,
+            height: 165,
             borderRadius: '50%',
             background: '#FFFFFF',
             overflow: 'hidden',
@@ -109,7 +110,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 5,
-            padding: 4,
+            padding: 6,
           }}
         >
           <img src={logoUrl} alt="Website Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
@@ -120,10 +121,10 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          top: 412,
-          left: 124,
-          width: 110,
-          height: 16,
+          top: 654,
+          left: 195,
+          width: 175,
+          height: 28,
           background: '#FFFFFF',
           zIndex: 4,
         }}
@@ -131,61 +132,83 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          top: 411,
-          left: 126,
+          top: 652,
+          left: 198,
           color: '#0052CC',
-          fontSize: 14.5,
+          fontSize: 24,
           fontWeight: 900,
           zIndex: 5,
+          fontFamily: "'Arial', 'Helvetica', sans-serif",
         }}
       >
         {validFromYear} to {validToYear}
       </div>
 
-      {/* ── 4. DYNAMIC STUDENT PHOTO ── */}
+      {/* ── 4. EXACTLY ONE STUDENT PHOTO CONTAINER (BOUNDED & NO OVERFLOW) ── */}
       <div
         style={{
           position: 'absolute',
-          top: 425,
-          left: 236,
-          width: 165,
-          height: 200,
-          borderRadius: 4,
+          top: 676,
+          left: 368,
+          width: 264,
+          height: 320,
+          borderRadius: 6,
           overflow: 'hidden',
-          background: '#F1F5F9',
+          background: '#FFFFFF',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 5,
+          border: '2px solid #94A3B8',
+          boxSizing: 'border-box',
         }}
       >
         {photoUrl ? (
-          <img src={photoUrl} alt={student?.name || 'Student Photo'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img
+            src={photoUrl}
+            alt={student?.name || 'Student Photo'}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              if (e.currentTarget.parentElement) {
+                e.currentTarget.parentElement.innerHTML = `
+                  <div style="text-align: center; color: #64748B; padding: 10px;">
+                    <svg viewBox="0 0 100 120" style="width: 130px; height: 150px; margin: 0 auto; fill: #94A3B8;">
+                      <path d="M 50 15 A 25 25 0 1 0 50 65 A 25 25 0 1 0 50 15 Z M 15 105 C 15 80 30 75 50 75 C 70 75 85 80 85 105 Z" />
+                    </svg>
+                    <div style="font-size: 19px; font-weight: 900; color: #475569; margin-top: 4px;">PHOTO HERE</div>
+                  </div>
+                `;
+              }
+            }}
+          />
         ) : (
-          <div style={{ textAlign: 'center', color: '#64748B' }}>
-            <svg viewBox="0 0 100 120" style={{ width: 85, height: 105, margin: '0 auto', fill: '#94A3B8' }}>
+          <div style={{ textAlign: 'center', color: '#64748B', padding: 10 }}>
+            <svg viewBox="0 0 100 120" style={{ width: 130, height: 150, margin: '0 auto', fill: '#94A3B8' }}>
               <path d="M 50 15 A 25 25 0 1 0 50 65 A 25 25 0 1 0 50 15 Z M 15 105 C 15 80 30 75 50 75 C 70 75 85 80 85 105 Z" />
             </svg>
-            <div style={{ fontSize: 12, fontWeight: 900, color: '#475569', marginTop: 2 }}>PHOTO HERE</div>
+            <div style={{ fontSize: 19, fontWeight: 900, color: '#475569', marginTop: 4 }}>PHOTO HERE</div>
           </div>
         )}
       </div>
 
-      {/* ── 5. DYNAMIC STUDENT DETAILS OVERLAY (ON TOP OF UNDERLINES) ── */}
+      {/* ── 5. DYNAMIC FIELD VALUES (NO LAYOUT SHIFT OR OVERFLOW) ── */}
+
       {/* Course */}
       <div
         style={{
           position: 'absolute',
-          top: 666,
-          left: 300,
-          right: 35,
+          top: 1060,
+          left: 472,
+          right: 60,
           color: '#D32F2F',
-          fontSize: 17,
+          fontSize: 27,
           fontWeight: 900,
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           zIndex: 5,
+          fontFamily: "'Arial', 'Helvetica', sans-serif",
         }}
       >
         {courseVal}
@@ -195,48 +218,50 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          top: 700,
-          left: 320,
-          right: 35,
+          top: 1114,
+          left: 505,
+          right: 60,
           color: '#0052CC',
-          fontSize: 17,
+          fontSize: 27,
           fontWeight: 900,
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           zIndex: 5,
+          fontFamily: "'Arial', 'Helvetica', sans-serif",
         }}
       >
         {formNoVal}
       </div>
 
-      {/* Father's Name */}
+      {/* Father’s Name */}
       <div
         style={{
           position: 'absolute',
-          top: 734,
-          left: 283,
-          right: 35,
+          top: 1168,
+          left: 445,
+          right: 60,
           color: '#0052CC',
-          fontSize: 17,
+          fontSize: 27,
           fontWeight: 900,
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           zIndex: 5,
+          fontFamily: "'Arial', 'Helvetica', sans-serif",
         }}
       >
         {fatherVal}
       </div>
 
-      {/* DOB cover & text */}
+      {/* DOB Cover & Text */}
       <div
         style={{
           position: 'absolute',
-          top: 775,
-          left: 270,
-          width: 152,
-          height: 18,
+          top: 1234,
+          left: 425,
+          width: 250,
+          height: 32,
           background: '#FFFFFF',
           zIndex: 4,
         }}
@@ -244,16 +269,17 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          top: 770,
-          left: 274,
-          right: 35,
+          top: 1228,
+          left: 430,
+          right: 60,
           color: '#0052CC',
-          fontSize: 17,
+          fontSize: 27,
           fontWeight: 900,
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           zIndex: 5,
+          fontFamily: "'Arial', 'Helvetica', sans-serif",
         }}
       >
         {dobVal}
@@ -263,16 +289,17 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          top: 802,
-          left: 275,
-          right: 35,
+          top: 1278,
+          left: 435,
+          right: 60,
           color: '#0052CC',
-          fontSize: 17,
+          fontSize: 27,
           fontWeight: 900,
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           zIndex: 5,
+          fontFamily: "'Arial', 'Helvetica', sans-serif",
         }}
       >
         {mobileVal}
@@ -282,16 +309,17 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          top: 835,
-          left: 270,
-          right: 35,
+          top: 1332,
+          left: 425,
+          right: 200,
           color: '#0052CC',
-          fontSize: 17,
+          fontSize: 27,
           fontWeight: 900,
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           zIndex: 5,
+          fontFamily: "'Arial', 'Helvetica', sans-serif",
         }}
       >
         {branchVal}
@@ -301,36 +329,36 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       <div
         style={{
           position: 'absolute',
-          bottom: 45,
-          right: 25,
+          bottom: 70,
+          right: 40,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 3,
+          gap: 4,
           zIndex: 10,
         }}
       >
         <div
           style={{
-            width: 76,
-            height: 76,
-            border: '2px solid #FFCC00',
-            borderRadius: 8,
+            width: 122,
+            height: 122,
+            border: '3px solid #FFCC00',
+            borderRadius: 12,
             background: '#FFFFFF',
-            padding: 3,
+            padding: 4,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
           }}
         >
           {qrUrl ? (
             <img src={qrUrl} alt="QR Verification" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           ) : (
-            <div style={{ fontSize: 9, color: '#0052CC', fontWeight: 'bold' }}>QR Code</div>
+            <div style={{ fontSize: 13, color: '#0052CC', fontWeight: 'bold' }}>QR Code</div>
           )}
         </div>
-        <span style={{ color: '#0052CC', fontSize: 8.5, fontWeight: 900, letterSpacing: 0.5 }}>
+        <span style={{ color: '#0052CC', fontSize: 13, fontWeight: 900, letterSpacing: 0.5, fontFamily: "'Arial', 'Helvetica', sans-serif" }}>
           🔒 SCAN TO VERIFY
         </span>
       </div>
@@ -338,7 +366,49 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
   );
 }
 
-// ── Main Page Component ──────────────────────────────────────────
+// ── Responsive Scaled Card Wrapper (Proportional Canvas Scaling) ──
+export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
+  const containerRef = useRef(null);
+  const [scale, setScale] = useState(0.4);
+
+  useEffect(() => {
+    const updateScale = () => {
+      if (!containerRef.current) return;
+      const parentW = containerRef.current.clientWidth || 360;
+      const targetW = Math.min(parentW - 16, 500);
+      setScale(targetW / 1000);
+    };
+
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className={`w-full flex justify-center items-center overflow-hidden ${className}`}
+      style={{
+        height: Math.round(1625 * scale) + 10,
+        minHeight: 300,
+      }}
+    >
+      <div
+        style={{
+          width: 1000,
+          height: 1625,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top center',
+          flexShrink: 0,
+        }}
+      >
+        <KCIIDCard student={student} settings={settings} />
+      </div>
+    </div>
+  );
+}
+
+// ── Standalone Page Component ──────────────────────────────────────────
 export default function IDCardPage() {
   const { user, refreshUser } = useAuth();
   const printCardRef = useRef();
@@ -358,7 +428,6 @@ export default function IDCardPage() {
     const el = printCardRef.current;
     if (!el) return null;
 
-    // Ensure all images inside el are loaded before capturing
     const imgs = Array.from(el.querySelectorAll('img'));
     await Promise.all(
       imgs.map(
@@ -377,8 +446,8 @@ export default function IDCardPage() {
       allowTaint: false,
       backgroundColor: '#ffffff',
       logging: false,
-      width: 638,
-      height: 1016,
+      width: 1000,
+      height: 1625,
     });
   }, []);
 
@@ -389,9 +458,8 @@ export default function IDCardPage() {
       const canvas = await captureCard();
       if (!canvas) throw new Error('Capture failed');
       const imgData = canvas.toDataURL('image/png', 1.0);
-      // Portrait PVC PDF: 54mm × 86mm
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 86] });
-      doc.addImage(imgData, 'PNG', 0, 0, 54, 86);
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 86.5] });
+      doc.addImage(imgData, 'PNG', 0, 0, 54, 86.5);
       doc.save(`KCI_IDCard_${(user.rollNumber || user.enrollmentNumber || 'student').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
       toast.success('ID Card downloaded in high resolution PDF format!');
     } catch (err) {
@@ -409,7 +477,6 @@ export default function IDCardPage() {
       if (!canvas) throw new Error('Capture failed');
       const imgData = canvas.toDataURL('image/png', 1.0);
 
-      // Print via hidden iframe (bypasses popup blockers on all browsers)
       const iframe = document.createElement('iframe');
       iframe.style.position = 'fixed';
       iframe.style.right = '0';
@@ -427,9 +494,9 @@ export default function IDCardPage() {
           <head>
             <title>KCI Student ID Card</title>
             <style>
-              @page { size: 54mm 86mm; margin: 0; }
-              html, body { margin: 0; padding: 0; width: 54mm; height: 86mm; background: #ffffff; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-              img { width: 54mm; height: 86mm; display: block; object-fit: fill; }
+              @page { size: 54mm 86.5mm; margin: 0; }
+              html, body { margin: 0; padding: 0; width: 54mm; height: 86.5mm; background: #ffffff; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+              img { width: 54mm; height: 86.5mm; display: block; object-fit: fill; }
             </style>
           </head>
           <body>
@@ -489,11 +556,8 @@ export default function IDCardPage() {
       </section>
 
       <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col items-center">
-        {/* Card preview wrapper — scaled to fit screen perfectly */}
-        <div className="w-full flex justify-center items-center overflow-hidden my-4" style={{ minHeight: 650 }}>
-          <div style={{ transform: 'scale(0.62)', transformOrigin: 'top center', width: 638, height: 1016, marginBottom: -380 }}>
-            <KCIIDCard student={user} settings={settings} />
-          </div>
+        <div className="w-full flex justify-center items-center overflow-hidden my-4" style={{ maxWidth: 520 }}>
+          <KCIIDCardWrapper student={user} settings={settings} />
         </div>
 
         <div className="flex gap-3">
