@@ -319,7 +319,20 @@ export default function BranchDashboard() {
 
   // Dark mode theme state (persisted)
   const [dark, setDark] = useState(() => localStorage.getItem('kci_dark') === 'true');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => (typeof window !== 'undefined' ? window.innerWidth >= 1024 : true));
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const [activeTab, setActiveTab] = useState('overview');
   const [stats, setStats] = useState({ students: 7, active: 7, admissions: 7, courses: 21 });
@@ -920,18 +933,40 @@ export default function BranchDashboard() {
   return (
     <div className={`flex h-screen ${dark ? 'bg-[#0b1329] text-white' : 'bg-[#f8fafc] text-slate-900'} overflow-hidden font-sans`}>
 
+      {/* ── MOBILE BACKDROP OVERLAY ── */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 bg-black/60 z-30 lg:hidden backdrop-blur-xs cursor-pointer"
+          />
+        )}
+      </AnimatePresence>
+
       {/* ── SIDEBAR ── */}
       <aside className={`fixed inset-y-0 left-0 z-40 w-64 ${dark ? 'bg-[#080e1e] border-slate-800' : 'bg-[#0a1329] border-slate-800'} text-white border-r flex flex-col justify-between transition-transform duration-300 lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div>
-          {/* Logo Brand Header */}
-          <div className="h-16 flex items-center px-4 sm:px-5 border-b border-slate-800/80 gap-3">
-            <div onClick={() => setLogoPreview(true)} className="w-11 h-11 rounded-full bg-white p-0.5 shadow-lg shadow-blue-500/30 shrink-0 cursor-pointer border-2 border-blue-500/40 flex items-center justify-center overflow-hidden transition-transform hover:scale-105">
-              <img src="/logo.png" alt="KCI Logo" className="w-full h-full object-cover rounded-full" />
+          {/* Logo Brand Header with Close (X) Button */}
+          <div className="h-16 flex items-center justify-between px-4 sm:px-5 border-b border-slate-800/80 gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div onClick={() => setLogoPreview(true)} className="w-11 h-11 rounded-full bg-white p-0.5 shadow-lg shadow-blue-500/30 shrink-0 cursor-pointer border-2 border-blue-500/40 flex items-center justify-center overflow-hidden transition-transform hover:scale-105">
+                <img src="/logo.png" alt="KCI Logo" className="w-full h-full object-cover rounded-full" />
+              </div>
+              <div className="min-w-0">
+                <div className="font-black text-base text-white leading-tight tracking-tight truncate">KCI Portal</div>
+                <div className="text-[11px] font-mono font-extrabold text-blue-400 mt-0.5 truncate">{branchCode}</div>
+              </div>
             </div>
-            <div>
-              <div className="font-black text-base text-white leading-tight tracking-tight">KCI Portal</div>
-              <div className="text-[11px] font-mono font-extrabold text-blue-400 mt-0.5">{branchCode}</div>
-            </div>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors shrink-0"
+              title="Close Menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
           {/* Navigation Items */}
@@ -942,7 +977,11 @@ export default function BranchDashboard() {
               return (
                 <button
                   key={id}
-                  onClick={() => { setActiveTab(id); setSearch(''); }}
+                  onClick={() => {
+                    setActiveTab(id);
+                    setSearch('');
+                    if (window.innerWidth < 1024) setSidebarOpen(false);
+                  }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${active
                     ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/30'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
@@ -959,7 +998,10 @@ export default function BranchDashboard() {
             {supportLinks.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
-                onClick={() => setSupportModal(id)}
+                onClick={() => {
+                  setSupportModal(id);
+                  if (window.innerWidth < 1024) setSidebarOpen(false);
+                }}
                 className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all"
               >
                 <Icon className="w-4 h-4 text-slate-400" />

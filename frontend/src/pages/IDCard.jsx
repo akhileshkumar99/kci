@@ -673,7 +673,7 @@ export default function IDCardPage() {
             if (dataUri && dataUri.startsWith('data:')) {
               img.src = dataUri;
             }
-          } catch (e) {}
+          } catch (e) { }
         }
         if (!img.complete) {
           await new Promise((resolve) => {
