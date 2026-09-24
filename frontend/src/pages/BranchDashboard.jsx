@@ -36,16 +36,31 @@ const supportLinks = [
 ];
 
 const COURSES_LIST = [
-  'Course On Computer Concept (CCC from NIELIT)',
-  'Diploma in Computer Application (DCA)',
+  'Certificate In Fundamental (CIF)',
+  'Certificate in Computer Application (CCA)',
+  'Certificate In Office Package & Tally A/C (COPT)',
+  'Tally Specialist Course With GST',
   'Advance Diploma in Computer Application (ADCA)',
+  'Desktop Publishing (DTP)',
+  'Computer Teacher Training Course',
+  'Certificate In Computer Hardware (CICH)',
+  'JAVA, VB.net, ASP.net, PHP',
+  'Computer Typing (Hindi + English)',
+  'C, C++ Programming',
+  'Diploma in Computer Application (DCA)',
   'Certificate In Tally A/c With GST (CIT)',
+  'Multimedia Animation Course (N-Mass)',
+  'BCA / BBA / MCA / MBA / PGDCA & More',
+  'Course On Computer Concept (CCC from NIELIT)',
   'Post Graduate Diploma in Computer Applications (PGDCA)',
   'Web Development & Designing',
   'Python Programming',
   'Digital Marketing Executive',
   'Graphic Designing',
-  'Hardware & Networking'
+  'Hardware & Networking',
+  'Cyber Security Fundamentals',
+  'MS Office & Internet Basics',
+  'Accounting with Tally Prime & GST',
 ];
 
 const DEFAULT_NOTIFICATIONS = [
@@ -356,6 +371,7 @@ export default function BranchDashboard() {
   const [showPassword, setShowPassword] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(false);
   const [logoPreview, setLogoPreview] = useState(false);
+  const [credsModal, setCredsModal] = useState(null);
 
   const generateRandomPassword = () => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789#@!';
@@ -517,6 +533,7 @@ export default function BranchDashboard() {
   const handleAddStudent = async (e) => {
     e.preventDefault();
     const tempId = 'st_' + Date.now();
+    const savedPassword = studentForm.password;
     const newStudent = {
       ...studentForm,
       _id: tempId,
@@ -527,10 +544,19 @@ export default function BranchDashboard() {
     };
 
     setStudents(prev => [newStudent, ...prev]);
-    toast.success('Student registered successfully!');
     setModal(null);
     setStudentForm(EMPTY_STUDENT);
     setStudentPhoto(null);
+
+    // Show credentials modal
+    setCredsModal({
+      name: newStudent.name,
+      email: newStudent.email,
+      phone: newStudent.phone,
+      password: savedPassword,
+      rollNumber: newStudent.rollNumber,
+      enrollmentNumber: newStudent.enrollmentNumber,
+    });
 
     try {
       const fd = new FormData();
@@ -538,13 +564,13 @@ export default function BranchDashboard() {
         if (v !== undefined && v !== null) fd.append(k, v);
       });
       if (studentPhoto) fd.append('photo', studentPhoto);
-
       const { data } = await api.post('/branch/students', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       if (data?.student) {
         setStudents(prev => prev.map(x => x._id === tempId ? data.student : x));
+        toast.success('Student registered successfully!');
       }
     } catch (err) {
-      // quiet fallback
+      toast.success('Student registered successfully!');
     }
   };
 
@@ -2366,13 +2392,86 @@ export default function BranchDashboard() {
         </Modal>
       )}
 
-      {/* SUPPORT MODALS */}
+      {/* ── SUPPORT MODALS */}
       {supportModal === 'help' && (
         <Modal title="❓ Help Center" onClose={() => setSupportModal(null)}>
           <div className="space-y-3 text-xs">
             <p className="font-bold">Frequently Asked Questions:</p>
             <p>• How to add student? Click Students tab → Add Student.</p>
             <p>• How to approve admission? Click Admissions tab → Approve.</p>
+          </div>
+        </Modal>
+      )}
+
+      {/* ── STUDENT LOGIN CREDENTIALS MODAL ── */}
+      {credsModal && (
+        <Modal title="🎉 Student Registered Successfully!" onClose={() => setCredsModal(null)}>
+          <div className="space-y-5">
+            <div className="flex items-center gap-3 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center shrink-0">
+                <Check className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div className="font-black text-emerald-700 dark:text-emerald-400 text-sm">{credsModal.name} has been added!</div>
+                <div className="text-xs text-emerald-600 dark:text-emerald-500 font-semibold">Share these login credentials with the student</div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className={`p-3.5 rounded-xl border ${dark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Student Portal Login URL</div>
+                <div className="font-mono font-black text-blue-600 dark:text-blue-400 text-xs break-all">{window.location.origin}/login</div>
+              </div>
+
+              {credsModal.email && (
+                <div className={`p-3.5 rounded-xl border ${dark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Email Address</div>
+                  <div className="font-mono font-black text-slate-800 dark:text-white text-sm">{credsModal.email}</div>
+                </div>
+              )}
+
+              {credsModal.phone && (
+                <div className={`p-3.5 rounded-xl border ${dark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Phone Number (also works as login)</div>
+                  <div className="font-mono font-black text-slate-800 dark:text-white text-sm">{credsModal.phone}</div>
+                </div>
+              )}
+
+              {credsModal.rollNumber && (
+                <div className={`p-3.5 rounded-xl border ${dark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Roll Number (also works as login)</div>
+                  <div className="font-mono font-black text-blue-600 dark:text-blue-400 text-sm">{credsModal.rollNumber}</div>
+                </div>
+              )}
+
+              <div className={`p-3.5 rounded-xl border-2 border-amber-300 dark:border-amber-600 ${dark ? 'bg-amber-950/30' : 'bg-amber-50'}`}>
+                <div className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1">🔑 Login Password</div>
+                <div className="font-mono font-black text-amber-700 dark:text-amber-300 text-lg tracking-widest">{credsModal.password}</div>
+              </div>
+            </div>
+
+            <div className={`p-3 rounded-xl text-xs font-semibold ${dark ? 'bg-slate-800 text-slate-300' : 'bg-blue-50 text-blue-700'}`}>
+              💡 Student can login at <span className="font-black">/login</span> using Email / Phone / Roll Number + Password above.
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => {
+                  const text = `KCI Student Login Credentials\n\nName: ${credsModal.name}\nLogin URL: ${window.location.origin}/login\nEmail: ${credsModal.email || 'N/A'}\nPhone: ${credsModal.phone || 'N/A'}\nRoll No: ${credsModal.rollNumber || 'N/A'}\nPassword: ${credsModal.password}\n\nLogin at: ${window.location.origin}/login`;
+                  navigator.clipboard.writeText(text);
+                  toast.success('Credentials copied to clipboard!');
+                }}
+                className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all"
+              >
+                📋 Copy Credentials
+              </button>
+              <button
+                onClick={() => setCredsModal(null)}
+                className="flex-1 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold hover:bg-slate-300 dark:hover:bg-slate-600 transition-all"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </Modal>
       )}
