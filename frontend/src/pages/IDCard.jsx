@@ -68,137 +68,118 @@ function loadImg(src) {
 export async function captureIDCardCanvas(studentData, settingsData) {
   const W = CARD_W, H = CARD_H;
   const cvs = document.createElement('canvas');
-  cvs.width = W * 2;   // 2x for high DPI
+  cvs.width = W * 2;
   cvs.height = H * 2;
   const ctx = cvs.getContext('2d');
   ctx.scale(2, 2);
 
-  // ── Background white
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fillRect(0, 0, W, H);
+  // helpers
+  const fill = (color) => { ctx.fillStyle = color; };
+  const font = (f) => { ctx.font = f; };
+  const text = (t, x, y) => ctx.fillText(t, x, y);
+  const centerText = (t, y) => { ctx.textAlign = 'center'; ctx.fillText(t, W / 2, y); ctx.textAlign = 'left'; };
 
-  // ── SVG polygons drawn as canvas paths
-  // Top blue triangle
-  ctx.fillStyle = '#0040B8';
+  // ── Background
+  fill('#FFFFFF'); ctx.fillRect(0, 0, W, H);
+
+  // ── Background polygons
+  fill('#0040B8');
   ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(950,0); ctx.lineTo(0,430); ctx.closePath(); ctx.fill();
-  // Top red stripe
-  ctx.fillStyle = '#D32F2F';
+  fill('#D32F2F');
   ctx.beginPath(); ctx.moveTo(0,430); ctx.lineTo(950,0); ctx.lineTo(968,0); ctx.lineTo(0,448); ctx.closePath(); ctx.fill();
-  // Bottom right blue corner
-  ctx.fillStyle = '#0040B8';
+  fill('#0040B8');
   ctx.beginPath(); ctx.moveTo(1000,1625); ctx.lineTo(1000,1228); ctx.lineTo(538,1625); ctx.closePath(); ctx.fill();
-  // Bottom right red stripe
-  ctx.fillStyle = '#D32F2F';
+  fill('#D32F2F');
   ctx.beginPath(); ctx.moveTo(1000,1210); ctx.lineTo(520,1625); ctx.lineTo(538,1625); ctx.lineTo(1000,1228); ctx.closePath(); ctx.fill();
 
   // ── Load images
   const websiteLogo = settingsData?.logo || settingsData?.websiteLogo || null;
   const logoSrc = websiteLogo ? getPhotoUrl(websiteLogo) : '/logo.png';
   const photoSrc = getPhotoUrl(studentData?.photo);
-
-  const [logoDataUri, photoDataUri, nielitDataUri] = await Promise.all([
+  const [logoUri, photoUri, nielitUri] = await Promise.all([
     imageToDataUri(logoSrc),
     photoSrc ? imageToDataUri(photoSrc) : Promise.resolve(null),
     imageToDataUri('/nielit.png'),
   ]);
-
   const [logoImg, photoImg, nielitImg] = await Promise.all([
-    loadImg(logoDataUri),
-    photoDataUri ? loadImg(photoDataUri) : Promise.resolve(null),
-    loadImg(nielitDataUri),
+    loadImg(logoUri), photoUri ? loadImg(photoUri) : Promise.resolve(null), loadImg(nielitUri),
   ]);
 
-  // ── KCI Logo (top left, circular clip)
+  // ── KCI Logo circular (top-left)
   if (logoImg) {
     ctx.save();
-    ctx.beginPath();
-    ctx.arc(35 + 135, 25 + 135, 135, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.clip();
+    ctx.beginPath(); ctx.arc(170, 160, 135, 0, Math.PI * 2); ctx.closePath(); ctx.clip();
     ctx.drawImage(logoImg, 35, 25, 270, 270);
     ctx.restore();
   }
-  // TM text
-  ctx.fillStyle = '#FFCC00';
-  ctx.font = 'bold 26px Arial';
-  ctx.fillText('TM', 320, 55);
+  fill('#FFCC00'); font('bold 26px Arial'); text('TM', 320, 52);
 
-  // ── NIELIT logo (top right)
+  // ── NIELIT logo (top-right)
   if (nielitImg) {
-    const nH = 98, nW = Math.min(340, nielitImg.naturalWidth * (98 / nielitImg.naturalHeight));
-    ctx.drawImage(nielitImg, 960 - nW, 85, nW, nH);
+    const nAR = nielitImg.naturalWidth / (nielitImg.naturalHeight || 1);
+    const nH = 90, nW = Math.min(300, nAR * nH);
+    ctx.drawImage(nielitImg, W - 20 - nW, 88, nW, nH);
   }
-  ctx.fillStyle = '#000000';
-  ctx.font = 'bold 24px Arial';
+  fill('#000000'); font('bold 22px Arial');
   ctx.textAlign = 'right';
-  ctx.fillText('Office-6716159476', 960, 200);
-  ctx.fillText('Mobile-9936384736', 960, 228);
+  text('Office-6716159476', W - 20, 198);
+  text('Mobile-9936384736', W - 20, 224);
   ctx.textAlign = 'left';
 
-  // ── ISO / Cert text
-  ctx.fillStyle = '#000000';
-  ctx.font = "bold 30px 'Times New Roman', serif";
-  ctx.textAlign = 'center';
-  ctx.fillText('An ISO 9001:2015 Certified Organization', 500, 355);
-  ctx.font = 'bold 20px Arial';
-  ctx.fillText('ISO. Reg. No.- VKCI26052306978', 340, 383);
-  ctx.fillText('MSME Reg. No.- 198952612-COL', 680, 383);
+  // ── ISO cert text (centered)
+  fill('#000000'); font("bold 28px 'Times New Roman',serif");
+  centerText('An ISO 9001:2015 Certified Organization', 352);
+  font('bold 19px Arial');
+  centerText('ISO. Reg. No.- VKCI26052306978    MSME Reg. No.- 198952612-COL', 378);
 
-  // ── KEERTI COMPUTER INSTITUTE heading (drawn once, centered)
-  ctx.font = "bold 48px 'Times New Roman', serif";
+  // ── KEERTI COMPUTER INSTITUTE (centered, multi-color)
+  font("bold 46px 'Times New Roman',serif");
   const k = 'KEERTI ', c = 'COMPUTER ', ins = 'INSTITUTE';
   const kW = ctx.measureText(k).width, cW = ctx.measureText(c).width, insW = ctx.measureText(ins).width;
   let hx = (W - kW - cW - insW) / 2;
-  ctx.fillStyle = '#D32F2F'; ctx.fillText(k, hx, 445); hx += kW;
-  ctx.fillStyle = '#0052CC'; ctx.fillText(c, hx, 445); hx += cW;
-  ctx.fillStyle = '#D32F2F'; ctx.fillText(ins, hx, 445);
+  fill('#D32F2F'); text(k, hx, 430); hx += kW;
+  fill('#0052CC'); text(c, hx, 430); hx += cW;
+  fill('#D32F2F'); text(ins, hx, 430);
 
-  // Sub-header
-  ctx.font = 'bold 23px Arial';
-  const sub1 = 'Website-www.kci.org.in', sub2 = 'Soc. Reg. No.- 781', sub3 = 'The College of IT';
-  const s1W = ctx.measureText(sub1).width, s2W = ctx.measureText(sub2).width, s3W = ctx.measureText(sub3).width;
-  const gap = 20;
-  let sx = (W - s1W - s2W - s3W - gap * 2) / 2;
-  ctx.fillStyle = '#0052CC'; ctx.fillText(sub1, sx, 480); sx += s1W + gap;
-  ctx.fillStyle = '#000000'; ctx.fillText(sub2, sx, 480); sx += s2W + gap;
-  ctx.fillStyle = '#D32F2F'; ctx.fillText(sub3, sx, 480);
-  ctx.textAlign = 'left';
+  // ── Sub-header (centered, multi-color)
+  font('bold 21px Arial');
+  const s1 = 'Website-www.kci.org.in  ', s2 = 'Soc. Reg. No.- 781  ', s3 = 'The College of IT';
+  const s1W = ctx.measureText(s1).width, s2W = ctx.measureText(s2).width, s3W = ctx.measureText(s3).width;
+  let sx = (W - s1W - s2W - s3W) / 2;
+  fill('#0052CC'); text(s1, sx, 462); sx += s1W;
+  fill('#000000'); text(s2, sx, 462); sx += s2W;
+  fill('#D32F2F'); text(s3, sx, 462);
 
   // ── Validity
-  const currentYear = new Date().getFullYear();
-  const validFrom = settingsData?.validFrom || studentData?.batch?.split('-')[0] || currentYear;
-  const validTo = settingsData?.validTo || (parseInt(validFrom, 10) + 1) || (currentYear + 1);
-  ctx.fillStyle = '#0052CC';
-  ctx.font = 'bold 24px Arial';
-  ctx.fillText('Valid From-', 45, 575);
-  ctx.fillText(`${validFrom} to ${validTo}`, 45, 603);
+  const curY = new Date().getFullYear();
+  const vFrom = settingsData?.validFrom || studentData?.batch?.split('-')[0] || curY;
+  const vTo = settingsData?.validTo || (parseInt(vFrom, 10) + 1) || (curY + 1);
+  fill('#0052CC'); font('bold 22px Arial');
+  text('Valid From-', 45, 572);
+  text(`${vFrom} to ${vTo}`, 45, 598);
 
   // ── Student photo frame
-  ctx.strokeStyle = '#333333';
-  ctx.lineWidth = 3;
-  ctx.fillStyle = '#FFFFFF';
-  ctx.beginPath();
-  ctx.rect(370, 535, 260, 320);
-  ctx.fill();
-  ctx.stroke();
+  ctx.strokeStyle = '#333333'; ctx.lineWidth = 3;
+  fill('#FFFFFF'); ctx.beginPath(); ctx.rect(370, 535, 260, 320); ctx.fill(); ctx.stroke();
   if (photoImg) {
-    ctx.save();
-    ctx.beginPath(); ctx.rect(370, 535, 260, 320); ctx.clip();
-    ctx.drawImage(photoImg, 370, 535, 260, 320);
-    ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.rect(370, 535, 260, 320); ctx.clip();
+    ctx.drawImage(photoImg, 370, 535, 260, 320); ctx.restore();
   } else {
-    ctx.fillStyle = '#94A3B8';
-    ctx.font = 'bold 20px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('PHOTO HERE', 500, 700);
-    ctx.textAlign = 'left';
+    fill('#94A3B8'); font('bold 18px Arial');
+    ctx.textAlign = 'center'; text('PHOTO', 500, 685); text('HERE', 500, 710); ctx.textAlign = 'left';
   }
 
-  // ── Red separator line
-  ctx.fillStyle = '#D32F2F';
-  ctx.fillRect(260, 885, 480, 4);
+  // ── Student name below photo (centered)
+  const studentName = studentData?.name || '';
+  if (studentName) {
+    fill('#0052CC'); font('bold 26px Arial');
+    ctx.textAlign = 'center'; text(studentName, 500, 890); ctx.textAlign = 'left';
+  }
 
-  // ── Field values
+  // ── Red separator
+  fill('#D32F2F'); ctx.fillRect(120, 910, 760, 4);
+
+  // ── Field rows
   const courseVal = studentData?.courseName || studentData?.course?.title || studentData?.course || '—';
   const formNoVal = studentData?.formNo || studentData?.enrollmentNumber || studentData?.rollNumber || '—';
   const fatherVal = studentData?.fatherName || '—';
@@ -207,92 +188,64 @@ export async function captureIDCardCanvas(studentData, settingsData) {
   const branchVal = studentData?.branchId?.branchName || studentData?.branchName || 'Ambedkarnagar';
 
   const fields = [
-    { label: 'Course -', value: courseVal, lc: '#D32F2F', vc: '#D32F2F' },
-    { label: 'Form No.-', value: formNoVal, lc: '#0052CC', vc: '#0052CC' },
-    { label: "Father's Name-", value: fatherVal, lc: '#0052CC', vc: '#0052CC' },
-    { label: 'DOB-', value: dobVal, lc: '#0052CC', vc: '#0052CC' },
-    { label: 'Mobile-', value: mobileVal, lc: '#0052CC', vc: '#0052CC' },
-    { label: 'Branch -', value: branchVal, lc: '#0052CC', vc: '#0052CC' },
+    { label: 'Course -',        value: courseVal, lc: '#D32F2F', vc: '#D32F2F' },
+    { label: 'Form No.-',       value: formNoVal, lc: '#0052CC', vc: '#0052CC' },
+    { label: "Father's Name-",  value: fatherVal, lc: '#0052CC', vc: '#0052CC' },
+    { label: 'DOB-',            value: dobVal,    lc: '#0052CC', vc: '#0052CC' },
+    { label: 'Mobile-',         value: mobileVal, lc: '#0052CC', vc: '#0052CC' },
+    { label: 'Branch -',        value: branchVal, lc: '#0052CC', vc: '#0052CC' },
   ];
 
-  let fy = 950;
-  fields.forEach(({ label, value, lc, vc }) => {
-    ctx.font = 'bold 30px Arial';
-    ctx.fillStyle = lc;
-    ctx.fillText(label, 170, fy);
+  const ROW_START = 960, ROW_GAP = 95, LX = 120, RX = 880;
+  fields.forEach(({ label, value, lc, vc }, idx) => {
+    const fy = ROW_START + idx * ROW_GAP;
+    // label
+    font('bold 28px Arial'); fill(lc); text(label, LX, fy);
     const lw = ctx.measureText(label).width;
-    ctx.fillStyle = vc;
-    const maxVW = 660 - lw - 20;
-    let fontSize = 30;
-    ctx.font = `bold ${fontSize}px Arial`;
-    while (ctx.measureText(value).width > maxVW && fontSize > 16) {
-      fontSize -= 1;
-      ctx.font = `bold ${fontSize}px Arial`;
-    }
-    ctx.fillText(value, 170 + lw + 10, fy);
+    // value — shrink font if too wide
+    const maxVW = RX - LX - lw - 14;
+    let fs = 28;
+    font(`bold ${fs}px Arial`);
+    while (ctx.measureText(value).width > maxVW && fs > 14) { fs--; font(`bold ${fs}px Arial`); }
+    fill(vc); text(value, LX + lw + 12, fy);
     // underline
-    ctx.strokeStyle = vc;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(170 + lw + 10, fy + 5);
-    ctx.lineTo(830, fy + 5);
-    ctx.stroke();
-    fy += 90;
+    ctx.strokeStyle = vc; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(LX + lw + 12, fy + 6); ctx.lineTo(RX, fy + 6); ctx.stroke();
   });
 
-  // ── Signature SVG path (drawn as canvas)
-  ctx.strokeStyle = '#D32F2F';
-  ctx.lineWidth = 6;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
+  // ── Signature
+  const SY = H - 200;
+  ctx.strokeStyle = '#D32F2F'; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   ctx.beginPath();
-  ctx.moveTo(45+20, H-35-110+80);
-  ctx.bezierCurveTo(45+40,H-35-110+15, 45+60,H-35-110+10, 45+75,H-35-110+55);
-  ctx.bezierCurveTo(45+85,H-35-110+85, 45+95,H-35-110+25, 45+110,H-35-110+45);
-  ctx.bezierCurveTo(45+125,H-35-110+65, 45+135,H-35-110+20, 45+150,H-35-110+70);
-  ctx.bezierCurveTo(45+165,H-35-110+105, 45+145,H-35-110+85, 45+190,H-35-110+70);
-  ctx.bezierCurveTo(45+230,H-35-110+55, 45+270,H-35-110+65, 45+290,H-35-110+60);
+  ctx.moveTo(65, SY+80); ctx.bezierCurveTo(85,SY+15, 105,SY+10, 120,SY+55);
+  ctx.bezierCurveTo(130,SY+85, 140,SY+25, 155,SY+45);
+  ctx.bezierCurveTo(170,SY+65, 180,SY+20, 195,SY+70);
+  ctx.bezierCurveTo(210,SY+105, 190,SY+85, 235,SY+70);
+  ctx.bezierCurveTo(275,SY+55, 315,SY+65, 335,SY+60);
   ctx.stroke();
-  ctx.lineWidth = 5;
-  ctx.beginPath();
-  ctx.moveTo(45+50, H-35-110+90);
-  ctx.bezierCurveTo(45+90,H-35-110+85, 45+170,H-35-110+80, 45+250,H-35-110+80);
-  ctx.stroke();
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(95,SY+90); ctx.bezierCurveTo(135,SY+85, 215,SY+80, 295,SY+80); ctx.stroke();
 
-  ctx.fillStyle = '#D32F2F';
-  ctx.font = "bold 34px 'Times New Roman', serif";
-  ctx.fillText('Managing Director', 45, H - 80);
-  ctx.fillStyle = '#000000';
-  ctx.font = 'bold 19px Arial';
-  ctx.fillText('H.O.- Sahjanand Road, Shringar Hat, Ayodhya- Faizabad, U.P.- 224001', 45, H - 50);
+  fill('#D32F2F'); font("bold 32px 'Times New Roman',serif"); text('Managing Director', 45, H - 95);
+  fill('#000000'); font('bold 17px Arial');
+  text('H.O.- Sahjanand Road, Shringar Hat, Ayodhya- Faizabad, U.P.- 224001', 45, H - 65);
 
   // ── QR Code
-  const rollOrEnroll = studentData?.rollNumber || studentData?.enrollmentNumber || studentData?.formNo || '';
-  const verifyUrl = `${window.location.origin}/verify-certificate?roll=${encodeURIComponent(rollOrEnroll)}`;
-  let qrDataUri = null;
-  try {
-    qrDataUri = await QRCode.toDataURL(verifyUrl, { width: 270, margin: 1, color: { dark: '#0052CC', light: '#FFFFFF' } });
-  } catch (e) {}
-
-  if (qrDataUri) {
-    const qrImg = await loadImg(qrDataUri);
+  const roll = studentData?.rollNumber || studentData?.enrollmentNumber || studentData?.formNo || '';
+  const verifyUrl = `${window.location.origin}/verify-certificate?roll=${encodeURIComponent(roll)}`;
+  let qrUri = null;
+  try { qrUri = await QRCode.toDataURL(verifyUrl, { width: 270, margin: 1, color: { dark: '#0052CC', light: '#FFFFFF' } }); } catch(e){}
+  if (qrUri) {
+    const qrImg = await loadImg(qrUri);
     if (qrImg) {
-      // Yellow border box
-      ctx.strokeStyle = '#FFCC00';
-      ctx.lineWidth = 3;
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath();
-      const qx = 815, qy = H - 45 - 135 - 4;
-      ctx.roundRect ? ctx.roundRect(qx, qy, 135, 135, 14) : ctx.rect(qx, qy, 135, 135);
-      ctx.fill(); ctx.stroke();
-      ctx.drawImage(qrImg, qx + 4, qy + 4, 127, 127);
+      const qx = 820, qy = H - 185;
+      ctx.strokeStyle = '#FFCC00'; ctx.lineWidth = 3; fill('#FFFFFF');
+      ctx.beginPath(); ctx.rect(qx, qy, 140, 140); ctx.fill(); ctx.stroke();
+      ctx.drawImage(qrImg, qx + 5, qy + 5, 130, 130);
+      fill('#FFCC00'); font('bold 13px Arial');
+      ctx.textAlign = 'center'; text('SCAN TO VERIFY', qx + 70, H - 30); ctx.textAlign = 'left';
     }
   }
-  ctx.fillStyle = '#FFCC00';
-  ctx.font = 'bold 13px Arial';
-  ctx.textAlign = 'center';
-  ctx.fillText('SCAN TO VERIFY', 882, H - 30);
-  ctx.textAlign = 'left';
 
   return cvs;
 }
