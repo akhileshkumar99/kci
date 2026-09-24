@@ -4,7 +4,6 @@ import { Download, Printer } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import QRCode from 'qrcode';
-
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import api from '../utils/api';
@@ -12,29 +11,103 @@ import api from '../utils/api';
 const API_URL = import.meta.env.VITE_API_URL || '';
 
 // Fixed internal coordinate system (1000px x 1625px)
-const CARD_W = 1000;
-const CARD_H = 1625;
+export const CARD_W = 1000;
+export const CARD_H = 1625;
 
-function getPhotoUrl(photo) {
+export function getPhotoUrl(photo) {
   if (!photo) return null;
   if (photo.startsWith('http') || photo.startsWith('data:')) return photo;
   return `${API_URL}${photo.startsWith('/') ? photo : `/${photo}`}`;
 }
 
-function fmt(date) {
+export function fmt(date) {
   if (!date) return '__ / __ / ____';
   const d = new Date(date);
   if (isNaN(d.getTime())) return String(date);
   return d.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
-// ── Pure Vector / HTML CSS PVC ID Card Component (No Background Image) ──
+// Convert any image URL to a base64 Data URI to avoid CORS & offscreen capture issues on mobile
+export async function imageToDataUri(url) {
+  if (!url || url.startsWith('data:')) return url;
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const cvs = document.createElement('canvas');
+        cvs.width = img.naturalWidth || img.width || 300;
+        cvs.height = img.naturalHeight || img.height || 300;
+        const ctx = cvs.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        resolve(cvs.toDataURL('image/png'));
+      } catch (e) {
+        resolve(url);
+      }
+    };
+    img.onerror = () => {
+      resolve(url);
+    };
+    img.src = url;
+  });
+}
+
+// Helper to capture target DOM node with html2canvas
+export async function captureIDCardCanvas(el) {
+  if (!el) return null;
+
+  // Convert all images to Data URIs first
+  const imgs = Array.from(el.querySelectorAll('img'));
+  await Promise.all(
+    imgs.map(async (img) => {
+      if (img.src && !img.src.startsWith('data:')) {
+        try {
+          const dataUri = await imageToDataUri(img.src);
+          if (dataUri && dataUri.startsWith('data:')) {
+            img.src = dataUri;
+          }
+        } catch (e) {}
+      }
+    })
+  );
+
+  // Brief pause for browser rendering
+  await new Promise((r) => setTimeout(r, 100));
+
+  return html2canvas(el, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: false,
+    backgroundColor: '#ffffff',
+    logging: false,
+  });
+}
+
+// ── Pure Vector / HTML CSS PVC ID Card Component ──
 export function KCIIDCard({ student, settings = {}, forPrint = false }) {
   const [qrUrl, setQrUrl] = useState('');
   const photoUrl = getPhotoUrl(student?.photo);
 
   const websiteLogo = settings?.logo || settings?.websiteLogo || null;
   const logoUrl = websiteLogo ? getPhotoUrl(websiteLogo) : '/logo.png';
+
+  // Preload photo & logos as Data URIs for bulletproof rendering
+  const [studentPhotoUri, setStudentPhotoUri] = useState(null);
+  const [logoUri, setLogoUri] = useState(logoUrl);
+
+  useEffect(() => {
+    if (photoUrl) {
+      imageToDataUri(photoUrl).then((uri) => setStudentPhotoUri(uri));
+    } else {
+      setStudentPhotoUri(null);
+    }
+  }, [photoUrl]);
+
+  useEffect(() => {
+    if (logoUrl) {
+      imageToDataUri(logoUrl).then((uri) => setLogoUri(uri));
+    }
+  }, [logoUrl]);
 
   // Dynamic Verification QR URL
   useEffect(() => {
@@ -47,7 +120,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
       color: { dark: '#0052CC', light: '#FFFFFF' },
     })
       .then(setQrUrl)
-      .catch(() => { });
+      .catch(() => {});
   }, [student]);
 
   // Validity dates
@@ -81,7 +154,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         MozOsxFontSmoothing: 'grayscale',
       }}
     >
-      {/* ── 1. VECTOR SVG BACKGROUND SHAPES (ENLARGED TOP BLUE HEADER BEHIND LOGO) ── */}
+      {/* ── 1. VECTOR SVG BACKGROUND SHAPES (Solid colors for html2canvas compatibility) ── */}
       <svg
         viewBox="0 0 1000 1625"
         style={{
@@ -94,29 +167,23 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           pointerEvents: 'none',
         }}
       >
-        <defs>
-          <linearGradient id="blueHeaderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#0052CC" />
-            <stop offset="100%" stopColor="#003399" />
-          </linearGradient>
-        </defs>
         {/* White Base Card */}
         <rect width="1000" height="1625" fill="#FFFFFF" />
 
-        {/* Top Diagonal Blue Header (Encloses top-left logo completely) */}
-        <polygon points="0,0 950,0 0,430" fill="url(#blueHeaderGrad)" />
+        {/* Top Diagonal Blue Header (Solid #0040B8) */}
+        <polygon points="0,0 950,0 0,430" fill="#0040B8" />
 
         {/* Top Red Diagonal Accent Stripe */}
         <polygon points="0,430 950,0 968,0 0,448" fill="#D32F2F" />
 
         {/* Bottom Right Blue Corner Polygon */}
-        <polygon points="1000,1625 1000,1228 538,1625" fill="url(#blueHeaderGrad)" />
+        <polygon points="1000,1625 1000,1228 538,1625" fill="#0040B8" />
 
         {/* Bottom Right Red Accent Stripe */}
         <polygon points="1000,1210 520,1625 538,1625 1000,1228" fill="#D32F2F" />
       </svg>
 
-      {/* ── 2. TOP LEFT OFFICIAL KCI SEAL LOGO (NO YELLOW OUTLINE) ── */}
+      {/* ── 2. TOP LEFT OFFICIAL KCI SEAL LOGO ── */}
       <div style={{ position: 'absolute', top: 25, left: 35, width: 330, height: 280, zIndex: 5 }}>
         <div
           style={{
@@ -133,7 +200,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           }}
         >
           <img
-            src={logoUrl}
+            src={logoUri || logoUrl}
             alt="KCI Logo"
             style={{
               width: '100%',
@@ -146,7 +213,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
             }}
           />
         </div>
-        {/* TM Superscript with clear space from circular logo */}
+        {/* TM Superscript */}
         <span
           style={{
             position: 'absolute',
@@ -163,12 +230,13 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         </span>
       </div>
 
-      {/* ── 3. TOP RIGHT OFFICIAL NIELIT LOGO IMAGE (ENLARGED & SHIFTED DOWN) ── */}
+      {/* ── 3. TOP RIGHT OFFICIAL NIELIT LOGO IMAGE (EXPLICIT LEFT: 620 to prevent overlap) ── */}
       <div
         style={{
           position: 'absolute',
           top: 85,
-          right: 40,
+          left: 620,
+          width: 340,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-end',
@@ -197,7 +265,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         </div>
       </div>
 
-      {/* ── 4. CENTER HEADER CERTIFICATION & INSTITUTION TEXT (SINGLE LINE REGISTRATION NUMBERS) ── */}
+      {/* ── 4. CENTER HEADER CERTIFICATION & INSTITUTION TEXT ── */}
       <div
         style={{
           position: 'absolute',
@@ -258,7 +326,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         </div>
       </div>
 
-      {/* ── 5. VALIDITY PERIOD SECTION (TWO-LINE STACKED TO ELIMINATE PHOTO OVERLAP) ── */}
+      {/* ── 5. VALIDITY PERIOD SECTION ── */}
       <div
         style={{
           position: 'absolute',
@@ -279,7 +347,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         <span style={{ color: '#0052CC', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>{validFromYear} to {validToYear}</span>
       </div>
 
-      {/* ── 6. EXACTLY ONE STUDENT PHOTO FRAME (SHIFTED DOWN TO TOP 535) ── */}
+      {/* ── 6. STUDENT PHOTO FRAME ── */}
       <div
         style={{
           position: 'absolute',
@@ -299,9 +367,9 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
           boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
         }}
       >
-        {photoUrl ? (
+        {(studentPhotoUri || photoUrl) ? (
           <img
-            src={photoUrl}
+            src={studentPhotoUri || photoUrl}
             alt={student?.name || 'Student Photo'}
             style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
             onError={(e) => {
@@ -342,7 +410,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         }}
       />
 
-      {/* ── 8. DYNAMIC FIELD VALUES (AUTO-FITTING FONT SIZES TO PREVENT TEXT CLIPPING) ── */}
+      {/* ── 8. DYNAMIC FIELD VALUES ── */}
       <div
         style={{
           position: 'absolute',
@@ -438,7 +506,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         </div>
       </div>
 
-      {/* ── 9. BOTTOM LEFT MANAGING DIRECTOR SIGNATURE & ADDRESS (SHIFTED TO BOTTOM 35) ── */}
+      {/* ── 9. BOTTOM LEFT MANAGING DIRECTOR SIGNATURE & ADDRESS ── */}
       <div
         style={{
           position: 'absolute',
@@ -482,7 +550,8 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
         style={{
           position: 'absolute',
           bottom: 45,
-          right: 40,
+          left: 815,
+          width: 145,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -510,7 +579,7 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
             <div style={{ fontSize: 13, color: '#0052CC', fontWeight: 'bold' }}>QR Code</div>
           )}
         </div>
-        <span style={{ color: '#FFCC00', fontSize: 13, fontWeight: 900, letterSpacing: 0.5, fontFamily: "'Arial', 'Helvetica', sans-serif" }}>
+        <span style={{ color: '#FFCC00', fontSize: 13, fontWeight: 900, letterSpacing: 0.5, fontFamily: "'Arial', 'Helvetica', sans-serif", whiteSpace: 'nowrap' }}>
           🔒 SCAN TO VERIFY
         </span>
       </div>
@@ -526,27 +595,25 @@ export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
   const updateScale = useCallback(() => {
     if (!containerRef.current) return;
     const el = containerRef.current;
-    const pEl = el.parentElement;
+    
+    // Get actual width of viewport and container
     const screenW = window.innerWidth || document.documentElement.clientWidth || 360;
-
-    let pWidth = 0;
-    if (pEl && pEl.getBoundingClientRect().width > 0) {
-      pWidth = pEl.getBoundingClientRect().width;
-    } else if (el && el.getBoundingClientRect().width > 0) {
-      pWidth = el.getBoundingClientRect().width;
+    let parentW = el.clientWidth;
+    if ((!parentW || parentW < 100) && el.parentElement) {
+      parentW = el.parentElement.clientWidth;
     }
 
-    // Determine available width: fit exactly within container / screen boundaries
-    let availW = pWidth > 0 ? pWidth : (screenW - 16);
+    // Determine target width to scale 1000px card
+    let targetW = parentW > 50 ? parentW : (screenW - 24);
     if (screenW < 640) {
-      // On mobile, use container width or screen width minus padding, ensuring zero horizontal overflow
-      availW = Math.min(pWidth > 0 ? pWidth : (screenW - 16), screenW - 12);
+      targetW = Math.min(screenW - 24, targetW > 50 ? targetW : screenW - 24);
     } else {
-      availW = Math.min(availW, screenW - 32);
+      targetW = Math.min(targetW, screenW - 48);
     }
 
-    const targetW = Math.min(Math.max(availW, 260), 980);
-    setScale(targetW / 1000);
+    // Bounds between 260px and 850px width
+    const boundedW = Math.min(Math.max(targetW, 260), 850);
+    setScale(boundedW / CARD_W);
   }, []);
 
   useEffect(() => {
@@ -574,13 +641,14 @@ export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
     };
   }, [updateScale]);
 
-  const scaledW = Math.round(1000 * scale);
-  const scaledH = Math.round(1625 * scale);
+  const scaledW = Math.round(CARD_W * scale);
+  const scaledH = Math.round(CARD_H * scale);
 
   return (
     <div
       ref={containerRef}
-      className={`w-full flex justify-center items-center py-2 ${className}`}
+      className={`w-full flex justify-center items-center py-2 overflow-hidden ${className}`}
+      style={{ width: '100%', maxWidth: '100%' }}
     >
       <div
         style={{
@@ -591,12 +659,13 @@ export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
           borderRadius: Math.round(36 * scale),
           boxShadow: '0 16px 48px rgba(0, 51, 153, 0.25)',
           flexShrink: 0,
+          margin: '0 auto',
         }}
       >
         <div
           style={{
-            width: 1000,
-            height: 1625,
+            width: CARD_W,
+            height: CARD_H,
             transform: `scale(${scale})`,
             transformOrigin: 'top left',
             position: 'absolute',
@@ -624,95 +693,27 @@ export default function IDCardPage() {
     api
       .get('/certificates/idcard-settings')
       .then((r) => setSettings(r.data.settings || {}))
-      .catch(() => { });
-  }, []);
-
-  const captureCard = useCallback(async () => {
-    const el = printCardRef.current;
-    if (!el) return null;
-
-    const fetchAsDataURL = async (url) => {
-      if (!url || url.startsWith('data:')) return url;
-      try {
-        const res = await fetch(url, { mode: 'cors' });
-        const blob = await res.blob();
-        return await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result || url);
-          reader.onerror = () => resolve(url);
-          reader.readAsDataURL(blob);
-        });
-      } catch (err) {
-        return new Promise((resolve) => {
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-          img.onload = () => {
-            try {
-              const cvs = document.createElement('canvas');
-              cvs.width = img.naturalWidth || 300;
-              cvs.height = img.naturalHeight || 300;
-              const ctx = cvs.getContext('2d');
-              ctx.drawImage(img, 0, 0);
-              resolve(cvs.toDataURL('image/png'));
-            } catch (e) {
-              resolve(url);
-            }
-          };
-          img.onerror = () => resolve(url);
-          img.src = url;
-        });
-      }
-    };
-
-    const imgs = Array.from(el.querySelectorAll('img'));
-    await Promise.all(
-      imgs.map(async (img) => {
-        if (img.src && !img.src.startsWith('data:')) {
-          try {
-            const dataUri = await fetchAsDataURL(img.src);
-            if (dataUri && dataUri.startsWith('data:')) {
-              img.src = dataUri;
-            }
-          } catch (e) { }
-        }
-        if (!img.complete) {
-          await new Promise((resolve) => {
-            img.onload = resolve;
-            img.onerror = resolve;
-          });
-        }
-      })
-    );
-
-    const html2canvas = (await import('html2canvas')).default;
-    return html2canvas(el, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: false,
-      backgroundColor: '#ffffff',
-      logging: false,
-      width: 1000,
-      height: 1625,
-      windowWidth: 1000,
-      windowHeight: 1625,
-      x: 0,
-      y: 0,
-      scrollX: 0,
-      scrollY: 0,
-    });
+      .catch(() => {});
   }, []);
 
   const handleDownload = async () => {
     if (!user) return toast.error('Please login first');
     setDownloading(true);
     try {
-      const canvas = await captureCard();
+      const canvas = await captureIDCardCanvas(printCardRef.current);
       if (!canvas) throw new Error('Capture failed');
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+      let imgData;
+      try {
+        imgData = canvas.toDataURL('image/jpeg', 0.95);
+      } catch (e) {
+        imgData = canvas.toDataURL('image/png');
+      }
+
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 86.5], compress: true });
       doc.addImage(imgData, 'JPEG', 0, 0, 54, 86.5, undefined, 'FAST');
       doc.save(`KCI_IDCard_${(user.rollNumber || user.enrollmentNumber || 'student').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
-      toast.success('ID Card downloaded fast in high resolution PDF format!');
+      toast.success('ID Card downloaded in high resolution PDF format!');
     } catch (err) {
       console.error('ID Card download error:', err);
       toast.error('Download failed. Please try again.');
@@ -724,7 +725,7 @@ export default function IDCardPage() {
     if (!user) return toast.error('Please login first');
     setPrinting(true);
     try {
-      const canvas = await captureCard();
+      const canvas = await captureIDCardCanvas(printCardRef.current);
       if (!canvas) throw new Error('Capture failed');
       const imgData = canvas.toDataURL('image/png', 1.0);
 
@@ -785,9 +786,9 @@ export default function IDCardPage() {
 
   return (
     <div className="pt-20 min-h-screen bg-gray-50">
-      {/* Off-screen unscaled 1:1 card for PDF and Print capture */}
-      <div style={{ position: 'absolute', top: -9999, left: -9999, width: 1000, height: 1625, pointerEvents: 'none', opacity: 0, overflow: 'hidden' }}>
-        <div ref={printCardRef} style={{ width: 1000, height: 1625, background: '#ffffff' }}>
+      {/* Off-screen unscaled 1:1 container for PDF and Print capture */}
+      <div style={{ position: 'absolute', top: 0, left: -9999, width: 1000, height: 1625, pointerEvents: 'none', overflow: 'hidden' }}>
+        <div ref={printCardRef} style={{ width: 1000, height: 1625, background: '#ffffff', position: 'relative' }}>
           <KCIIDCard student={user} settings={settings} forPrint={true} />
         </div>
       </div>
