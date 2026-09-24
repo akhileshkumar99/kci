@@ -52,35 +52,249 @@ export async function imageToDataUri(url) {
   });
 }
 
-// Helper to capture target DOM node with html2canvas
-export async function captureIDCardCanvas(el) {
-  if (!el) return null;
-
-  // Convert all images to Data URIs first
-  const imgs = Array.from(el.querySelectorAll('img'));
-  await Promise.all(
-    imgs.map(async (img) => {
-      if (img.src && !img.src.startsWith('data:')) {
-        try {
-          const dataUri = await imageToDataUri(img.src);
-          if (dataUri && dataUri.startsWith('data:')) {
-            img.src = dataUri;
-          }
-        } catch (e) {}
-      }
-    })
-  );
-
-  // Brief pause for browser rendering
-  await new Promise((r) => setTimeout(r, 100));
-
-  return html2canvas(el, {
-    scale: 2,
-    useCORS: true,
-    allowTaint: false,
-    backgroundColor: '#ffffff',
-    logging: false,
+// Load an image as HTMLImageElement (handles data URIs and URLs)
+function loadImg(src) {
+  return new Promise((resolve) => {
+    if (!src) return resolve(null);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
   });
+}
+
+// Draw the KCI ID card directly onto a canvas — no html2canvas, no DOM capture issues
+export async function captureIDCardCanvas(studentData, settingsData) {
+  const W = CARD_W, H = CARD_H;
+  const cvs = document.createElement('canvas');
+  cvs.width = W * 2;   // 2x for high DPI
+  cvs.height = H * 2;
+  const ctx = cvs.getContext('2d');
+  ctx.scale(2, 2);
+
+  // ── Background white
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, W, H);
+
+  // ── SVG polygons drawn as canvas paths
+  // Top blue triangle
+  ctx.fillStyle = '#0040B8';
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(950,0); ctx.lineTo(0,430); ctx.closePath(); ctx.fill();
+  // Top red stripe
+  ctx.fillStyle = '#D32F2F';
+  ctx.beginPath(); ctx.moveTo(0,430); ctx.lineTo(950,0); ctx.lineTo(968,0); ctx.lineTo(0,448); ctx.closePath(); ctx.fill();
+  // Bottom right blue corner
+  ctx.fillStyle = '#0040B8';
+  ctx.beginPath(); ctx.moveTo(1000,1625); ctx.lineTo(1000,1228); ctx.lineTo(538,1625); ctx.closePath(); ctx.fill();
+  // Bottom right red stripe
+  ctx.fillStyle = '#D32F2F';
+  ctx.beginPath(); ctx.moveTo(1000,1210); ctx.lineTo(520,1625); ctx.lineTo(538,1625); ctx.lineTo(1000,1228); ctx.closePath(); ctx.fill();
+
+  // ── Load images
+  const websiteLogo = settingsData?.logo || settingsData?.websiteLogo || null;
+  const logoSrc = websiteLogo ? getPhotoUrl(websiteLogo) : '/logo.png';
+  const photoSrc = getPhotoUrl(studentData?.photo);
+
+  const [logoDataUri, photoDataUri, nielitDataUri] = await Promise.all([
+    imageToDataUri(logoSrc),
+    photoSrc ? imageToDataUri(photoSrc) : Promise.resolve(null),
+    imageToDataUri('/nielit.png'),
+  ]);
+
+  const [logoImg, photoImg, nielitImg] = await Promise.all([
+    loadImg(logoDataUri),
+    photoDataUri ? loadImg(photoDataUri) : Promise.resolve(null),
+    loadImg(nielitDataUri),
+  ]);
+
+  // ── KCI Logo (top left, circular clip)
+  if (logoImg) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(35 + 135, 25 + 135, 135, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+    ctx.drawImage(logoImg, 35, 25, 270, 270);
+    ctx.restore();
+  }
+  // TM text
+  ctx.fillStyle = '#FFCC00';
+  ctx.font = 'bold 26px Arial';
+  ctx.fillText('TM', 320, 55);
+
+  // ── NIELIT logo (top right)
+  if (nielitImg) {
+    const nH = 98, nW = Math.min(340, nielitImg.naturalWidth * (98 / nielitImg.naturalHeight));
+    ctx.drawImage(nielitImg, 960 - nW, 85, nW, nH);
+  }
+  ctx.fillStyle = '#000000';
+  ctx.font = 'bold 24px Arial';
+  ctx.textAlign = 'right';
+  ctx.fillText('Office-6716159476', 960, 200);
+  ctx.fillText('Mobile-9936384736', 960, 228);
+  ctx.textAlign = 'left';
+
+  // ── ISO / Cert text
+  ctx.fillStyle = '#000000';
+  ctx.font = "bold 30px 'Times New Roman', serif";
+  ctx.textAlign = 'center';
+  ctx.fillText('An ISO 9001:2015 Certified Organization', 500, 355);
+  ctx.font = 'bold 20px Arial';
+  ctx.fillText('ISO. Reg. No.- VKCI26052306978', 340, 383);
+  ctx.fillText('MSME Reg. No.- 198952612-COL', 680, 383);
+
+  // ── KEERTI COMPUTER INSTITUTE heading (drawn once, centered)
+  ctx.font = "bold 48px 'Times New Roman', serif";
+  const k = 'KEERTI ', c = 'COMPUTER ', ins = 'INSTITUTE';
+  const kW = ctx.measureText(k).width, cW = ctx.measureText(c).width, insW = ctx.measureText(ins).width;
+  let hx = (W - kW - cW - insW) / 2;
+  ctx.fillStyle = '#D32F2F'; ctx.fillText(k, hx, 445); hx += kW;
+  ctx.fillStyle = '#0052CC'; ctx.fillText(c, hx, 445); hx += cW;
+  ctx.fillStyle = '#D32F2F'; ctx.fillText(ins, hx, 445);
+
+  // Sub-header
+  ctx.font = 'bold 23px Arial';
+  const sub1 = 'Website-www.kci.org.in', sub2 = 'Soc. Reg. No.- 781', sub3 = 'The College of IT';
+  const s1W = ctx.measureText(sub1).width, s2W = ctx.measureText(sub2).width, s3W = ctx.measureText(sub3).width;
+  const gap = 20;
+  let sx = (W - s1W - s2W - s3W - gap * 2) / 2;
+  ctx.fillStyle = '#0052CC'; ctx.fillText(sub1, sx, 480); sx += s1W + gap;
+  ctx.fillStyle = '#000000'; ctx.fillText(sub2, sx, 480); sx += s2W + gap;
+  ctx.fillStyle = '#D32F2F'; ctx.fillText(sub3, sx, 480);
+  ctx.textAlign = 'left';
+
+  // ── Validity
+  const currentYear = new Date().getFullYear();
+  const validFrom = settingsData?.validFrom || studentData?.batch?.split('-')[0] || currentYear;
+  const validTo = settingsData?.validTo || (parseInt(validFrom, 10) + 1) || (currentYear + 1);
+  ctx.fillStyle = '#0052CC';
+  ctx.font = 'bold 24px Arial';
+  ctx.fillText('Valid From-', 45, 575);
+  ctx.fillText(`${validFrom} to ${validTo}`, 45, 603);
+
+  // ── Student photo frame
+  ctx.strokeStyle = '#333333';
+  ctx.lineWidth = 3;
+  ctx.fillStyle = '#FFFFFF';
+  ctx.beginPath();
+  ctx.rect(370, 535, 260, 320);
+  ctx.fill();
+  ctx.stroke();
+  if (photoImg) {
+    ctx.save();
+    ctx.beginPath(); ctx.rect(370, 535, 260, 320); ctx.clip();
+    ctx.drawImage(photoImg, 370, 535, 260, 320);
+    ctx.restore();
+  } else {
+    ctx.fillStyle = '#94A3B8';
+    ctx.font = 'bold 20px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('PHOTO HERE', 500, 700);
+    ctx.textAlign = 'left';
+  }
+
+  // ── Red separator line
+  ctx.fillStyle = '#D32F2F';
+  ctx.fillRect(260, 885, 480, 4);
+
+  // ── Field values
+  const courseVal = studentData?.courseName || studentData?.course?.title || studentData?.course || '—';
+  const formNoVal = studentData?.formNo || studentData?.enrollmentNumber || studentData?.rollNumber || '—';
+  const fatherVal = studentData?.fatherName || '—';
+  const dobVal = fmt(studentData?.dob);
+  const mobileVal = studentData?.phone || studentData?.mobile || '—';
+  const branchVal = studentData?.branchId?.branchName || studentData?.branchName || 'Ambedkarnagar';
+
+  const fields = [
+    { label: 'Course -', value: courseVal, lc: '#D32F2F', vc: '#D32F2F' },
+    { label: 'Form No.-', value: formNoVal, lc: '#0052CC', vc: '#0052CC' },
+    { label: "Father's Name-", value: fatherVal, lc: '#0052CC', vc: '#0052CC' },
+    { label: 'DOB-', value: dobVal, lc: '#0052CC', vc: '#0052CC' },
+    { label: 'Mobile-', value: mobileVal, lc: '#0052CC', vc: '#0052CC' },
+    { label: 'Branch -', value: branchVal, lc: '#0052CC', vc: '#0052CC' },
+  ];
+
+  let fy = 950;
+  fields.forEach(({ label, value, lc, vc }) => {
+    ctx.font = 'bold 30px Arial';
+    ctx.fillStyle = lc;
+    ctx.fillText(label, 170, fy);
+    const lw = ctx.measureText(label).width;
+    ctx.fillStyle = vc;
+    const maxVW = 660 - lw - 20;
+    let fontSize = 30;
+    ctx.font = `bold ${fontSize}px Arial`;
+    while (ctx.measureText(value).width > maxVW && fontSize > 16) {
+      fontSize -= 1;
+      ctx.font = `bold ${fontSize}px Arial`;
+    }
+    ctx.fillText(value, 170 + lw + 10, fy);
+    // underline
+    ctx.strokeStyle = vc;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(170 + lw + 10, fy + 5);
+    ctx.lineTo(830, fy + 5);
+    ctx.stroke();
+    fy += 90;
+  });
+
+  // ── Signature SVG path (drawn as canvas)
+  ctx.strokeStyle = '#D32F2F';
+  ctx.lineWidth = 6;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(45+20, H-35-110+80);
+  ctx.bezierCurveTo(45+40,H-35-110+15, 45+60,H-35-110+10, 45+75,H-35-110+55);
+  ctx.bezierCurveTo(45+85,H-35-110+85, 45+95,H-35-110+25, 45+110,H-35-110+45);
+  ctx.bezierCurveTo(45+125,H-35-110+65, 45+135,H-35-110+20, 45+150,H-35-110+70);
+  ctx.bezierCurveTo(45+165,H-35-110+105, 45+145,H-35-110+85, 45+190,H-35-110+70);
+  ctx.bezierCurveTo(45+230,H-35-110+55, 45+270,H-35-110+65, 45+290,H-35-110+60);
+  ctx.stroke();
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(45+50, H-35-110+90);
+  ctx.bezierCurveTo(45+90,H-35-110+85, 45+170,H-35-110+80, 45+250,H-35-110+80);
+  ctx.stroke();
+
+  ctx.fillStyle = '#D32F2F';
+  ctx.font = "bold 34px 'Times New Roman', serif";
+  ctx.fillText('Managing Director', 45, H - 80);
+  ctx.fillStyle = '#000000';
+  ctx.font = 'bold 19px Arial';
+  ctx.fillText('H.O.- Sahjanand Road, Shringar Hat, Ayodhya- Faizabad, U.P.- 224001', 45, H - 50);
+
+  // ── QR Code
+  const rollOrEnroll = studentData?.rollNumber || studentData?.enrollmentNumber || studentData?.formNo || '';
+  const verifyUrl = `${window.location.origin}/verify-certificate?roll=${encodeURIComponent(rollOrEnroll)}`;
+  let qrDataUri = null;
+  try {
+    qrDataUri = await QRCode.toDataURL(verifyUrl, { width: 270, margin: 1, color: { dark: '#0052CC', light: '#FFFFFF' } });
+  } catch (e) {}
+
+  if (qrDataUri) {
+    const qrImg = await loadImg(qrDataUri);
+    if (qrImg) {
+      // Yellow border box
+      ctx.strokeStyle = '#FFCC00';
+      ctx.lineWidth = 3;
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      const qx = 815, qy = H - 45 - 135 - 4;
+      ctx.roundRect ? ctx.roundRect(qx, qy, 135, 135, 14) : ctx.rect(qx, qy, 135, 135);
+      ctx.fill(); ctx.stroke();
+      ctx.drawImage(qrImg, qx + 4, qy + 4, 127, 127);
+    }
+  }
+  ctx.fillStyle = '#FFCC00';
+  ctx.font = 'bold 13px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('SCAN TO VERIFY', 882, H - 30);
+  ctx.textAlign = 'left';
+
+  return cvs;
 }
 
 // ── Pure Vector / HTML CSS PVC ID Card Component ──
@@ -590,28 +804,32 @@ export function KCIIDCard({ student, settings = {}, forPrint = false }) {
 // ── Responsive Scaled Card Wrapper (Proportional Canvas Scaling) ──
 export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
   const containerRef = useRef(null);
-  const [scale, setScale] = useState(0.54);
+  const [scale, setScale] = useState(0.35);
 
   const updateScale = useCallback(() => {
     if (!containerRef.current) return;
     const el = containerRef.current;
-    
-    // Get actual width of viewport and container
+
+    // Walk up to find the first ancestor with a real measured width
+    let measuredW = 0;
+    let node = el;
+    while (node && measuredW < 50) {
+      measuredW = node.getBoundingClientRect().width || node.clientWidth || 0;
+      node = node.parentElement;
+    }
+
     const screenW = window.innerWidth || document.documentElement.clientWidth || 360;
-    let parentW = el.clientWidth;
-    if ((!parentW || parentW < 100) && el.parentElement) {
-      parentW = el.parentElement.clientWidth;
-    }
 
-    // Determine target width to scale 1000px card
-    let targetW = parentW > 50 ? parentW : (screenW - 24);
+    // On mobile use screen width minus safe padding; on desktop cap at 720px
+    let targetW;
     if (screenW < 640) {
-      targetW = Math.min(screenW - 24, targetW > 50 ? targetW : screenW - 24);
+      // Use the smaller of measured container width and screen width, with 16px padding each side
+      targetW = Math.min(measuredW > 50 ? measuredW : screenW, screenW) - 32;
     } else {
-      targetW = Math.min(targetW, screenW - 48);
+      targetW = Math.min(measuredW > 50 ? measuredW : screenW - 48, 720);
     }
 
-    // Bounds between 260px and 850px width
+    // Clamp: never smaller than 260px, never larger than 850px
     const boundedW = Math.min(Math.max(targetW, 260), 850);
     setScale(boundedW / CARD_W);
   }, []);
@@ -619,15 +837,18 @@ export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
   useEffect(() => {
     updateScale();
     const t1 = setTimeout(updateScale, 50);
-    const t2 = setTimeout(updateScale, 200);
-    const t3 = setTimeout(updateScale, 500);
+    const t2 = setTimeout(updateScale, 150);
+    const t3 = setTimeout(updateScale, 400);
 
     let ro = null;
-    if (containerRef.current && window.ResizeObserver) {
+    if (window.ResizeObserver) {
       ro = new ResizeObserver(updateScale);
-      ro.observe(containerRef.current);
-      if (containerRef.current.parentElement) {
-        ro.observe(containerRef.current.parentElement);
+      if (containerRef.current) ro.observe(containerRef.current);
+      // Also observe up to 3 ancestor levels for dashboard layout changes
+      let ancestor = containerRef.current?.parentElement;
+      for (let i = 0; i < 3 && ancestor; i++) {
+        ro.observe(ancestor);
+        ancestor = ancestor.parentElement;
       }
     }
 
@@ -647,19 +868,21 @@ export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
   return (
     <div
       ref={containerRef}
-      className={`w-full flex justify-center items-center py-2 overflow-hidden ${className}`}
-      style={{ width: '100%', maxWidth: '100%' }}
+      className={`w-full flex justify-center items-center py-2 ${className}`}
+      style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}
     >
       <div
         style={{
           width: scaledW,
           height: scaledH,
+          maxWidth: '100%',
           position: 'relative',
           overflow: 'hidden',
           borderRadius: Math.round(36 * scale),
           boxShadow: '0 16px 48px rgba(0, 51, 153, 0.25)',
           flexShrink: 0,
           margin: '0 auto',
+          boxSizing: 'border-box',
         }}
       >
         <div
@@ -683,7 +906,6 @@ export function KCIIDCardWrapper({ student, settings = {}, className = '' }) {
 // ── Standalone Page Component ──────────────────────────────────────────
 export default function IDCardPage() {
   const { user, refreshUser } = useAuth();
-  const printCardRef = useRef();
   const [downloading, setDownloading] = useState(false);
   const [printing, setPrinting] = useState(false);
   const [settings, setSettings] = useState({});
@@ -700,20 +922,13 @@ export default function IDCardPage() {
     if (!user) return toast.error('Please login first');
     setDownloading(true);
     try {
-      const canvas = await captureIDCardCanvas(printCardRef.current);
+      const canvas = await captureIDCardCanvas(user, settings);
       if (!canvas) throw new Error('Capture failed');
-
-      let imgData;
-      try {
-        imgData = canvas.toDataURL('image/jpeg', 0.95);
-      } catch (e) {
-        imgData = canvas.toDataURL('image/png');
-      }
-
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 86.5], compress: true });
       doc.addImage(imgData, 'JPEG', 0, 0, 54, 86.5, undefined, 'FAST');
       doc.save(`KCI_IDCard_${(user.rollNumber || user.enrollmentNumber || 'student').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
-      toast.success('ID Card downloaded in high resolution PDF format!');
+      toast.success('ID Card downloaded!');
     } catch (err) {
       console.error('ID Card download error:', err);
       toast.error('Download failed. Please try again.');
@@ -725,7 +940,7 @@ export default function IDCardPage() {
     if (!user) return toast.error('Please login first');
     setPrinting(true);
     try {
-      const canvas = await captureIDCardCanvas(printCardRef.current);
+      const canvas = await captureIDCardCanvas(user, settings);
       if (!canvas) throw new Error('Capture failed');
       const imgData = canvas.toDataURL('image/png', 1.0);
 
@@ -786,13 +1001,6 @@ export default function IDCardPage() {
 
   return (
     <div className="pt-20 min-h-screen bg-gray-50">
-      {/* Off-screen unscaled 1:1 container for PDF and Print capture */}
-      <div style={{ position: 'absolute', top: 0, left: -9999, width: 1000, height: 1625, pointerEvents: 'none', overflow: 'hidden' }}>
-        <div ref={printCardRef} style={{ width: 1000, height: 1625, background: '#ffffff', position: 'relative' }}>
-          <KCIIDCard student={user} settings={settings} forPrint={true} />
-        </div>
-      </div>
-
       <section className="relative bg-gradient-to-br from-[#003399] to-[#0052CC] py-10 text-white text-center overflow-hidden">
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 40" className="w-full" preserveAspectRatio="none">

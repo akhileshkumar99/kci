@@ -43,7 +43,6 @@ function InfoRow({ label, value }) {
 
 // €€€ Grade color helper €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
 function IDCard({ student, branch }) {
-  const printCardRef = useRef(null);
   const [settings, setSettings] = useState({});
   const [downloading, setDownloading] = useState(false);
   const [printing, setPrinting] = useState(false);
@@ -56,19 +55,11 @@ function IDCard({ student, branch }) {
   }, []);
 
   const handleDownloadPDF = async () => {
-    if (!printCardRef.current) return;
     setDownloading(true);
     try {
-      const canvas = await captureIDCardCanvas(printCardRef.current);
+      const canvas = await captureIDCardCanvas(student, settings);
       if (!canvas) throw new Error('Capture failed');
-
-      let imgData;
-      try {
-        imgData = canvas.toDataURL('image/jpeg', 0.95);
-      } catch (e) {
-        imgData = canvas.toDataURL('image/png');
-      }
-
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 86.5], compress: true });
       doc.addImage(imgData, 'JPEG', 0, 0, 54, 86.5, undefined, 'FAST');
       const safeName = (student?.rollNumber || student?.enrollmentNumber || student?.name || 'student').replace(/[^a-zA-Z0-9]/g, '_');
@@ -82,10 +73,9 @@ function IDCard({ student, branch }) {
   };
 
   const handlePrint = async () => {
-    if (!printCardRef.current) return;
     setPrinting(true);
     try {
-      const canvas = await captureIDCardCanvas(printCardRef.current);
+      const canvas = await captureIDCardCanvas(student, settings);
       if (!canvas) throw new Error('Capture failed');
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
@@ -134,14 +124,7 @@ function IDCard({ student, branch }) {
 
   return (
     <div className="flex flex-col items-center gap-5 w-full">
-      {/* Off-screen unscaled 1:1 container for PDF and Print capture */}
-      <div style={{ position: 'absolute', top: 0, left: -9999, width: 1000, height: 1625, pointerEvents: 'none', overflow: 'hidden' }}>
-        <div ref={printCardRef} style={{ width: 1000, height: 1625, background: '#ffffff', position: 'relative' }}>
-          <KCIIDCard student={student} settings={settings} forPrint={true} />
-        </div>
-      </div>
-
-      <div className="flex items-center gap-3 flex-wrap justify-center">
+      <div className="flex items-center gap-3 flex-wrap justify-center w-full">
         <button
           onClick={handleDownloadPDF}
           disabled={downloading || printing}
@@ -160,7 +143,7 @@ function IDCard({ student, branch }) {
         </button>
       </div>
 
-      <div className="w-full flex justify-center items-center my-4 max-w-full">
+      <div className="w-full min-w-0 overflow-hidden my-4">
         <KCIIDCardWrapper student={student} settings={settings} />
       </div>
       <p className="text-center text-xs text-gray-400 mt-2">* Official Computer Institute Digital PVC ID Card.</p>
@@ -1773,7 +1756,7 @@ export default function StudentDashboard() {
         </header>
 
         {/* SCROLLABLE MAIN CONTENT AREA */}
-        <main className="flex-1 overflow-y-auto w-full p-4 sm:p-6 lg:p-8 space-y-6 box-border pb-28 lg:pb-8">
+        <main className="flex-1 overflow-y-auto w-full min-w-0 p-4 sm:p-6 lg:p-8 space-y-6 box-border pb-28 lg:pb-8">
 
           {/* Profile Tab */}
           {activeTab === 'profile' && (
@@ -2253,7 +2236,7 @@ export default function StudentDashboard() {
           {/* ID Card Tab */}
           {activeTab === 'idcard' && (
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
-              className="space-y-4">
+              className="space-y-4 w-full min-w-0">
               <div className="flex items-center gap-3 mb-2">
                 <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors shrink-0">
                   <ChevronRight className="w-4 h-4 rotate-180" />

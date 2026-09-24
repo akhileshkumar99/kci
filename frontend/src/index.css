@@ -297,8 +297,13 @@
 }
 
 /* Prevent horizontal overflow on all student portal elements */
-.student-portal * {
+.student-portal > * {
   max-width: 100%;
+}
+
+/* Allow the ID card inner scaled div to exceed container (it's clipped by overflow:hidden parent) */
+.student-portal .pvc-idcard-pure-digital-container {
+  max-width: none !important;
 }
 
 .student-portal img {
@@ -340,11 +345,8 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  /* ID Card responsive scale */
-  .id-card-preview {
-    transform: scale(0.38) !important;
-    transform-origin: top center !important;
-  }
+  /* ID Card responsive scale — handled by JS in KCIIDCardWrapper */
+  /* .id-card-preview class is no longer used */
 }
 
 /* Dark mode base */
