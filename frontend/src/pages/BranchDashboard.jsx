@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import {
   Building2, Users, ClipboardList, Award, FileText, LogOut,
-  TrendingUp, BookOpen, CheckCircle, Clock, Search, Eye, X,
+  TrendingUp, BookOpen, CheckCircle, Clock, Search, Eye, EyeOff, X,
   Plus, Pencil, Trash2, Check, UserCheck, ClipboardCheck, Sun, Moon, Download, Upload, BookMarked,
   RefreshCw, AlertTriangle, CalendarClock, HelpCircle, MessageCircle, Bug, BookOpenCheck, Send, ChevronDown,
   Menu, Bell, Shield, Key, Sparkles, MapPin, Phone, Mail, GraduationCap, BarChart2
@@ -1870,7 +1870,7 @@ export default function BranchDashboard() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                   >
-                    {showPassword ? <Eye className="w-4 h-4" /> : <Eye className="w-4 h-4 text-slate-300" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4 text-slate-300" />}
                   </button>
                 </div>
                 <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
@@ -2392,13 +2392,83 @@ export default function BranchDashboard() {
         </Modal>
       )}
 
-      {/* ── SUPPORT MODALS */}
+      {/* ── EDIT BRANCH PROFILE MODAL ── */}
+      {profileModalOpen && (
+        <Modal title="✏️ Edit Branch Information" onClose={() => setProfileModalOpen(false)}>
+          <div className="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+            <p className="font-semibold">Branch profile is managed by KCI Admin. Contact admin to update branch details.</p>
+            <div className="p-3 bg-blue-50 dark:bg-slate-800 rounded-xl border border-blue-100 dark:border-slate-700 space-y-1">
+              <p><strong>Branch:</strong> {branchName}</p>
+              <p><strong>Code:</strong> {branchCode}</p>
+              <p><strong>City:</strong> {branchCity}</p>
+              <p><strong>Phone:</strong> {branchPhone}</p>
+              <p><strong>Email:</strong> {branchEmail}</p>
+            </div>
+            <button onClick={() => { setProfileModalOpen(false); toast('📞 Contact KCI Admin: 9936384736'); }} className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all">
+              Contact Admin to Update
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* ── SUPPORT MODALS ── */}
       {supportModal === 'help' && (
         <Modal title="❓ Help Center" onClose={() => setSupportModal(null)}>
           <div className="space-y-3 text-xs">
-            <p className="font-bold">Frequently Asked Questions:</p>
+            <p className="font-bold text-slate-800 dark:text-white">Frequently Asked Questions:</p>
             <p>• How to add student? Click Students tab → Add Student.</p>
             <p>• How to approve admission? Click Admissions tab → Approve.</p>
+            <p>• How to create a test? Click Monthly Tests tab → Create Test.</p>
+            <p>• How to send notice? Click Send Notice tab.</p>
+            <button onClick={() => setSupportModal(null)} className="w-full mt-2 py-2 bg-blue-600 text-white rounded-xl font-bold text-xs">Close</button>
+          </div>
+        </Modal>
+      )}
+      {supportModal === 'contact-support' && (
+        <Modal title="💬 Contact Support" onClose={() => setSupportModal(null)}>
+          <div className="space-y-3 text-xs">
+            <p className="font-semibold text-slate-700 dark:text-slate-300">Reach KCI Support Team:</p>
+            <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
+              <p>📞 <strong>Phone / WhatsApp:</strong> 9936384736</p>
+              <p>🌐 <strong>Website:</strong> www.kci.org.in</p>
+              <p>📧 <strong>Email:</strong> info@kci.org.in</p>
+            </div>
+            <button onClick={() => { setSupportModal(null); window.open('https://wa.me/919936384736', '_blank'); }} className="w-full py-2 bg-emerald-600 text-white rounded-xl font-bold text-xs">Open WhatsApp Chat</button>
+          </div>
+        </Modal>
+      )}
+      {supportModal === 'report' && (
+        <Modal title="🐛 Report Issue" onClose={() => setSupportModal(null)}>
+          <div className="space-y-3 text-xs">
+            <p className="font-semibold text-slate-700 dark:text-slate-300">Describe the issue you are facing:</p>
+            <textarea rows={4} placeholder="Describe the bug or issue..." className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-xs font-medium outline-none" />
+            <button onClick={() => { setSupportModal(null); toast.success('Issue reported! Our team will look into it.'); }} className="w-full py-2 bg-red-600 text-white rounded-xl font-bold text-xs">Submit Report</button>
+          </div>
+        </Modal>
+      )}
+      {supportModal === 'guide' && (
+        <Modal title="📖 User Guide" onClose={() => setSupportModal(null)}>
+          <div className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
+            <p className="font-bold text-slate-800 dark:text-white">Branch Dashboard Guide:</p>
+            <p>1. <strong>Overview</strong> — View stats, charts, branch info & renewal.</p>
+            <p>2. <strong>Students</strong> — Add, edit, delete, approve students. Import/Export Excel.</p>
+            <p>3. <strong>Admissions</strong> — Review and approve admission requests.</p>
+            <p>4. <strong>Monthly Tests</strong> — Create MCQ tests for students.</p>
+            <p>5. <strong>Study Material</strong> — Upload notes, assignments for students.</p>
+            <p>6. <strong>Send Notice</strong> — Broadcast announcements to your branch students.</p>
+            <button onClick={() => setSupportModal(null)} className="w-full mt-2 py-2 bg-blue-600 text-white rounded-xl font-bold text-xs">Got It</button>
+          </div>
+        </Modal>
+      )}
+      {supportModal === 'password-reset' && (
+        <Modal title="🔑 Password Reset" onClose={() => setSupportModal(null)}>
+          <div className="space-y-3 text-xs">
+            <p className="font-semibold text-slate-700 dark:text-slate-300">To reset your branch login password, contact KCI Admin:</p>
+            <div className="p-3 bg-amber-50 dark:bg-slate-800 rounded-xl border border-amber-200 dark:border-slate-700">
+              <p>📞 <strong>9936384736</strong></p>
+              <p className="mt-1 text-slate-500">Provide your Branch Code: <strong className="text-blue-600">{branchCode}</strong></p>
+            </div>
+            <button onClick={() => { setSupportModal(null); toast('📞 Call 9936384736 for password reset'); }} className="w-full py-2 bg-amber-600 text-white rounded-xl font-bold text-xs">Call Admin Now</button>
           </div>
         </Modal>
       )}
